@@ -30,9 +30,11 @@ namespace f3
             //activeGizmo = null;
 
             ToolTypes = new Dictionary<string, IToolBuilder>();
-            RegisterToolType(DrawPrimitivesTool.Identifier, new DrawPrimitivesToolBuilder());
-            SetActiveToolType(DrawPrimitivesTool.Identifier, ToolSide.Left);
-            SetActiveToolType(DrawPrimitivesTool.Identifier, ToolSide.Right);
+
+            // default tool? no
+            //RegisterToolType(DrawPrimitivesTool.Identifier, new DrawPrimitivesToolBuilder());
+            //SetActiveToolType(DrawPrimitivesTool.Identifier, ToolSide.Left);
+            //SetActiveToolType(DrawPrimitivesTool.Identifier, ToolSide.Right);
         }
 
 

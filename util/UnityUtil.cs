@@ -472,5 +472,25 @@ namespace f3
         }
 
 
+
+        public static bool InputAxisExists(string sName) {
+            try {
+                Input.GetAxis(sName);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        public static bool InputButtonExists(string sName) {
+            try {
+                Input.GetButton(sName);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+
     }
 }

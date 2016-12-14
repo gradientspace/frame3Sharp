@@ -145,9 +145,9 @@ namespace f3
             bRightMouseDown = Input.GetMouseButton(1);
             bRightMouseReleased = Input.GetMouseButtonUp(1);
 
-            fMouseWheel = Input.GetAxis("Mouse ScrollWheel");
+            fMouseWheel = InputExtension.Get.Mouse.WheelDelta;
 
-            vMouseDelta2D = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+            vMouseDelta2D = InputExtension.Get.Mouse.PositionDelta;
             vMouseWorldRay = s.GetWorldRayAtMouseCursor();
 
 
@@ -159,24 +159,24 @@ namespace f3
             bRightTriggerDown = InputExtension.Get.GamepadRight.Down;
             bRightTriggerReleased = InputExtension.Get.GamepadRight.Released;
 
-            bAButtonPressed = Input.GetButtonDown("ButtonA");
-            bAButtonDown = Input.GetButton("ButtonA");
-            bAButtonReleased = Input.GetButtonUp("ButtonA");
+            bAButtonPressed =  InputExtension.Get.GamepadA.Pressed;
+            bAButtonDown = InputExtension.Get.GamepadA.Down;
+            bAButtonReleased = InputExtension.Get.GamepadA.Released;
 
-            bBButtonPressed = Input.GetButtonDown("ButtonB");
-            bBButtonDown = Input.GetButton("ButtonB");
-            bBButtonReleased = Input.GetButtonUp("ButtonB");
+            bBButtonPressed = InputExtension.Get.GamepadB.Pressed;
+            bBButtonDown = InputExtension.Get.GamepadB.Down;
+            bBButtonReleased = InputExtension.Get.GamepadB.Released;
 
-            bXButtonPressed = Input.GetButtonDown("ButtonX");
-            bXButtonDown = Input.GetButton("ButtonX");
-            bXButtonReleased = Input.GetButtonUp("ButtonX");
+            bXButtonPressed = InputExtension.Get.GamepadX.Pressed;
+            bXButtonDown = InputExtension.Get.GamepadX.Down;
+            bXButtonReleased = InputExtension.Get.GamepadX.Released;
 
-            bYButtonPressed = Input.GetButtonDown("ButtonY");
-            bYButtonDown = Input.GetButton("ButtonY");
-            bYButtonReleased = Input.GetButtonUp("ButtonY");
+            bYButtonPressed = InputExtension.Get.GamepadY.Pressed;
+            bYButtonDown = InputExtension.Get.GamepadY.Down;
+            bYButtonReleased = InputExtension.Get.GamepadY.Released;
 
-            vLeftStickDelta2D = new Vector2(Input.GetAxis("Joystick X"), Input.GetAxis("Joystick Y"));
-            vRightStickDelta2D = new Vector2(Input.GetAxis("Joystick2 X"), Input.GetAxis("Joystick2 Y"));
+            vLeftStickDelta2D = InputExtension.Get.GamepadLeftStick.Position;
+            vRightStickDelta2D = InputExtension.Get.GamepadRightStick.Position;
 
             // [RMS] assuming that left joystick/mouse are the same cursor pos...
             vGamepadWorldRay = vMouseWorldRay;

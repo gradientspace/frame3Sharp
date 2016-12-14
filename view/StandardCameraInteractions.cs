@@ -16,11 +16,12 @@ namespace f3
 
         public CameraInteractionState CheckCameraControls(InputState input)
         {
-            if (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetButtonDown("CameraMoveButton") || Input.GetButtonDown("CameraZoomButton") )
+            if (Input.GetKeyDown(KeyCode.LeftAlt) || 
+                InputExtension.Get.GamepadLeftShoulder.Pressed || InputExtension.Get.GamepadRightShoulder.Pressed)
                 return CameraInteractionState.BeginCameraAction;
             else if (Input.GetKeyUp(KeyCode.LeftAlt) 
-                        || ( Input.GetButtonUp("CameraMoveButton") && Input.GetButton("CameraZoomButton") == false)
-                        || ( Input.GetButtonUp("CameraZoomButton") && Input.GetButton("CameraMoveButton") == false ) )
+                        || (InputExtension.Get.GamepadLeftShoulder.Released && InputExtension.Get.GamepadRightShoulder.Down == false)
+                        || (InputExtension.Get.GamepadRightShoulder.Released && InputExtension.Get.GamepadLeftShoulder.Down == false ) )
                 return CameraInteractionState.EndCameraAction;
             else
                 return CameraInteractionState.Ignore;
@@ -28,10 +29,13 @@ namespace f3
 
         public void DoCameraControl(FScene scene, Camera mainCamera, InputState input)
         {
-            float dx = Input.GetAxis("Mouse X") + Input.GetAxis("Joystick X");
-            float dy = Input.GetAxis("Mouse Y") + Input.GetAxis("Joystick Y");
-            float dx2 = Input.GetAxis("Joystick2 X");
-            float dy2 = Input.GetAxis("Joystick2 Y");
+            Vector2f mouseDelta = InputExtension.Get.Mouse.PositionDelta;
+            Vector2f stick1 = InputExtension.Get.GamepadLeftStick.Position;
+            Vector2f stick2 = InputExtension.Get.GamepadRightStick.Position;
+            float dx = mouseDelta.x + stick1.x;
+            float dy = mouseDelta.y + stick1.y;
+            float dx2 = stick2.x;
+            float dy2 = stick2.y;
 
             if (Input.GetMouseButton(0)) {
                 mainCamera.Manipulator().SceneOrbit(scene, mainCamera, 10.0f * dx, 10.0f * dy);
@@ -43,11 +47,11 @@ namespace f3
             } else if (Input.GetMouseButton(2)) {
                 mainCamera.Manipulator().ScenePan(scene, mainCamera, 0.5f * dx, 0.5f * dy);
 
-            } else if (Input.GetButton("CameraZoomButton")) {
+            } else if (InputExtension.Get.GamepadRightShoulder.Down) {
                 mainCamera.Manipulator().SceneZoom(scene, mainCamera, 0.2f * dy);
                 mainCamera.Manipulator().ScenePan(scene, mainCamera, (-0.1f * dx) + (-0.2f * dx2), -0.2f * dy2);
 
-            } else if (Input.GetButton("CameraMoveButton")) {
+            } else if (InputExtension.Get.GamepadLeftShoulder.Down) {
                 mainCamera.Manipulator().SceneOrbit(scene, mainCamera, 2.0f * dx, 2.0f * dy);
                 mainCamera.Manipulator().ScenePan(scene, mainCamera, -0.2f * dx2, -0.2f * dy2);
             }
@@ -81,13 +85,13 @@ namespace f3
         {
             if (Input.GetKeyDown(KeyCode.LeftAlt)) {
                 return CameraInteractionState.BeginCameraAction;
-            } else if (Input.GetButtonDown("CameraMoveButton") || Input.GetButtonDown("CameraZoomButton")) {
+            } else if (InputExtension.Get.GamepadLeftShoulder.Pressed || InputExtension.Get.GamepadRightShoulder.Pressed) {
                 if (unfreezer == null)
                     unfreezer = FContext.ActiveContext_HACK.MouseController.RequestFreezeCursor();
                 return CameraInteractionState.BeginCameraAction;
             } else if (Input.GetKeyUp(KeyCode.LeftAlt)
-                         || (Input.GetButtonUp("CameraMoveButton") && Input.GetButton("CameraZoomButton") == false)
-                         || (Input.GetButtonUp("CameraZoomButton") && Input.GetButton("CameraMoveButton") == false)) {
+                         || (InputExtension.Get.GamepadLeftShoulder.Released && InputExtension.Get.GamepadRightShoulder.Down == false)
+                         || (InputExtension.Get.GamepadRightShoulder.Released && InputExtension.Get.GamepadLeftShoulder.Down == false)) {
                 end_camera_action();
                 if ( unfreezer != null ) {
                     unfreezer.Unfreeze();
@@ -116,7 +120,7 @@ namespace f3
                     curPos2D = new Vector2(0, 0);
                     rcInfo = new CameraManipulator.RateControlInfo(curPos2D);
                     bInAction = bUsingMouse = true;
-                } else if (Input.GetButton("CameraZoomButton") || Input.GetButton("CameraMoveButton") ) {
+                } else if (InputExtension.Get.GamepadRightShoulder.Down || InputExtension.Get.GamepadLeftShoulder.Down) {
                     curPos2D = secondPos2D = new Vector2(0, 0);
                     rcInfo = new CameraManipulator.RateControlInfo(curPos2D);
                     rcInfo2 = new CameraManipulator.RateControlInfo(secondPos2D);
@@ -125,10 +129,9 @@ namespace f3
             }
 
             if ( bInAction && bUsingMouse ) {
-                float dx = Input.GetAxis("Mouse X");
-                float dy = Input.GetAxis("Mouse Y");
-                curPos2D.x += dx;
-                curPos2D.y += dy;
+                Vector2f mouseDelta = InputExtension.Get.Mouse.PositionDelta;
+                curPos2D.x += mouseDelta.x;
+                curPos2D.y += mouseDelta.y;
 
                 if (Input.GetMouseButton(0)) {
                     mainCamera.Manipulator().SceneRateControlledFly(scene, mainCamera, curPos2D, rcInfo);
@@ -141,10 +144,12 @@ namespace f3
 
 
             if ( bInAction && bUsingGamepad ) {
-                float dx = Input.GetAxis("Joystick X");
-                float dy = Input.GetAxis("Joystick Y");
-                float dx2 = Input.GetAxis("Joystick2 X");
-                float dy2 = Input.GetAxis("Joystick2 Y");
+                Vector2f stick1 = InputExtension.Get.GamepadLeftStick.Position;
+                Vector2f stick2 = InputExtension.Get.GamepadRightStick.Position;
+                float dx = stick1.x;
+                float dy = stick1.y;
+                float dx2 = stick2.x;
+                float dy2 = stick2.y;
                 curPos2D.x += dx; 
                 curPos2D.y += dy;
                 secondPos2D.x += dx2;
@@ -159,11 +164,11 @@ namespace f3
                 secondPos2D.y = MathUtil.SignedClamp(secondPos2D.y, rcInfo.rampUpRadius);
                 secondPos2D.y = Mathf.Lerp(secondPos2D.y, 0, use_t * Time.deltaTime);
 
-                if (Input.GetButton("CameraZoomButton")) {
+                if (InputExtension.Get.GamepadRightShoulder.Down) {
                     mainCamera.Manipulator().SceneRateControlledZoom(scene, mainCamera, curPos2D, rcInfo);
                     secondPos2D[0] = 0;
                     mainCamera.Manipulator().SceneRateControlledEgogentricPan(scene, mainCamera, secondPos2D, rcInfo2);
-                } else if (Input.GetButton("CameraMoveButton")) {
+                } else if (InputExtension.Get.GamepadLeftShoulder.Down) {
                     mainCamera.Manipulator().SceneRateControlledFly(scene, mainCamera, curPos2D, rcInfo);
                     mainCamera.Manipulator().SceneRateControlledEgogentricPan(scene, mainCamera, secondPos2D, rcInfo2);
                 }

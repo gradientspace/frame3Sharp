@@ -127,8 +127,10 @@ namespace f3 {
                 bWasInCaptureFreeze = true;
             }
 
-            float fX = Input.GetAxis("Mouse X") + Input.GetAxis("Joystick X");
-            float fY = Input.GetAxis("Mouse Y") + Input.GetAxis("Joystick Y");
+            Vector2f mousePos = InputExtension.Get.Mouse.PositionDelta;
+            Vector2f leftStick = InputExtension.Get.GamepadLeftStick.Position;
+            float fX = mousePos.x + leftStick.x;
+            float fY = mousePos.y + leftStick.y;
 
             // auto-hide cursor if it doesn't move for a while
             if (fX == 0 && fY == 0 && SceneGraphConfig.MouseCursorHideTimeout > 0) {

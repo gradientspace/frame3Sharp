@@ -47,8 +47,6 @@ namespace f3
         }
 
 
-        SnapSet Snaps;
-
         public DrawPrimitivesTool(FScene scene)
         {
             this.scene = scene;
@@ -61,39 +59,14 @@ namespace f3
             behaviors.Add(
                 new DrawPrimitivesTool_SpatialDeviceBehavior(scene.ActiveController) { Priority = 5 });
 
-            // generate snap target set
-            Snaps = SnapSet.CreateStandard(scene);
-            Snaps.EnableSnapSegments = true;
-
             // shut off transform gizmo
             scene.ActiveController.TransformManager.SetOverrideGizmoType(TransformManager.NoGizmoType);
-
-            scene.SelectionChangedEvent += Scene_SelectionChangedEvent;
-            // initialize active set with input selection
-            Scene_SelectionChangedEvent(null, null);
         }
-
-
-        private void Scene_SelectionChangedEvent(object sender, EventArgs e)
-        {
-            // update active snap set based on new selection
-            var selected = scene.Selected;
-            Snaps.ClearActive();
-            foreach (SceneObject so in selected) {
-                if (so is PivotSO || Snaps.IgnoreSet.Contains(so))
-                    continue;
-                Snaps.AddToActive(so);
-            }
-            Snaps.AddToActive(scene.Find((x) => x is PivotSO));
-        }
-
 
 
 
         virtual public void PreRender()
         {
-            if (Snaps != null)
-                Snaps.PreRender(scene.ActiveCamera.transform.position);
             if (primitive != null)
                 primitive.PreRender();
         }
@@ -105,11 +78,7 @@ namespace f3
 
         public void Shutdown()
         {
-            scene.SelectionChangedEvent -= Scene_SelectionChangedEvent;
-            // restore transform gizmo
             scene.ActiveController.TransformManager.ClearOverrideGizmoType();
-
-            Snaps.Disconnect(true);
         }
 
         public enum SupportedTypes
@@ -176,13 +145,6 @@ namespace f3
 
             Vector3f hitPos = rayHit.hitPos;
 
-            // try snap points
-            SnapResult snap = Snaps.FindHitSnapPoint(ray);
-            if ( snap != null ) {
-                Frame3f snapF = scene.ToWorldFrame(snap.FrameS);
-                hitPos = snapF.Origin;
-            }
-
             Frame3f sceneW = scene.SceneFrame;
             if (rayHit.hitSO == null) {
                 primStartW = sceneW;
@@ -224,31 +186,17 @@ namespace f3
             // need to reconstruct our local frame
             Frame3f primCurW = scene.ToWorldFrame(primStartS);
 
-            // try snap points
-            SnapResult snap = Snaps.FindHitSnapPoint(ray);
-            bool bHaveSnap = (snap != null);
-            Frame3f snapF = (bHaveSnap) ? scene.ToWorldFrame(snap.FrameS) : Frame3f.Identity;
-
             // step 1: find radius in plane
             // step 2: find height from plane
             float fY = MinDimension;
             if (nStep == 0) {
-                if (bHaveSnap) {
-                    plane_hit_local = primCurW.ToFrameP(
-                        primCurW.ProjectToPlane(snapF.Origin, 1));
-                } else {
-                    Vector3f forwardDir = ray.Direction;
-                    Vector3f plane_hit = VRUtil.SafeRayPlaneIntersection(ray, forwardDir, primCurW.Origin, primCurW.Y);
-                    plane_hit_local = primCurW.ToFrameP(plane_hit);
-                }
+                Vector3f forwardDir = ray.Direction;
+                Vector3f plane_hit = VRUtil.SafeRayPlaneIntersection(ray, forwardDir, primCurW.Origin, primCurW.Y);
+                plane_hit_local = primCurW.ToFrameP(plane_hit);
             } else if (nStep == 1) {
                 Vector3f plane_hit = primCurW.FromFrameP(plane_hit_local);
                 Line3d l = new Line3d(plane_hit, primCurW.Y);
-                if (bHaveSnap) {
-                    fY = (float)l.Project(snapF.Origin);
-                } else {
-                    fY = (float)DistLine3Ray3.MinDistanceLineParam(ray, l);
-                }
+                fY = (float)DistLine3Ray3.MinDistanceLineParam(ray, l);
             }
 
             // figure out possible dimensions, clamp to ranges
@@ -298,21 +246,11 @@ namespace f3
             // need to reconstruct our local frame
             Frame3f primCurW = scene.ToWorldFrame(primStartS);
 
-            // try snap points
-            SnapResult snap = Snaps.FindHitSnapPoint(ray);
-            bool bHaveSnap = (snap != null);
-            Frame3f snapF = (bHaveSnap) ? scene.ToWorldFrame(snap.FrameS) : Frame3f.Identity;
-
             // step 1: find radius in plane
             if (nStep == 0) {
-                if (bHaveSnap) {
-                    plane_hit_local = primCurW.ToFrameP(
-                        primCurW.ProjectToPlane(snapF.Origin, 1));
-                } else {
-                    Vector3f forwardDir = ray.Direction;
-                    Vector3f plane_hit = VRUtil.SafeRayPlaneIntersection(ray, forwardDir, primCurW.Origin, primCurW.Y);
-                    plane_hit_local = primCurW.ToFrameP(plane_hit);
-                }
+                Vector3f forwardDir = ray.Direction;
+                Vector3f plane_hit = VRUtil.SafeRayPlaneIntersection(ray, forwardDir, primCurW.Origin, primCurW.Y);
+                plane_hit_local = primCurW.ToFrameP(plane_hit);
             }
             float fX = MathUtil.SignedClamp(plane_hit_local[0], MinDimension, MaxDimension);
             float fY = MinDimension;
@@ -323,16 +261,12 @@ namespace f3
             if (nStep == 1) {
                 Vector3f plane_hit = primCurW.FromFrameP(plane_hit_local);
                 Line3d l = new Line3d(plane_hit, primCurW.Y);
-                if (bHaveSnap) {
-                    fY = (float)l.Project(snapF.Origin);
+                Vector3f handTip = handFrame.Origin + SceneGraphConfig.HandTipOffset * handFrame.Z;
+                float fHandDist = (float)l.DistanceSquared(handTip);
+                if (fHandDist < fR_plane * 1.5f) {
+                    fY = (float)l.Project(handTip);
                 } else {
-                    Vector3f handTip = handFrame.Origin + SceneGraphConfig.HandTipOffset * handFrame.Z;
-                    float fHandDist = (float)l.DistanceSquared(handTip);
-                    if (fHandDist < fR_plane * 1.5f) {
-                        fY = (float)l.Project(handTip);
-                    } else {
-                        fY = (float)DistLine3Ray3.MinDistanceLineParam(ray, l);
-                    }
+                    fY = (float)DistLine3Ray3.MinDistanceLineParam(ray, l);
                 }
             }
 
