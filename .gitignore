@@ -28,3 +28,6 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+
+# ignore .meta files because we will be used as git submodule
+*.meta

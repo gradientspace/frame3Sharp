@@ -1,0 +1,152 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using UnityEngine;
+
+namespace f3
+{
+    // NB: on creation, this button is oriented so that positive Z points away from the *back* of
+    //  this field (ie the field "faces" -Z). Important if you want to align button towards something!
+    public class HUDTextEntry : HUDStandardItem
+    {
+        GameObject entry, bgMesh, textMesh;
+
+        public float Width { get; set; }
+        public float Height { get; set; }
+        public float TextHeight { get; set; }
+        public Color BackgroundColor { get; set; }
+        public Color TextColor { get; set; }
+
+        string text;
+        public string Text
+        {
+            get { return text; }
+            set { text = value; UpdateText(); }
+        }
+
+        public HUDTextEntry()
+        {
+            Width = 10;
+            Height = 1;
+            TextHeight = 0.8f;
+            BackgroundColor = Color.white;
+            TextColor = Color.black;
+            text = "(entry)";
+        }
+
+
+        Mesh make_background_mesh()
+        {
+            return MeshGenerators.CreateTrivialRect(Width, Height, MeshGenerators.UVRegionType.FullUVSquare);
+        }
+
+        // creates a button in the desired geometry shape
+        public void Create()
+        {
+            entry = new GameObject(UniqueNames.GetNext("HUDTextEntry"));
+            bgMesh = AppendMeshGO("background", make_background_mesh(),
+                MaterialUtil.CreateTransparentMaterial(BackgroundColor),
+                entry);
+            bgMesh.transform.Rotate(Vector3.right, -90.0f); // ??
+
+            textMesh = new GameObject("text");
+            TextMesh tm = textMesh.AddComponent<TextMesh>();
+            tm.text = Text;
+            tm.color = TextColor;
+            tm.fontSize = 50;
+            tm.offsetZ = -0.25f;
+            tm.alignment = TextAlignment.Left;
+            // ignore material changes when we add to GameObjectSet
+            textMesh.AddComponent<IgnoreMaterialChanges>();
+            // use our textmesh material instead
+            MaterialUtil.SetTextMeshDefaultMaterial(tm);
+
+            float fMargin = (Height - TextHeight) * 0.5f;
+            Vector2 size = UnityUtil.EstimateTextMeshDimensions(tm);
+            float fScaleH = TextHeight / size[1];
+            tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
+            tm.transform.Translate(-Width / 2.0f + fMargin, TextHeight / 2.0f + fMargin, 0.0f);
+
+            textMesh.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
+
+            AppendNewGO(textMesh, entry, false);
+        }
+
+        void UpdateText()
+        {
+            if (textMesh != null) {
+                TextMesh tm = textMesh.GetComponent<TextMesh>();
+                tm.text = Text;
+                tm.color = TextColor;
+            }
+        }
+
+        // events for clicked and double-clicked.
+        // NOTE: for doubleclick you will always receive an [OnClicked,OnDoubleClicked] pair.
+        //    (alternative would be to delay OnClicked...perhaps that should be added as an option)
+        public event EventHandler OnClicked;
+        public event EventHandler OnDoubleClicked;
+
+
+        #region SceneUIElement implementation
+
+        override public UnityEngine.GameObject RootGameObject
+        {
+            get { return entry; }
+        }
+
+
+        override public bool WantsCapture(InputEvent e)
+        {
+            return (Enabled && HasGO(e.hit.hitGO));
+        }
+
+        override public bool BeginCapture(InputEvent e)
+        {
+            return true;
+        }
+
+        override public bool UpdateCapture(InputEvent e)
+        {
+            return true;
+        }
+
+        bool sent_click = false;
+        float last_click_time = 0.0f;
+        float double_click_delay = 0.3f;
+
+
+        override public bool EndCapture(InputEvent e)
+        {
+            if (FindHitGO(e.ray)) {
+
+                if (sent_click == false) {
+                    // on first click we reset timer
+                    UnityUtil.SafeSendEvent(OnClicked, this, new EventArgs());
+                    sent_click = true;
+                    last_click_time = FPlatform.RealTime();
+                } else {
+                    float delta = FPlatform.RealTime() - last_click_time;
+                    if (delta < double_click_delay) {
+                        // if this second click comes fast enough, send doubleclick instead
+                        UnityUtil.SafeSendEvent(OnDoubleClicked, this, new EventArgs());
+                        sent_click = false;
+                        last_click_time = 0.0f;
+                    } else {
+                        // send single-click and reset timer
+                        UnityUtil.SafeSendEvent(OnClicked, this, new EventArgs());
+                        sent_click = true;
+                        last_click_time = FPlatform.RealTime();
+                    }
+                }
+
+
+            }
+            return true;
+        }
+
+        #endregion
+    }
+
+}

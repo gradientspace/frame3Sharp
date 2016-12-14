@@ -1,0 +1,302 @@
+﻿using UnityEngine;
+using System.Collections;
+using g3;
+
+namespace f3 {
+
+	public class SpatialInputController {
+
+        GameObject spatialCamRig;
+        Camera camera;
+		FContext scene;
+
+        public bool SpatialInputActive { get; set; }
+        bool spatialInputInitialized;
+
+        public float CursorVisualAngleInDegrees { get; set; }
+
+        public class SpatialDevice
+        {
+            public GameObject Hand { get; set; }
+            public GameObject Cursor { get; set; }
+            public GameObject Laser { get; set; }
+            public LineRenderer LaserRen { get; set; }
+
+            public Material CursorDefaultMaterial { get; set; }
+            public Material CursorHitMaterial { get; set; }
+            public Material CursorCapturingMaterial { get; set; }
+
+            public Material HandMaterial { get; set; }
+
+            public bool CursorActive { get; set; }
+
+            public Frame3f AbsoluteHandFrame { get; set; }
+            public Frame3f SmoothedHandFrame { get; set; }
+
+            public Ray CursorRay { get; set; }
+            public Vector3 RayHitPos { get; set; }
+
+            public GameObject HandIcon { get; set; }
+        }
+        public SpatialDevice Left;
+        public SpatialDevice Right;
+
+
+		public SpatialInputController(GameObject spatialCamRig, Camera viewCam, FContext scene) {
+            this.spatialCamRig = spatialCamRig;
+            this.camera = viewCam;
+			this.scene = scene;
+		}
+
+		// Use this for initialization
+		public void Start () {
+            spatialInputInitialized = false;
+            SpatialInputActive = false;
+        }
+
+
+        public bool CheckForSpatialInputActive()
+        {
+            if (spatialCamRig == null)
+                return false;
+
+            bool bTracking =
+                OVRInput.GetControllerPositionTracked(OVRInput.Controller.LTouch) ||
+                OVRInput.GetControllerPositionTracked(OVRInput.Controller.RTouch);
+            if (bTracking) {
+                SpatialInputActive = true;
+                if (spatialInputInitialized == false)
+                    InitializeSpatialInput();
+            } else {
+                SpatialInputActive = false;
+            }
+            return SpatialInputActive;
+        }
+
+
+        Quaternion handGeomRotation = Quaternion.FromToRotation(Vector3.up, Vector3.forward);
+
+
+        void InitializeSpatialInput()
+        {
+            Left = new SpatialDevice();
+            Right = new SpatialDevice();
+
+            Left.CursorDefaultMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.ForestGreen, 0.4f);
+            Left.CursorHitMaterial = MaterialUtil.CreateStandardMaterial(ColorUtil.SelectionGold);
+            Left.CursorCapturingMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.SelectionGold, 0.75f);
+            Left.HandMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.ForestGreen, 0.3f);
+
+            Right.CursorDefaultMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.DarkGrey, 0.4f);
+            Right.CursorHitMaterial = MaterialUtil.CreateStandardMaterial(ColorUtil.PivotYellow);
+            Right.CursorCapturingMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.PivotYellow, 0.75f);
+            Right.HandMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.CgRed, 0.3f);
+
+            CursorVisualAngleInDegrees = 1.5f;
+
+            var cursorMesh = MeshGenerators.Create3DArrow(1.0f, 1.0f, 1.0f, 0.5f, 16);
+            UnityUtil.TranslateMesh(cursorMesh, 0, -2.0f, 0);
+            Left.Cursor = UnityUtil.CreateMeshGO("left_cursor", cursorMesh, Left.CursorDefaultMaterial);
+            Left.Cursor.transform.localScale = 0.3f * Vector3.one; 
+            Left.Cursor.transform.localRotation = Quaternion.AngleAxis(45.0f, new Vector3(1, 0, 1).normalized);
+            MaterialUtil.DisableShadows(Left.Cursor);
+            Left.Cursor.SetLayer(FPlatform.CursorLayer);
+            Left.SmoothedHandFrame = Frame3f.Identity;
+
+            var leftHandMesh = MeshGenerators.Create3DArrow(1.0f, 1.0f, 1.0f, 0.5f, 16);
+            Left.Hand = UnityUtil.CreateMeshGO( "left_hand", leftHandMesh, Left.HandMaterial);
+            UnityUtil.TranslateMesh(leftHandMesh, 0, -1.0f, 0);
+            Left.Hand.transform.localScale = 0.1f * Vector3.one;
+            Left.Hand.transform.rotation = Quaternion.FromToRotation(Vector3.up, Vector3.forward);
+            Left.Hand.SetLayer(FPlatform.HUDLayer);
+
+            Left.Laser = new GameObject("left_laser");
+            Left.LaserRen = Left.Laser.AddComponent<LineRenderer>();
+            Left.LaserRen.SetPositions( new Vector3[2] { Vector3.zero, 100*Vector3.up }  );
+            Left.LaserRen.SetWidth(0.01f, 0.01f);
+            Left.LaserRen.material = MaterialUtil.CreateFlatMaterial(ColorUtil.ForestGreen, 0.2f);
+            Left.Laser.SetLayer(FPlatform.CursorLayer);
+            Left.Laser.transform.parent = Left.Cursor.transform;
+
+            var cursorMesh2 = MeshGenerators.Create3DArrow(1.0f, 1.0f, 1.0f, 0.5f, 16);
+            UnityUtil.TranslateMesh(cursorMesh2, 0, -2.0f, 0);
+            Right.Cursor = UnityUtil.CreateMeshGO("right_cursor", cursorMesh2, Right.CursorDefaultMaterial);
+            Right.Cursor.transform.localScale = 0.3f * Vector3.one; 
+            Right.Cursor.transform.localRotation = Quaternion.AngleAxis(45.0f, new Vector3(1, 0, 1).normalized);
+            MaterialUtil.DisableShadows(Right.Cursor);
+            Right.Cursor.SetLayer(FPlatform.CursorLayer);
+            Right.SmoothedHandFrame = Frame3f.Identity;
+
+            var rightHandMesh = MeshGenerators.Create3DArrow(1.0f, 1.0f, 1.0f, 0.5f, 16);
+            Right.Hand = UnityUtil.CreateMeshGO("right_hand", rightHandMesh, Right.HandMaterial);
+            UnityUtil.TranslateMesh(rightHandMesh, 0, -1.0f, 0);
+            Right.Hand.transform.localScale = 0.1f * Vector3.one;
+            Right.Hand.transform.rotation = Quaternion.FromToRotation(Vector3.up, Vector3.forward);
+            Right.Hand.SetLayer(FPlatform.HUDLayer);
+
+            Right.Laser = new GameObject("right_laser");
+            Right.LaserRen = Right.Laser.AddComponent<LineRenderer>();
+            Right.LaserRen.SetPositions(new Vector3[2] { Vector3.zero, 100 * Vector3.up });
+            Right.LaserRen.SetWidth(0.01f, 0.01f);
+            Right.LaserRen.material = MaterialUtil.CreateFlatMaterial(ColorUtil.CgRed, 0.2f);
+            Right.Laser.SetLayer(FPlatform.CursorLayer);
+            Right.Laser.transform.parent = Right.Cursor.transform;
+
+            spatialInputInitialized = true;
+        }
+
+
+
+
+        // FixedUpdate is called before any Update
+        public void Update () {
+            if (CheckForSpatialInputActive() == false)
+                return;
+
+            var OVRCamRig = spatialCamRig;
+            Vector3 rootPos = OVRCamRig.transform.position;
+
+            SpatialDevice[] hands = { Left, Right };
+            OVRInput.Controller[] controllers = { OVRInput.Controller.LTouch, OVRInput.Controller.RTouch };
+
+            for (int i = 0; i < 2; ++i) {
+                SpatialDevice h = hands[i];
+                OVRInput.Controller controller = controllers[i];
+
+                h.CursorActive = OVRInput.GetControllerPositionTracked(controller);
+                if (h.CursorActive) {
+                    UnityUtil.Show(h.Hand);
+                    UnityUtil.Show(h.Cursor);
+
+                    Vector3 handPos = OVRInput.GetLocalControllerPosition(controller);
+                    Quaternion handRot = OVRInput.GetLocalControllerRotation(controller);
+
+                    h.AbsoluteHandFrame = new Frame3f(rootPos + handPos, handRot);
+
+                    float fPositionT = 0.2f;
+                    float fRotationT = 0.2f;
+                    if (h.SmoothedHandFrame.Origin != Vector3f.Zero) {
+                        Vector3 new_origin = 
+                            Vector3.Lerp(h.SmoothedHandFrame.Origin, h.AbsoluteHandFrame.Origin, fPositionT);
+                        Quaternion new_rotation =
+                            Quaternion.Slerp(h.SmoothedHandFrame.Rotation, h.AbsoluteHandFrame.Rotation, fRotationT);
+                        h.SmoothedHandFrame = new Frame3f(new_origin, new_rotation);
+                    } else 
+                        h.SmoothedHandFrame = h.AbsoluteHandFrame;
+
+                    h.Hand.transform.position = h.SmoothedHandFrame.Origin;
+                    h.Hand.transform.rotation = h.SmoothedHandFrame.Rotation * (Quaternionf)handGeomRotation;
+
+                    h.CursorRay = new Ray(h.SmoothedHandFrame.Origin, 
+                        (h.SmoothedHandFrame.Rotation * Vector3.forward).Normalized );
+
+                    if (Mathf.Abs(h.CursorRay.direction.sqrMagnitude - 1.0f) > 0.001f) {
+                        DebugUtil.Log(2, "SpatialInputController.Update - invlaid cursor ray! rotation was {0}", h.SmoothedHandFrame.Rotation);
+                        h.CursorRay = new Ray(h.SmoothedHandFrame.Origin, Vector3.up);
+                    }
+
+                    // raycast into scene to see if we hit object, UI, bounds, etc. 
+                    bool bHit = false;
+                    if (scene != null) {
+                        // want to hit-test active gizmo first, because that has hit-priority
+                        if ( scene.TransformManager.HaveActiveGizmo ) {
+                            UIRayHit uiHit = null;
+                            if ( scene.TransformManager.ActiveGizmo.FindRayIntersection(h.CursorRay, out uiHit) ) {
+                                h.RayHitPos = uiHit.hitPos;
+                                bHit = true;
+                            }
+                        }
+                        // next we tested scene
+                        if (bHit == false) {
+                            AnyRayHit hit = null;
+                            if (scene.FindAnyRayIntersection(h.CursorRay, out hit)) {
+                                h.RayHitPos = hit.hitPos;
+                                bHit = true;
+                            }
+                        }
+                        // finally test worldbounds
+                        if (bHit == false) { 
+                            GameObjectRayHit ghit = null;
+                            if (scene.GetScene().FindWorldBoundsHit(h.CursorRay, out ghit)) {
+                                h.RayHitPos = ghit.hitPos;
+                            }
+                        }
+                    }
+
+                    // if not, plane cursor on view-perp plane centered at last hit pos,
+                    // otherwise it will be stuck/disappear
+                    if ( bHit == false ) {
+                        Frame3f f = new Frame3f(h.RayHitPos, camera.transform.forward);
+                        h.RayHitPos = f.RayPlaneIntersection(h.CursorRay.origin, h.CursorRay.direction, 2);
+                    }
+
+                    h.Cursor.transform.position = h.RayHitPos;
+                    //if (scene.InCapture)
+                    //    MaterialUtil.SetMaterial(h.Cursor, h.CursorCapturingMaterial);
+                    //else
+                    if (bHit)
+                        MaterialUtil.SetMaterial(h.Cursor, h.CursorHitMaterial);
+                    else
+                        MaterialUtil.SetMaterial(h.Cursor, h.CursorDefaultMaterial);
+
+                    // maintain a consistent visual size for 3D cursor sphere
+                    float fScaling = VRUtil.GetVRRadiusForVisualAngle(h.RayHitPos, camera.transform.position, CursorVisualAngleInDegrees);
+                    h.Cursor.transform.localScale = fScaling * Vector3.one;
+
+                    // orient cursor so it is tilted like a 2D cursor, but per-hand
+                    Vector3 cursor_right = Vector3.Cross(camera.transform.up, h.CursorRay.direction);
+                    Vector3 cursor_fw = Vector3.Cross(cursor_right, camera.transform.up);
+                    float rotSign = (h == Right) ? 1.0f : -1.0f;
+                    Vector3 pointDir = (camera.transform.up + cursor_fw - 0.5f * rotSign * cursor_right).normalized;
+                    h.Cursor.transform.localRotation = Quaternion.FromToRotation(Vector3.up, pointDir);
+
+                    // update laser line
+                    if ( h.Laser != null ) {
+                        float hDist = (h.RayHitPos - h.CursorRay.origin).magnitude;
+                        Vector3 p0 = h.RayHitPos - 0.9f * hDist * h.CursorRay.direction;
+                        Vector3 p1 = h.RayHitPos + 100.0f*h.CursorRay.direction;
+                        float r0 = VRUtil.GetVRRadiusForVisualAngle(p0, camera.transform.position, 0.5f);
+                        h.LaserRen.SetPosition(0, p0);
+                        h.LaserRen.SetPosition(1, p1);
+                        h.LaserRen.SetWidth(r0, r0);
+                    }
+
+                } else {
+                    UnityUtil.Hide(h.Hand);
+                    UnityUtil.Hide(h.Cursor);
+                }
+            }
+		}
+
+
+
+        public void ClearHandIcon(int iSide)
+        {
+            SpatialDevice h = (iSide == 0) ? Left : Right;
+            if (h.HandIcon != null) {
+                h.HandIcon.transform.parent = null;
+                GameObject.Destroy(h.HandIcon);
+            }
+        }
+
+        public void SetHandIcon(Mesh m, int iSide)
+        {
+            SpatialDevice h = (iSide == 0) ? Left : Right;
+            if (h.HandIcon != null) {
+                h.HandIcon.transform.parent = null;
+                GameObject.Destroy(h.HandIcon);
+            }
+
+            h.HandIcon = 
+                UnityUtil.CreateMeshGO("hand_icon", m, MaterialUtil.CreateStandardVertexColorMaterial(Color.white), false);
+            h.HandIcon.transform.localScale = 0.3f * Vector3.one;
+            h.HandIcon.transform.localPosition = new Vector3(0.0f, -0.3f, -0.3f);
+            h.HandIcon.transform.SetParent(h.Hand.transform, false);
+            h.HandIcon.SetLayer(FPlatform.CursorLayer);
+
+        }
+
+
+    }
+
+}

@@ -1,0 +1,176 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using UnityEngine;
+using g3;
+
+namespace f3
+{
+    // default maya alt+left/right/middle hotkeys
+    class MayaCameraHotkeys : ICameraInteraction
+    {
+        public MayaCameraHotkeys()
+        {
+        }
+
+        public CameraInteractionState CheckCameraControls(InputState input)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetButtonDown("CameraMoveButton") || Input.GetButtonDown("CameraZoomButton") )
+                return CameraInteractionState.BeginCameraAction;
+            else if (Input.GetKeyUp(KeyCode.LeftAlt) 
+                        || ( Input.GetButtonUp("CameraMoveButton") && Input.GetButton("CameraZoomButton") == false)
+                        || ( Input.GetButtonUp("CameraZoomButton") && Input.GetButton("CameraMoveButton") == false ) )
+                return CameraInteractionState.EndCameraAction;
+            else
+                return CameraInteractionState.Ignore;
+        }
+
+        public void DoCameraControl(FScene scene, Camera mainCamera, InputState input)
+        {
+            float dx = Input.GetAxis("Mouse X") + Input.GetAxis("Joystick X");
+            float dy = Input.GetAxis("Mouse Y") + Input.GetAxis("Joystick Y");
+            float dx2 = Input.GetAxis("Joystick2 X");
+            float dy2 = Input.GetAxis("Joystick2 Y");
+
+            if (Input.GetMouseButton(0)) {
+                mainCamera.Manipulator().SceneOrbit(scene, mainCamera, 10.0f * dx, 10.0f * dy);
+
+            } else if (Input.GetMouseButton(1)) {
+                mainCamera.Manipulator().SceneZoom(scene, mainCamera, -1.0f * dy);
+                //mainCamera.Manipulator().ScenePan(scene, mainCamera, 0.05f * dx, 0);
+
+            } else if (Input.GetMouseButton(2)) {
+                mainCamera.Manipulator().ScenePan(scene, mainCamera, 0.5f * dx, 0.5f * dy);
+
+            } else if (Input.GetButton("CameraZoomButton")) {
+                mainCamera.Manipulator().SceneZoom(scene, mainCamera, 0.2f * dy);
+                mainCamera.Manipulator().ScenePan(scene, mainCamera, (-0.1f * dx) + (-0.2f * dx2), -0.2f * dy2);
+
+            } else if (Input.GetButton("CameraMoveButton")) {
+                mainCamera.Manipulator().SceneOrbit(scene, mainCamera, 2.0f * dx, 2.0f * dy);
+                mainCamera.Manipulator().ScenePan(scene, mainCamera, -0.2f * dx2, -0.2f * dy2);
+            }
+        }
+
+    }
+
+
+
+
+
+
+    // default maya alt+left/right/middle hotkeys
+    class RateControlledEgocentricCamera : ICameraInteraction
+    {
+        bool bInAction;
+        bool bUsingMouse, bUsingGamepad;
+
+        CameraManipulator.RateControlInfo rcInfo;
+        CameraManipulator.RateControlInfo rcInfo2;
+        Vector2 curPos2D, secondPos2D;
+        VRMouseCursorController.AutoUnfreezer unfreezer;
+
+        public RateControlledEgocentricCamera()
+        {
+            bInAction = false;
+            bUsingMouse = bUsingGamepad = false;
+        }
+
+        public CameraInteractionState CheckCameraControls(InputState input)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftAlt)) {
+                return CameraInteractionState.BeginCameraAction;
+            } else if (Input.GetButtonDown("CameraMoveButton") || Input.GetButtonDown("CameraZoomButton")) {
+                if (unfreezer == null)
+                    unfreezer = FContext.ActiveContext_HACK.MouseController.RequestFreezeCursor();
+                return CameraInteractionState.BeginCameraAction;
+            } else if (Input.GetKeyUp(KeyCode.LeftAlt)
+                         || (Input.GetButtonUp("CameraMoveButton") && Input.GetButton("CameraZoomButton") == false)
+                         || (Input.GetButtonUp("CameraZoomButton") && Input.GetButton("CameraMoveButton") == false)) {
+                end_camera_action();
+                if ( unfreezer != null ) {
+                    unfreezer.Unfreeze();
+                    unfreezer = null;
+                }
+                return CameraInteractionState.EndCameraAction;
+            } else
+                return CameraInteractionState.Ignore;
+        }
+
+
+        void end_camera_action()
+        {
+            if (bInAction) {
+                rcInfo = null;
+                bInAction = false;
+            }
+            bUsingMouse = bUsingGamepad = false;
+        }
+
+
+        public void DoCameraControl(FScene scene, Camera mainCamera, InputState input)
+        {
+            if (bInAction == false) {
+                if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2)) {
+                    curPos2D = new Vector2(0, 0);
+                    rcInfo = new CameraManipulator.RateControlInfo(curPos2D);
+                    bInAction = bUsingMouse = true;
+                } else if (Input.GetButton("CameraZoomButton") || Input.GetButton("CameraMoveButton") ) {
+                    curPos2D = secondPos2D = new Vector2(0, 0);
+                    rcInfo = new CameraManipulator.RateControlInfo(curPos2D);
+                    rcInfo2 = new CameraManipulator.RateControlInfo(secondPos2D);
+                    bInAction = bUsingGamepad = true;
+                }
+            }
+
+            if ( bInAction && bUsingMouse ) {
+                float dx = Input.GetAxis("Mouse X");
+                float dy = Input.GetAxis("Mouse Y");
+                curPos2D.x += dx;
+                curPos2D.y += dy;
+
+                if (Input.GetMouseButton(0)) {
+                    mainCamera.Manipulator().SceneRateControlledFly(scene, mainCamera, curPos2D, rcInfo);
+                } else if (Input.GetMouseButton(1)) {
+                    mainCamera.Manipulator().SceneRateControlledZoom(scene, mainCamera, curPos2D, rcInfo);
+                } else if (Input.GetMouseButton(2)) {
+                    mainCamera.Manipulator().SceneRateControlledEgogentricPan(scene, mainCamera, curPos2D, rcInfo);
+                }
+            }
+
+
+            if ( bInAction && bUsingGamepad ) {
+                float dx = Input.GetAxis("Joystick X");
+                float dy = Input.GetAxis("Joystick Y");
+                float dx2 = Input.GetAxis("Joystick2 X");
+                float dy2 = Input.GetAxis("Joystick2 Y");
+                curPos2D.x += dx; 
+                curPos2D.y += dy;
+                secondPos2D.x += dx2;
+                secondPos2D.y += dy2;
+                float use_t = 3.0f;     // 5 == hard stop, 1 == bit too soft
+                curPos2D.x = MathUtil.SignedClamp(curPos2D.x, rcInfo.rampUpRadius);
+                curPos2D.x = Mathf.Lerp(curPos2D.x, 0, use_t * Time.deltaTime);
+                curPos2D.y = MathUtil.SignedClamp(curPos2D.y, rcInfo.rampUpRadius);
+                curPos2D.y = Mathf.Lerp(curPos2D.y, 0, use_t * Time.deltaTime);
+                secondPos2D.x = MathUtil.SignedClamp(secondPos2D.x, rcInfo.rampUpRadius);
+                secondPos2D.x = Mathf.Lerp(secondPos2D.x, 0, use_t * Time.deltaTime);
+                secondPos2D.y = MathUtil.SignedClamp(secondPos2D.y, rcInfo.rampUpRadius);
+                secondPos2D.y = Mathf.Lerp(secondPos2D.y, 0, use_t * Time.deltaTime);
+
+                if (Input.GetButton("CameraZoomButton")) {
+                    mainCamera.Manipulator().SceneRateControlledZoom(scene, mainCamera, curPos2D, rcInfo);
+                    secondPos2D[0] = 0;
+                    mainCamera.Manipulator().SceneRateControlledEgogentricPan(scene, mainCamera, secondPos2D, rcInfo2);
+                } else if (Input.GetButton("CameraMoveButton")) {
+                    mainCamera.Manipulator().SceneRateControlledFly(scene, mainCamera, curPos2D, rcInfo);
+                    mainCamera.Manipulator().SceneRateControlledEgogentricPan(scene, mainCamera, secondPos2D, rcInfo2);
+                }
+
+            }
+        }
+        
+    }
+
+}
