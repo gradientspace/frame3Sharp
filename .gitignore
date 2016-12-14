@@ -31,3 +31,7 @@ sysinfo.txt
 
 # ignore .meta files because we will be used as git submodule
 *.meta
+# but don't ignore these ones because otherwise shader association is lost!!
+!/Resources/StandardMaterials/*.meta
+!/Resources/StandardMaterials/defaults/*.meta
+
