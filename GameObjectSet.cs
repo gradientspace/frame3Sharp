@@ -69,7 +69,7 @@ namespace f3
 		public virtual GameObject AppendMeshGO(string name, Mesh mesh, Material setMaterial, GameObject parent, bool bCollider = true) {
             // [TODO] replace with UnityUtil.CreateMeshGO ??
             var gameObj = new GameObject (name);
-			var gameObjMesh = (MeshFilter)gameObj.AddComponent(typeof(MeshFilter));
+            gameObj.AddComponent<MeshFilter>();
             gameObj.SetMesh(mesh);
             if (bCollider) {
                 gameObj.AddComponent(typeof(MeshCollider));

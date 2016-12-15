@@ -100,7 +100,7 @@ namespace f3
             Material setMaterial = null, bool bCollider = true)
         {
             var gameObj = new GameObject(name);
-            var gameObjMesh = (MeshFilter)gameObj.AddComponent(typeof(MeshFilter));
+            gameObj.AddComponent<MeshFilter>();
             gameObj.SetMesh(mesh);
             if (bCollider) {
                 gameObj.AddComponent(typeof(MeshCollider));
@@ -134,7 +134,7 @@ namespace f3
                 Debug.Log("[UnityUtil.CreateMeshGO] not found at path " + meshpath);
             }
             var gameObj = new GameObject(name);
-            var gameObjMesh = (MeshFilter)gameObj.AddComponent(typeof(MeshFilter));
+            gameObj.AddComponent<MeshFilter>();
             gameObj.SetMesh(mesh);
             if (bCollider) {
                 gameObj.AddComponent(typeof(MeshCollider));

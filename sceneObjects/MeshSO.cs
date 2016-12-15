@@ -18,7 +18,7 @@ namespace f3
             parentGO = new GameObject(UniqueNames.GetNext("Mesh"));
 
             meshGO = new GameObject("mesh");
-            var gameObjMesh = meshGO.AddComponent<MeshFilter>();
+            meshGO.AddComponent<MeshFilter>();
             meshGO.SetMesh(mesh);
             meshGO.AddComponent<MeshCollider>().enabled = false;
             meshGO.AddComponent<MeshRenderer>().material = CurrentMaterial;

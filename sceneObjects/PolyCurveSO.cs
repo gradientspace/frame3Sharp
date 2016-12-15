@@ -73,7 +73,8 @@ namespace f3
                 gen.Make(curve);
             }
 
-            root = new GameObject(UniqueNames.GetNext("PolyCurve"));
+            // assumes type identifier is something like BlahBlahSO
+            root = new GameObject(UniqueNames.GetNext( Type.identifier.Remove(Type.identifier.Length-2) ));
 
             if (EnableLineRenderer) {
                 LineRenderer ren = root.AddComponent<LineRenderer>();
