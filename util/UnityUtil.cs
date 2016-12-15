@@ -101,7 +101,7 @@ namespace f3
         {
             var gameObj = new GameObject(name);
             var gameObjMesh = (MeshFilter)gameObj.AddComponent(typeof(MeshFilter));
-            gameObjMesh.mesh = mesh;
+            gameObj.SetMesh(mesh);
             if (bCollider) {
                 gameObj.AddComponent(typeof(MeshCollider));
                 gameObj.GetComponent<MeshCollider>().enabled = false;
@@ -135,7 +135,7 @@ namespace f3
             }
             var gameObj = new GameObject(name);
             var gameObjMesh = (MeshFilter)gameObj.AddComponent(typeof(MeshFilter));
-            gameObjMesh.mesh = mesh;
+            gameObj.SetMesh(mesh);
             if (bCollider) {
                 gameObj.AddComponent(typeof(MeshCollider));
                 gameObj.GetComponent<MeshCollider>().enabled = false;

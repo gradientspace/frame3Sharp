@@ -9,7 +9,7 @@ namespace f3
 {
     public class PolyTubeSO : PolyCurveSO
     {
-        GameObject mesh;
+        GameObject meshGO;
 
         Polygon2d polygon;
         public Polygon2d Polygon
@@ -70,8 +70,8 @@ namespace f3
             meshGen.Generate();
             Mesh m = meshGen.MakeUnityMesh(false);
 
-            mesh = UnityUtil.CreateMeshGO("tube_mesh", m, useMaterial, true);
-            AppendNewGO(mesh, RootGameObject, false);
+            meshGO = UnityUtil.CreateMeshGO("tube_mesh", m, useMaterial, true);
+            AppendNewGO(meshGO, RootGameObject, false);
         }
 
 
@@ -85,11 +85,11 @@ namespace f3
             };
             meshGen.Generate();
             Mesh newMesh = meshGen.MakeUnityMesh(false);
-            mesh.GetComponent<MeshFilter>().mesh = newMesh;
+            meshGO.SetMesh(newMesh);
 
             // apparently this is expensive?
             if (DeferRebuild == false) {
-                mesh.GetComponent<MeshCollider>().sharedMesh = mesh.GetComponent<MeshFilter>().sharedMesh;
+                meshGO.GetComponent<MeshCollider>().sharedMesh = meshGO.GetComponent<MeshFilter>().sharedMesh;
             }
 
             // expand local bounds
@@ -110,7 +110,7 @@ namespace f3
                 return false;
 
             GameObjectRayHit goHit;
-            if ( UnityUtil.FindGORayIntersection(ray, mesh, out goHit) ) {
+            if ( UnityUtil.FindGORayIntersection(ray, meshGO, out goHit) ) {
                 hit = new SORayHit(goHit, this);
                 return true;
             }

@@ -19,7 +19,7 @@ namespace f3
 
             meshGO = new GameObject("mesh");
             var gameObjMesh = meshGO.AddComponent<MeshFilter>();
-            gameObjMesh.mesh = mesh;
+            meshGO.SetMesh(mesh);
             meshGO.AddComponent<MeshCollider>().enabled = false;
             meshGO.AddComponent<MeshRenderer>().material = CurrentMaterial;
 
@@ -48,7 +48,7 @@ namespace f3
         {
             MeshSO copy = new MeshSO();
 
-            copy.Create( meshGO.GetComponent<MeshFilter>().mesh, this.GetAssignedSOMaterial() );
+            copy.Create( meshGO.GetMesh(), this.GetAssignedSOMaterial() );
             copy.SetLocalFrame(
                 this.GetLocalFrame(CoordSpace.ObjectCoords), CoordSpace.ObjectCoords);
             copy.SetLocalScale(this.GetLocalScale());
@@ -58,7 +58,7 @@ namespace f3
 
         override public Bounds GetLocalBoundingBox()
         {
-            Bounds b = meshGO.GetComponent<MeshFilter>().mesh.bounds;
+            Bounds b = meshGO.GetSharedMesh().bounds;
             Vector3 s = meshGO.transform.localScale;
             b.extents = new Vector3(
                             b.extents[0] * s[0],

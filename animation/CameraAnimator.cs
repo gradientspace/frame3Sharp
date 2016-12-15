@@ -31,7 +31,7 @@ namespace f3
             //fadeObject.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
             fadeObject.GetComponent<MeshRenderer>().material = MaterialUtil.CreateFlatMaterial(Color.black, 0.0f);
             fadeObject.SetName("fade_sphere");
-            UnityUtil.ReverseMeshOrientation(fadeObject.GetComponent<MeshFilter>().mesh);
+            UnityUtil.ReverseMeshOrientation(fadeObject.GetMesh());
             fadeObject.transform.SetParent(UseCamera.transform, false);
             fadeObject.SetLayer(FPlatform.HUDLayer);
         }

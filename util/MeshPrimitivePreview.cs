@@ -139,8 +139,7 @@ namespace f3
         void update_cylinder()
         {
             if (nCurMesh != (int)PrimType.Cylinder) {
-                MeshFilter m = meshObject.GetComponent<MeshFilter>();
-                m.mesh = UnityUtil.GetPrimitiveMesh(PrimitiveType.Cylinder);
+                meshObject.SetMesh(UnityUtil.GetPrimitiveMesh(PrimitiveType.Cylinder));
                 nCurMesh = (int)PrimType.Cylinder;
             }
 
@@ -178,8 +177,7 @@ namespace f3
         void update_box()
         {
             if (nCurMesh != (int)PrimType.Box) {
-                MeshFilter m = meshObject.GetComponent<MeshFilter>();
-                m.mesh = UnityUtil.GetPrimitiveMesh(PrimitiveType.Cube);
+                meshObject.SetMesh(UnityUtil.GetPrimitiveMesh(PrimitiveType.Cube));
                 nCurMesh = (int)PrimType.Box;
             }
 
@@ -215,8 +213,7 @@ namespace f3
         void update_sphere()
         {
             if (nCurMesh != (int)PrimType.Sphere) {
-                MeshFilter m = meshObject.GetComponent<MeshFilter>();
-                m.mesh = UnityUtil.GetPrimitiveMesh(PrimitiveType.Sphere);
+                meshObject.SetMesh(UnityUtil.GetPrimitiveMesh(PrimitiveType.Sphere));
                 nCurMesh = (int)PrimType.Sphere;
             }
 

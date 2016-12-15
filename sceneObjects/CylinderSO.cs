@@ -86,7 +86,7 @@ namespace f3
             bottomCap.GetComponent<MeshFilter>().sharedMesh = MeshGenerators.CreateDisc(radius, 1, 16);
             bottomCap.transform.localPosition = -0.5f * height * Vector3.up;
 
-            body.GetComponent<MeshFilter>().mesh = MeshGenerators.CreateCylider(radius, height, 16);
+            body.SetMesh(MeshGenerators.CreateCylider(radius, height, 16));
             body.transform.localPosition = -0.5f * height * Vector3.up;
 
             // if we want to scale away/towards bottom of cylinder, then we need to 

@@ -239,7 +239,7 @@ namespace f3
         {
             var gameObj = new GameObject("iconMesh");
             var gameObjMesh = (MeshFilter)gameObj.AddComponent(typeof(MeshFilter));
-            gameObjMesh.mesh = (Mesh)Resources.Load(Path, typeof(Mesh));
+            gameObj.SetMesh((Mesh)Resources.Load(Path, typeof(Mesh)));
             MeshRenderer ren = gameObj.AddComponent<MeshRenderer>();
             ren.material = MaterialUtil.CreateStandardMaterial(this.Color);
 
