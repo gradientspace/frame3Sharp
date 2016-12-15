@@ -38,20 +38,23 @@ namespace f3
                 defaultMaterial, button);
 
 			buttonMesh.transform.Rotate (Vector3.right, -90.0f); // ??
-		}
+            MaterialUtil.DisableShadows(buttonMesh);
+        }
 
         // creates a button with a floating primitive in front of the button shape
-		public void Create( PrimitiveType eType, Material bgMaterial, Material primMaterial, float fPrimScale = 0.7f  ) {
+        public void Create( PrimitiveType eType, Material bgMaterial, Material primMaterial, float fPrimScale = 0.7f  ) {
 			button = new GameObject(UniqueNames.GetNext("HUDButton"));
             buttonMesh = AppendMeshGO ("disc", make_button_body_mesh(), bgMaterial, button);
 			buttonMesh.transform.Rotate (Vector3.right, -90.0f); // ??
+            MaterialUtil.DisableShadows(buttonMesh);
 
-			GameObject prim = AppendUnityPrimitiveGO ("primitive", eType, primMaterial, button);
+            GameObject prim = AppendUnityPrimitiveGO ("primitive", eType, primMaterial, button);
 			float primSize = Shape.EffectiveRadius() * fPrimScale;
 			prim.transform.localScale = new Vector3 (primSize, primSize, primSize);
 			prim.transform.Translate (0.0f, 0.0f, - primSize);
 			prim.transform.Rotate (-15.0f, 45.0f, 0.0f, Space.Self);
-		}
+            MaterialUtil.DisableShadows(prim);
+        }
 
         // creates a button that is just the mesh, basically same as above but without the background disc
         public void Create(PrimitiveType eType, Material primMaterial, float fPrimScale = 1.0f)
@@ -63,6 +66,7 @@ namespace f3
             buttonMesh.transform.localScale = new Vector3(primSize, primSize, primSize);
             buttonMesh.transform.Translate(0.0f, 0.0f, -primSize);
             buttonMesh.transform.Rotate(-15.0f, 45.0f, 0.0f, Space.Self);
+            MaterialUtil.DisableShadows(buttonMesh);
         }
 
         // creates a button that is just the mesh
@@ -73,6 +77,7 @@ namespace f3
             GameObject meshGO = AppendMeshGO("shape", mesh, meshMaterial, button);
             meshGO.transform.localScale = new Vector3(fScale, fScale, fScale);
             meshGO.transform.localRotation *= transform;
+            MaterialUtil.DisableShadows(meshGO);
         }
 
         // creates a button with a background shape and a foreground mesh
@@ -82,11 +87,13 @@ namespace f3
 
             buttonMesh = AppendMeshGO("disc", make_button_body_mesh(), bgMaterial, button);
             buttonMesh.transform.Rotate(Vector3.right, -90.0f); // ??
+            MaterialUtil.DisableShadows(buttonMesh);
 
             GameObject meshGO = AppendMeshGO("shape", mesh, meshMaterial, button);
             meshGO.transform.localScale = new Vector3(fScale, fScale, fScale);
             meshGO.transform.localPosition = deltaF.Origin;
             meshGO.transform.localRotation = deltaF.Rotation;
+            MaterialUtil.DisableShadows(meshGO);
         }
 
 
