@@ -9,7 +9,7 @@ namespace f3 {
 	public class VRMouseCursorController {
 
 		Camera camera;
-		FContext scene;
+		FContext context;
 
 		public GameObject Cursor { get; set; }
 		public float CursorVisualAngleInDegrees { get; set; }
@@ -35,6 +35,10 @@ namespace f3 {
 		Vector3 vPlaneCursorPos;
 		Vector3 vSceneCursorPos;
 
+        Mesh standardCursorMesh;
+        Mesh activeToolCursorMesh;
+
+
         float lastMouseEventTime;
         bool mouseInactiveState;
         public bool MouseInactive { get { return mouseInactiveState; } }
@@ -43,9 +47,9 @@ namespace f3 {
         bool bFreezeCursor = false;
 
 
-        public VRMouseCursorController(Camera viewCam, FContext scene) {
+        public VRMouseCursorController(Camera viewCam, FContext context) {
 			camera = viewCam;
-			this.scene = scene;
+			this.context = context;
 		}
 
 		// Use this for initialization
@@ -56,16 +60,20 @@ namespace f3 {
 			vPlaneCursorPos = Vector3.zero;
 			vSceneCursorPos = vPlaneCursorPos;
 
-            CursorDefaultMaterial = MaterialUtil.CreateTransparentMaterial (Color.grey, 0.4f);
+            CursorDefaultMaterial = MaterialUtil.CreateTransparentMaterial (Color.grey, 0.6f);
 			//CursorHitMaterial = MaterialUtil.CreateTransparentMaterial (Color.yellow, 0.8f);
             CursorHitMaterial = MaterialUtil.CreateStandardMaterial(Color.yellow);
             CursorCapturingMaterial = MaterialUtil.CreateTransparentMaterial (Color.yellow, 0.75f);
 
 			CursorVisualAngleInDegrees = 1.5f;
 
-            var cursorMesh = MeshGenerators.Create3DArrow(1.0f, 1.0f, 1.0f, 0.5f, 16);
-            UnityUtil.TranslateMesh(cursorMesh, 0, -2.0f, 0);
-            Cursor = UnityUtil.CreateMeshGO("cursor", cursorMesh, CursorDefaultMaterial);
+            standardCursorMesh = MeshGenerators.Create3DArrow(1.0f, 1.0f, 1.0f, 0.5f, 16);
+            UnityUtil.TranslateMesh(standardCursorMesh, 0, -2.0f, 0);
+            activeToolCursorMesh = MeshGenerators.Create3DArrow(1.0f, 1.0f, 1.0f, 1.0f, 16);
+            UnityUtil.TranslateMesh(activeToolCursorMesh, 0, -2.0f, 0);
+
+            Cursor = UnityUtil.CreateMeshGO("cursor", standardCursorMesh, CursorDefaultMaterial);
+            Cursor.SetSharedMesh(standardCursorMesh);
             Cursor.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
             Cursor.transform.localRotation = Quaternion.AngleAxis(45.0f, new Vector3(1, 0, 1).normalized);
             MaterialUtil.DisableShadows(Cursor);
@@ -88,15 +96,15 @@ namespace f3 {
                 return;
 
             // if we are in capture we freeze the cursor plane
-            if (scene.InCaptureMouse == false) {
+            if (context.InCaptureMouse == false) {
                 Vector3 camPos = camera.gameObject.transform.position;
 				Vector3 forward = camera.gameObject.transform.forward;
 
                 // orient Y-up plane so that it is in front of eye, perp to camera direction
                 float fCursorDepth = 10.0f;
                 fCursorSpeedNormalization = 1.0f;
-                if (scene.ActiveCockpit != null && scene.ActiveCockpit.DefaultCursorDepth > 0) {
-                    fCursorDepth = scene.ActiveCockpit.DefaultCursorDepth;
+                if (context.ActiveCockpit != null && context.ActiveCockpit.DefaultCursorDepth > 0) {
+                    fCursorDepth = context.ActiveCockpit.DefaultCursorDepth;
                     // cursor speed will change depending on cursor plane distance, unless we normalize
                     fCursorSpeedNormalization *= (fCursorDepth / 10.0f);
                 }
@@ -156,7 +164,7 @@ namespace f3 {
 
             // if cursor gets outside of viewpoint it is almost impossible to get it back.
             // So, if it goes too far out of view (45 deg here), we snap it back to the origin
-            if (scene.InCameraManipulation == false && scene.InCaptureMouse == false) {
+            if (context.InCameraManipulation == false && context.InCaptureMouse == false) {
                 float fAngle = Vector3.Angle((vPlaneCursorPos - camera.transform.position).normalized, camera.transform.forward);
                 if (fAngle > 50.0f) {
                     fCurPlaneX = fCurPlaneY = 0;
@@ -172,15 +180,15 @@ namespace f3 {
             //   on the ground plane (eg like drawing contours). Not sure how to toggle that though.
             //   Just disabling for now...
             //bool bIsBoundsHit = false;
-			if (scene != null) {
+			if (context != null) {
 				Ray r = new Ray (camera.transform.position, (vPlaneCursorPos - camera.transform.position).normalized);
 				AnyRayHit hit = null;
-                if (scene.FindAnyRayIntersection(r, out hit)) {
+                if (context.FindAnyRayIntersection(r, out hit)) {
                     vSceneCursorPos = hit.hitPos;
                     bHit = true;
                 } else {
                     GameObjectRayHit ghit = null;
-                    if (scene.GetScene().FindWorldBoundsHit(r, out ghit)) {
+                    if (context.GetScene().FindWorldBoundsHit(r, out ghit)) {
                         vSceneCursorPos = ghit.hitPos;
                         //bIsBoundsHit = true;
                     }
@@ -201,7 +209,7 @@ namespace f3 {
             //}
 
             Cursor.transform.position = vSceneCursorPos;
-			if (scene.InCaptureMouse)
+			if (context.InCaptureMouse)
 				Cursor.GetComponent<MeshRenderer> ().material = CursorCapturingMaterial;
 			else if (bHit)
 				Cursor.GetComponent<MeshRenderer> ().material = CursorHitMaterial;
@@ -213,7 +221,14 @@ namespace f3 {
             // maintain a consistent visual size for 3D cursor sphere
             float fScaling = VRUtil.GetVRRadiusForVisualAngle(vSceneCursorPos, camera.transform.position, CursorVisualAngleInDegrees);
 			Cursor.transform.localScale = new Vector3 (fScaling, fScaling, fScaling);
-		}
+
+            // update cursor
+            Mesh useMesh = context.ToolManager.HasActiveTool(ToolSide.Right) ? activeToolCursorMesh : standardCursorMesh;
+            if ( Cursor.GetSharedMesh() != useMesh ) {
+                Cursor.SetSharedMesh(useMesh);
+            }
+
+        }
 
 
         public void ResetCursorToCenter()

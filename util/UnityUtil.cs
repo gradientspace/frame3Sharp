@@ -31,6 +31,23 @@ namespace f3
                 yield return go.transform.GetChild(k).gameObject;
         }
 
+
+        public static Mesh GetMesh(this GameObject go)
+        {
+            return go.GetComponent<MeshFilter>().mesh;
+        }
+        public static Mesh GetSharedMesh(this GameObject go)
+        {
+            return go.GetComponent<MeshFilter>().sharedMesh;
+        }
+        public static void SetMesh(this GameObject go, Mesh m) {
+            go.GetComponent<MeshFilter>().mesh = m;
+        }
+        public static void SetSharedMesh(this GameObject go, Mesh m) {
+            go.GetComponent<MeshFilter>().sharedMesh = m;
+        }
+
+
         public static void SetName(this Camera cam, string name) {
             cam.name = name;
         }
@@ -44,6 +61,7 @@ namespace f3
         public static string GetName(this Material mat) {
             return mat.name;
         }
+
     }
 
 
@@ -470,7 +488,6 @@ namespace f3
             }
             return UnityUtil.primitiveMeshes[type];
         }
-
 
 
         public static bool InputAxisExists(string sName) {

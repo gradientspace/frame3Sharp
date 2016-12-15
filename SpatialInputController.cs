@@ -8,7 +8,7 @@ namespace f3 {
 
         GameObject spatialCamRig;
         Camera camera;
-		FContext scene;
+		FContext context;
 
         public bool SpatialInputActive { get; set; }
         bool spatialInputInitialized;
@@ -42,10 +42,10 @@ namespace f3 {
         public SpatialDevice Right;
 
 
-		public SpatialInputController(GameObject spatialCamRig, Camera viewCam, FContext scene) {
+		public SpatialInputController(GameObject spatialCamRig, Camera viewCam, FContext context) {
             this.spatialCamRig = spatialCamRig;
             this.camera = viewCam;
-			this.scene = scene;
+			this.context = context;
 		}
 
 		// Use this for initialization
@@ -76,27 +76,32 @@ namespace f3 {
 
         Quaternion handGeomRotation = Quaternion.FromToRotation(Vector3.up, Vector3.forward);
 
+        Mesh standardCursorMesh;
+        Mesh activeToolCursorMesh;
 
         void InitializeSpatialInput()
         {
             Left = new SpatialDevice();
             Right = new SpatialDevice();
 
-            Left.CursorDefaultMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.ForestGreen, 0.4f);
+            Left.CursorDefaultMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.ForestGreen, 0.6f);
             Left.CursorHitMaterial = MaterialUtil.CreateStandardMaterial(ColorUtil.SelectionGold);
             Left.CursorCapturingMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.SelectionGold, 0.75f);
             Left.HandMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.ForestGreen, 0.3f);
 
-            Right.CursorDefaultMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.DarkGrey, 0.4f);
+            Right.CursorDefaultMaterial = MaterialUtil.CreateTransparentMaterial(Colorf.DarkRed, 0.6f);
             Right.CursorHitMaterial = MaterialUtil.CreateStandardMaterial(ColorUtil.PivotYellow);
             Right.CursorCapturingMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.PivotYellow, 0.75f);
             Right.HandMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.CgRed, 0.3f);
 
             CursorVisualAngleInDegrees = 1.5f;
 
-            var cursorMesh = MeshGenerators.Create3DArrow(1.0f, 1.0f, 1.0f, 0.5f, 16);
-            UnityUtil.TranslateMesh(cursorMesh, 0, -2.0f, 0);
-            Left.Cursor = UnityUtil.CreateMeshGO("left_cursor", cursorMesh, Left.CursorDefaultMaterial);
+            standardCursorMesh = MeshGenerators.Create3DArrow(1.0f, 1.0f, 1.0f, 0.5f, 16);
+            UnityUtil.TranslateMesh(standardCursorMesh, 0, -2.0f, 0);
+            activeToolCursorMesh = MeshGenerators.Create3DArrow(1.0f, 1.0f, 1.0f, 1.0f, 16);
+            UnityUtil.TranslateMesh(activeToolCursorMesh, 0, -2.0f, 0);
+
+            Left.Cursor = UnityUtil.CreateMeshGO("left_cursor", standardCursorMesh, Left.CursorDefaultMaterial);
             Left.Cursor.transform.localScale = 0.3f * Vector3.one; 
             Left.Cursor.transform.localRotation = Quaternion.AngleAxis(45.0f, new Vector3(1, 0, 1).normalized);
             MaterialUtil.DisableShadows(Left.Cursor);
@@ -118,9 +123,7 @@ namespace f3 {
             Left.Laser.SetLayer(FPlatform.CursorLayer);
             Left.Laser.transform.parent = Left.Cursor.transform;
 
-            var cursorMesh2 = MeshGenerators.Create3DArrow(1.0f, 1.0f, 1.0f, 0.5f, 16);
-            UnityUtil.TranslateMesh(cursorMesh2, 0, -2.0f, 0);
-            Right.Cursor = UnityUtil.CreateMeshGO("right_cursor", cursorMesh2, Right.CursorDefaultMaterial);
+            Right.Cursor = UnityUtil.CreateMeshGO("right_cursor", standardCursorMesh, Right.CursorDefaultMaterial);
             Right.Cursor.transform.localScale = 0.3f * Vector3.one; 
             Right.Cursor.transform.localRotation = Quaternion.AngleAxis(45.0f, new Vector3(1, 0, 1).normalized);
             MaterialUtil.DisableShadows(Right.Cursor);
@@ -197,11 +200,11 @@ namespace f3 {
 
                     // raycast into scene to see if we hit object, UI, bounds, etc. 
                     bool bHit = false;
-                    if (scene != null) {
+                    if (context != null) {
                         // want to hit-test active gizmo first, because that has hit-priority
-                        if ( scene.TransformManager.HaveActiveGizmo ) {
+                        if ( context.TransformManager.HaveActiveGizmo ) {
                             UIRayHit uiHit = null;
-                            if ( scene.TransformManager.ActiveGizmo.FindRayIntersection(h.CursorRay, out uiHit) ) {
+                            if ( context.TransformManager.ActiveGizmo.FindRayIntersection(h.CursorRay, out uiHit) ) {
                                 h.RayHitPos = uiHit.hitPos;
                                 bHit = true;
                             }
@@ -209,7 +212,7 @@ namespace f3 {
                         // next we tested scene
                         if (bHit == false) {
                             AnyRayHit hit = null;
-                            if (scene.FindAnyRayIntersection(h.CursorRay, out hit)) {
+                            if (context.FindAnyRayIntersection(h.CursorRay, out hit)) {
                                 h.RayHitPos = hit.hitPos;
                                 bHit = true;
                             }
@@ -217,7 +220,7 @@ namespace f3 {
                         // finally test worldbounds
                         if (bHit == false) { 
                             GameObjectRayHit ghit = null;
-                            if (scene.GetScene().FindWorldBoundsHit(h.CursorRay, out ghit)) {
+                            if (context.GetScene().FindWorldBoundsHit(h.CursorRay, out ghit)) {
                                 h.RayHitPos = ghit.hitPos;
                             }
                         }
@@ -260,6 +263,13 @@ namespace f3 {
                         h.LaserRen.SetPosition(1, p1);
                         h.LaserRen.SetWidth(r0, r0);
                     }
+
+                    // udpate cursor
+                    Mesh useMesh = context.ToolManager.HasActiveTool(i) ? activeToolCursorMesh : standardCursorMesh;
+                    if (h.Cursor.GetSharedMesh() != useMesh) {
+                        h.Cursor.SetSharedMesh(useMesh);
+                    }
+
 
                 } else {
                     UnityUtil.Hide(h.Hand);
