@@ -1,5 +1,6 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
+using UnityEngine;
+using g3;
 
 namespace f3
 {
@@ -12,7 +13,13 @@ namespace f3
 		{
 		}
 
-		public void Create( Mesh mesh, SOMaterial setMaterial) {
+        public void Create(SimpleMesh mesh, SOMaterial setMaterial)
+        {
+            Mesh umesh = UnityUtil.SimpleMeshToUnityMesh(mesh, false);
+            Create(umesh, setMaterial);
+        }
+
+        public void Create( Mesh mesh, SOMaterial setMaterial) {
             AssignSOMaterial(setMaterial);       // need to do this to setup BaseSO material stack
 
             parentGO = new GameObject(UniqueNames.GetNext("Mesh"));
@@ -26,6 +33,10 @@ namespace f3
             AppendNewGO(meshGO, parentGO, true);
         }
 
+        public SimpleMesh GetSimpleMesh(bool bSwapLeftToRight)
+        {
+            return UnityUtil.UnityMeshToSimpleMesh(meshGO.GetSharedMesh(), bSwapLeftToRight);
+        }
 
 
         //

@@ -490,6 +490,149 @@ namespace f3
         }
 
 
+        public static UnityEngine.Mesh SimpleMeshToUnityMesh(SimpleMesh m, bool bSwapLeftRight)
+        {
+            if (m.VertexCount > 65000 || m.TriangleCount > 65000) {
+                Debug.Log("[SimpleMeshReader] attempted to import object larger than 65000 verts/tris, not supported by Unity!");
+                return null;
+            }
+
+            UnityEngine.Mesh unityMesh = new UnityEngine.Mesh();
+
+            Vector3[] vertices = dvector_to_vector3(m.Vertices);
+            Vector3[] normals = (m.HasVertexNormals) ? dvector_to_vector3(m.Normals) : null;
+            if (bSwapLeftRight) {
+                int nV = vertices.Length;
+                for (int i = 0; i < nV; ++i) {
+                    vertices[i].x = -vertices[i].x;
+                    vertices[i].z = -vertices[i].z;
+                    if (normals != null) {
+                        normals[i].x = -normals[i].x;
+                        normals[i].z = -normals[i].z;
+                    }
+                }
+            }
+
+            unityMesh.vertices = vertices;
+            if (m.HasVertexNormals)
+                unityMesh.normals = normals;
+            if (m.HasVertexColors)
+                unityMesh.colors = dvector_to_color(m.Colors);
+            if (m.HasVertexUVs)
+                unityMesh.uv = dvector_to_vector2(m.UVs);
+            unityMesh.triangles = m.GetTriangleArray();
+
+            if (m.HasVertexNormals == false)
+                unityMesh.RecalculateNormals();
+
+            return unityMesh;
+        }
+
+
+        public static SimpleMesh UnityMeshToSimpleMesh(UnityEngine.Mesh mesh, bool bSwapLeftright)
+        {
+            SimpleMesh smesh = new SimpleMesh();
+
+            bool bNormals = (mesh.normals.Length == mesh.vertexCount);
+            bool bColors = (mesh.colors.Length == mesh.vertexCount || mesh.colors32.Length == mesh.vertexCount);
+            bool bByteColors = (mesh.colors32.Length == mesh.vertexCount);
+            bool bUVs = (mesh.uv.Length == mesh.vertexCount);
+
+            smesh.Initialize(bNormals, bColors, bUVs, false);
+
+            for ( int i = 0; i < mesh.vertexCount; ++i ) {
+                Vector3d v = mesh.vertices[i];
+                if ( bSwapLeftright ) {
+                    v.x = -v.x;
+                    v.z = -v.z;
+                }
+                NewVertexInfo vInfo = new NewVertexInfo(v);
+                if ( bNormals ) {
+                    vInfo.bHaveN = true;
+                    vInfo.n = mesh.normals[i];
+                    if ( bSwapLeftright ) {
+                        vInfo.n.x = -vInfo.n.x;
+                        vInfo.n.z = -vInfo.n.z;
+                    }
+                }
+                if (bColors) {
+                    vInfo.bHaveC = true;
+                    if (bByteColors)
+                        vInfo.c = new Colorf(mesh.colors32[i].r, mesh.colors32[i].g, mesh.colors32[i].b, 255);
+                    else
+                        vInfo.c = mesh.colors[i];
+                }
+                if ( bUVs ) {
+                    vInfo.bHaveUV = true;
+                    vInfo.uv = mesh.uv[i];
+                }
+
+                int vid = smesh.AppendVertex(vInfo);
+                if (vid != i)
+                    throw new InvalidOperationException("UnityUtil.UnityMeshToSimpleMesh: indices weirdness...");
+            }
+
+            for (int i = 0; i < mesh.triangles.Length / 3; ++i)
+                smesh.AppendTriangle(mesh.triangles[3 * i], mesh.triangles[3 * i + 1], mesh.triangles[3 * i + 2]);
+
+            return smesh;
+        }
+
+
+
+        // stupid per-type conversion functions because fucking C# 
+        // can't do typecasts in generic functions
+        public static Vector3[] dvector_to_vector3(DVector<double> vec)
+        {
+            int nLen = vec.Length / 3;
+            Vector3[] result = new Vector3[nLen];
+            for (int i = 0; i < nLen; ++i) {
+                result[i].x = (float)vec[3 * i];
+                result[i].y = (float)vec[3 * i + 1];
+                result[i].z = (float)vec[3 * i + 2];
+            }
+            return result;
+        }
+        public static Vector3[] dvector_to_vector3(DVector<float> vec)
+        {
+            int nLen = vec.Length / 3;
+            Vector3[] result = new Vector3[nLen];
+            for (int i = 0; i < nLen; ++i) {
+                result[i].x = vec[3 * i];
+                result[i].y = vec[3 * i + 1];
+                result[i].z = vec[3 * i + 2];
+            }
+            return result;
+        }
+        public static Vector2[] dvector_to_vector2(DVector<float> vec)
+        {
+            int nLen = vec.Length / 2;
+            Vector2[] result = new Vector2[nLen];
+            for (int i = 0; i < nLen; ++i) {
+                result[i].x = vec[2 * i];
+                result[i].y = vec[2 * i + 1];
+            }
+            return result;
+        }
+        public static Color[] dvector_to_color(DVector<float> vec)
+        {
+            int nLen = vec.Length / 3;
+            Color[] result = new Color[nLen];
+            for (int i = 0; i < nLen; ++i) {
+                result[i].r = vec[3 * i];
+                result[i].g = vec[3 * i + 1];
+                result[i].b = vec[3 * i + 2];
+            }
+            return result;
+        }
+
+
+
+
+
+
+
+
         public static bool InputAxisExists(string sName) {
             try {
                 Input.GetAxis(sName);
