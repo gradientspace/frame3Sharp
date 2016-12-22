@@ -40,6 +40,13 @@ namespace f3
             return m;
         }
 
+        public static fMaterial CreateTransparentMaterialF(Color c, float alpha)
+        {
+            Material m = new Material(Resources.Load(SceneGraphConfig.DefaultTransparentMaterialPath) as Material);
+            m.color = MakeColor(c, alpha);
+            return new fMaterial(m);
+        }
+
 
         public static Material CreateFlatMaterial(Color c, float alpha = 1.0f) {
             Material m = new Material(Resources.Load(SceneGraphConfig.DefaultUnlitTransparentMaterialPath) as Material);

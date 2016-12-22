@@ -47,6 +47,13 @@ namespace f3
             go.GetComponent<MeshFilter>().sharedMesh = m;
         }
 
+        public static void SetMaterial(this GameObject go, fMaterial mat) {
+            go.GetComponent<Renderer>().material = mat;
+        }
+        public static fMaterial GetMaterial(this GameObject go) {
+            return new fMaterial(go.GetComponent<Renderer>().material);
+        }
+
 
         public static void SetName(this Camera cam, string name) {
             cam.name = name;
@@ -63,6 +70,32 @@ namespace f3
         }
 
     }
+
+
+
+    public static class GameObjectFactory
+    {
+        public static fGameObject CreateMeshGO(string sName, Mesh mesh = null, bool bCollider = false)
+        {
+            GameObject go = new GameObject(sName);
+            go.AddComponent<MeshFilter>();
+            if ( mesh != null )
+                go.SetMesh(mesh);
+            go.AddComponent<MeshRenderer>();
+            if (bCollider) {
+                var collider = go.AddComponent<MeshCollider>();
+                collider.enabled = false;
+            }
+            return new fGameObject(go);
+        }
+
+
+        public static void DestroyGO(fGameObject go) {
+            UnityEngine.GameObject.Destroy(go);
+        }
+
+    }
+
 
 
     // various utility code
@@ -487,6 +520,9 @@ namespace f3
                 UnityUtil.primitiveMeshes[type] = mesh;
             }
             return UnityUtil.primitiveMeshes[type];
+        }
+        public static Mesh GetSphereMesh() {
+            return GetPrimitiveMesh(PrimitiveType.Sphere);
         }
 
 
