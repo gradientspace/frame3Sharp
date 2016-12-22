@@ -99,7 +99,7 @@ namespace f3
         public FContext ActiveController {
             get { return this.context; }
         }
-        public Camera ActiveCamera {
+        public fCamera ActiveCamera {
             get { return this.context.ActiveCamera; }
         }
 

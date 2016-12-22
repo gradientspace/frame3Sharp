@@ -67,7 +67,7 @@ namespace f3
         {
             float fScaling = VRUtil.GetVRRadiusForVisualAngle(
                 pivot.transform.position, 
-                parentScene.ActiveCamera.transform.position, 
+                parentScene.ActiveCamera.GetPosition(), 
                 SceneGraphConfig.DefaultPivotVisualDegrees );
             fScaling /= parentScene.GetSceneScale();
             pivot.transform.localScale = new Vector3(fScaling, fScaling, fScaling);

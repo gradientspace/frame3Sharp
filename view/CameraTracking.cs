@@ -69,7 +69,7 @@ namespace f3 {
                 // raycast into scene and if we hit ball before we hit anything else, render
                 // it darker red, to give some sense of inside/outside
                 if (this.context != null) {
-                    Vector3 camPos = this.context.ActiveCamera.transform.position;
+                    Vector3 camPos = this.context.ActiveCamera.GetPosition();
                     float fDistSqr = (TargetPoint - camPos).sqrMagnitude;
                     Ray ray_t = new Ray(camPos, (TargetPoint - camPos).normalized);
                     AnyRayHit hit;

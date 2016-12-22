@@ -144,8 +144,8 @@ namespace f3
         {
             // do computations in Scene coords..."safest"?
 
-            Vector3f camPos = scene.ActiveCamera.transform.position;
-            Vector3f camForward = scene.ActiveCamera.transform.forward;
+            Vector3f camPos = scene.ActiveCamera.GetPosition();
+            Vector3f camForward = scene.ActiveCamera.Forward();
             // use level-forward
             camForward[1] = 0; camForward.Normalize();
 

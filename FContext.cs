@@ -53,9 +53,9 @@ namespace f3 {
 				scene = new FScene (this);
 			return scene;
 		}
-        public Camera ActiveCamera
+        public fCamera ActiveCamera
         {
-            get { return Camera.main; }
+            get { return new fCamera(Camera.main); }
         }
 
 		public Cockpit ActiveCockpit { 
@@ -116,7 +116,7 @@ namespace f3 {
             camTracker = new CameraTracking();
             camTracker.Initialize(this);
             // [RMS] hardcode starting cam target point to origin
-            ActiveCamera.gameObject.GetComponent<CameraTarget>().TargetPoint = Vector3.zero;
+            ActiveCamera.SetTarget(Vector3f.Zero);
 
             if (options.MouseCameraControls != null)
                 MouseCameraController = options.MouseCameraControls;
@@ -336,12 +336,12 @@ namespace f3 {
                 TerminateHovers(input);
 
                 bInCameraControl = true;
-                ActiveCamera.gameObject.GetComponent<CameraTarget>().ShowTarget = true;
+                ActiveCamera.SetTargetVisible(true);
             } else if (eCamState == CameraInteractionState.EndCameraAction) {
                 bInCameraControl = false;
-                ActiveCamera.gameObject.GetComponent<CameraTarget>().ShowTarget = false;
+                ActiveCamera.SetTargetVisible(false);
             } else if (bInCameraControl) {
-                ActiveCamera.gameObject.GetComponent<CameraTarget>().ShowTarget = true;
+                ActiveCamera.SetTargetVisible(true);
                 MouseCameraController.DoCameraControl(Scene, ActiveCamera, input);
 
 
@@ -495,7 +495,7 @@ namespace f3 {
             //Vector3f localTarget = Scene.WorldFrame.ToFrameP(camTarget);
             Vector3f vDeltaOrig = Scene.SceneFrame.ToFrameP(vCenterW);
 
-            ActiveCamera.gameObject.GetComponent<CameraManipulator>().ResetSceneOrbit(
+            ActiveCamera.GetManipulator().ResetSceneOrbit(
                 Scene, false, true, true);
 
             float fCurScale = Scene.GetSceneScale();
@@ -588,10 +588,11 @@ namespace f3 {
 
 
         // this only makes sense in 2D, right?
-        public Ray GetWorldRayAt2DViewCenter() {
-			Ray eyeRay = ActiveCamera.ViewportPointToRay(new Vector3(0.5F, 0.5F, 0));
-			return eyeRay;
-		}
+        // [RMS] commented 22/12/2016...
+  //      public Ray GetWorldRayAt2DViewCenter() {
+		//	Ray eyeRay = ActiveCamera.ViewportPointToRay(new Vector3(0.5F, 0.5F, 0));
+		//	return eyeRay;
+		//}
 
 		public Ray GetWorldRayAtMouseCursor() {
 			Vector3 camPos = MouseController.CurrentCursorRaySourceWorld;

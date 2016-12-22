@@ -122,7 +122,7 @@ namespace f3
 
             float fScaling = VRUtil.GetVRRadiusForVisualAngle(
                gizmo.transform.position,
-               parentScene.ActiveCamera.transform.position,
+               parentScene.ActiveCamera.GetPosition(),
                SceneGraphConfig.DefaultAxisGizmoVisualDegrees);
             fScaling /= parentScene.GetSceneScale();
             float fGeomDim = gizmoGeomBounds.size.magnitude;
