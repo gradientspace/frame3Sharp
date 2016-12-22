@@ -118,7 +118,7 @@ namespace f3 {
             Left.Laser = new GameObject("left_laser");
             Left.LaserRen = Left.Laser.AddComponent<LineRenderer>();
             Left.LaserRen.SetPositions( new Vector3[2] { Vector3.zero, 100*Vector3.up }  );
-            Left.LaserRen.SetWidth(0.01f, 0.01f);
+            Left.LaserRen.startWidth = Left.LaserRen.endWidth = 0.01f;
             Left.LaserRen.material = MaterialUtil.CreateFlatMaterial(ColorUtil.ForestGreen, 0.2f);
             Left.Laser.SetLayer(FPlatform.CursorLayer);
             Left.Laser.transform.parent = Left.Cursor.transform;
@@ -140,7 +140,7 @@ namespace f3 {
             Right.Laser = new GameObject("right_laser");
             Right.LaserRen = Right.Laser.AddComponent<LineRenderer>();
             Right.LaserRen.SetPositions(new Vector3[2] { Vector3.zero, 100 * Vector3.up });
-            Right.LaserRen.SetWidth(0.01f, 0.01f);
+            Right.LaserRen.startWidth = Right.LaserRen.endWidth = 0.01f;
             Right.LaserRen.material = MaterialUtil.CreateFlatMaterial(ColorUtil.CgRed, 0.2f);
             Right.Laser.SetLayer(FPlatform.CursorLayer);
             Right.Laser.transform.parent = Right.Cursor.transform;
@@ -261,7 +261,7 @@ namespace f3 {
                         float r0 = VRUtil.GetVRRadiusForVisualAngle(p0, camera.transform.position, 0.5f);
                         h.LaserRen.SetPosition(0, p0);
                         h.LaserRen.SetPosition(1, p1);
-                        h.LaserRen.SetWidth(r0, r0);
+                        h.LaserRen.startWidth = h.LaserRen.endWidth = r0;
                     }
 
                     // udpate cursor

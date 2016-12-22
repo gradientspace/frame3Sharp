@@ -78,7 +78,7 @@ namespace f3
 
             if (EnableLineRenderer) {
                 LineRenderer ren = root.AddComponent<LineRenderer>();
-                ren.SetWidth(0.05f, 0.05f);
+                ren.startWidth = ren.endWidth = 0.05f;
                 ren.useWorldSpace = false;
             }
 
@@ -124,7 +124,7 @@ namespace f3
                     int i = 0;
                     foreach (var v in curve.Vertices)
                         vec[i++] = (Vector3)v;
-                    ren.SetVertexCount(curve.VertexCount);
+                    ren.numPositions = curve.VertexCount;
                     ren.SetPositions(vec);
                 }
 
@@ -162,7 +162,8 @@ namespace f3
 
                 if (fNewWidth > 0) {
                     visibleWidth = fNewWidth;
-                    root.GetComponent<LineRenderer>().SetWidth(visibleWidth, visibleWidth);
+                    LineRenderer r = root.GetComponent<LineRenderer>();
+                    r.startWidth = r.endWidth = visibleWidth;
                 }
             }
         }

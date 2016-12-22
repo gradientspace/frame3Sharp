@@ -83,8 +83,8 @@ namespace f3
 			line.AddComponent<LineRenderer> ();
 			LineRenderer lr = line.GetComponent<LineRenderer> ();
 			lr.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
-            lr.SetColors (color, color);
-			lr.SetWidth (diameter, diameter);
+            lr.startColor = lr.endColor = color;
+            lr.startWidth = lr.endWidth = diameter;
 			lr.SetPosition (0, start);
 			lr.SetPosition (1, end);
 			return line;
@@ -97,8 +97,9 @@ namespace f3
             line.AddComponent<LineRenderer>();
             LineRenderer lr = line.GetComponent<LineRenderer>();
             lr.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
-            lr.SetColors(startColor, endColor);
-            lr.SetWidth(diameter, diameter);
+            lr.startColor = startColor;
+            lr.endColor = endColor;
+            lr.startWidth = lr.endWidth = diameter;
             lr.SetPosition(0, start);
             lr.SetPosition(1, end);
             return line;

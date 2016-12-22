@@ -276,7 +276,6 @@ namespace f3 {
 			cylinder.triangles = triangles;
 
 			cylinder.RecalculateBounds();
-			cylinder.Optimize();
 
 			return cylinder;
 		}
