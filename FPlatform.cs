@@ -32,6 +32,15 @@ namespace f3
         {
             frame_counter++;
         }
+
+
+        static public bool IsUsingVR()
+        {
+            return UnityEngine.VR.VRSettings.enabled;
+            //return UnityEngine.VR.VRSettings.isDeviceActive;
+        }
+
+
     }
 
 

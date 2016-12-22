@@ -7,12 +7,13 @@ namespace f3 {
 	public class SceneLightingSetup : MonoBehaviour {
 
 		public FContext Scene { get; set; }
+        public float LightDistance = 20.0f;
 
         List<GameObject> lights = new List<GameObject>();
 
 		// Use this for initialization
 		void Start () {
-			Vector3 vCornerPos = 20.0f * new Vector3 (1, 3, 1).normalized;
+			Vector3 vCornerPos = LightDistance * new Vector3 (1, 3, 1).normalized;
 
 			for (int k = 0; k < 4; k++) {
 				GameObject lightObj = new GameObject (string.Format ("spotlight{0}", k));

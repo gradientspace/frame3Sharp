@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
+using g3;
 
 namespace f3
 {
@@ -71,22 +72,22 @@ namespace f3
 
         public static string DefaultStandardMaterialPath
         {
-            get { return "StandardMaterials/defaults/default_standard"; }
+            get { return "StandardMaterials/default_standard"; }
         }
         public static string DefaultTransparentMaterialPath {
-			get { return "StandardMaterials/defaults/standard_transparent"; }
+			get { return "StandardMaterials/standard_transparent"; }
 		}
         public static string DefaultUnlitTransparentMaterialPath
         {
-            get { return "StandardMaterials/defaults/default_unlit_transparent"; }
+            get { return "StandardMaterials/default_unlit_transparent"; }
         }
         public static string DefaultUnlitTextureTransparentMaterialPath
         {
-            get { return "StandardMaterials/defaults/default_unlit_texture_transparent"; }
+            get { return "StandardMaterials/default_unlit_texture_transparent"; }
         }
         public static string DefaultUnlitTextureMaterialPath
         {
-            get { return "StandardMaterials/defaults/default_unlit_texture"; }
+            get { return "StandardMaterials/default_unlit_texture"; }
         }
 
 
@@ -97,10 +98,8 @@ namespace f3
         }
 
 
-        public static Vector3 InitialSceneTranslate
-        {
-            get { return -4.0f * Vector3.up; }
-        }
+        // [RMS] this is what we use for VR scenes...should not be set to this value, probably!!
+        public static Vector3f InitialSceneTranslate = -4.0f * Vector3f.AxisY;
 
 
         public static float DefaultPivotVisualDegrees

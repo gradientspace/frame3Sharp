@@ -39,6 +39,16 @@ namespace f3
                 .Rotated(Quaternion.FromToRotation(initFrame.Z, hudFrame.Z)));
         }
 
+        public static void PlaceInSphereWithNormal(HUDStandardItem hudItem, float fHUDRadius, float fAngleHorz, float fAngleVert, Vector3 vPointDir)
+        {
+            Frame3f initFrame = hudItem.GetObjectFrame();
+            Frame3f hudFrame = GetSphereFrame(fHUDRadius, fAngleHorz, fAngleVert);
+            hudItem.SetObjectFrame(
+                initFrame.Translated(hudFrame.Origin)
+                .Rotated(Quaternion.FromToRotation(initFrame.Z, vPointDir)));
+        }
+
+
         public static void PlaceInSphere(HUDStandardItem hudItem, float fHUDRadius, Vector3 vHUDCenter, Vector3 vPlaceAt)
         {
             Frame3f initFrame = hudItem.GetObjectFrame();
