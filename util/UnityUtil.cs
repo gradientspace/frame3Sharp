@@ -75,6 +75,13 @@ namespace f3
 
     public static class GameObjectFactory
     {
+        public static fGameObject CreateParentGO(string sName)
+        {
+            GameObject go = new GameObject(sName);
+            return new fGameObject(go);
+        }
+
+
         public static fGameObject CreateMeshGO(string sName, Mesh mesh = null, bool bCollider = false)
         {
             GameObject go = new GameObject(sName);
@@ -87,6 +94,31 @@ namespace f3
                 collider.enabled = false;
             }
             return new fGameObject(go);
+        }
+
+
+        public static fGameObject CreateTextMeshGO(string sName, string sText, Colorf textColor, float fTextHeight)
+        {
+            GameObject textGO = new GameObject(sName);
+            TextMesh tm = textGO.AddComponent<TextMesh>();
+            tm.text = sText;
+            tm.color = textColor;
+            tm.fontSize = 50;
+            tm.offsetZ = -0.25f;
+            tm.alignment = TextAlignment.Left;
+            // ignore material changes when we add to GameObjectSet
+            textGO.AddComponent<IgnoreMaterialChanges>();
+            // use our textmesh material instead
+            MaterialUtil.SetTextMeshDefaultMaterial(tm);
+
+            Vector2 size = UnityUtil.EstimateTextMeshDimensions(tm);
+            float fScaleH = fTextHeight / size[1];
+            tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
+            //tm.transform.Translate(-Width / 2.0f, fTextHeight / 2.0f, 0.0f);
+
+            textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
+
+            return new fGameObject(textGO);
         }
 
 
