@@ -25,6 +25,8 @@ namespace f3 {
 
         Capture captureMouse;                   // current object that is capturing mouse/gamepad input
 
+        Capture captureTouch;                   // current object that is capturing touch input
+
         Capture captureLeft;                    // current object capturing left spatial controller input
         Capture captureRight;                   // ditto right
 
@@ -141,6 +143,7 @@ namespace f3 {
 
 
             captureMouse = null;
+            captureTouch = null;
             captureLeft = captureRight = null;
             bInCameraControl = false;
 
@@ -175,9 +178,12 @@ namespace f3 {
 
             // can either use spacecontrols or mouse, but not both at same time
             // [TODO] ask spatial input controller instead, it knows better (?)
-            if (SpatialController.CheckForSpatialInputActive()) {
+            if ( FPlatform.IsUsingVR() && SpatialController.CheckForSpatialInputActive() ) {
                 Configure_SpaceControllers();
                 HandleInput_SpaceControllers();
+            } else if ( FPlatform.IsTouchDevice() ) {
+                Configure_TouchInput();
+                HandleInput_Touch();
             } else {
                 Configure_MouseOrGamepad();
                 HandleInput_MouseOrGamepad();
@@ -316,6 +322,72 @@ namespace f3 {
                 inputBehaviors.UpdateHover(input);
             
         }
+
+
+
+        void Configure_TouchInput()
+        {
+            SceneGraphConfig.ActiveDoubleClickDelay = SceneGraphConfig.MouseDoubleClickDelay;
+            ActiveInputDevice = InputDevice.TabletFingers;
+
+        }
+
+        void HandleInput_Touch()
+        {
+            // update mouse/gamepad cursor
+            MouseController.Update();
+
+            // create our super-input object  (wraps all supported input types)
+            InputState input = new InputState();
+            input.Initialize_TouchInput(this);
+
+            // run override behaviors
+            overrideBehaviors.SendOverrideInputs(input);
+
+            input.TouchCaptureActive = (captureTouch != null);
+
+            // update left-capture
+            if (captureTouch != null) {
+                Capture cap = captureTouch.element.UpdateCapture(input, captureTouch.data);
+                if (cap.state == CaptureState.Continue) {
+                    // (carry on)
+                } else if (cap.state == CaptureState.End) {
+                    DebugUtil.Log(10, "[SceneController] released touch capture " + captureTouch.element.CaptureIdentifier);
+                    captureTouch = null;
+                }
+            }
+
+            // if we have a free device, check for capture. 
+            bool bCanCapture = (bInCameraControl == false);
+            if (bCanCapture && captureTouch == null ) {
+
+                // collect up capture requests 
+                List<CaptureRequest> vRequests = new List<CaptureRequest>();
+                inputBehaviors.CollectWantsCapture(input, vRequests);
+                if ( vRequests.Count > 0 ) {
+
+                    // select one of the capture requests. technically we could end
+                    //  up with none successfully Begin'ing, but behaviors should be
+                    //  doing those checks in WantCapture, not BeginCapture !!
+                    vRequests.OrderBy(x => x.element.Priority);
+                    Capture capReq = null;
+                    for ( int i = 0; i < vRequests.Count && capReq == null; ++i ) {
+
+                        // filter out invalid requests
+                        //  (??)
+
+                        Capture c = vRequests[i].element.BeginCapture(input, CaptureSide.Any);
+                        if (c.state == CaptureState.Begin)
+                            capReq = c;
+                    }
+                    if (capReq != null) 
+                        captureTouch = capReq;
+
+                }
+            }
+
+        }
+
 
 
 

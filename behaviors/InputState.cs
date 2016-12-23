@@ -13,11 +13,16 @@ namespace f3
     {
         Mouse = 1,
         Gamepad = 2,
-        OculusTouch = 4
+
+        OculusTouch = 4,
+        HTCVive = 8,
+
+        TabletFingers = 1024
     }
 
 
-
+    // [RMS] [TODO] this object has gotten pretty huge...passing around as struct 
+    //   means a ton of copies!! maybe should be a class??
     public struct InputState
     {
         public InputDevice eDevice;
@@ -25,6 +30,7 @@ namespace f3
 
         // these are not set internally, placed here for convenience
         public bool MouseGamepadCaptureActive;      // [RMS] cannot differentiate these right now??
+        public bool TouchCaptureActive;
         public bool LeftCaptureActive;
         public bool RightCaptureActive;
 
@@ -125,6 +131,18 @@ namespace f3
         public Frame3f LeftHandFrame;
         public Frame3f RightHandFrame;
         public Frame3f HandFrame(int nSide) { return (nSide == 0) ? LeftHandFrame: RightHandFrame; }
+
+
+        // 
+        public bool bHaveTouch;     // if this is false, none of the other values are initialized!
+
+        public bool bTouchPressed;
+        public bool bTouchDown;
+        public bool bTouchReleased;
+
+        public Vector2f vTouchPosDelta2D;
+        public Vector2f vTouchPosition2D;
+        public Ray vTouchWorldRay;
 
 
         public void Initialize_MouseGamepad(FContext s)
@@ -252,6 +270,37 @@ namespace f3
 
             LeftHandFrame = s.SpatialController.Left.SmoothedHandFrame;
             RightHandFrame = s.SpatialController.Right.SmoothedHandFrame;
+        }
+
+
+
+
+        public void Initialize_TouchInput(FContext s)
+        {
+            eDevice = InputDevice.TabletFingers;
+
+            bTouchDown = bTouchPressed = bTouchReleased = false;
+
+            if ( Input.touchCount == 0 ) {
+                bHaveTouch = false;
+                return;
+            }
+
+            Touch t = Input.touches[0];
+
+            if ( t.phase == TouchPhase.Began ) {
+                bTouchPressed = true;
+                bTouchDown = true;
+            } else if ( t.phase == TouchPhase.Ended || t.phase == TouchPhase.Canceled ) {
+                bTouchReleased = true;
+            } else {
+                bTouchDown = true;
+            }
+
+            vTouchPosition2D = t.position;
+            vTouchPosDelta2D = t.deltaPosition;
+            // not really a mouse, but that is where we put it...
+            vTouchWorldRay = s.MouseController.CurrentCursorWorldRay();
         }
 
 
