@@ -329,6 +329,14 @@ namespace f3
             return HUDUtil.FindNearestRayIntersection(SceneObjects, ray, out hit, filter);
         }
 
+        public bool FindSORayIntersection_PivotPriority(Ray ray, out SORayHit hit, Func<SceneObject, bool> filter = null)
+        {
+            bool bHitPivot = HUDUtil.FindNearestRayIntersection(SceneObjects, ray, out hit, (s) => { return s is PivotSO; });
+            if (bHitPivot)
+                return true;
+            return HUDUtil.FindNearestRayIntersection(SceneObjects, ray, out hit, filter);
+        }
+
 
         // does not test bounds!
         // [TODO] this is going to be weird... need to test bounds, I think

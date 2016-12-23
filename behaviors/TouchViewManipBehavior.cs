@@ -45,7 +45,7 @@ namespace f3
         public override Capture BeginCapture(InputState input, CaptureSide eSide)
         {
             SORayHit hitSO;
-            if (context.Scene.FindSORayIntersection(input.vTouchWorldRay, out hitSO))
+            if (context.Scene.FindSORayIntersection_PivotPriority(input.vTouchWorldRay, out hitSO))
                 hitObject = hitSO.hitSO;
 
             downPos = input.vTouchPosition2D;
@@ -60,11 +60,18 @@ namespace f3
                 context.ActiveCamera.SetTargetVisible(false);
 
                 if ( bMaybeInSelect ) {
-                    if (context.Scene.IsSelected(hitObject))
+                    if (hitObject == null)
+                        context.Scene.ClearSelection();
+                    else if ( hitObject is PivotSO && context.TransformManager.HaveActiveGizmo)
+                        context.TransformManager.SetActiveReferenceObject(hitObject as PivotSO);
+                    else if (context.Scene.IsSelected(hitObject))
                         context.Scene.Deselect(hitObject);
                     else
                         context.Scene.Select(hitObject, true);
                 }
+
+                bMaybeInSelect = false;
+                hitObject = null;
 
                 return Capture.End;
             }
@@ -74,6 +81,7 @@ namespace f3
                     return Capture.Continue;
                 } else {
                     bMaybeInSelect = false;
+                    hitObject = null;
                     context.ActiveCamera.SetTargetVisible(true);
                 }
             }
