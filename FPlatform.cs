@@ -41,6 +41,12 @@ namespace f3
         }
 
 
+        static public bool IsTouchDevice()
+        {
+            return (Application.platform == RuntimePlatform.IPhonePlayer
+                        || Application.platform == RuntimePlatform.Android );
+        }
+
     }
 
 

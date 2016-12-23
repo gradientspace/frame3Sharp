@@ -67,6 +67,8 @@ namespace f3 {
                 if (mouseCursor == null) {
                     if (FPlatform.IsUsingVR())
                         mouseCursor = new VRMouseCursorController(ActiveCamera, this);
+                    else if ( FPlatform.IsTouchDevice() )
+                        mouseCursor = new TouchMouseCursorController(ActiveCamera, this);
                     else
                         mouseCursor = new SystemMouseCursorController(ActiveCamera, this);
                 }
@@ -589,20 +591,6 @@ namespace f3 {
 
             return false;
 		}
-
-
-
-        // this only makes sense in 2D, right?
-        // [RMS] commented 22/12/2016...
-  //      public Ray GetWorldRayAt2DViewCenter() {
-		//	Ray eyeRay = ActiveCamera.ViewportPointToRay(new Vector3(0.5F, 0.5F, 0));
-		//	return eyeRay;
-		//}
-
-		public Ray3f GetWorldRayAtMouseCursor() {
-            return MouseController.CurrentCursorWorldRay();
-		}
-
 
 
 

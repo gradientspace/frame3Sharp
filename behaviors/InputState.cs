@@ -150,7 +150,7 @@ namespace f3
 
             vMouseDelta2D = InputExtension.Get.Mouse.PositionDelta;
             vMousePosition2D = InputExtension.Get.Mouse.Position;
-            vMouseWorldRay = s.GetWorldRayAtMouseCursor();
+            vMouseWorldRay = s.MouseController.CurrentCursorWorldRay();
 
 
             bLeftTriggerPressed = InputExtension.Get.GamepadLeft.Pressed;
