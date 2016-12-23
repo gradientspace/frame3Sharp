@@ -16,7 +16,7 @@ namespace f3
     //
     public class fGameObject
     {
-        GameObject go;
+        protected GameObject go;
 
 
         public fGameObject(GameObject go)
@@ -134,4 +134,32 @@ namespace f3
             return new fGameObject(go);
         }
     }
+
+
+
+
+
+
+    public class fTextGameObject : fGameObject
+    {
+        public fTextGameObject(GameObject go) : base(go)
+        {
+        }
+
+        public void SetText(string sText)
+        {
+            TextMesh tm = go.GetComponent<TextMesh>();
+            tm.text = sText;
+        }
+
+        public void SetColor(Colorf color)
+        {
+            TextMesh tm = go.GetComponent<TextMesh>();
+            tm.color = color;
+        }
+
+
+    }
+
+
 }

@@ -97,7 +97,7 @@ namespace f3
         }
 
 
-        public static fGameObject CreateTextMeshGO(string sName, string sText, Colorf textColor, float fTextHeight)
+        public static fTextGameObject CreateTextMeshGO(string sName, string sText, Colorf textColor, float fTextHeight)
         {
             GameObject textGO = new GameObject(sName);
             TextMesh tm = textGO.AddComponent<TextMesh>();
@@ -118,7 +118,7 @@ namespace f3
 
             textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
 
-            return new fGameObject(textGO);
+            return new fTextGameObject(textGO);
         }
 
 
