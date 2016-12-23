@@ -43,6 +43,10 @@ namespace f3
 
         static public bool IsTouchDevice()
         {
+#if UNITY_EDITOR
+            if ( UnityEditor.EditorApplication.isRemoteConnected )
+                return true;
+#endif
             return (Application.platform == RuntimePlatform.IPhonePlayer
                         || Application.platform == RuntimePlatform.Android );
         }
