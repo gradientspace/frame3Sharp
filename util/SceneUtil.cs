@@ -114,6 +114,27 @@ namespace f3
 
 
 
+        public static MeshSO ImportExistingUnityMesh(GameObject go, FScene scene, bool bAddToScene = true, bool bKeepWorldPosition = true)
+        {
+            MeshFilter meshF = go.GetComponent<MeshFilter>();
+            if (meshF == null)
+                throw new Exception("SceneUtil.ImportExistingUnityMesh: gameObject is not a mesh!!");
+
+            MeshSO newSO  = new MeshSO();
+            newSO.Create(meshF.mesh, scene.DefaultMeshSOMaterial);
+
+            Frame3f frameW = UnityUtil.GetGameObjectFrame(go, CoordSpace.WorldCoords);
+            newSO.SetLocalFrame(frameW, CoordSpace.WorldCoords);
+
+            if ( bAddToScene )
+                scene.AddSceneObject(newSO, bKeepWorldPosition);
+
+            return newSO;
+        }
+
+
+
+
         public static void DestroySO(SceneObject so)
         {
             so.RootGameObject.transform.parent = null;
