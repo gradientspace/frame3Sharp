@@ -10,6 +10,15 @@ namespace f3
     // default maya alt+left/right/middle hotkeys
     class MayaCameraHotkeys : ICameraInteraction
     {
+        public float MouseOrbitSpeed = 10.0f;
+        public float MousePanSpeed = 0.5f;
+        public float MouseZoomSpeed = 0.5f;
+
+        public float GamepadOrbitSpeed = 2.0f;
+        public float GamepadPanSpeed = 0.2f;
+        public float GamepadZoomSpeed = 0.2f;
+
+
         public MayaCameraHotkeys()
         {
         }
@@ -38,22 +47,22 @@ namespace f3
             float dy2 = stick2.y;
 
             if (Input.GetMouseButton(0)) {
-                mainCamera.Manipulator().SceneOrbit(scene, mainCamera, 10.0f * dx, 10.0f * dy);
+                mainCamera.Manipulator().SceneOrbit(scene, mainCamera, MouseOrbitSpeed * dx, MouseOrbitSpeed * dy);
 
             } else if (Input.GetMouseButton(1)) {
-                mainCamera.Manipulator().SceneZoom(scene, mainCamera, -1.0f * dy);
+                mainCamera.Manipulator().SceneZoom(scene, mainCamera, -MouseZoomSpeed * dy);
                 //mainCamera.Manipulator().ScenePan(scene, mainCamera, 0.05f * dx, 0);
 
             } else if (Input.GetMouseButton(2)) {
-                mainCamera.Manipulator().ScenePan(scene, mainCamera, 0.5f * dx, 0.5f * dy);
+                mainCamera.Manipulator().ScenePan(scene, mainCamera, MousePanSpeed * dx, MousePanSpeed * dy);
 
             } else if (InputExtension.Get.GamepadRightShoulder.Down) {
-                mainCamera.Manipulator().SceneZoom(scene, mainCamera, 0.2f * dy);
-                mainCamera.Manipulator().ScenePan(scene, mainCamera, (-0.1f * dx) + (-0.2f * dx2), -0.2f * dy2);
+                mainCamera.Manipulator().SceneZoom(scene, mainCamera, GamepadZoomSpeed * dy);
+                mainCamera.Manipulator().ScenePan(scene, mainCamera, (-0.5f*GamepadPanSpeed * dx) + (-GamepadPanSpeed * dx2), -GamepadPanSpeed * dy2);
 
             } else if (InputExtension.Get.GamepadLeftShoulder.Down) {
-                mainCamera.Manipulator().SceneOrbit(scene, mainCamera, 2.0f * dx, 2.0f * dy);
-                mainCamera.Manipulator().ScenePan(scene, mainCamera, -0.2f * dx2, -0.2f * dy2);
+                mainCamera.Manipulator().SceneOrbit(scene, mainCamera, GamepadOrbitSpeed * dx, GamepadOrbitSpeed * dy);
+                mainCamera.Manipulator().ScenePan(scene, mainCamera, -GamepadPanSpeed * dx2, -GamepadPanSpeed * dy2);
             }
         }
 
