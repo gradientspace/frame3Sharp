@@ -8,6 +8,8 @@ namespace f3
     {
         Cockpit cockpit;
 
+        float TouchRotateSpeed = 0.1f;
+
         public TouchViewManipBehavior(Cockpit cockpit)
         {
             this.cockpit = cockpit;
@@ -47,7 +49,8 @@ namespace f3
             float dx = input.vTouchPosDelta2D.x;
             float dy = input.vTouchPosDelta2D.y;
 
-            cockpit.ActiveCamera.Manipulator().SceneOrbit(cockpit.Scene, cockpit.ActiveCamera, dx, dy);
+            cockpit.ActiveCamera.Manipulator().SceneOrbit(cockpit.Scene, cockpit.ActiveCamera, 
+                TouchRotateSpeed * dx, TouchRotateSpeed * dy);
 
             return Capture.Continue;
         }

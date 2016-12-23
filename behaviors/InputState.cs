@@ -285,6 +285,7 @@ namespace f3
                 bHaveTouch = false;
                 return;
             }
+            bHaveTouch = true;
 
             Touch t = Input.touches[0];
 
