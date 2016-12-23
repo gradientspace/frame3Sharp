@@ -18,36 +18,36 @@ namespace f3
 
         public bool Pressed(InputState input)
         {
-            if (input.eDevice == InputDevice.Mouse)
-                return input.bLeftMouseDown;
-            else if (input.eDevice == InputDevice.TabletFingers)
-                return input.bTouchDown;
+            if ( input.IsForDevice(InputDevice.Mouse) )
+                return input.bLeftMousePressed;
+            else if ( input.IsForDevice(InputDevice.TabletFingers) )
+                return input.bTouchPressed;
             return false;
         }
 
         public bool Down(InputState input)
         {
-            if (input.eDevice == InputDevice.Mouse)
-                return input.bLeftMousePressed;
-            else if (input.eDevice == InputDevice.TabletFingers)
-                return input.bTouchPressed;
+            if (input.IsForDevice(InputDevice.Mouse))
+                return input.bLeftMouseDown;
+            else if ( input.IsForDevice(InputDevice.TabletFingers) )
+                return input.bTouchDown;
             return false;
         }
 
         public bool Released(InputState input)
         {
-            if (input.eDevice == InputDevice.Mouse)
+            if (input.IsForDevice(InputDevice.Mouse))
                 return input.bLeftMouseReleased;
-            else if (input.eDevice == InputDevice.TabletFingers)
+            else if (input.IsForDevice(InputDevice.TabletFingers))
                 return input.bTouchReleased;
             return false;
         }
 
         public Ray3f WorldRay(InputState input)
         {
-            if (input.eDevice == InputDevice.Mouse)
+            if (input.IsForDevice(InputDevice.Mouse))
                 return input.vMouseWorldRay;
-            else if (input.eDevice == InputDevice.TabletFingers)
+            else if (input.IsForDevice(InputDevice.TabletFingers))
                 return input.vTouchWorldRay;
             return new Ray3f(Vector3f.Zero, Vector3f.AxisY); ;
         }

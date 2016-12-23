@@ -155,7 +155,7 @@ namespace f3
                     if (d > si.maxDiameter) {
                         si.maxDiameter = d;
                         si.maxDiamPos1 = si.vCrossings[i];
-                        si.maxDiamPos2 = si.vCrossings[2];
+                        si.maxDiamPos2 = si.vCrossings[j];
                     }
                 }
             }
