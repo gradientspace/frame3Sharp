@@ -122,7 +122,7 @@ namespace f3
         {
             GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             sphere.SetName(name);
-            sphere.transform.position = FContext.ActiveContext_HACK.MouseController.CurrentCursorPosWorld;
+            sphere.transform.position = FContext.ActiveContext_HACK.MouseController.CurrentWorldPosition();
             sphere.transform.localScale = new Vector3(diameter, diameter, diameter);
             sphere.GetComponent<MeshRenderer>().material =
                 MaterialUtil.CreateTransparentMaterial(color, 0.5f);

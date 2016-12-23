@@ -95,17 +95,21 @@ namespace f3
             if (Input.GetKeyDown(KeyCode.LeftAlt)) {
                 return CameraInteractionState.BeginCameraAction;
             } else if (InputExtension.Get.GamepadLeftShoulder.Pressed || InputExtension.Get.GamepadRightShoulder.Pressed) {
-                if (unfreezer == null)
-                    unfreezer = FContext.ActiveContext_HACK.MouseController.RequestFreezeCursor();
+
+                if (unfreezer == null && FContext.ActiveContext_HACK.MouseController is VRMouseCursorController )
+                    unfreezer = (FContext.ActiveContext_HACK.MouseController as VRMouseCursorController).RequestFreezeCursor();
+
                 return CameraInteractionState.BeginCameraAction;
             } else if (Input.GetKeyUp(KeyCode.LeftAlt)
                          || (InputExtension.Get.GamepadLeftShoulder.Released && InputExtension.Get.GamepadRightShoulder.Down == false)
                          || (InputExtension.Get.GamepadRightShoulder.Released && InputExtension.Get.GamepadLeftShoulder.Down == false)) {
                 end_camera_action();
+
                 if ( unfreezer != null ) {
                     unfreezer.Unfreeze();
                     unfreezer = null;
                 }
+
                 return CameraInteractionState.EndCameraAction;
             } else
                 return CameraInteractionState.Ignore;

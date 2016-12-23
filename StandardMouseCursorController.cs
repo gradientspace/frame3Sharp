@@ -6,7 +6,7 @@ using g3;
 
 namespace f3 {
 
-	public class VRMouseCursorController : ICursorController
+	public class StandardMouseCursorController : ICursorController
     {
 
 		Camera camera;
@@ -65,7 +65,7 @@ namespace f3 {
         bool bFreezeCursor = false;
 
 
-        public VRMouseCursorController(Camera viewCam, FContext context) {
+        public StandardMouseCursorController(Camera viewCam, FContext context) {
 			camera = viewCam;
 			this.context = context;
 		}
@@ -251,8 +251,7 @@ namespace f3 {
 
         public void ResetCursorToCenter()
         {
-            fCurPlaneX = 0;
-            fCurPlaneY = 0;
+            // can't do this?
         }
 
 

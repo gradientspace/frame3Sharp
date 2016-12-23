@@ -14,7 +14,7 @@ namespace f3 {
 
         SceneOptions options;
         FScene scene;                            // set of objects in our universe
-        VRMouseCursorController mouseCursor;		// handles mouse cursor interaction in VR
+        ICursorController mouseCursor;		    // handles mouse cursor interaction
         SpatialInputController spatialCursor;	// handles spatial interaction in VR
         CameraTracking camTracker;              // tracks some camera stuff that we probably could just put here now...
         TransformManager transformManager;      // manages transform gizmos
@@ -62,10 +62,14 @@ namespace f3 {
 			get { return activeCockpit; }
 		}
 
-		public VRMouseCursorController MouseController {
+		public ICursorController MouseController {
             get {
-                if (mouseCursor == null)
-                    mouseCursor = new VRMouseCursorController(ActiveCamera, this);
+                if (mouseCursor == null) {
+                    if (FPlatform.IsUsingVR())
+                        mouseCursor = new VRMouseCursorController(ActiveCamera, this);
+                    else
+                        mouseCursor = new StandardMouseCursorController(ActiveCamera, this);
+                }
                 return mouseCursor;
             }
 		}
@@ -594,13 +598,8 @@ namespace f3 {
 		//	return eyeRay;
 		//}
 
-		public Ray GetWorldRayAtMouseCursor() {
-			Vector3 camPos = MouseController.CurrentCursorRaySourceWorld;
-			Vector3 cursorPos = MouseController.CurrentCursorPosWorld;
-			Ray ray = new Ray (camPos, (cursorPos - camPos).normalized);
-            if (Mathf.Abs(ray.direction.sqrMagnitude - 1) > 0.001f)
-                ray = new Ray(camPos, Vector3.up);
-			return ray;
+		public Ray3f GetWorldRayAtMouseCursor() {
+            return MouseController.CurrentCursorWorldRay();
 		}
 
 
