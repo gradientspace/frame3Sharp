@@ -12,14 +12,11 @@ namespace f3
 
         void Update();
 
+        // these are only applicable in some cases...
         void HideCursor();
         void ShowCursor();
-
         void ResetCursorToCenter();
 
-
-        Vector3f CurrentWorldPosition();
-        Vector3f CurrentRaySourceWorldPosition();
         Ray3f CurrentCursorWorldRay();
     }
 }

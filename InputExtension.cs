@@ -73,12 +73,19 @@ namespace f3
     public class InputMouse
     {
         Func<Vector2f> deltaF;
+        Func<Vector2f> positionF;
         Func<float> wheelF;
 
-        public InputMouse(Func<Vector2f> deltaFunc, Func<float> wheelFunc)
+        public InputMouse(Func<Vector2f> deltaFunc, Func<Vector2f> positionFunc, Func<float> wheelFunc)
         {
             deltaF = deltaFunc;
+            positionF = positionFunc;
             wheelF = wheelFunc;
+        }
+
+        public Vector2f Position
+        {
+            get { return positionF(); }
         }
 
         public Vector2f PositionDelta
@@ -91,7 +98,8 @@ namespace f3
             get { return wheelF(); }
         }
 
-        public static readonly InputMouse NoMouse = new InputMouse(() => { return Vector2f.Zero; }, () => { return 0; });
+        public static readonly InputMouse NoMouse = new InputMouse(
+            () => { return Vector2f.Zero; }, () => { return Vector2f.Zero; }, () => { return 0; });
     }
 
 
@@ -158,6 +166,7 @@ namespace f3
                     wheelFunc = () => { return Input.GetAxis("Mouse ScrollWheel"); };
                 Mouse = new InputMouse(
                     () => { return new Vector2f(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")); }, 
+                    () => { return new Vector2f(Input.mousePosition.x, Input.mousePosition.y); },
                     wheelFunc);
             } else {
                 Mouse = InputMouse.NoMouse;

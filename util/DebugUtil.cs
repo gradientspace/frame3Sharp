@@ -120,15 +120,19 @@ namespace f3
 
         static public GameObject EmitDebugCursorSphere(string name, float diameter, Color color)
         {
-            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            sphere.SetName(name);
-            sphere.transform.position = FContext.ActiveContext_HACK.MouseController.CurrentWorldPosition();
-            sphere.transform.localScale = new Vector3(diameter, diameter, diameter);
-            sphere.GetComponent<MeshRenderer>().material =
-                MaterialUtil.CreateTransparentMaterial(color, 0.5f);
-            MaterialUtil.DisableShadows(sphere);
-            sphere.SetLayer(FPlatform.HUDLayer);
-            return sphere;
+            if (FContext.ActiveContext_HACK.MouseCameraController is VRMouseCursorController) {
+                GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                sphere.SetName(name);
+                sphere.transform.position =
+                        (FContext.ActiveContext_HACK.MouseCameraController as VRMouseCursorController).CurrentCursorPosWorld;
+                sphere.transform.localScale = new Vector3(diameter, diameter, diameter);
+                sphere.GetComponent<MeshRenderer>().material =
+                    MaterialUtil.CreateTransparentMaterial(color, 0.5f);
+                MaterialUtil.DisableShadows(sphere);
+                sphere.SetLayer(FPlatform.HUDLayer);
+                return sphere;
+            } else
+                throw new Exception("DebugUtil.EmitDebugCursorSphere: only works for VRMouseCursorController!");
         }
 
 

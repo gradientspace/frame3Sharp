@@ -31,6 +31,8 @@ namespace f3
 
         public GameObject SpatialCameraRig { get; set; }
 
+        public bool UseSystemMouseCursor { get; set; }
+
         public SceneOptions()
         {
             EnableCockpit = true;
@@ -38,6 +40,7 @@ namespace f3
             CockpitInitializer = null;
             SceneInitializer = null;
             MouseCameraControls = null;
+            UseSystemMouseCursor = false;
             // default logging level is to be verbose in editor
             LogLevel = (Application.isEditor) ? 1 : 0;
         }

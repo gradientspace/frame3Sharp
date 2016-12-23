@@ -68,7 +68,7 @@ namespace f3 {
                     if (FPlatform.IsUsingVR())
                         mouseCursor = new VRMouseCursorController(ActiveCamera, this);
                     else
-                        mouseCursor = new StandardMouseCursorController(ActiveCamera, this);
+                        mouseCursor = new SystemMouseCursorController(ActiveCamera, this);
                 }
                 return mouseCursor;
             }
@@ -143,7 +143,8 @@ namespace f3 {
             bInCameraControl = false;
 
 			// [RMS] this locks cursor to game unless user presses escape or exits
-			Cursor.lockState = CursorLockMode.Locked;
+            if ( FPlatform.IsUsingVR() || options.UseSystemMouseCursor )
+			    Cursor.lockState = CursorLockMode.Locked;
 
             // set hacky hackenstein global
             ActiveContext_HACK = this;

@@ -21,12 +21,6 @@ namespace f3 {
 		public Vector3 CurrentCursorPosWorld;
 		public Vector3 CurrentCursorRaySourceWorld;
 
-        public Vector3f CurrentWorldPosition() {
-            return CurrentCursorPosWorld;
-        }
-        public Vector3f CurrentRaySourceWorldPosition() {
-            return CurrentCursorRaySourceWorld;
-        }
         public Ray3f CurrentCursorWorldRay()
         {
 			Vector3f camPos = CurrentCursorRaySourceWorld;

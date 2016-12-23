@@ -47,7 +47,8 @@ namespace f3
 
         public float fMouseWheel;
 
-        public Vector2 vMouseDelta2D;
+        public Vector2f vMouseDelta2D;
+        public Vector2f vMousePosition2D;
         public Ray vMouseWorldRay;
 
 
@@ -148,6 +149,7 @@ namespace f3
             fMouseWheel = InputExtension.Get.Mouse.WheelDelta;
 
             vMouseDelta2D = InputExtension.Get.Mouse.PositionDelta;
+            vMousePosition2D = InputExtension.Get.Mouse.Position;
             vMouseWorldRay = s.GetWorldRayAtMouseCursor();
 
 
