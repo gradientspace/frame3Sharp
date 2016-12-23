@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using g3;
 
@@ -78,6 +79,91 @@ namespace f3
 
             return b;
         }
+
+
+
+
+
+
+
+        // this should probably not be here! also not ideal code...
+        public struct SectionInfo
+        {
+            public float maxDiameter;
+            public Vector3f maxDiamPos1, maxDiamPos2;
+            public List<Vector3f> vCrossings;
+        }
+        public SectionInfo MeasureSection(Frame3f f)
+        {
+            Mesh m = meshGO.GetSharedMesh();
+            Vector3[] vertices = m.vertices;        // these return copies!!
+            int[] triangles = m.triangles;
+
+            Vector3f up = f.Z;
+
+            SectionInfo si = new SectionInfo();
+            si.vCrossings = new List<Vector3f>();
+
+            float[] signs = new float[m.vertexCount];
+            for ( int i = 0; i < m.vertexCount; ++i ) {
+                Vector3f v = vertices[i];
+                signs[i] = (v - f.Origin).Dot(up); 
+            }
+
+            int[] t = new int[3];
+            float[] ts = new float[3];
+            Vector3f[] tv = new Vector3f[3];
+
+            int triCount = triangles.Length / 3;
+            for (int i = 0; i < triCount; ++i) {
+                int ti = 3 * i;
+                t[0] = triangles[ti];
+                t[1] = triangles[ti + 1];
+                t[2] = triangles[ti + 2];
+
+                int c = 0;
+                for ( int j = 0; j < 3; ++j ) {
+                    ts[j] = signs[t[j]];
+                    c += (int)Math.Sign(ts[j]);
+                    tv[j] = vertices[t[j]];
+                }
+                if (c == -3 || c == 3)
+                    continue;
+
+                for (int j = 0; j < 3; ++j) {
+                    float a = ts[j];
+                    float b = ts[(j + 1) % 3];
+                    if ( a == 0 ) {
+                        si.vCrossings.Add(tv[j]);
+                    }
+                    if ( b == 0 ) {
+                        si.vCrossings.Add(tv[(j + 1) % 3]);
+                    }
+                    if ( (a < 0 && b > 0) || (b < 0 && a > 0) ) {
+                        float alpha = (-b) / (a - b);
+                        si.vCrossings.Add(
+                            alpha * tv[j] + (1 - alpha) * tv[(j + 1) % 3]);
+                    }
+                }
+            }
+
+
+            si.maxDiameter = 0;
+            for ( int i = 0; i < si.vCrossings.Count; ++i ) {
+                for (int j = i+1; j < si.vCrossings.Count; ++j ) {
+                    float d = (si.vCrossings[i] - si.vCrossings[j]).LengthSquared;
+                    if (d > si.maxDiameter) {
+                        si.maxDiameter = d;
+                        si.maxDiamPos1 = si.vCrossings[i];
+                        si.maxDiamPos2 = si.vCrossings[2];
+                    }
+                }
+            }
+            si.maxDiameter = (float)Math.Sqrt(si.maxDiameter);
+
+            return si;
+        }
+
 
 
     }
