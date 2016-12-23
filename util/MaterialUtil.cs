@@ -22,7 +22,7 @@ namespace f3
 
         public static Material CreateStandardVertexColorMaterial(Color c)
         {
-            Material m = Resources.Load<Material>("StandardMaterials/default_vertex_colored");
+            Material m = new Material(Resources.Load<Material>("StandardMaterials/default_vertex_colored"));
             m.color = c;
             return m;
         }
@@ -74,7 +74,7 @@ namespace f3
 
         public static Material CreateTextMeshMaterial()
         {
-            Material m = Resources.Load<Material>("StandardMaterials/default_text_material");
+            Material m = new Material(Resources.Load<Material>("StandardMaterials/default_text_material"));
             return m;
         }
         public static void SetTextMeshDefaultMaterial(TextMesh textMesh)

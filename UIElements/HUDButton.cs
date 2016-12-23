@@ -105,6 +105,12 @@ namespace f3
 
 
 
+        public virtual void SetBackgroundMaterial(Material m)
+        {
+            MaterialUtil.SetMaterial(buttonMesh, m);
+        }
+
+
 		#region SceneUIElement implementation
 
 		override public UnityEngine.GameObject RootGameObject {
