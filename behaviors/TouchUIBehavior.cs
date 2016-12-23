@@ -25,7 +25,7 @@ namespace f3
         public override CaptureRequest WantsCapture(InputState input)
         {
             UIRayHit uiHit;
-            if (input.bTouchPressed) {
+            if (input.bTouchPressed && input.nTouchCount == 1) {
                 if (scene.FindUIHit(input.vTouchWorldRay, out uiHit)) {
                     bool bCanCapture = uiHit.hitUI.WantsCapture(InputEvent.Touch(input, new AnyRayHit(uiHit)));
                     if (bCanCapture)

@@ -135,6 +135,7 @@ namespace f3
 
         // 
         public bool bHaveTouch;     // if this is false, none of the other values are initialized!
+        public int nTouchCount;
 
         public bool bTouchPressed;
         public bool bTouchDown;
@@ -143,6 +144,14 @@ namespace f3
         public Vector2f vTouchPosDelta2D;
         public Vector2f vTouchPosition2D;
         public Ray vTouchWorldRay;
+
+        public bool bSecondTouchPressed;
+        public bool bSecondTouchDown;
+        public bool bSecondTouchReleased;
+
+        public Vector2f vSecondTouchPosDelta2D;
+        public Vector2f vSecondTouchPosition2D;
+        //public Ray vSecondTouchWorldRay;      // don't have this right now...
 
 
         public void Initialize_MouseGamepad(FContext s)
@@ -281,27 +290,41 @@ namespace f3
 
             bTouchDown = bTouchPressed = bTouchReleased = false;
 
-            if ( Input.touchCount == 0 ) {
+            nTouchCount = Input.touchCount;
+            if ( nTouchCount == 0 ) {
                 bHaveTouch = false;
                 return;
             }
             bHaveTouch = true;
 
             Touch t = Input.touches[0];
+            get_touch(t, ref bTouchPressed, ref bTouchDown, ref bTouchReleased,
+                ref vTouchPosition2D, ref vTouchPosDelta2D);
+            vTouchWorldRay = s.MouseController.CurrentCursorWorldRay();
 
-            if ( t.phase == TouchPhase.Began ) {
-                bTouchPressed = true;
-                bTouchDown = true;
-            } else if ( t.phase == TouchPhase.Ended || t.phase == TouchPhase.Canceled ) {
-                bTouchReleased = true;
-            } else {
-                bTouchDown = true;
+
+            if (nTouchCount > 1) {
+                Touch t2 = Input.touches[1];
+                get_touch(t2, ref bSecondTouchPressed, ref bSecondTouchDown, ref bSecondTouchReleased,
+                    ref vSecondTouchPosition2D, ref vSecondTouchPosDelta2D);
             }
 
-            vTouchPosition2D = t.position;
-            vTouchPosDelta2D = t.deltaPosition;
-            // not really a mouse, but that is where we put it...
-            vTouchWorldRay = s.MouseController.CurrentCursorWorldRay();
+        }
+
+        static void get_touch(Touch t, ref bool bPressed, ref bool bDown, ref bool bReleased, 
+            ref Vector2f pos, ref Vector2f delta)
+        {
+            if ( t.phase == TouchPhase.Began ) {
+                bPressed = true;
+                bDown = true;
+            } else if ( t.phase == TouchPhase.Ended || t.phase == TouchPhase.Canceled ) {
+                bReleased = true;
+            } else {
+                bDown = true;
+            }
+
+            pos = t.position;
+            delta = t.deltaPosition;
         }
 
 
