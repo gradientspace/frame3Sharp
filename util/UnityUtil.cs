@@ -97,6 +97,35 @@ namespace f3
         }
 
 
+
+        public static fLineGameObject CreateLineGO(string sName, Colorf color, float fLineWidth)
+        {
+            GameObject go = new GameObject(sName);
+            LineRenderer r = go.AddComponent<LineRenderer>();
+            r.useWorldSpace = false;
+            fLineGameObject lgo = new fLineGameObject(go);
+            lgo.SetColor(color);
+            lgo.SetLineWidth(fLineWidth);
+            return lgo;
+        }
+
+
+
+        public static fCircleGameObject CreateCircleGO(string sName, float fRadius, Colorf color, float fLineWidth)
+        {
+            GameObject go = new GameObject(sName);
+            LineRenderer r = go.AddComponent<LineRenderer>();
+            r.useWorldSpace = false;
+            fCircleGameObject fgo = new fCircleGameObject(go);
+            fgo.SetColor(color);
+            fgo.SetLineWidth(fLineWidth);
+            fgo.SetSteps(32);
+            fgo.SetRadius(fRadius);
+            return fgo;
+        }
+
+
+
         public static fTextGameObject CreateTextMeshGO(string sName, string sText, Colorf textColor, float fTextHeight)
         {
             GameObject textGO = new GameObject(sName);
@@ -179,6 +208,7 @@ namespace f3
             }
             return gameObj;
         }
+
 
 
 
