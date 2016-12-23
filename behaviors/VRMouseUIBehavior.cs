@@ -67,7 +67,11 @@ namespace f3
                 return Capture.End;
 
             } else {
-                Debug.Assert(false, "can we get here??");
+                DebugUtil.Log(2, "VRMouseUIBehavior.UpdateCapture: somehow ended up bere without left mouse release!");
+                if ( pCapturing != null ) {
+                    pCapturing.EndCapture(InputEvent.Mouse(input));
+                    pCapturing = null;
+                }
                 return Capture.End;
             }
         }

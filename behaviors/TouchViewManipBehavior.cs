@@ -1,18 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using g3;
 
 namespace f3
 {
     public class TouchViewManipBehavior : StandardInputBehavior
     {
-        Cockpit cockpit;
+        // because we cannot do press-drag vs press-release as separate
+        //  behaviors, we have to hack this for now...
+        public bool EnableSelectionBehavior = true;
+
+
+        FContext context;
 
         float TouchRotateSpeed = 0.1f;
 
-        public TouchViewManipBehavior(Cockpit cockpit)
+        Vector2f downPos;
+        bool bMaybeInSelect = false;
+        SceneObject hitObject;
+
+
+        public TouchViewManipBehavior(FContext context)
         {
-            this.cockpit = cockpit;
+            this.context = context;
         }
 
         public override InputDevice SupportedDevices {
@@ -25,10 +36,7 @@ namespace f3
                 return CaptureRequest.Ignore;
 
             if ( input.bTouchPressed ) {
-                SORayHit hitSO;
-                if ( cockpit.Scene.FindSORayIntersection( input.vTouchWorldRay, out hitSO ) == false ) {
-                    return CaptureRequest.Begin(this, CaptureSide.Any);
-                }
+                return CaptureRequest.Begin(this, CaptureSide.Any);
             }
             return CaptureRequest.Ignore;
         }
@@ -36,20 +44,44 @@ namespace f3
 
         public override Capture BeginCapture(InputState input, CaptureSide eSide)
         {
+            SORayHit hitSO;
+            if (context.Scene.FindSORayIntersection(input.vTouchWorldRay, out hitSO))
+                hitObject = hitSO.hitSO;
+
+            downPos = input.vTouchPosition2D;
+            bMaybeInSelect = true;
+
             return Capture.Begin(this, eSide, null);
         }
 
         public override Capture UpdateCapture(InputState input, CaptureData data)
         {
             if ( input.bTouchReleased ) { 
-                cockpit.ActiveCamera.gameObject.GetComponent<CameraTarget>().ShowTarget = false;
+                context.ActiveCamera.SetTargetVisible(false);
+
+                if ( bMaybeInSelect ) {
+                    if (context.Scene.IsSelected(hitObject))
+                        context.Scene.Deselect(hitObject);
+                    else
+                        context.Scene.Select(hitObject, true);
+                }
+
                 return Capture.End;
+            }
+
+            if (bMaybeInSelect) {
+                if ((input.vTouchPosition2D - downPos).Length < 5.0f) {
+                    return Capture.Continue;
+                } else {
+                    bMaybeInSelect = false;
+                    context.ActiveCamera.SetTargetVisible(true);
+                }
             }
 
             float dx = input.vTouchPosDelta2D.x;
             float dy = input.vTouchPosDelta2D.y;
 
-            cockpit.ActiveCamera.Manipulator().SceneOrbit(cockpit.Scene, cockpit.ActiveCamera, 
+            context.ActiveCamera.Manipulator().SceneOrbit(context.Scene, context.ActiveCamera, 
                 TouchRotateSpeed * dx, TouchRotateSpeed * dy);
 
             return Capture.Continue;
@@ -58,7 +90,7 @@ namespace f3
 
         public override Capture ForceEndCapture(InputState input, CaptureData data)
         {
-            cockpit.ActiveCamera.gameObject.GetComponent<CameraTarget>().ShowTarget = false;
+            context.ActiveCamera.SetTargetVisible(false);
             return Capture.End;
         }
 

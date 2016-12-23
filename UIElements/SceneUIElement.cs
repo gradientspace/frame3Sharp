@@ -22,7 +22,11 @@ namespace f3
             return new InputEvent() {
                 ray = input.vGamepadWorldRay, side = CaptureSide.Any, device = InputDevice.Gamepad, input = input, hit = hit };
         }
-        public static InputEvent Touch(CaptureSide which, InputState input, AnyRayHit hit = null) {
+        public static InputEvent Touch(InputState input, AnyRayHit hit = null) {
+            return new InputEvent() {
+                ray = input.vTouchWorldRay, side = CaptureSide.Any, device = InputDevice.TabletFingers, input = input, hit = hit };
+        }
+        public static InputEvent OculusTouch(CaptureSide which, InputState input, AnyRayHit hit = null) {
             return new InputEvent() {
                 ray = (which == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay,
                 side = which, device = InputDevice.OculusTouch, input = input, hit = hit };
