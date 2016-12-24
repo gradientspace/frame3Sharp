@@ -103,6 +103,7 @@ namespace f3
             GameObject go = new GameObject(sName);
             LineRenderer r = go.AddComponent<LineRenderer>();
             r.useWorldSpace = false;
+            r.material = MaterialUtil.CreateTransparentMaterial(Color.black, 0.75f);
             fLineGameObject lgo = new fLineGameObject(go);
             lgo.SetColor(color);
             lgo.SetLineWidth(fLineWidth);
@@ -116,6 +117,7 @@ namespace f3
             GameObject go = new GameObject(sName);
             LineRenderer r = go.AddComponent<LineRenderer>();
             r.useWorldSpace = false;
+            r.material = MaterialUtil.CreateTransparentMaterial(Color.black, 0.75f);
             fCircleGameObject fgo = new fCircleGameObject(go);
             fgo.SetColor(color);
             fgo.SetLineWidth(fLineWidth);
@@ -541,6 +543,16 @@ namespace f3
             m.vertices = verts;
         }
 
+        public static void RotateMesh(Mesh m, Quaternionf q, Vector3f c)
+        {
+            Vector3[] verts = m.vertices;
+            for ( int k = 0; k < verts.Length; ++k ) {
+                Vector3f v = verts[k];
+                verts[k] = q * (v - c) + c;
+            }
+            m.vertices = verts;
+        }
+
         public static void ScaleMesh(Mesh m)
         {
             // TODO
@@ -581,10 +593,25 @@ namespace f3
                 GameObject.Destroy(gameObject);
                 UnityUtil.primitiveMeshes[type] = mesh;
             }
-            return UnityUtil.primitiveMeshes[type];
+            return Mesh.Instantiate(UnityUtil.primitiveMeshes[type]);
         }
         public static Mesh GetSphereMesh() {
             return GetPrimitiveMesh(PrimitiveType.Sphere);
+        }
+        public static Mesh GetPlaneMesh() {
+            return GetPrimitiveMesh(PrimitiveType.Plane);
+        }
+        public static Mesh GetTwoSidedPlaneMesh() {
+            Mesh m = GetPrimitiveMesh(PrimitiveType.Plane);
+            Mesh m2 = GetPrimitiveMesh(PrimitiveType.Plane);
+            UnityUtil.RotateMesh(m2, Quaternionf.AxisAngleD(Vector3f.AxisX, 180.0f), Vector3f.Zero);
+            CombineInstance[] combine = new CombineInstance[2] {
+                new CombineInstance() { mesh = m, transform = Matrix4x4.identity },
+                new CombineInstance() { mesh = m2, transform = Matrix4x4.identity },
+            };
+            Mesh twosided = new Mesh();
+            twosided.CombineMeshes(combine);
+            return twosided;
         }
 
 

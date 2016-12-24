@@ -34,59 +34,65 @@ namespace f3
         }
 
 
-        public void SetName(string name)
+        public virtual void SetName(string name)
         {
             go.name = name;
         }
-        public string GetName()
+        public virtual string GetName()
         {
             return go.name;
         }
 
-        public void SetLayer(int layer)
+        public virtual void SetLayer(int layer)
         {
             go.layer = layer;
         }
-        public int GetLayer()
+        public virtual int GetLayer()
         {
             return go.layer;
         }
 
-        public bool HasChildren()
+        public virtual bool HasChildren()
         {
             return go.transform.childCount > 0;
         }
-        public System.Collections.IEnumerable Children()
+        public virtual System.Collections.IEnumerable Children()
         {
             for (int k = 0; k < go.transform.childCount; ++k)
                 yield return go.transform.GetChild(k).gameObject;
         }
 
 
-        public Mesh GetMesh()
+        public virtual Mesh GetMesh()
         {
             return go.GetComponent<MeshFilter>().mesh;
         }
-        public Mesh GetSharedMesh()
+        public virtual Mesh GetSharedMesh()
         {
             return go.GetComponent<MeshFilter>().sharedMesh;
         }
-        public void SetMesh(Mesh m)
+        public virtual void SetMesh(Mesh m)
         {
             go.GetComponent<MeshFilter>().mesh = m;
         }
-        public void SetSharedMesh(Mesh m)
+        public virtual void SetSharedMesh(Mesh m)
         {
             go.GetComponent<MeshFilter>().sharedMesh = m;
         }
 
-        public void SetMaterial(fMaterial mat)
+        public virtual void SetMaterial(fMaterial mat)
         {
             go.GetComponent<Renderer>().material = mat;
         }
-        public fMaterial GetMaterial()
+        public virtual fMaterial GetMaterial()
         {
             return new fMaterial(go.GetComponent<Renderer>().material);
+        }
+
+        public virtual void SetColor(Colorf color)
+        {
+            Renderer r = go.GetComponent<Renderer>();
+            r.material.color = color;
         }
 
 
@@ -100,49 +106,49 @@ namespace f3
 
 
 
-        public void SetPosition(Vector3f vPosition)
+        public virtual void SetPosition(Vector3f vPosition)
         {
             go.transform.position = vPosition;
         }
-        public Vector3f GetPosition()
+        public virtual Vector3f GetPosition()
         {
             return go.transform.position;
         }
 
-        public void SetLocalPosition(Vector3f vPosition)
+        public virtual void SetLocalPosition(Vector3f vPosition)
         {
             go.transform.localPosition = vPosition;
         }
-        public Vector3f GetLocalPosition()
+        public virtual Vector3f GetLocalPosition()
         {
             return go.transform.localPosition;
         }
 
-        public void SetLocalScale(Vector3f vScale)
+        public virtual void SetLocalScale(Vector3f vScale)
         {
             go.transform.localScale = vScale;
         }
-        public void SetLocalScale(float fScale)
+        public virtual void SetLocalScale(float fScale)
         {
             go.transform.localScale = fScale * Vector3f.One; 
         }
-        public Vector3f GetLocalScale()
+        public virtual Vector3f GetLocalScale()
         {
             return go.transform.localScale;
         }
 
 
-        public Frame3f GetWorldFrame() {
+        public virtual Frame3f GetWorldFrame() {
             return UnityUtil.GetGameObjectFrame(go, CoordSpace.WorldCoords);
         }
-        public void SetWorldFrame(Frame3f f) {
+        public virtual void SetWorldFrame(Frame3f f) {
             UnityUtil.SetGameObjectFrame(go, f, CoordSpace.WorldCoords);
         }
 
-        public Frame3f GetLocalFrame() {
+        public virtual Frame3f GetLocalFrame() {
             return UnityUtil.GetGameObjectFrame(go, CoordSpace.ObjectCoords);
         }
-        public void SetLocalFrame(Frame3f f) {
+        public virtual void SetLocalFrame(Frame3f f) {
             UnityUtil.SetGameObjectFrame(go, f, CoordSpace.ObjectCoords);
         }
 
@@ -174,7 +180,7 @@ namespace f3
             tm.text = sText;
         }
 
-        public void SetColor(Colorf color)
+        public override void SetColor(Colorf color)
         {
             TextMesh tm = go.GetComponent<TextMesh>();
             tm.color = color;
@@ -202,7 +208,7 @@ namespace f3
         }
         public float GetLineWidth() { return width; }
 
-        public void SetColor(Colorf newColor) {
+        public override void SetColor(Colorf newColor) {
             update(width, newColor);
         }
         public Colorf GetColor() { return color; }
@@ -218,6 +224,7 @@ namespace f3
             if (color != newColor) {
                 color = newColor;
                 r.startColor = r.endColor = color;
+                base.SetColor(color);       // material overrides line renderer??
             }
         }
 
