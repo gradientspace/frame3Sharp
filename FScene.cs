@@ -75,7 +75,7 @@ namespace f3
             };
             DefaultCurveSOMaterial = new SOMaterial() {
                 Name = "DefaultCurveSO",
-                Type = SOMaterial.MaterialType.StandardRGBColor, RGBColor = ColorUtil.DarkGrey
+                Type = SOMaterial.MaterialType.UnlitRGBColor, RGBColor = Colorf.DarkSlateGrey
             };
             DefaultMeshSOMaterial = new SOMaterial() {
                 Name = "DefaultMeshSO",

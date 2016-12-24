@@ -75,6 +75,10 @@ namespace f3
             get { return true; }
         }
 
+        virtual public bool IsSurface {
+            get { return target.IsSurface; }
+        }
+
         public SceneObject Duplicate()
         {
             throw new InvalidOperationException("TransientXFormSO::Duplicate not implemented!");

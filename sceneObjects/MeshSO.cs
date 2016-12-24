@@ -56,6 +56,10 @@ namespace f3
 
         override public SOType Type { get { return SOTypes.Mesh; } }
 
+        public override bool IsSurface {
+            get { return true; }
+        }
+
         override public SceneObject Duplicate()
         {
             MeshSO copy = new MeshSO();

@@ -16,7 +16,8 @@ namespace f3
             StandardRGBColor,
             TransparentRGBColor,
             PerVertexColor,
-            TextureMap
+            TextureMap,
+            UnlitRGBColor
         };
         public MaterialType Type { get; set; }
 

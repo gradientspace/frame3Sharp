@@ -53,6 +53,10 @@ namespace f3
             get { return false; }
         }
 
+        virtual public bool IsSurface {
+            get { throw new NotImplementedException("BaseSO.IsSurface"); }
+        }
+
         virtual public FScene GetScene()
         {
             return parentScene;

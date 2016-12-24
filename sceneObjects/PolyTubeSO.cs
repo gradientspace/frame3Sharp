@@ -40,6 +40,10 @@ namespace f3
         override public SOType Type { get { return SOTypes.PolyTube; } }
 
 
+        public override bool IsSurface {
+            get { return true; }
+        }
+
         public override SceneObject Duplicate()
         {
             PolyTubeSO copy = new PolyTubeSO();

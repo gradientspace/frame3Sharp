@@ -14,6 +14,10 @@ namespace f3
             MeshReferencePath = "";
         }
 
+        public override bool IsSurface {
+            get { return true; }
+        }
+
         override public SOType Type { get { return SOTypes.MeshReference; } }
 
     }

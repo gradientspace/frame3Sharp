@@ -45,6 +45,11 @@ namespace f3
                 "defer_rebuild", () => { return DeferRebuild; }, (b) => { DeferRebuild = b; }, defer_rebuild);
         }
 
+
+        public override bool IsSurface {
+            get { return true; }
+        }
+
         public ParameterSet Parameters {
             get { return parameters; }
         }

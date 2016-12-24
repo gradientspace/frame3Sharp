@@ -136,6 +136,11 @@ namespace f3
             }
         }
 
+        // not really sure what to do here...
+        public virtual bool IsSurface {
+            get { return true; }
+        }
+
         virtual public SceneObject Duplicate()
         {
             throw new InvalidOperationException("GroupSO::Duplicate not implemented!");

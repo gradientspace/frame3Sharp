@@ -184,6 +184,9 @@ namespace f3
             } else if (m.Type == SOMaterial.MaterialType.StandardRGBColor) {
                 return MaterialUtil.CreateStandardMaterial(m.RGBColor);
 
+            } else if (m.Type == SOMaterial.MaterialType.UnlitRGBColor) {
+                return MaterialUtil.CreateFlatMaterial(m.RGBColor);
+
             } else {
                 return MaterialUtil.CreateStandardMaterial(Color.black);
             }

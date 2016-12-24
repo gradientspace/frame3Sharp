@@ -42,6 +42,8 @@ namespace f3
         bool IsTemporary { get; }       // If return true, means object should not be serialized, etc
                                         // Useful for temp parent objects, that kind of thing.
 
+        bool IsSurface { get; }         // does this object have a surface we can use (ie a mesh/etc)
+
 		void SetScene(FScene s);
 		FScene GetScene();
 

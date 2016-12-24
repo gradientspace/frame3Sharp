@@ -58,8 +58,11 @@ namespace f3
 
         override public SOType Type { get { return SOTypes.Pivot; } }
 
-        public override bool SupportsScaling
-        {
+        public override bool IsSurface {
+            get { return false; }
+        }
+
+        public override bool SupportsScaling {
             get { return false; }
         }
 
@@ -72,7 +75,6 @@ namespace f3
             fScaling /= parentScene.GetSceneScale();
             pivot.transform.localScale = new Vector3(fScaling, fScaling, fScaling);
         }
-
 
 
         override public SceneObject Duplicate()

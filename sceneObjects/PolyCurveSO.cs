@@ -46,6 +46,10 @@ namespace f3
             get { return root; }
         }
 
+        public override bool IsSurface {
+            get { return false; }
+        }
+
         public override SceneObject Duplicate()
         {
             PolyCurveSO copy = new PolyCurveSO();
