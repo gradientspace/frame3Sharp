@@ -102,24 +102,14 @@ namespace f3
         public static Vector3f InitialSceneTranslate = -4.0f * Vector3f.AxisY;
 
 
-        public static float DefaultPivotVisualDegrees
-        {
-            get { return 2.0f; }
-        }
-        public static float DefaultAxisGizmoVisualDegrees
-        {
-            get { return 25.0f; }
-        }
-        public static float DefaultCurveVisualDegrees
-        {
-            get { return 0.25f; }
-        }
+        public static float DefaultPivotVisualDegrees = 2.0f;
+        public static float DefaultAxisGizmoVisualDegrees = 25.0f;
+        public static float DefaultSnapCurveVisualDegrees = 0.25f;
+        public static float DefaultSceneCurveVisualDegrees = 1.0f;
+
 
         // determined by geometry in SpatialInputController.cs
-        public static float HandTipOffset
-        {
-            get { return 0.1f; }
-        }
+        public static float HandTipOffset = 0.1f;
 
 
         // set this to 0 to disable cursor-hide

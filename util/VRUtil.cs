@@ -163,7 +163,7 @@ namespace f3
                 if (dv.Dot(camForward) < ViewConeDotThresh)
                     continue;
 
-                float r = VRUtil.GetVRRadiusForVisualAngle(vS, camPos, 1.0f);
+                float r = VRUtil.GetVRRadiusForVisualAngle(vS, camPos, fVisualAngleDeg);
                 rSum += r; iSum++;
             }
             return (rSum == 0) ? 0 :  scene.ToWorldDimension( rSum / (float)iSum );

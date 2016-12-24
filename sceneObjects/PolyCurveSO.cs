@@ -158,7 +158,7 @@ namespace f3
             if (EnableLineRenderer) {
 
                 float fNewWidth = VRUtil.EstimateStableCurveWidth( GetScene(),
-                    GetLocalFrame(CoordSpace.SceneCoords), curve, 1.0f);
+                    GetLocalFrame(CoordSpace.SceneCoords), curve, SceneGraphConfig.DefaultSceneCurveVisualDegrees);
 
                 if (fNewWidth > 0) {
                     visibleWidth = fNewWidth;

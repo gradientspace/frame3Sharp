@@ -16,6 +16,7 @@ namespace f3
         public ChangeHistory History { get { return history; } }
 
         public SOMaterial DefaultSOMaterial { get; set; }
+        public SOMaterial DefaultCurveSOMaterial { get; set; }
         public SOMaterial NewSOMaterial { get; set; }
         public SOMaterial TransparentNewSOMaterial { get; set; }
         public SOMaterial DefaultMeshSOMaterial { get; set; }
@@ -71,6 +72,10 @@ namespace f3
             DefaultSOMaterial = new SOMaterial() {
                 Name = "DefaultSO",
                 Type = SOMaterial.MaterialType.StandardRGBColor, RGBColor = ColorUtil.StandardBeige
+            };
+            DefaultCurveSOMaterial = new SOMaterial() {
+                Name = "DefaultCurveSO",
+                Type = SOMaterial.MaterialType.StandardRGBColor, RGBColor = ColorUtil.DarkGrey
             };
             DefaultMeshSOMaterial = new SOMaterial() {
                 Name = "DefaultMeshSO",
