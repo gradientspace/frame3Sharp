@@ -120,14 +120,31 @@ namespace f3
             if (meshF == null)
                 throw new Exception("SceneUtil.ImportExistingUnityMesh: gameObject is not a mesh!!");
 
-            MeshSO newSO  = new MeshSO();
-            newSO.Create(meshF.mesh, scene.DefaultMeshSOMaterial);
+            Mesh useMesh = meshF.mesh;
+            AxisAlignedBox3f bounds = useMesh.bounds;
+            UnityUtil.TranslateMesh(useMesh, -bounds.Center.x, -bounds.Center.y, -bounds.Center.z);
+            useMesh.RecalculateBounds();
 
-            Frame3f frameW = UnityUtil.GetGameObjectFrame(go, CoordSpace.WorldCoords);
-            newSO.SetLocalFrame(frameW, CoordSpace.WorldCoords);
+            MeshSO newSO = new MeshSO();
+            newSO.Create(useMesh, scene.DefaultMeshSOMaterial);
 
             if ( bAddToScene )
-                scene.AddSceneObject(newSO, bKeepWorldPosition);
+                scene.AddSceneObject(newSO, false);
+
+            if ( bKeepWorldPosition ) {
+                Frame3f goFrameW = UnityUtil.GetGameObjectFrame(go, CoordSpace.WorldCoords);
+                Frame3f goFrameS = scene.ToSceneFrame(goFrameW);
+                Vector3f boundsCenterS = scene.ToSceneP(goFrameW.Origin + bounds.Center);
+
+                // translate to position in scene
+                Frame3f curF = newSO.GetLocalFrame(CoordSpace.SceneCoords);
+                curF.Origin += boundsCenterS;
+                newSO.SetLocalFrame(curF, CoordSpace.SceneCoords);
+
+                curF = newSO.GetLocalFrame(CoordSpace.SceneCoords);
+                curF.RotateAround(Vector3.zero, goFrameS.Rotation);
+                newSO.SetLocalFrame(curF, CoordSpace.SceneCoords);
+            }
 
             return newSO;
         }

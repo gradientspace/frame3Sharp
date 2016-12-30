@@ -92,6 +92,14 @@ namespace f3
             if ( r && r.material != m )
                 r.material = m;
         }
+        public static Material GetMaterial(GameObject go)
+        {
+            Renderer r = go.GetComponent<Renderer>();
+            if (r)
+                return r.material;
+            return null;
+        }
+
 
         public static void DisableShadows(GameObject go, bool bCastOff = true, bool bReceiveOff = true)
         {
@@ -159,6 +167,22 @@ namespace f3
                     material.renderQueue = 3000;
                     break;
             }
+        }
+
+
+
+        public static SOMaterial FromUnityMaterial(Material unityMat)
+        {
+            SOMaterial soMat = new SOMaterial();
+            soMat.Name = unityMat.name;
+            soMat.RGBColor = unityMat.color;
+            if ( unityMat.color.a == 1 ) {
+                soMat.Type = SOMaterial.MaterialType.StandardRGBColor;              
+            } else {
+                soMat.Type = SOMaterial.MaterialType.TransparentRGBColor;
+            }
+
+            return soMat;
         }
 
 

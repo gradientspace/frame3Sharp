@@ -116,6 +116,10 @@ namespace f3
         }
 
 
+        virtual public void DisableShadows() {
+            throw new NotImplementedException("BaseSO.DisableShadows: must be implemented by subclasses");
+        }
+
         public virtual void PreRender() {
             // nothing
         }

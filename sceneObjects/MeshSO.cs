@@ -85,8 +85,11 @@ namespace f3
         }
 
 
+        override public void DisableShadows() {
+            MaterialUtil.DisableShadows(meshGO, true, false);
+        }
 
-
+       
 
 
 
