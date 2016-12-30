@@ -18,5 +18,6 @@ namespace f3
         void ResetCursorToCenter();
 
         Ray3f CurrentCursorWorldRay();
+        Ray3f CurrentCursorOrthoRay();
     }
 }

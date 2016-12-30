@@ -8,8 +8,7 @@ namespace f3 {
 
 	public class TouchMouseCursorController : ICursorController
     {
-		Camera camera;
-		//FContext context;
+		FContext context;
 
         protected Ray3f CurrentWorldRay;
         public Ray3f CurrentCursorWorldRay()
@@ -17,11 +16,16 @@ namespace f3 {
             return CurrentWorldRay;
         }
 
-
-        public TouchMouseCursorController(Camera viewCam, FContext context)
+        protected Ray3f CurrentUIRay;
+        public Ray3f CurrentCursorOrthoRay()
         {
-			camera = viewCam;
-			//this.context = context;
+            return CurrentUIRay;
+        }
+
+
+        public TouchMouseCursorController(FContext context)
+        {
+			this.context = context;
 		}
 
 		// Use this for initialization
@@ -36,7 +40,8 @@ namespace f3 {
             if (Input.touchCount == 1) {
                 Vector2f touchPos = Input.touches[0].position;
                 Vector3f touchPos3 = new Vector3f(touchPos.x, touchPos.y, 0);
-                CurrentWorldRay = camera.ScreenPointToRay(touchPos3);
+                CurrentWorldRay = ((Camera)context.ActiveCamera).ScreenPointToRay(touchPos3);
+                CurrentUIRay = ((Camera)context.OrthoUICamera).ScreenPointToRay(touchPos3);
             }
         }
 

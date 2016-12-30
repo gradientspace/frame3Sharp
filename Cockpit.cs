@@ -25,6 +25,8 @@ namespace f3
 
 
         List<SceneUIElement> vUIElements;
+        public int UIElementLayer { get; set; }     // Layer that UIElements will be placed in. default is FPlatform.HUDLayer
+
         List<IShortcutKeyHandler> vKeyHandlers;
 
         public enum MovementMode
@@ -62,6 +64,8 @@ namespace f3
 
             this.context = context;
 			vUIElements = new List<SceneUIElement> ();
+            UIElementLayer = FPlatform.HUDLayer;
+
             vKeyHandlers = new List<IShortcutKeyHandler>();
             InputBehaviors = new InputBehaviorSet();
             OverrideBehaviors = new InputBehaviorSet();
@@ -124,6 +128,20 @@ namespace f3
             float fAngle = VRUtil.PlaneAngleSigned(Vector3.forward, viewF.Z, 1);
             return new Frame3f(viewF.Origin, Quaternion.AngleAxis(fAngle, Vector3.up));
         }
+
+
+        // get bounds of current orthographic camera view, in world coordinates (ie
+        // box.Min is bottom-left corner of screen and box.Max is top-right
+        // [TODO] move this elsewhere?? 
+        public virtual AxisAlignedBox2f GetOrthoViewBounds()
+        {
+            if (context.OrthoUICamera == null)
+                return AxisAlignedBox2f.Empty;
+            float verticalSize = ((Camera)context.OrthoUICamera).orthographicSize * 2.0f;
+            float horizontalSize = verticalSize * (float)Screen.width / (float)Screen.height;
+            return new AxisAlignedBox2f(-horizontalSize / 2, -verticalSize / 2, verticalSize / 2, horizontalSize / 2);
+        }
+
 
         // these should be called by parent Unity functions
         public void Start( ICockpitInitializer setup )
@@ -203,7 +221,7 @@ namespace f3
 				e.RootGameObject.transform.SetParent (RootGameObject.transform, (bIsInLocalFrame == false) );
 			}
 
-            e.SetLayer(FPlatform.HUDLayer);
+            e.SetLayer(UIElementLayer);
 
         }
 

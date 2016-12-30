@@ -70,6 +70,15 @@ namespace f3
         }
 
 
+        public static void PlaceInViewPlane(HUDStandardItem hudItem, Vector3f vPosition)
+        {
+            Frame3f initFrame = hudItem.GetObjectFrame();
+            Frame3f hudFrame = new Frame3f(vPosition);
+            hudItem.SetObjectFrame(
+                initFrame.Translated(hudFrame.Origin)
+                .Rotated(Quaternion.FromToRotation(initFrame.Z, hudFrame.Z)));
+        }
+
 
 
 

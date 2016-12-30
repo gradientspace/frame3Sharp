@@ -31,6 +31,11 @@ namespace f3 {
 			return ray;
         }
 
+        public Ray3f CurrentCursorOrthoRay()
+        {
+            throw new NotImplementedException("VRMouseCursorController.CurrentCursorUIRay: UI layer not supported in VR!");
+        }
+
 
 		GameObject xformObject;			// [RMS] this is an internal GO we use basically just for a transform
 										//  Actually a plane that stays in front of eye.

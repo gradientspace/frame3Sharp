@@ -102,8 +102,18 @@ namespace f3 {
 		Camera mainCamera;
 		Camera widgetCamera;
         Camera hudCamera;
+        Camera uiCamera;
         Camera cursorCamera;
         FContext controller;
+
+
+        public Camera MainCamera {
+            get { return mainCamera;  }
+        }
+        public Camera OrthoUICamera {
+            get { return uiCamera; }
+        }
+
 
 		// Use this for initialization
 		public void Initialize (FContext controller) {
@@ -128,6 +138,14 @@ namespace f3 {
             hudCamera.transform.position = mainCamera.transform.position;
             hudCamera.transform.rotation = mainCamera.transform.rotation;
 
+            // create camera for UI
+            uiCamera = Camera.Instantiate(mainCamera);
+            uiCamera.SetName("UICamera");
+            uiCamera.transform.position = mainCamera.transform.position;
+            uiCamera.transform.rotation = mainCamera.transform.rotation;
+            uiCamera.orthographic = true;
+            uiCamera.orthographicSize = 0.5f;
+
             // create camera for cursor
             cursorCamera = Camera.Instantiate(mainCamera);
             cursorCamera.SetName("CursorCamera");
@@ -141,6 +159,8 @@ namespace f3 {
 			widgetCamera.clearFlags = CameraClearFlags.Depth;
             (hudCamera.GetComponent<AudioListener>() as AudioListener).enabled = false;
             hudCamera.clearFlags = CameraClearFlags.Depth;
+            (uiCamera.GetComponent<AudioListener>() as AudioListener).enabled = false;
+            uiCamera.clearFlags = CameraClearFlags.Depth;
             (cursorCamera.GetComponent<AudioListener>() as AudioListener).enabled = false;
             cursorCamera.clearFlags = CameraClearFlags.Depth;
 
@@ -150,14 +170,17 @@ namespace f3 {
             // this camera only renders 3DWidgetOverlay layer, and mainCam does not!
             int nWidgetLayer = FPlatform.WidgetOverlayLayer;
             int nHUDLayer = FPlatform.HUDLayer;
+            int nUILayer = FPlatform.UILayer;
             int nCursorLayer = FPlatform.CursorLayer;
 
             widgetCamera.cullingMask = (1 << nWidgetLayer);
             hudCamera.cullingMask = (1 << nHUDLayer);
+            uiCamera.cullingMask = (1 << nUILayer);
             cursorCamera.cullingMask = (1 << nCursorLayer);
 
             mainCamera.cullingMask &= ~(1 << nWidgetLayer);
             mainCamera.cullingMask &= ~(1 << nHUDLayer);
+            mainCamera.cullingMask &= ~(1 << nUILayer);
             mainCamera.cullingMask &= ~(1 << nCursorLayer);
 
             // attach camera animation object to main camera

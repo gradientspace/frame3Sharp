@@ -56,6 +56,7 @@ namespace f3
         public Vector2f vMouseDelta2D;
         public Vector2f vMousePosition2D;
         public Ray vMouseWorldRay;
+        public Ray vMouseOrthoWorldRay;
 
 
 
@@ -178,6 +179,9 @@ namespace f3
             vMouseDelta2D = InputExtension.Get.Mouse.PositionDelta;
             vMousePosition2D = InputExtension.Get.Mouse.Position;
             vMouseWorldRay = s.MouseController.CurrentCursorWorldRay();
+            if (s.Use2DCockpit)
+                vMouseOrthoWorldRay = s.MouseController.CurrentCursorOrthoRay();
+
 
 
             bLeftTriggerPressed = InputExtension.Get.GamepadLeft.Pressed;
@@ -327,6 +331,16 @@ namespace f3
             delta = t.deltaPosition;
         }
 
+
+        // this is kind of hacky. To avoid having to write perspective/ortho branching
+        // code in all the SceneUIElements, we assume vMouseWorldRay is the ray to use,
+        // and rewrite the InputState at the Behavior level. This helper function does the rewrite.
+        public InputState ToOrthoLayerInput()
+        {
+            InputState s2 = this;
+            s2.vMouseWorldRay = s2.vMouseOrthoWorldRay;
+            return s2;
+        }
 
 
     }

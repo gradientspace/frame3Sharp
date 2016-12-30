@@ -15,6 +15,7 @@ namespace f3
         }
         static public int WidgetOverlayLayer { get { return GetLayerID(SceneGraphConfig.WidgetOverlayLayerName); } }
         static public int HUDLayer { get { return GetLayerID(SceneGraphConfig.HUDLayerName); } }
+        static public int UILayer { get { return GetLayerID(SceneGraphConfig.UILayerName); } }
         static public int CursorLayer { get { return GetLayerID(SceneGraphConfig.CursorLayerName); } }
 
 

@@ -8,8 +8,7 @@ namespace f3 {
 
 	public class SystemMouseCursorController : ICursorController
     {
-		Camera camera;
-		//FContext context;
+		FContext context;
 
         protected Ray3f CurrentWorldRay;
         public Ray3f CurrentCursorWorldRay()
@@ -17,11 +16,15 @@ namespace f3 {
             return CurrentWorldRay;
         }
 
-
-        public SystemMouseCursorController(Camera viewCam, FContext context)
+        protected Ray3f CurrentUIRay;
+        public Ray3f CurrentCursorOrthoRay()
         {
-			camera = viewCam;
-			//this.context = context;
+            return CurrentUIRay;
+        }
+
+        public SystemMouseCursorController(FContext context)
+        {
+			this.context = context;
 		}
 
 		// Use this for initialization
@@ -33,7 +36,8 @@ namespace f3 {
 		public void Update ()
         {
             // just convert current system mouse position into ray
-            CurrentWorldRay = camera.ScreenPointToRay(Input.mousePosition);
+            CurrentWorldRay = ((Camera)context.ActiveCamera).ScreenPointToRay(Input.mousePosition);
+            CurrentUIRay = ((Camera)context.OrthoUICamera).ScreenPointToRay(Input.mousePosition);
         }
 
 

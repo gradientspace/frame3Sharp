@@ -52,6 +52,12 @@ namespace f3
             get { return "HUDOverlay"; }
         }
 
+        // same as above, overlay for 2D UI
+        public static string UILayerName
+        {
+            get { return "UIOverlay"; }
+        }
+
         // same as above, overlay for cursor 
         public static string CursorLayerName
         {

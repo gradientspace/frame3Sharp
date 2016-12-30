@@ -55,9 +55,16 @@ namespace f3 {
 				scene = new FScene (this);
 			return scene;
 		}
+
         public fCamera ActiveCamera
         {
-            get { return new fCamera(Camera.main); }
+            get { return new fCamera(camTracker.MainCamera); }
+        }
+
+        // UI camera is orthographic projection, does not exist in VR contexts
+        public fCamera OrthoUICamera
+        {
+            get { return new fCamera(camTracker.OrthoUICamera); }
         }
 
 		public Cockpit ActiveCockpit { 
@@ -70,9 +77,9 @@ namespace f3 {
                     if (FPlatform.IsUsingVR())
                         mouseCursor = new VRMouseCursorController(ActiveCamera, this);
                     else if ( FPlatform.IsTouchDevice() )
-                        mouseCursor = new TouchMouseCursorController(ActiveCamera, this);
+                        mouseCursor = new TouchMouseCursorController(this);
                     else
-                        mouseCursor = new SystemMouseCursorController(ActiveCamera, this);
+                        mouseCursor = new SystemMouseCursorController(this);
                 }
                 return mouseCursor;
             }
@@ -93,6 +100,10 @@ namespace f3 {
             set { this.mouseCamControls = value; }
         }
 
+        public bool Use2DCockpit
+        {
+            get { return options.Use2DCockpit; }
+        }
 
 
         // Use this for initialization
@@ -103,6 +114,10 @@ namespace f3 {
             DebugUtil.LogLevel = options.LogLevel;
 
             InputExtension.Get.Start();
+
+            // intialize camera stuff
+            camTracker = new CameraTracking();
+            camTracker.Initialize(this);
 
             GetScene();
             if (options.SceneInitializer != null)
@@ -120,9 +135,6 @@ namespace f3 {
             MouseController.Start();
             SpatialController.Start();
 
-            // intialize camera stuff
-            camTracker = new CameraTracking();
-            camTracker.Initialize(this);
             // [RMS] hardcode starting cam target point to origin
             ActiveCamera.SetTarget(Vector3f.Zero);
 
@@ -148,7 +160,7 @@ namespace f3 {
             bInCameraControl = false;
 
 			// [RMS] this locks cursor to game unless user presses escape or exits
-            if ( FPlatform.IsUsingVR() || options.UseSystemMouseCursor )
+            if ( FPlatform.IsUsingVR() || options.UseSystemMouseCursor == false )
 			    Cursor.lockState = CursorLockMode.Locked;
 
             // set hacky hackenstein global
@@ -503,6 +515,8 @@ namespace f3 {
             }
 
             Cockpit c = new Cockpit(this);
+            if ( Use2DCockpit )
+                c.UIElementLayer = FPlatform.UILayer;
             c.Start(initializer);
             if (trackingInitializer != null)
                 c.InitializeTracking(trackingInitializer);
@@ -591,7 +605,39 @@ namespace f3 {
 
 
 
+        // raycasts into 2D Cockpit if enabled
+        public bool Find2DCockpitUIHit(Ray3f orthoEyeRay, out UIRayHit bestHit)
+        {
+            if (Use2DCockpit == false)
+                throw new Exception("FContext.Find2DUIHit: 2D UI layer is not enabled!");
 
+            bestHit = null;
+            if (options.EnableCockpit)
+                return activeCockpit.FindUIRayIntersection(orthoEyeRay, out bestHit);
+            return false;
+        }
+
+
+        // see comment above
+        public bool Find2DCockpitUIHoverHit(Ray3f orthoEyeRay, out UIRayHit bestHit)
+        {
+            if (Use2DCockpit == false)
+                throw new Exception("FContext.Find2DUIHit: 2D UI layer is not enabled!");
+
+            bestHit = null;
+            if (options.EnableCockpit)
+                return activeCockpit.FindUIHoverRayIntersection(orthoEyeRay, out bestHit);
+            return false;
+        }
+
+
+
+        // raycasts into Scene and Cockpit for UIElement hits. Assumption is that cockpit is "closer" 
+        // to eye than scene. This is **not strictly true**. Possibly we should explicitly
+        // break this into two separate functions, so that separate Behaviors can be
+        // used for Cockpit and Scene.
+        // 
+        // Note also that if we are using 2D Cockpit, cockpit hits are disabled in this function.
         public bool FindUIHit(Ray eyeRay, out UIRayHit bestHit)
         {
 			bestHit = new UIRayHit();
@@ -601,14 +647,15 @@ namespace f3 {
 			if (bCockpitOnly == false && scene.FindUIRayIntersection(eyeRay, out sceneHit) ) {
 				bestHit = sceneHit;
 			}
-			if ( options.EnableCockpit && activeCockpit.FindUIRayIntersection(eyeRay, out cockpitHit) ) {
-				if ( cockpitHit.fHitDist < bestHit.fHitDist )
-					bestHit = cockpitHit;
+			if ( Use2DCockpit == false && options.EnableCockpit 
+                && activeCockpit.FindUIRayIntersection(eyeRay, out cockpitHit) ) {
+				    if ( cockpitHit.fHitDist < bestHit.fHitDist )
+					    bestHit = cockpitHit;
 			}
 			return bestHit.IsValid;
 		}
 
-
+        // see comment as above
         public bool FindUIHoverHit(Ray eyeRay, out UIRayHit bestHit)
         {
             bestHit = new UIRayHit();
@@ -618,14 +665,17 @@ namespace f3 {
             if (bCockpitOnly == false && scene.FindUIHoverRayIntersection(eyeRay, out sceneHit)) {
                 bestHit = sceneHit;
             }
-            if (options.EnableCockpit && activeCockpit.FindUIHoverRayIntersection(eyeRay, out cockpitHit)) {
-                if (cockpitHit.fHitDist < bestHit.fHitDist)
-                    bestHit = cockpitHit;
+            if ( Use2DCockpit == false && options.EnableCockpit 
+                && activeCockpit.FindUIHoverRayIntersection(eyeRay, out cockpitHit)) {
+                    if (cockpitHit.fHitDist < bestHit.fHitDist)
+                        bestHit = cockpitHit;
             }
             return bestHit.IsValid;
         }
 
 
+        // currently used to change cursor highlight in VR views. Perhaps the VR input Controllers
+        // should do this themselves!
         public bool FindAnyRayIntersection(Ray eyeRay, out AnyRayHit anyHit)
         {
 			anyHit = new AnyRayHit ();
@@ -637,9 +687,10 @@ namespace f3 {
             if (bCockpitOnly == false && scene.FindAnyRayIntersection (eyeRay, out sceneHit)) {
 				anyHit = sceneHit;
 			}
-			if (options.EnableCockpit && activeCockpit.FindUIRayIntersection (eyeRay, out cockpitHit)) {
-				if (cockpitHit.fHitDist < anyHit.fHitDist)
-					anyHit = new AnyRayHit(cockpitHit);
+			if (Use2DCockpit == false && options.EnableCockpit 
+                && activeCockpit.FindUIRayIntersection (eyeRay, out cockpitHit)) {
+				    if (cockpitHit.fHitDist < anyHit.fHitDist)
+					    anyHit = new AnyRayHit(cockpitHit);
 			}
 			return anyHit.IsValid;
 		}
