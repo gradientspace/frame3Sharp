@@ -29,7 +29,7 @@ Currently this project is not usable outside of Unity. Someday!!
 
 frame3Sharp includes several small external libraries to provide access to OS functionality inside Unity (which is otherwise not available). These are pre-compiled and included as DLLs/bundles/etc in the \Plugins folder
 
-- **tinyfiledialogs** [sourceforge](https://sourceforge.net/projects/tinyfiledialogs/) is a cross-platform library that can show native file open and save dialogs. 
+- [**tinyfiledialogs**](https://sourceforge.net/projects/tinyfiledialogs/) is a cross-platform library with zlib license that can show native file open and save dialogs.
 
 
 # Dependencies
