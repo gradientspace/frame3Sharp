@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.InteropServices;
 
 using UnityEngine;
 
@@ -52,8 +53,86 @@ namespace f3
                         || Application.platform == RuntimePlatform.Android );
         }
 
-    }
 
+
+        static public System.IntPtr GetWindowHandle()
+        {
+#if UNITY_STANDALONE_WIN
+            return GetActiveWindow();
+#else
+            return System.IntPtr.Zero;
+#endif
+        }
+
+
+
+        //! Show an open-file dialog and with the provided file types. 
+        //! Returns path to selected file, or null if Cancel is clicked.
+        //! Uses system file dialog if available, otherwise Mono cross-platform dialog
+        static public string GetOpenFileName(string sDialogTitle, string sInitialPathAndFile, 
+                string[] filterPatterns, string sPatternDesc)
+        {
+#if UNITY_STANDALONE_WIN
+            IntPtr p = tinyfd_openFileDialog(sDialogTitle, sInitialPathAndFile, 
+                filterPatterns.Length, filterPatterns, sPatternDesc, 0);
+            return stringFromChar(p);
+#else
+            // [TODO] implement
+            return null;
+#endif
+        }
+
+
+
+
+        //! Show an open-file dialog and with the provided file types. 
+        //! Returns path to selected file, or null if Cancel is clicked.
+        //! Uses system file dialog if available, otherwise Mono cross-platform dialog
+        static public string GetSaveFileName(string sDialogTitle, string sInitialPathAndFile, 
+                string[] filterPatterns, string sPatternDesc)
+        {
+#if UNITY_STANDALONE_WIN
+            IntPtr p = tinyfd_saveFileDialog(sDialogTitle, sInitialPathAndFile, 
+                filterPatterns.Length, filterPatterns, sPatternDesc);
+            return stringFromChar(p);
+#else
+            // [TODO] implement
+            return null;
+#endif
+        }
+
+
+
+
+
+        // platform-specific interop functions
+
+#if UNITY_STANDALONE_WIN
+        [DllImport("user32.dll")]
+        private static extern System.IntPtr GetActiveWindow();
+
+        [DllImport("tinyfiledialogs", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr tinyfd_inputBox(string aTitle, string aMessage, string aDefaultInput);
+        //IntPtr lulu = tinyfd_inputBox("input box", "gimme a string", "lolo");
+
+        [DllImport("tinyfiledialogs", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr tinyfd_openFileDialog(string aTitle, string aDefaultPathAndFile, int aNumOfFilterPatterns, string[] aFilterPatterns, string aSingleFilterDescription, int aAllowMultipleSelects);
+        //IntPtr p = tinyfd_openFileDialog("select a mesh file", "c:\\scratch\\", 2, new string[] { "*.stl", "*.obj" }, "mesh files", 0);
+
+        [DllImport("tinyfiledialogs", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr tinyfd_saveFileDialog(string aTitle, string aDefaultPathAndFile, int aNumOfFilterPatterns, string[] aFilterPatterns, string aSingleFilterDescription);
+        //IntPtr p = tinyfd_openFileDialog("select a mesh file", "c:\\scratch\\default.stl", 2, new string[] { "*.stl", "*.obj" }, "mesh files", 0);
+
+#endif
+
+
+        private static string stringFromChar(IntPtr ptr) {
+            return Marshal.PtrToStringAnsi(ptr);
+        }
+
+
+
+    }
 
 
 }
