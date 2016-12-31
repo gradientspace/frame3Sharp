@@ -25,7 +25,16 @@ I use this project exclusively as a git submodule, so the structure/etc is set u
 Currently this project is not usable outside of Unity. Someday!!
 
 
+# Plugins
+
+frame3Sharp includes several small external libraries to provide access to OS functionality inside Unity (which is otherwise not available). These are pre-compiled and included as DLLs/bundles/etc in the \Plugins folder
+
+- **tinyfiledialogs** [sourceforge](https://sourceforge.net/projects/tinyfiledialogs/) is a cross-platform library that can show native file open and save dialogs. 
+
+
 # Dependencies
+
+frame3Sharp is built on several other libraries/components which are not included in this repo. These need to be added to your Unity project yourself. Or, you can start with one of the samples in the [frame3SharpSampleApp](https://github.com/gradientspace/frame3SharpSampleApp) repository, which does include these other projects.
 
 - **geometry3Sharp** [github](https://github.com/gradientspace/geometry3Sharp). This C# codebase should be included in your project as code (or possibly a compiled DLL, but that is currently untested)
 
