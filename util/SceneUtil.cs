@@ -114,7 +114,10 @@ namespace f3
 
 
 
-        public static MeshSO ImportExistingUnityMesh(GameObject go, FScene scene, bool bAddToScene = true, bool bKeepWorldPosition = true)
+
+        public static MeshSO ImportExistingUnityMesh(GameObject go, FScene scene, 
+            bool bAddToScene = true, bool bKeepWorldPosition = true,
+            Func<Mesh, SOMaterial, MeshSO> MakeSOFunc = null )
         {
             MeshFilter meshF = go.GetComponent<MeshFilter>();
             if (meshF == null)
@@ -125,8 +128,9 @@ namespace f3
             UnityUtil.TranslateMesh(useMesh, -bounds.Center.x, -bounds.Center.y, -bounds.Center.z);
             useMesh.RecalculateBounds();
 
-            MeshSO newSO = new MeshSO();
-            newSO.Create(useMesh, scene.DefaultMeshSOMaterial);
+            MeshSO newSO = (MakeSOFunc != null) ? 
+                MakeSOFunc(useMesh, scene.DefaultMeshSOMaterial)
+                : new MeshSO().Create(useMesh, scene.DefaultMeshSOMaterial);
 
             if ( bAddToScene )
                 scene.AddSceneObject(newSO, false);
