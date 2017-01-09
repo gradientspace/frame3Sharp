@@ -153,6 +153,24 @@ namespace f3
         }
 
 
+        public virtual Vector3f PointToWorld(Vector3f local) {
+            return go.transform.TransformPoint(local);
+        }
+        public virtual Vector3f PointToLocal(Vector3f world) {
+            return go.transform.InverseTransformPoint(world);
+        }
+
+
+        public virtual void RotateD(Vector3f axis, float fAngleDeg)
+        {
+            go.transform.Rotate(axis, fAngleDeg);
+        }
+        public virtual void Translate(Vector3f translation)
+        {
+            go.transform.Translate(translation);
+        }
+
+
         public static implicit operator UnityEngine.GameObject(fGameObject go)
         {
             return go.go;
@@ -318,6 +336,69 @@ namespace f3
     }
 
 
+
+
+
+    public class fRectangleGameObject : fGameObject
+    {
+        float width = 1;
+        float height = 1;
+
+        public fRectangleGameObject(GameObject go, float widthIn = 1, float heightIn = 1) : base(go)
+        {
+            width = widthIn;
+            height = heightIn;
+            SetLocalScale(new Vector3f(width, 1, height));
+        }
+
+        public void SetWidth(float fWidth) {
+            if ( width != fWidth ) {
+                width = fWidth;
+                SetLocalScale(new Vector3f(width, 1, height));
+            }
+        }
+        public float GetWidth() { return width; }
+
+        public void SetHeight(float fHeight) {
+            if ( height != fHeight ) {
+                height = fHeight;
+                SetLocalScale(new Vector3f(width, 1, height));
+            }
+        }
+        public float GetHeight() { return height; }
+    }
+
+
+
+
+    public class fTriangleGameObject : fGameObject
+    {
+        float width = 1;
+        float height = 1;
+
+        public fTriangleGameObject(GameObject go, float widthIn = 1, float heightIn = 1) : base(go)
+        {
+            width = widthIn;
+            height = heightIn;
+            SetLocalScale(new Vector3f(width, 1, height));
+        }
+
+        public void SetWidth(float fWidth) {
+            if ( width != fWidth ) {
+                width = fWidth;
+                SetLocalScale(new Vector3f(width, 1, height));
+            }
+        }
+        public float GetWidth() { return width; }
+
+        public void SetHeight(float fHeight) {
+            if ( height != fHeight ) {
+                height = fHeight;
+                SetLocalScale(new Vector3f(width, 1, height));
+            }
+        }
+        public float GetHeight() { return height; }
+    }
 
 
 

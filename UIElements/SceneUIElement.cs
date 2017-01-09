@@ -37,6 +37,10 @@ namespace f3
 
     public delegate void InputEventHandler(object source, InputEvent e);
 
+    public delegate void BeginValueChangeHandler(object source, double fStartValue);
+    public delegate void EndValueChangeHandler(object source, double fEndValue);
+    public delegate void ValueChangedHandler(object source, double fOldValue, double fNewValue);
+
 
     public interface SceneUIElement
 	{

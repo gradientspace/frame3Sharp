@@ -73,92 +73,7 @@ namespace f3
 
 
 
-    public static class GameObjectFactory
-    {
-        public static fGameObject CreateParentGO(string sName)
-        {
-            GameObject go = new GameObject(sName);
-            return new fGameObject(go);
-        }
-
-
-        public static fGameObject CreateMeshGO(string sName, Mesh mesh = null, bool bCollider = false)
-        {
-            GameObject go = new GameObject(sName);
-            go.AddComponent<MeshFilter>();
-            if ( mesh != null )
-                go.SetMesh(mesh);
-            go.AddComponent<MeshRenderer>();
-            if (bCollider) {
-                var collider = go.AddComponent<MeshCollider>();
-                collider.enabled = false;
-            }
-            return new fGameObject(go);
-        }
-
-
-
-        public static fLineGameObject CreateLineGO(string sName, Colorf color, float fLineWidth)
-        {
-            GameObject go = new GameObject(sName);
-            LineRenderer r = go.AddComponent<LineRenderer>();
-            r.useWorldSpace = false;
-            r.material = MaterialUtil.CreateTransparentMaterial(Color.black, 0.75f);
-            fLineGameObject lgo = new fLineGameObject(go);
-            lgo.SetColor(color);
-            lgo.SetLineWidth(fLineWidth);
-            return lgo;
-        }
-
-
-
-        public static fCircleGameObject CreateCircleGO(string sName, float fRadius, Colorf color, float fLineWidth)
-        {
-            GameObject go = new GameObject(sName);
-            LineRenderer r = go.AddComponent<LineRenderer>();
-            r.useWorldSpace = false;
-            r.material = MaterialUtil.CreateTransparentMaterial(Color.black, 0.75f);
-            fCircleGameObject fgo = new fCircleGameObject(go);
-            fgo.SetColor(color);
-            fgo.SetLineWidth(fLineWidth);
-            fgo.SetSteps(32);
-            fgo.SetRadius(fRadius);
-            return fgo;
-        }
-
-
-
-        public static fTextGameObject CreateTextMeshGO(string sName, string sText, Colorf textColor, float fTextHeight)
-        {
-            GameObject textGO = new GameObject(sName);
-            TextMesh tm = textGO.AddComponent<TextMesh>();
-            tm.text = sText;
-            tm.color = textColor;
-            tm.fontSize = 50;
-            tm.offsetZ = -0.25f;
-            tm.alignment = TextAlignment.Left;
-            // ignore material changes when we add to GameObjectSet
-            textGO.AddComponent<IgnoreMaterialChanges>();
-            // use our textmesh material instead
-            MaterialUtil.SetTextMeshDefaultMaterial(tm);
-
-            Vector2 size = UnityUtil.EstimateTextMeshDimensions(tm);
-            float fScaleH = fTextHeight / size[1];
-            tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
-            //tm.transform.Translate(-Width / 2.0f, fTextHeight / 2.0f, 0.0f);
-
-            textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
-
-            return new fTextGameObject(textGO);
-        }
-
-
-        public static void DestroyGO(fGameObject go) {
-            UnityEngine.GameObject.Destroy(go);
-        }
-
-    }
-
+ 
 
 
     // various utility code
@@ -174,6 +89,22 @@ namespace f3
             var tmp = handler;
             if (tmp != null)
                 tmp(sender, e);
+        }
+
+        public static void SafeSendEvent(BeginValueChangeHandler handler, object sender, double startValue) {
+            var tmp = handler;
+            if (tmp != null)
+                tmp(sender, startValue);
+        }
+        public static void SafeSendEvent(ValueChangedHandler handler, object sender, double oldValue, double newValue) {
+            var tmp = handler;
+            if (tmp != null)
+                tmp(sender, oldValue, newValue);
+        }
+        public static void SafeSendEvent(EndValueChangeHandler handler, object sender, double endValue) {
+            var tmp = handler;
+            if (tmp != null)
+                tmp(sender, endValue);
         }
 
 

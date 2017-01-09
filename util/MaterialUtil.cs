@@ -53,6 +53,11 @@ namespace f3
             m.color = MakeColor(c, c.a * alpha);
             return m;
         }
+        public static fMaterial CreateFlatMaterialF(Color c, float alpha = 1.0f) {
+            Material m = new Material(Resources.Load(SceneGraphConfig.DefaultUnlitTransparentMaterialPath) as Material);
+            m.color = MakeColor(c, c.a * alpha);
+            return new fMaterial(m);
+        }
 
         public static Material CreateImageMaterial(string sResourcePath) {
             Material m = new Material(Resources.Load(SceneGraphConfig.DefaultUnlitTextureMaterialPath) as Material);

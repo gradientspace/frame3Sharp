@@ -65,6 +65,14 @@ namespace f3
             foreach (GameObject child_go in go.Children())
                 vObjects.Add(child_go);
         }
+        public virtual void AppendNewGO(fGameObject go, fGameObject parent, bool bKeepPosition)
+        {
+            vObjects.Add(go);
+            go.SetParent(parent, bKeepPosition);
+            foreach (GameObject child_go in go.Children())
+                vObjects.Add(child_go);
+        }
+
 
 		public virtual GameObject AppendMeshGO(string name, Mesh mesh, Material setMaterial, GameObject parent, bool bCollider = true) {
             // [TODO] replace with UnityUtil.CreateMeshGO ??
