@@ -46,6 +46,11 @@ namespace f3
         GameObject deleted_objects;
         List<SceneObject> vDeleted;
 
+
+        // animation
+        double currentTime = 0;
+
+
         // camera stuff
         public float[] turntable_angles = { 0.0f, 0.0f };
 
@@ -61,6 +66,8 @@ namespace f3
 			vBoundsObjects = new List<GameObject> ();
 
 			sceneRoot = new GameObject ("Scene");
+            sceneRoot.AddComponent<SceneAnimator>().Scene = this;        // for animation playbacks
+
             scene_objects = new GameObject("scene_objects");
             UnityUtil.AddChild(sceneRoot, scene_objects, false);
 
@@ -111,6 +118,24 @@ namespace f3
         public GameObject RootGameObject {
 			get { return sceneRoot; }
 		}
+
+
+        public double CurrentTime
+        {
+            get { return currentTime; }
+            set { SetCurrentTime(value); }
+        }
+        public void SetCurrentTime(double time)
+        {
+            foreach (SceneObject so in vObjects)
+                so.SetCurrentTime(time);
+            currentTime = time;
+        }
+
+        public SceneAnimator AnimationController {
+            get { return sceneRoot.GetComponent<SceneAnimator>(); }
+        }
+
 
 		public event SceneSelectionChangedHandler SelectionChangedEvent;
 		protected virtual void OnSelectionChanged(EventArgs e) {
@@ -177,6 +202,7 @@ namespace f3
             vObjects.Add(so);
             so.SetScene(this);
             so.RootGameObject.transform.SetParent(scene_objects.transform, bUseExistingWorldPos);
+            so.SetCurrentTime(currentTime);
         }
 
         // this removes so from a SO/parent hierarchy and parents to Scene instead
@@ -224,6 +250,7 @@ namespace f3
             vObjects.Add(so);
             UnityUtil.SetVisible(so.RootGameObject, true);
             UnityUtil.AddChild(scene_objects, so.RootGameObject, true);
+            so.SetCurrentTime(currentTime);
         }
         public void CullDeletedSceneObject(SceneObject so)
         {

@@ -146,6 +146,12 @@ namespace f3
             throw new InvalidOperationException("GroupSO::Duplicate not implemented!");
         }
 
+        virtual public void SetCurrentTime(double time)
+        {
+            foreach (var c in vChildren)
+                c.SetCurrentTime(time);
+        }
+
         public void SetScene(FScene s)
         {
             parentScene = s;

@@ -84,6 +84,11 @@ namespace f3
             throw new InvalidOperationException("TransientXFormSO::Duplicate not implemented!");
         }
 
+        public void SetCurrentTime(double time)
+        {
+            // nothing
+        }
+
         public void SetScene(FScene s)
         {
             parentScene = s;

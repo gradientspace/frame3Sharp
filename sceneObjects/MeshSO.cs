@@ -14,13 +14,14 @@ namespace f3
 		{
 		}
 
-        public void Create(SimpleMesh mesh, SOMaterial setMaterial)
+        public virtual MeshSO Create(SimpleMesh mesh, SOMaterial setMaterial)
         {
             Mesh umesh = UnityUtil.SimpleMeshToUnityMesh(mesh, false);
             Create(umesh, setMaterial);
+            return this;
         }
 
-        public void Create( Mesh mesh, SOMaterial setMaterial) {
+        public virtual MeshSO Create( Mesh mesh, SOMaterial setMaterial) {
             AssignSOMaterial(setMaterial);       // need to do this to setup BaseSO material stack
 
             parentGO = new GameObject(UniqueNames.GetNext("Mesh"));
@@ -32,6 +33,7 @@ namespace f3
             meshGO.AddComponent<MeshRenderer>().material = CurrentMaterial;
 
             AppendNewGO(meshGO, parentGO, true);
+            return this;
         }
 
         public SimpleMesh GetSimpleMesh(bool bSwapLeftToRight)

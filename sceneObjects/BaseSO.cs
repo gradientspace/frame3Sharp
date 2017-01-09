@@ -66,6 +66,11 @@ namespace f3
             parentScene = s;
         }
 
+        virtual public void SetCurrentTime(double time)
+        {
+            // ignore
+        }
+
 
         virtual protected void set_material_internal(Material m)
         {

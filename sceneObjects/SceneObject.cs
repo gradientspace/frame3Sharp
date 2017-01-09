@@ -49,6 +49,8 @@ namespace f3
 
         SceneObject Duplicate();
 
+        void SetCurrentTime(double time);   // for keyframing
+
 		void AssignSOMaterial(SOMaterial m);
         SOMaterial GetAssignedSOMaterial();
 
