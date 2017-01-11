@@ -343,6 +343,8 @@ namespace f3
             so.AssignSOMaterial(mat);
         }
 
+
+
         public virtual SimpleMesh RestoreSimpleMesh(TypedAttribSet attributes, bool bSwapRightLeft)
         {
             bool bBinary = true;
@@ -411,7 +413,38 @@ namespace f3
 
 
 
+        public virtual KeyframeSequence RestoreKeyframes(TypedAttribSet attributes)
+        {
+            TypedAttribSet listAttribs = find_struct(attributes, IOStrings.KeyframeListStruct);
+            if (listAttribs == null)
+                throw new Exception("SOFactory.RestoreKeyframes: Transform struct not found!");
 
+            KeyframeSequence keys = new KeyframeSequence();
+
+            if (check_key_or_debug_print(listAttribs, IOStrings.ATimeRange)) {
+                Vector2f vRange = (Vector2f)listAttribs[IOStrings.ATimeRange];
+                keys.SetValidRange(vRange[0], vRange[1]);
+            }
+
+            List<TypedAttribSet> frames = find_all_structs(listAttribs, IOStrings.KeyframeStruct);
+            foreach ( TypedAttribSet frameAttrib in frames ) {
+                double time = double.PositiveInfinity;
+                Frame3f frame = Frame3f.Identity;
+                if (check_key_or_debug_print(frameAttrib, IOStrings.ATime)) {
+                    time = (float)frameAttrib[IOStrings.ATime];
+                }
+                if (check_key_or_debug_print(frameAttrib, IOStrings.APosition)) {
+                    frame.Origin = (Vector3f)frameAttrib[IOStrings.APosition];
+                }
+                if (check_key_or_debug_print(frameAttrib, IOStrings.AOrientation)) {
+                    frame.Rotation = (Quaternionf)frameAttrib[IOStrings.AOrientation];
+                }
+                if (time != double.PositiveInfinity)
+                    keys.AddKey(new Keyframe(time, frame), true);
+            }
+
+            return keys;
+        }
 
 
 
@@ -476,7 +509,15 @@ namespace f3
         }
 
 
-
+        public virtual List<TypedAttribSet> find_all_structs(TypedAttribSet attribs, string sType)
+        {
+            List<TypedAttribSet> l = new List<TypedAttribSet>();
+            foreach ( var pair in attribs.Pairs ) {
+                if (pair.Key.StartsWith(sType))
+                    l.Add(pair.Value as TypedAttribSet);
+            }
+            return l;
+        }
 
 
     }

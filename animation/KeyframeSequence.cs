@@ -38,6 +38,16 @@ namespace f3
         double validMax = double.MaxValue;
         
 
+        public double MinTime {
+            get { return validMin; }
+        }
+        public double MaxTime {
+            get { return validMax; }
+        }
+        public Vector2d ValidRange {
+            get { return new Vector2d(validMin, validMax); }
+        }
+
         public void SetValidRange(double min, double max)
         {
             if (min >= max)
@@ -55,6 +65,9 @@ namespace f3
         }
         public double LastKeyTime {
             get { return (Keys.Count > 0) ? Keys.Last().Key : 0; }
+        }
+        public int Count {
+            get { return Keys.Count; }
         }
 
 

@@ -24,6 +24,8 @@ namespace f3
         public const string AsciiMeshStruct = "AsciiMesh";
         public const string TransformStruct = "Transform";
         public const string MaterialStruct = "Material";
+        public const string KeyframeListStruct = "KeyframeList";
+        public const string KeyframeStruct = "Keyframe";
 
         // standard scene object attributes
         public static readonly string ASOType = "SOType";
@@ -46,6 +48,7 @@ namespace f3
         //   iAttribName => integer
         //   fAttribName => float
         //   vAttribName => Vector3f
+        //   uAttribname => Vector2f
         //   qAttribName => Quaternionf
         //   cAttribName => Colorf
         //   zd2 => list of 2-element doubles (eg Vector2d)
@@ -92,6 +95,10 @@ namespace f3
         public static readonly string AMaterialType_Transparent = "Transparent";
         public static readonly string AMaterialRGBColor = "cMaterialRGBColor";
 
+        // keyframe attributes
+        public const string ATime = "fTime";
+        public const string ATimeRange = "uTimeRange";
+
     }
 
 
@@ -107,13 +114,14 @@ namespace f3
         void EndSceneObject();
 
         // scene object contains attribute
-        void AddAttribute(string sName, string sValue);
-        void AddAttribute(string sName, float fValue);
-        void AddAttribute(string sName, int nValue);
-        void AddAttribute(string sName, bool bValue);
-        void AddAttribute(string sName, Vector3f vValue);
-        void AddAttribute(string sName, Quaternionf qValue);
-        void AddAttribute(string sName, Colorf cColor);
+        void AddAttribute(string sName, string sValue, bool bInline = false);
+        void AddAttribute(string sName, float fValue, bool bInline = false);
+        void AddAttribute(string sName, int nValue, bool bInline = false);
+        void AddAttribute(string sName, bool bValue, bool bInline = false);
+        void AddAttribute(string sName, Vector2f vValue, bool bInline = false);
+        void AddAttribute(string sName, Vector3f vValue, bool bInline = false);
+        void AddAttribute(string sName, Quaternionf qValue, bool bInline = false);
+        void AddAttribute(string sName, Colorf cColor, bool bInline = false);
         void AddAttribute(string sName, IEnumerable<Vector3d> vVec);
         void AddAttribute(string sName, IEnumerable<Vector3f> vVec);
         void AddAttribute(string sName, IEnumerable<Vector3i> vVec);
@@ -163,8 +171,7 @@ namespace f3
         {
             return Pairs.ContainsKey(s);
         }
-        public object this[string key]
-        {
+        public object this[string key] {
             get { return Pairs[key]; }
         }
     }
@@ -405,7 +412,7 @@ namespace f3
             if (sName == IOStrings.Struct) {
 
 
-            } else  if (sName[0] == 'i') {
+            } else if (sName[0] == 'i') {
                 int iValue = 0;
                 int.TryParse(sValue, out iValue);
                 CurAttribs.Pairs[sName] = iValue;
@@ -430,6 +437,15 @@ namespace f3
                     float.TryParse(values[2], out z);
                 }
                 CurAttribs.Pairs[sName] = new Vector3f(x, y, z);
+
+            } else if (sName[0] == 'u') {
+                float x = 0, y = 0;
+                string[] values = sValue.Split(delimiterChars);
+                if (values.Length == 2) {
+                    float.TryParse(values[0], out x);
+                    float.TryParse(values[1], out y);
+                }
+                CurAttribs.Pairs[sName] = new Vector2f(x, y);
 
             } else if (sName[0] == 'q') {
                 float x = 0, y = 0, z = 0, w = 0;

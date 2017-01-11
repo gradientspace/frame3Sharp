@@ -32,6 +32,10 @@ namespace f3
                     if (OnBeginSceneObject != null)
                         OnBeginSceneObject();
 
+                    foreach ( XmlAttribute a in so.Attributes ) {
+                        OnAttribute(a.Name, a.InnerText);
+                    }
+
                     foreach ( XmlNode a in so.ChildNodes ) {
                         if (a.Name == IOStrings.Struct) 
                             restore_struct(a);
@@ -56,6 +60,11 @@ namespace f3
             XmlNode identNode = structNode.Attributes.GetNamedItem(IOStrings.StructIdentifier);
             string sIdentifier = (identNode != null) ? identNode.InnerText : "";
             OnBeginStruct(sType, sIdentifier);
+
+            foreach ( XmlAttribute a in structNode.Attributes ) {
+                OnAttribute(a.Name, a.InnerText);
+            }
+
             foreach ( XmlNode a in structNode.ChildNodes ) {
                 if (a.Name == IOStrings.Struct)
                     restore_struct(a);

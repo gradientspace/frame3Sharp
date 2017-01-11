@@ -55,50 +55,81 @@ namespace f3
         }
 
 
-        public void AddAttribute(string sName, string sValue)
+        public void AddAttribute(string sName, string sValue, bool bInline = false)
         {
-            Writer.WriteElementString(sName, sValue);
+            if ( bInline )
+                Writer.WriteAttributeString(sName, sValue);
+            else
+                Writer.WriteElementString(sName, sValue);
         }
 
-        public void AddAttribute(string sName, int nValue)
+        public void AddAttribute(string sName, int nValue, bool bInline = false)
         {
-            Writer.WriteElementString(sName, nValue.ToString());
+            if ( bInline )
+                Writer.WriteAttributeString(sName, nValue.ToString());
+            else
+                Writer.WriteElementString(sName, nValue.ToString());
         }
 
-        public void AddAttribute(string sName, bool bValue)
+        public void AddAttribute(string sName, bool bValue, bool bInline = false)
         {
-            Writer.WriteElementString(sName, bValue ? "true" : "false");
+            if ( bInline )
+                Writer.WriteAttributeString(sName, bValue ? "true" : "false");
+            else
+                Writer.WriteElementString(sName, bValue ? "true" : "false");
         }
 
-        public void AddAttribute(string sName, Vector3f vValue)
+        public void AddAttribute(string sName, Vector2f vValue, bool bInline = false)
+        {
+            string s = vValue[0].ToString("F8", CultureInfo.InvariantCulture) + " "
+                + vValue[1].ToString("F8", CultureInfo.InvariantCulture);
+            if (bInline)
+                Writer.WriteAttributeString(sName, s);
+            else
+                Writer.WriteElementString(sName, s);
+        }
+
+        public void AddAttribute(string sName, Vector3f vValue, bool bInline = false)
         {
             string s = vValue[0].ToString("F8", CultureInfo.InvariantCulture) + " "
                 + vValue[1].ToString("F8", CultureInfo.InvariantCulture) + " "
                 + vValue[2].ToString("F8", CultureInfo.InvariantCulture);
-            Writer.WriteElementString(sName, s);
+            if (bInline)
+                Writer.WriteAttributeString(sName, s);
+            else
+                Writer.WriteElementString(sName, s);
         }
 
-        public void AddAttribute(string sName, float fValue)
+        public void AddAttribute(string sName, float fValue, bool bInline = false)
         {
-            Writer.WriteElementString(sName, fValue.ToString("F8", CultureInfo.InvariantCulture));
+            if (bInline)
+                Writer.WriteAttributeString(sName, fValue.ToString("F8", CultureInfo.InvariantCulture));
+            else
+                Writer.WriteElementString(sName, fValue.ToString("F8", CultureInfo.InvariantCulture));
         }
 
-        public void AddAttribute(string sName, Quaternionf qValue)
+        public void AddAttribute(string sName, Quaternionf qValue, bool bInline = false)
         {
             string s = qValue[0].ToString("F8", CultureInfo.InvariantCulture) + " "
                 + qValue[1].ToString("F8", CultureInfo.InvariantCulture) + " "
                 + qValue[2].ToString("F8", CultureInfo.InvariantCulture) + " "
                 + qValue[3].ToString("F8", CultureInfo.InvariantCulture);
-            Writer.WriteElementString(sName, s);
+            if (bInline)
+                Writer.WriteAttributeString(sName, s);
+            else
+                Writer.WriteElementString(sName, s);
         }
 
-        public void AddAttribute(string sName, Colorf cValue)
+        public void AddAttribute(string sName, Colorf cValue, bool bInline = false)
         {
             string s = cValue[0].ToString("F8", CultureInfo.InvariantCulture) + " "
                 + cValue[1].ToString("F8", CultureInfo.InvariantCulture) + " "
                 + cValue[2].ToString("F8", CultureInfo.InvariantCulture) + " "
                 + cValue[3].ToString("F8", CultureInfo.InvariantCulture);
-            Writer.WriteElementString(sName, s);
+            if (bInline)
+                Writer.WriteAttributeString(sName, s);
+            else
+                Writer.WriteElementString(sName, s);
         }
 
 

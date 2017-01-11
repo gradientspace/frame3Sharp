@@ -188,6 +188,25 @@ namespace f3
             o.EndStruct();
         }
 
+
+        public static void EmitKeyframes(this SceneSerializer s, KeyframeSequence seq, IOutputStream o)
+        {
+            o.BeginStruct(IOStrings.KeyframeListStruct);
+            o.AddAttribute(IOStrings.ATimeRange, (Vector2f)seq.ValidRange);
+
+            int i = 0;
+            foreach ( Keyframe k  in seq ) {
+                o.BeginStruct(IOStrings.KeyframeStruct, i.ToString());
+                i++;
+                o.AddAttribute(IOStrings.ATime, (float)k.Time, true );
+                o.AddAttribute(IOStrings.APosition, k.Frame.Origin, true );
+                o.AddAttribute(IOStrings.AOrientation, k.Frame.Rotation, true );
+                o.EndStruct();
+            }
+
+            o.EndStruct();
+        }
+
     }
 
 
