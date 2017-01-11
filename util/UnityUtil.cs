@@ -589,15 +589,22 @@ namespace f3
         {
             SimpleMesh smesh = new SimpleMesh();
 
-            bool bNormals = (mesh.normals.Length == mesh.vertexCount);
-            bool bColors = (mesh.colors.Length == mesh.vertexCount || mesh.colors32.Length == mesh.vertexCount);
-            bool bByteColors = (mesh.colors32.Length == mesh.vertexCount);
-            bool bUVs = (mesh.uv.Length == mesh.vertexCount);
+            Vector3[] vertices = mesh.vertices;
+            Vector3[] normals = mesh.normals;
+            Color32[] colors32 = mesh.colors32;
+            Color[] colors = mesh.colors;
+            Vector2[] uv = mesh.uv;
+
+            bool bNormals = (normals.Length == mesh.vertexCount);
+            bool bColors = (colors.Length == mesh.vertexCount || colors32.Length == mesh.vertexCount);
+            bool bByteColors = (colors32.Length == mesh.vertexCount);
+            bool bUVs = (uv.Length == mesh.vertexCount);
 
             smesh.Initialize(bNormals, bColors, bUVs, false);
 
+
             for ( int i = 0; i < mesh.vertexCount; ++i ) {
-                Vector3d v = mesh.vertices[i];
+                Vector3d v = vertices[i];
                 if ( bSwapLeftright ) {
                     v.x = -v.x;
                     v.z = -v.z;
@@ -605,7 +612,7 @@ namespace f3
                 NewVertexInfo vInfo = new NewVertexInfo(v);
                 if ( bNormals ) {
                     vInfo.bHaveN = true;
-                    vInfo.n = mesh.normals[i];
+                    vInfo.n = normals[i];
                     if ( bSwapLeftright ) {
                         vInfo.n.x = -vInfo.n.x;
                         vInfo.n.z = -vInfo.n.z;
@@ -614,13 +621,13 @@ namespace f3
                 if (bColors) {
                     vInfo.bHaveC = true;
                     if (bByteColors)
-                        vInfo.c = new Colorf(mesh.colors32[i].r, mesh.colors32[i].g, mesh.colors32[i].b, 255);
+                        vInfo.c = new Colorf(colors32[i].r, colors32[i].g, colors32[i].b, 255);
                     else
-                        vInfo.c = mesh.colors[i];
+                        vInfo.c = colors[i];
                 }
                 if ( bUVs ) {
                     vInfo.bHaveUV = true;
-                    vInfo.uv = mesh.uv[i];
+                    vInfo.uv = uv[i];
                 }
 
                 int vid = smesh.AppendVertex(vInfo);
@@ -628,8 +635,9 @@ namespace f3
                     throw new InvalidOperationException("UnityUtil.UnityMeshToSimpleMesh: indices weirdness...");
             }
 
-            for (int i = 0; i < mesh.triangles.Length / 3; ++i)
-                smesh.AppendTriangle(mesh.triangles[3 * i], mesh.triangles[3 * i + 1], mesh.triangles[3 * i + 2]);
+            int[] triangles = mesh.triangles;
+            for (int i = 0; i < triangles.Length / 3; ++i)
+                smesh.AppendTriangle(triangles[3 * i], triangles[3 * i + 1], triangles[3 * i + 2]);
 
             return smesh;
         }
