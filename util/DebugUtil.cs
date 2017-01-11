@@ -168,6 +168,33 @@ namespace f3
             DebugUtil.Log(2, "{0} {1} {2} err {3}", prefix, v1.ToString("F3"), v2.ToString("F3"), dErr);
         }
 
+
+
+
+        public static void print_transform_tree(GameObject go)
+        {
+            string sTree = "";
+
+            GameObject cur = go;
+            while ( cur != null ) {
+                Vector3 local_pos = cur.transform.localPosition;
+                Vector3 local_angles = cur.transform.localEulerAngles;
+                Vector3 local_scale = cur.transform.localScale;
+
+                Vector3 pos = cur.transform.position;
+                Vector3f angles = cur.transform.eulerAngles;
+
+                string s = string.Format("go: {0}   local scale {1} pos {2} angles {3}     POS {4} ANGLES {5}",
+                    cur.name, local_scale, local_pos, local_angles, pos, angles);
+                sTree = sTree + s + "\n";
+
+
+                cur = (cur.transform.parent != null) ? cur.transform.parent.gameObject : null;
+            }
+            Debug.Log(sTree);            
+        }
+
+
     }
 }
 

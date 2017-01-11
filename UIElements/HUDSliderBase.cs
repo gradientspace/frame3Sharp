@@ -212,7 +212,8 @@ namespace f3
         override public bool BeginCapture (InputEvent e)
 		{
             GameObjectRayHit hit;
-            bool bHit = FindGORayIntersection(e.ray, out hit);
+            if (! FindGORayIntersection(e.ray, out hit) )
+                return false;       // this should not be possible...
             if ( hit.hitGO == handleGO ) {
                 onHandlePress(e, hit.hitPos);
                 eInterMode = InteractionMode.InHandleDrag;
