@@ -15,6 +15,8 @@ namespace f3
         ChangeHistory history;
         public ChangeHistory History { get { return history; } }
 
+        public SORegistry TypeRegistry { get; set; }
+
         public SOMaterial DefaultSOMaterial { get; set; }
         public SOMaterial DefaultCurveSOMaterial { get; set; }
         public SOMaterial NewSOMaterial { get; set; }
@@ -59,6 +61,7 @@ namespace f3
             this.context = context;
 
             history = new ChangeHistory();
+            TypeRegistry = new SORegistry();
 
             vObjects = new List<SceneObject> ();
 			vSelected = new List<SceneObject> ();

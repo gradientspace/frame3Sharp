@@ -25,7 +25,10 @@ namespace f3
         {
             identifier = id;
             type = t;
-            tags = new List<string>(tagsIn);
+            if (tagsIn != null)
+                tags = new List<string>(tagsIn);
+            else
+                tags = new List<string>();
         }
 
         public bool hasTag(string tag) {
@@ -90,35 +93,68 @@ namespace f3
     }
 
 
+
     //
-    // SOType registry. Currently not used! but it will be
+    // SOType registry, which allows clients to register SOTypes that can be saved/loaded
     //
     public class SORegistry
     {
-        Dictionary<string, SOType> knownTypes;
+        struct SOInfo
+        {
+            public SOType type;
+            public SOEmitSerializationFunc serializer;
+            public SOBuildFunc builder;
+        }
+
+        Dictionary<string, SOInfo> knownTypes;
 
         public SORegistry()
         {
-            knownTypes = new Dictionary<string, SOType>();
+            knownTypes = new Dictionary<string, SOInfo>();
         }
 
 
-        public void RegisterType(SOType t)
+        public void RegisterType(SOType t, SOEmitSerializationFunc serializeFunc = null,
+                                 SOBuildFunc buildFunc = null)
         {
             if (knownTypes.ContainsKey(t.identifier))
                 throw new InvalidOperationException("SORegistry.RegisterType: type " + t.identifier + " already registered!");
 
-            knownTypes[t.identifier] = t;
+            SOInfo info = new SOInfo() {
+                type = t,
+                serializer = serializeFunc,
+                builder = buildFunc
+            };
+            knownTypes[t.identifier] = info;
         }
 
 
-        public SOType FindType(string identifier)
+        public SOType FindType(string typeIdentifier)
         {
-            if (knownTypes.ContainsKey(identifier) == false)
+            if (knownTypes.ContainsKey(typeIdentifier) == false)
                 return SOTypes.Unknown;
-
-            return knownTypes[identifier];
+            return knownTypes[typeIdentifier].type;
         }
+
+        public SOEmitSerializationFunc FindSerializer(string typeIdentifier)
+        {
+            if (knownTypes.ContainsKey(typeIdentifier) == false)
+                return null;
+            return knownTypes[typeIdentifier].serializer;
+        }
+
+        public SOBuildFunc FindBuilder(string typeIdentifier)
+        {
+            if (knownTypes.ContainsKey(typeIdentifier) == false)
+                return null;
+            return knownTypes[typeIdentifier].builder;
+        }
+
+        public bool ContainsType(string typeIdentifier)
+        {
+            return knownTypes.ContainsKey(typeIdentifier);
+        }
+
 
     }
 }
