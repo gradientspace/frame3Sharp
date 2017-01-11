@@ -42,6 +42,19 @@ namespace f3
         }
 
 
+        public void BeginStruct(string sType, string sIdentifier)
+        {
+            Writer.WriteStartElement(IOStrings.Struct);
+            Writer.WriteAttributeString(IOStrings.StructType, sType);
+            if ( sIdentifier.Length > 0 )
+                Writer.WriteAttributeString(IOStrings.StructIdentifier, sIdentifier);
+        }
+        public void EndStruct()
+        {
+            Writer.WriteEndElement();
+        }
+
+
         public void AddAttribute(string sName, string sValue)
         {
             Writer.WriteElementString(sName, sValue);

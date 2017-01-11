@@ -22,7 +22,7 @@ namespace f3
                 OnMessage(message_prefix + " " + s);
         }
 
-        public virtual SceneObject Build(FScene scene, SceneSerializer serializer, Dictionary<string, object> attributes)
+        public virtual SceneObject Build(FScene scene, SceneSerializer serializer, TypedAttribSet attributes)
         {
             message_prefix = "[UnitySOFactory.Build]";
 
@@ -42,7 +42,7 @@ namespace f3
 
 
         protected virtual SceneObject BuildSOFromType(string typeIdentifier, FScene scene, 
-            SceneSerializer serializer, Dictionary<string, object> attributes )
+            SceneSerializer serializer, TypedAttribSet attributes )
         {
             // restore custom type if client has registered a builder for it
             if ( scene.TypeRegistry.ContainsType(typeIdentifier) ) {
@@ -78,55 +78,24 @@ namespace f3
 
 
 
-        public virtual bool safe_set_property_f(Dictionary<string, object> attributes, string sPropName, Action<float> setter)
-        {
-            if (check_key_or_debug_print(attributes, sPropName)) {
-                setter((float)attributes[sPropName]);
-                return true;
-            }
-            return false;
-        }
-        public virtual bool safe_set_property_i(Dictionary<string, object> attributes, string sPropName, Action<int> setter)
-        {
-            if (check_key_or_debug_print(attributes, sPropName)) {
-                setter((int)attributes[sPropName]);
-                return true;
-            }
-            return false;
-        }
-        public virtual bool safe_set_property_b(Dictionary<string, object> attributes, string sPropName, Action<bool> setter)
-        {
-            if (check_key_or_debug_print(attributes, sPropName)) {
-                setter((bool)attributes[sPropName]);
-                return true;
-            }
-            return false;
-        }
-        public virtual bool safe_set_property_s(Dictionary<string, object> attributes, string sPropName, Action<string> setter)
-        {
-            if (check_key_or_debug_print(attributes, sPropName)) {
-                setter((string)attributes[sPropName]);
-                return true;
-            }
-            return false;
-        }
 
 
 
-        public virtual SceneObject BuildCylinder(FScene scene, Dictionary<string, object> attributes)
+
+        public virtual SceneObject BuildCylinder(FScene scene, TypedAttribSet attributes)
         {
             CylinderSO so = new CylinderSO();
             safe_set_property_f(attributes, IOStrings.ARadius, (f) => { so.Radius = f; });
             safe_set_property_f(attributes, IOStrings.AHeight, (f) => { so.Height = f; });
             so.Create(scene.DefaultSOMaterial);
             safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
-            set_transform(so, attributes);
-            set_material(so, attributes);
+            RestoreTransform(so, attributes);
+            RestoreMaterial(so, attributes);
             return so;
         }
 
 
-        public virtual SceneObject BuildBox(FScene scene, Dictionary<string, object> attributes)
+        public virtual SceneObject BuildBox(FScene scene, TypedAttribSet attributes)
         {
             BoxSO so = new BoxSO();
             safe_set_property_f(attributes, IOStrings.AWidth, (f) => { so.Width = f; });
@@ -134,42 +103,42 @@ namespace f3
             safe_set_property_f(attributes, IOStrings.ADepth, (f) => { so.Depth = f; });
             so.Create(scene.DefaultSOMaterial);
             safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
-            set_transform(so, attributes);
-            set_material(so, attributes);
+            RestoreTransform(so, attributes);
+            RestoreMaterial(so, attributes);
             return so;
         }
 
 
-        public virtual SceneObject BuildSphere(FScene scene, Dictionary<string, object> attributes)
+        public virtual SceneObject BuildSphere(FScene scene, TypedAttribSet attributes)
         {
             SphereSO so = new SphereSO();
             safe_set_property_f(attributes, IOStrings.ARadius, (f) => { so.Radius = f; });
             so.Create(scene.DefaultSOMaterial);
             safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
-            set_transform(so, attributes);
-            set_material(so, attributes);
+            RestoreTransform(so, attributes);
+            RestoreMaterial(so, attributes);
             return so;
         }
 
 
-        public virtual SceneObject BuildPivot(FScene scene, Dictionary<string, object> attributes)
+        public virtual SceneObject BuildPivot(FScene scene, TypedAttribSet attributes)
         {
             PivotSO so = new PivotSO();
             so.Create(scene.PivotSOMaterial, scene.FrameMaterial);
             safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
-            set_transform(so, attributes);
-            set_material(so, attributes);
+            RestoreTransform(so, attributes);
+            RestoreMaterial(so, attributes);
             return so;
         }
 
 
-        public virtual SceneObject BuildPolyCurveSO(FScene scene, Dictionary<string, object> attributes)
+        public virtual SceneObject BuildPolyCurveSO(FScene scene, TypedAttribSet attributes)
         {
             PolyCurveSO so = new PolyCurveSO();
             so.Create(scene.DefaultSOMaterial);
             safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
-            set_transform(so, attributes);
-            set_material(so, attributes);
+            RestoreTransform(so, attributes);
+            RestoreMaterial(so, attributes);
 
             if (check_key_or_debug_print(attributes, IOStrings.APolyCurve3)) {
                 VectorArray3d v = attributes[IOStrings.APolyCurve3] as VectorArray3d;
@@ -182,13 +151,13 @@ namespace f3
         }
 
 
-        public virtual SceneObject BuildPolyTubeSO(FScene scene, Dictionary<string, object> attributes)
+        public virtual SceneObject BuildPolyTubeSO(FScene scene, TypedAttribSet attributes)
         {
             PolyTubeSO so = new PolyTubeSO();
             so.Create(scene.DefaultSOMaterial);
             safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
-            set_transform(so, attributes);
-            set_material(so, attributes);
+            RestoreTransform(so, attributes);
+            RestoreMaterial(so, attributes);
 
             if (check_key_or_debug_print(attributes, IOStrings.APolyCurve3)) {
                 VectorArray3d v = attributes[IOStrings.APolyCurve3] as VectorArray3d;
@@ -205,23 +174,23 @@ namespace f3
         }
 
 
-        public virtual SceneObject BuildMeshSO(FScene scene, Dictionary<string, object> attributes)
+        public virtual SceneObject BuildMeshSO(FScene scene, TypedAttribSet attributes)
         {
             MeshSO so = new MeshSO();
 
-            SimpleMesh m = BuildSimpleMesh(attributes, true);
+            SimpleMesh m = RestoreSimpleMesh(attributes, true);
 
             so.Create(m, scene.DefaultSOMaterial);
             safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
-            set_transform(so, attributes);
-            set_material(so, attributes);
+            RestoreTransform(so, attributes);
+            RestoreMaterial(so, attributes);
 
             return so;
         }
 
 
 
-        public virtual SceneObject BuildMeshReference(FScene scene, string sSceneFilePath, Dictionary<string, object> attributes)
+        public virtual SceneObject BuildMeshReference(FScene scene, string sSceneFilePath, TypedAttribSet attributes)
         {
             string sAbsPath = "", sRelPath = "";
             bool bAbsPathOK = safe_set_property_s(attributes, IOStrings.AReferencePath, (str) => { sAbsPath = str; });
@@ -290,7 +259,7 @@ namespace f3
                 return null;
             }
 
-            SceneImporter import = new SceneImporter();
+            SceneMeshImporter import = new SceneMeshImporter();
             bool bOK = import.ReadFile(sUsePath);
             if (bOK == false && import.LastReadResult.result != g3.ReadResult.Ok) {
                 emit_message("import of mesh [" + sUsePath + "] failed: " + import.LastReadResult.info);
@@ -300,25 +269,91 @@ namespace f3
             }
             MeshReferenceSO refSO = import.GetMeshReference(scene.DefaultMeshSOMaterial);
             safe_set_property_s(attributes, IOStrings.ASOName, (s) => { refSO.Name = s; });
-            set_transform(refSO, attributes);
+            RestoreTransform(refSO, attributes);
             return refSO;
         }
 
 
 
-        //
-        // utility functions
-        //
 
 
-        public virtual SimpleMesh BuildSimpleMesh(Dictionary<string, object> attributes, bool bSwapRightLeft)
+
+        // restore structs
+
+
+
+
+
+        public virtual void RestoreTransform(TransformableSceneObject so, TypedAttribSet attributes)
         {
-            string sFormat = IOStrings.AMeshFormat_Ascii;
-            if (check_key_or_debug_print(attributes, IOStrings.AMeshFormat)) {
-                sFormat = attributes[IOStrings.AMeshFormat] as string;
+            TypedAttribSet transform = find_struct(attributes, IOStrings.TransformStruct);
+            if (transform == null)
+                throw new Exception("SOFactory.RestoreTransform: Transform struct not found!");
+
+            Frame3f f = Frame3f.Identity;
+
+            if (check_key_or_debug_print(transform, IOStrings.APosition)) {
+                Vector3f vPosition = (Vector3f)transform[IOStrings.APosition];
+                f.Origin = vPosition;
             }
-            // only have ascii and uuencoded binary right now..
-            bool bBinary = (sFormat == IOStrings.AMeshFormat_UUBinary);
+            if (check_key_or_debug_print(transform, IOStrings.AOrientation)) {
+                Quaternionf vRotation = (g3.Quaternionf)transform[IOStrings.AOrientation];
+                f.Rotation = vRotation;
+            }
+
+            so.SetLocalFrame(f, CoordSpace.ObjectCoords);
+
+            if (check_key_or_debug_print(transform, IOStrings.AOrientation)) {
+                Vector3f vScale = (Vector3f)transform[IOStrings.AScale];
+                so.RootGameObject.transform.localScale = vScale;
+            }
+        }
+
+
+        public virtual void RestoreMaterial(SceneObject so, TypedAttribSet attributes)
+        {
+            TypedAttribSet material = find_struct(attributes, IOStrings.MaterialStruct);
+            if (material == null)
+                throw new Exception("SOFactory.RestoreMaterial: Material struct not found!");
+
+
+            SOMaterial mat = new SOMaterial();
+            bool bKnownType = false;
+            if (check_key_or_debug_print(material, IOStrings.AMaterialType)) {
+                string sType = material[IOStrings.AMaterialType] as string;
+                if (sType == IOStrings.AMaterialType_Standard) {
+                    mat.Type = SOMaterial.MaterialType.StandardRGBColor;
+                    bKnownType = true;
+                } else if (sType == IOStrings.AMaterialType_Transparent) {
+                    mat.Type = SOMaterial.MaterialType.TransparentRGBColor;
+                    bKnownType = true;
+                }
+            }
+            if (bKnownType == false)
+                return;
+
+            if (check_key_or_debug_print(material, IOStrings.AMaterialName)) {
+                mat.Name = material[IOStrings.AMaterialName] as string;
+            }
+
+            if (check_key_or_debug_print(material, IOStrings.AMaterialRGBColor)) {
+                mat.RGBColor = (Colorf)material[IOStrings.AMaterialRGBColor];
+            }
+
+            so.AssignSOMaterial(mat);
+        }
+
+        public virtual SimpleMesh RestoreSimpleMesh(TypedAttribSet attributes, bool bSwapRightLeft)
+        {
+            bool bBinary = true;
+            TypedAttribSet meshAttr = find_struct(attributes, IOStrings.BinaryMeshStruct);
+            if (meshAttr == null) {
+                meshAttr = find_struct(attributes, IOStrings.AsciiMeshStruct);
+                bBinary = false;
+            }
+            if ( meshAttr == null )
+                throw new Exception("SOFactory.RestoreSimpleMesh: Mesh ascii/binary struct not found!");
+
 
             VectorArray3d v = null;
             VectorArray3i t = null;
@@ -326,28 +361,28 @@ namespace f3
             VectorArray2f uv = null;
 
             if (bBinary) {
-                if (check_key_or_debug_print(attributes, IOStrings.AMeshVertices3Binary))
-                    v = attributes[IOStrings.AMeshVertices3Binary] as VectorArray3d;
-                if (check_key_or_debug_print(attributes, IOStrings.AMeshTrianglesBinary))
-                    t = attributes[IOStrings.AMeshTrianglesBinary] as VectorArray3i;
-                if (check_key_or_debug_print(attributes, IOStrings.AMeshNormals3Binary))
-                    n = attributes[IOStrings.AMeshNormals3Binary] as VectorArray3f;
-                if (check_key_or_debug_print(attributes, IOStrings.AMeshColors3Binary))
-                    c = attributes[IOStrings.AMeshColors3Binary] as VectorArray3f;
-                if (check_key_or_debug_print(attributes, IOStrings.AMeshUVs2Binary))
-                    uv = attributes[IOStrings.AMeshUVs2Binary] as VectorArray2f;
+                if (check_key_or_debug_print(meshAttr, IOStrings.AMeshVertices3Binary))
+                    v = meshAttr[IOStrings.AMeshVertices3Binary] as VectorArray3d;
+                if (check_key_or_debug_print(meshAttr, IOStrings.AMeshTrianglesBinary))
+                    t = meshAttr[IOStrings.AMeshTrianglesBinary] as VectorArray3i;
+                if (check_key_or_debug_print(meshAttr, IOStrings.AMeshNormals3Binary))
+                    n = meshAttr[IOStrings.AMeshNormals3Binary] as VectorArray3f;
+                if (check_key_or_debug_print(meshAttr, IOStrings.AMeshColors3Binary))
+                    c = meshAttr[IOStrings.AMeshColors3Binary] as VectorArray3f;
+                if (check_key_or_debug_print(meshAttr, IOStrings.AMeshUVs2Binary))
+                    uv = meshAttr[IOStrings.AMeshUVs2Binary] as VectorArray2f;
 
             } else {
-                if (check_key_or_debug_print(attributes, IOStrings.AMeshVertices3))
-                    v = attributes[IOStrings.AMeshVertices3] as VectorArray3d;
-                if (check_key_or_debug_print(attributes, IOStrings.AMeshTriangles))
-                    t = attributes[IOStrings.AMeshTriangles] as VectorArray3i;
-                if (check_key_or_debug_print(attributes, IOStrings.AMeshNormals3))
-                    n = attributes[IOStrings.AMeshNormals3] as VectorArray3f;
-                if (check_key_or_debug_print(attributes, IOStrings.AMeshColors3))
-                    c = attributes[IOStrings.AMeshColors3] as VectorArray3f;
-                if (check_key_or_debug_print(attributes, IOStrings.AMeshUVs2))
-                    uv = attributes[IOStrings.AMeshUVs2] as VectorArray2f;
+                if (check_key_or_debug_print(meshAttr, IOStrings.AMeshVertices3))
+                    v = meshAttr[IOStrings.AMeshVertices3] as VectorArray3d;
+                if (check_key_or_debug_print(meshAttr, IOStrings.AMeshTriangles))
+                    t = meshAttr[IOStrings.AMeshTriangles] as VectorArray3i;
+                if (check_key_or_debug_print(meshAttr, IOStrings.AMeshNormals3))
+                    n = meshAttr[IOStrings.AMeshNormals3] as VectorArray3f;
+                if (check_key_or_debug_print(meshAttr, IOStrings.AMeshColors3))
+                    c = meshAttr[IOStrings.AMeshColors3] as VectorArray3f;
+                if (check_key_or_debug_print(meshAttr, IOStrings.AMeshUVs2))
+                    uv = meshAttr[IOStrings.AMeshUVs2] as VectorArray2f;
             }
 
             if (v == null || t == null)
@@ -375,7 +410,51 @@ namespace f3
 
 
 
-        public virtual bool check_key_or_debug_print(Dictionary<string, object> attributes, string sKey)
+
+
+
+
+
+
+
+        //
+        // utility functions
+        //
+
+        public virtual bool safe_set_property_f(TypedAttribSet attributes, string sPropName, Action<float> setter)
+        {
+            if (check_key_or_debug_print(attributes, sPropName)) {
+                setter((float)attributes[sPropName]);
+                return true;
+            }
+            return false;
+        }
+        public virtual bool safe_set_property_i(TypedAttribSet attributes, string sPropName, Action<int> setter)
+        {
+            if (check_key_or_debug_print(attributes, sPropName)) {
+                setter((int)attributes[sPropName]);
+                return true;
+            }
+            return false;
+        }
+        public virtual bool safe_set_property_b(TypedAttribSet attributes, string sPropName, Action<bool> setter)
+        {
+            if (check_key_or_debug_print(attributes, sPropName)) {
+                setter((bool)attributes[sPropName]);
+                return true;
+            }
+            return false;
+        }
+        public virtual bool safe_set_property_s(TypedAttribSet attributes, string sPropName, Action<string> setter)
+        {
+            if (check_key_or_debug_print(attributes, sPropName)) {
+                setter((string)attributes[sPropName]);
+                return true;
+            }
+            return false;
+        }
+
+        public virtual bool check_key_or_debug_print(TypedAttribSet attributes, string sKey)
         {
             if (attributes.ContainsKey(sKey) == false) {
                 emit_message("attribute " + sKey + " is missing");
@@ -385,56 +464,19 @@ namespace f3
         }
 
 
-
-        public virtual void set_transform(TransformableSceneObject so, Dictionary<string, object> attributes)
+        public virtual TypedAttribSet find_struct(TypedAttribSet attribs, string sType, string sIdentifier = "")
         {
-            Frame3f f = Frame3f.Identity;
-
-            if (check_key_or_debug_print(attributes, IOStrings.APosition)) {
-                Vector3f vPosition = (Vector3f)attributes[IOStrings.APosition];
-                f.Origin = vPosition;
-            }
-            if (check_key_or_debug_print(attributes, IOStrings.AOrientation)) {
-                Quaternionf vRotation = (g3.Quaternionf)attributes[IOStrings.AOrientation];
-                f.Rotation = vRotation;
-            }
-
-            so.SetLocalFrame(f, CoordSpace.ObjectCoords);
-
-            if (check_key_or_debug_print(attributes, IOStrings.AOrientation)) {
-                Vector3f vScale = (Vector3f)attributes[IOStrings.AScale];
-                so.RootGameObject.transform.localScale = vScale;
-            }
+            string key = sType;
+            if (sIdentifier.Length > 0)
+                key += ":" + sIdentifier;
+            if (attribs.Pairs.ContainsKey(key))
+                return attribs.Pairs[key] as TypedAttribSet;
+            else
+                return null;
         }
 
 
-        public virtual void set_material(SceneObject so, Dictionary<string, object> attributes)
-        {
-            SOMaterial mat = new SOMaterial();
-            bool bKnownType = false;
-            if (check_key_or_debug_print(attributes, IOStrings.AMaterialType)) {
-                string sType = attributes[IOStrings.AMaterialType] as string;
-                if (sType == IOStrings.AMaterialType_Standard) {
-                    mat.Type = SOMaterial.MaterialType.StandardRGBColor;
-                    bKnownType = true;
-                } else if (sType == IOStrings.AMaterialType_Transparent) {
-                    mat.Type = SOMaterial.MaterialType.TransparentRGBColor;
-                    bKnownType = true;
-                }
-            }
-            if (bKnownType == false)
-                return;
 
-            if (check_key_or_debug_print(attributes, IOStrings.AMaterialName)) {
-                mat.Name = attributes[IOStrings.AMaterialName] as string;
-            }
-
-            if (check_key_or_debug_print(attributes, IOStrings.AMaterialRGBColor)) {
-                mat.RGBColor = (Colorf)attributes[IOStrings.AMaterialRGBColor];
-            }
-
-            so.AssignSOMaterial(mat);
-        }
 
 
     }

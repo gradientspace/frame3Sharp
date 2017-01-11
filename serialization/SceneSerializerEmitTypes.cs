@@ -13,26 +13,7 @@ namespace f3
     // extension methods to SceneSerializer for emitting built-in types
     public static class SceneSerializerEmitTypesExt
     {
-        public static void EmitTransform(this SceneSerializer s, IOutputStream o, TransformableSceneObject so)
-        {
-            Frame3f f = so.GetLocalFrame(CoordSpace.ObjectCoords);
-            o.AddAttribute(IOStrings.APosition, f.Origin );
-            o.AddAttribute(IOStrings.AOrientation, f.Rotation );
-            o.AddAttribute(IOStrings.AScale, so.RootGameObject.transform.localScale);
-        }
 
-        public static void EmitMaterial(this SceneSerializer s, IOutputStream o, SOMaterial mat)
-        {
-            if (mat.Type == SOMaterial.MaterialType.StandardRGBColor) {
-                o.AddAttribute(IOStrings.AMaterialType, IOStrings.AMaterialType_Standard);
-                o.AddAttribute(IOStrings.AMaterialName, mat.Name);
-                o.AddAttribute(IOStrings.AMaterialRGBColor, mat.RGBColor);
-            } else if ( mat.Type == SOMaterial.MaterialType.TransparentRGBColor) {
-                o.AddAttribute(IOStrings.AMaterialType, IOStrings.AMaterialType_Transparent);
-                o.AddAttribute(IOStrings.AMaterialName, mat.Name);
-                o.AddAttribute(IOStrings.AMaterialRGBColor, mat.RGBColor);
-            }
-        }
 
         public static void Emit(this SceneSerializer s, IOutputStream o, CylinderSO so)
         {
@@ -145,9 +126,37 @@ namespace f3
 
 
 
+
+        public static void EmitTransform(this SceneSerializer s, IOutputStream o, TransformableSceneObject so)
+        {
+            o.BeginStruct(IOStrings.TransformStruct);
+            Frame3f f = so.GetLocalFrame(CoordSpace.ObjectCoords);
+            o.AddAttribute(IOStrings.APosition, f.Origin );
+            o.AddAttribute(IOStrings.AOrientation, f.Rotation );
+            o.AddAttribute(IOStrings.AScale, so.RootGameObject.transform.localScale);
+            o.EndStruct();
+        }
+
+        public static void EmitMaterial(this SceneSerializer s, IOutputStream o, SOMaterial mat)
+        {
+            o.BeginStruct(IOStrings.MaterialStruct);
+            if (mat.Type == SOMaterial.MaterialType.StandardRGBColor) {
+                o.AddAttribute(IOStrings.AMaterialType, IOStrings.AMaterialType_Standard);
+                o.AddAttribute(IOStrings.AMaterialName, mat.Name);
+                o.AddAttribute(IOStrings.AMaterialRGBColor, mat.RGBColor);
+            } else if ( mat.Type == SOMaterial.MaterialType.TransparentRGBColor) {
+                o.AddAttribute(IOStrings.AMaterialType, IOStrings.AMaterialType_Transparent);
+                o.AddAttribute(IOStrings.AMaterialName, mat.Name);
+                o.AddAttribute(IOStrings.AMaterialRGBColor, mat.RGBColor);
+            }
+            o.EndStruct();
+        }
+
+
+
         public static void EmitMeshAscii(this SceneSerializer s, SimpleMesh m, IOutputStream o)
         {
-            o.AddAttribute(IOStrings.AMeshFormat, IOStrings.AMeshFormat_Ascii);
+            o.BeginStruct(IOStrings.AsciiMeshStruct);
             o.AddAttribute(IOStrings.AMeshVertices3, m.VerticesItr());
             if (m.HasVertexNormals)
                 o.AddAttribute(IOStrings.AMeshNormals3, m.NormalsItr());
@@ -156,6 +165,7 @@ namespace f3
             if (m.HasVertexUVs)
                 o.AddAttribute(IOStrings.AMeshUVs2, m.UVsItr());
             o.AddAttribute(IOStrings.AMeshTriangles, m.TrianglesItr());
+            o.EndStruct();
         }
 
 
@@ -166,7 +176,7 @@ namespace f3
             //    - storing floats saves roughly 50%
             //    - storing triangles is worse until vertex count > 9999
             //          - could store as byte or short in those cases...
-            o.AddAttribute(IOStrings.AMeshFormat, IOStrings.AMeshFormat_UUBinary);
+            o.BeginStruct(IOStrings.BinaryMeshStruct);
             o.AddAttribute(IOStrings.AMeshVertices3Binary, m.Vertices.GetBytes());
             if (m.HasVertexNormals)
                 o.AddAttribute(IOStrings.AMeshNormals3Binary, m.Normals.GetBytes());
@@ -175,6 +185,7 @@ namespace f3
             if (m.HasVertexUVs)
                 o.AddAttribute(IOStrings.AMeshUVs2Binary, m.UVs.GetBytes());
             o.AddAttribute(IOStrings.AMeshTrianglesBinary, m.Triangles.GetBytes());
+            o.EndStruct();
         }
 
     }

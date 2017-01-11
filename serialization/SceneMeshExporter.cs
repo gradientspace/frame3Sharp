@@ -8,7 +8,7 @@ using g3;
 
 namespace f3
 {
-    public class SceneExporter
+    public class SceneMeshExporter
     {
 
         public g3.WriteResult LastWriteStatus { get; set; }

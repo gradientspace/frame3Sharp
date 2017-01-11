@@ -7,7 +7,7 @@ using g3;
 
 namespace f3
 {
-    class SceneImporter
+    class SceneMeshImporter
     {
         public IOReadResult LastReadResult { get; set; }
         public bool SomeMeshesTooLargeForUnityWarning { get; set; }
@@ -31,7 +31,7 @@ namespace f3
         string sSourcePath;
 
 
-        public SceneImporter()
+        public SceneMeshImporter()
         {
             SwapLeftRight = true;       // this is right for importing from most other apps!
             ImportBehavior = ImportMode.AsMeshReference;

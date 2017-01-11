@@ -16,6 +16,8 @@ namespace f3
         public event InputStream_NodeHandler OnBeginSceneObject;
         public event InputStream_NodeHandler OnEndScene;
         public event InputStream_NodeHandler OnEndSceneObject;
+        public event InputStream_StructHandler OnBeginStruct;
+        public event InputStream_StructHandler OnEndStruct;
 
         public void Restore()
         {
@@ -31,7 +33,10 @@ namespace f3
                         OnBeginSceneObject();
 
                     foreach ( XmlNode a in so.ChildNodes ) {
-                        OnAttribute(a.Name, a.InnerText);
+                        if (a.Name == IOStrings.Struct) 
+                            restore_struct(a);
+                        else
+                            OnAttribute(a.Name, a.InnerText);
                     }
 
                     if (OnEndSceneObject != null)
@@ -42,6 +47,22 @@ namespace f3
                 if (OnEndScene != null)
                     OnEndScene();
             }
+        }
+
+
+        void restore_struct(XmlNode structNode)
+        {
+            string sType = structNode.Attributes[IOStrings.StructType].InnerText;
+            XmlNode identNode = structNode.Attributes.GetNamedItem(IOStrings.StructIdentifier);
+            string sIdentifier = (identNode != null) ? identNode.InnerText : "";
+            OnBeginStruct(sType, sIdentifier);
+            foreach ( XmlNode a in structNode.ChildNodes ) {
+                if (a.Name == IOStrings.Struct)
+                    restore_struct(a);
+                else
+                    OnAttribute(a.Name, a.InnerText);
+            }
+            OnEndStruct(sType, sIdentifier);
         }
     }
 }

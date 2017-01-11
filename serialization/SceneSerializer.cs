@@ -8,12 +8,22 @@ namespace f3
     public static class IOStrings
     {
         public static readonly string SceneVersion = "SceneVersion";
-        public static readonly string CurrentSceneVersion = "1.0";
+        //public static readonly string CurrentSceneVersion = "1.0";    // initial verison, flat attribute lists inside SOs
+        public static readonly string CurrentSceneVersion = "1.1";      // added structs
 
 
         // top-level object names
         public static readonly string Scene = "Scene";
         public static readonly string SceneObject = "SceneObject";
+
+        // structs are collections of attributes inside scene/sceneobject
+        public static readonly string Struct = "Struct";
+        public const string StructType = "Type";
+        public const string StructIdentifier = "ID";
+        public const string BinaryMeshStruct = "BinaryUEncodedMesh";
+        public const string AsciiMeshStruct = "AsciiMesh";
+        public const string TransformStruct = "Transform";
+        public const string MaterialStruct = "Material";
 
         // standard scene object attributes
         public static readonly string ASOType = "SOType";
@@ -64,9 +74,6 @@ namespace f3
         public static readonly string APolygon2 = "zd2Polygon";
 
         // for mesh
-        public static readonly string AMeshFormat = "sMeshFormat";
-        public static readonly string AMeshFormat_Ascii = "Ascii";
-        public static readonly string AMeshFormat_UUBinary = "UUBinary";
         public static readonly string AMeshVertices3 = "zd3MeshVertices";
         public static readonly string AMeshVertices3Binary = "xd3MeshVertices";
         public static readonly string AMeshNormals3 = "zf3MeshNormals";
@@ -91,12 +98,15 @@ namespace f3
 
     public interface IOutputStream
     {
+        // top-level scene
         void BeginScene(string version);
         void EndScene();
 
+        // scene contains scene objects
         void BeginSceneObject();
         void EndSceneObject();
 
+        // scene object contains attribute
         void AddAttribute(string sName, string sValue);
         void AddAttribute(string sName, float fValue);
         void AddAttribute(string sName, int nValue);
@@ -111,11 +121,17 @@ namespace f3
         void AddAttribute(string sName, IEnumerable<Vector2d> vVec);
         void AddAttribute(string sName, IEnumerable<Vector2f> vVec);
         void AddAttribute(string sName, byte[] buffer);
+
+        // a struct contains a group of attributes. Optional Identifier can be used to
+        // differentiate between multiple structs of same Type in a single object.
+        void BeginStruct(string sType, string sIdentifier = "");
+        void EndStruct();
     }
 
 
 
     public delegate void InputStream_NodeHandler();
+    public delegate void InputStream_StructHandler(string sType, string sIdentifier);
     public delegate void InputStream_AttributeHandler(string sName, string sValue);
     public interface IInputStream
     {
@@ -123,6 +139,9 @@ namespace f3
         event InputStream_NodeHandler OnEndScene;
         event InputStream_NodeHandler OnBeginSceneObject;
         event InputStream_NodeHandler OnEndSceneObject;
+
+        event InputStream_StructHandler OnBeginStruct;
+        event InputStream_StructHandler OnEndStruct;
 
         event InputStream_AttributeHandler OnAttribute;
 
@@ -133,15 +152,32 @@ namespace f3
     public delegate void SerializeMessageHandler(string sMessage);
 
 
+    // list of values, possibly with nested TypedAttribSets
+    public class TypedAttribSet
+    {
+        public string Type = "";        // only set for Structs, ie nested attrib sets
+        public string Identifier = "";  // differentiate between same-type Structs
+        public Dictionary<string, object> Pairs = new Dictionary<string, object>();
+
+        public bool ContainsKey(string s)
+        {
+            return Pairs.ContainsKey(s);
+        }
+        public object this[string key]
+        {
+            get { return Pairs[key]; }
+        }
+    }
+
 
     // custom store/restore functions for SOs. 
     public delegate bool SOEmitSerializationFunc(SceneSerializer serializer, IOutputStream o, SceneObject so);
-    public delegate SceneObject SOBuildFunc(SOFactory factory, FScene scene, Dictionary<string, object> attributes);
+    public delegate SceneObject SOBuildFunc(SOFactory factory, FScene scene, TypedAttribSet attributes);
 
 
     public interface ISceneObjectFactory
     {
-        SceneObject Build(FScene s, SceneSerializer serializer, Dictionary<string, object> attributes);
+        SceneObject Build(FScene s, SceneSerializer serializer, TypedAttribSet attributes);
         event SerializeMessageHandler OnMessage;
     }
 
@@ -229,6 +265,7 @@ namespace f3
          * Restore
          */
 
+        FScene activeScene;     // scene we are restoring into
 
 
         enum RestoreState
@@ -236,12 +273,55 @@ namespace f3
             NoState,
             InScene,
             InSceneObject,
+            InStruct,
             Done
         }
         RestoreState eState = RestoreState.NoState;
 
-        FScene activeScene;
-        Dictionary<string, object> curAttribSet;
+        List<RestoreState> state_stack = new List<RestoreState>();
+        void PushState(RestoreState newState)
+        {
+            // verify valid transitions??
+            state_stack.Add(eState);
+            eState = newState;
+        }
+        void PopState()
+        {
+            if (eState == RestoreState.NoState)
+                throw new Exception("SceneSerializer.PopState: aready in NoState! must be unbalanced push/pop somewhere!");
+            eState = RestoreState.NoState;
+            if ( state_stack.Count > 0 ) {
+                eState = state_stack[state_stack.Count - 1];
+                state_stack.RemoveAt(state_stack.Count - 1);
+            }
+        }
+
+
+ 
+        TypedAttribSet CurAttribs;
+
+        List<TypedAttribSet> attrib_stack = new List<TypedAttribSet>();
+        void PushAttribSet(string sType = "", string sIdentifier = "")
+        {
+            TypedAttribSet s = new TypedAttribSet() { Type = sType };
+            if (CurAttribs != null)
+                attrib_stack.Add(CurAttribs);
+            CurAttribs = s;
+        }
+        void PopAttribSet()
+        {
+            if (CurAttribs == null)
+                throw new Exception("SceneSerializer.PopAttribSet: no attrib set active! must be unbalanced push/pop somewhere!");
+
+            CurAttribs = null;
+            if ( attrib_stack.Count > 0 ) {
+                CurAttribs = attrib_stack[attrib_stack.Count - 1];
+                attrib_stack.RemoveAt(attrib_stack.Count - 1);
+            }
+        }
+
+
+
 
         public void Restore(IInputStream i, FScene s)
         {
@@ -251,6 +331,8 @@ namespace f3
             i.OnEndScene += Restore_OnEndScene;
             i.OnBeginSceneObject += Restore_OnBeginSceneObject;
             i.OnEndSceneObject += Restore_OnEndSceneObject;
+            i.OnBeginStruct += Restore_OnBeginStruct;
+            i.OnEndStruct += Restore_OnEndStruct;
             i.OnAttribute += Restore_OnAttribute;
 
             i.Restore();
@@ -261,57 +343,83 @@ namespace f3
         {
             if (eState != RestoreState.NoState)
                 throw new FormatException("[Serializer] not in correct state for BeginScene");
-            eState = RestoreState.InScene;
+            PushState(RestoreState.InScene);
         }
         void Restore_OnEndScene()
         {
             if (eState != RestoreState.InScene)
                 throw new FormatException("[Serializer] not in correct state for EndScene");
-            eState = RestoreState.Done;
+            PopState();
+            PushState(RestoreState.Done);
         }
         void Restore_OnBeginSceneObject()
         {
             if (eState != RestoreState.InScene)
                 throw new FormatException("[Serializer] not in correct state for BeginSceneObject");
-            eState = RestoreState.InSceneObject;
-            curAttribSet = new Dictionary<string, object>();
+            PushState(RestoreState.InSceneObject);
+            PushAttribSet();
         }
         void Restore_OnEndSceneObject()
         {
             if (eState != RestoreState.InSceneObject)
                 throw new FormatException("[Serializer] not in correct state for EndSceneObject");
-            eState = RestoreState.InScene;
 
-            SceneObject so = SOFactory.Build(activeScene, this, curAttribSet);
+            SceneObject so = SOFactory.Build(activeScene, this, CurAttribs);
             if (so != null) {
                 activeScene.AddSceneObject(so);
             }
 
-            curAttribSet = null;
+            PopAttribSet();
+            PopState();
         }
+
+        void Restore_OnBeginStruct(string sType, string sIdentifier)
+        {
+            PushState(RestoreState.InStruct);
+            PushAttribSet(sType, sIdentifier);
+        }
+        void Restore_OnEndStruct(string sType, string sIdentifier)
+        {
+            TypedAttribSet structAttribs = CurAttribs;
+            PopAttribSet();
+            if (CurAttribs == null)
+                throw new FormatException("Serializer.Restore_OnEndStruct: no valid attrib set to add struct to!");
+
+            string idString = sType;
+            if (sIdentifier.Length > 0)
+                idString += ":" + sIdentifier;
+            CurAttribs.Pairs[idString] = structAttribs;
+
+            PopState();
+        }
+
+
 
         void Restore_OnAttribute(string sName, string sValue)
         {
-            if (eState != RestoreState.InSceneObject)
+            if (eState != RestoreState.InSceneObject && eState != RestoreState.InStruct)
                 throw new FormatException("[Serializer] not in correct state for OnAttrib");
 
             char[] delimiterChars = { ' ' };
 
-            if (sName[0] == 'i') {
+            if (sName == IOStrings.Struct) {
+
+
+            } else  if (sName[0] == 'i') {
                 int iValue = 0;
                 int.TryParse(sValue, out iValue);
-                curAttribSet[sName] = iValue;
+                CurAttribs.Pairs[sName] = iValue;
 
             } else if (sName[0] == 'f') {
                 float fValue = 0;
                 float.TryParse(sValue, out fValue);
-                curAttribSet[sName] = fValue;
+                CurAttribs.Pairs[sName] = fValue;
 
             } else if (sName[0] == 'b') {
                 bool bValue = true;
                 if (sValue.Equals("false", StringComparison.InvariantCultureIgnoreCase))
                     bValue = false;
-                curAttribSet[sName] = bValue;
+                CurAttribs.Pairs[sName] = bValue;
 
             } else if (sName[0] == 'v') {
                 float x = 0, y = 0, z = 0;
@@ -321,7 +429,7 @@ namespace f3
                     float.TryParse(values[1], out y);
                     float.TryParse(values[2], out z);
                 }
-                curAttribSet[sName] = new Vector3f(x, y, z);
+                CurAttribs.Pairs[sName] = new Vector3f(x, y, z);
 
             } else if (sName[0] == 'q') {
                 float x = 0, y = 0, z = 0, w = 0;
@@ -332,7 +440,7 @@ namespace f3
                     float.TryParse(values[2], out z);
                     float.TryParse(values[3], out w);
                 }
-                curAttribSet[sName] = new Quaternionf(x, y, z, w);
+                CurAttribs.Pairs[sName] = new Quaternionf(x, y, z, w);
 
             } else if (sName[0] == 'c') {
                 float r = 0, g = 0, b = 0, a = 0;
@@ -343,40 +451,40 @@ namespace f3
                     float.TryParse(values[2], out b);
                     float.TryParse(values[3], out a);
                 }
-                curAttribSet[sName] = new Colorf(r, g, b, a);
+                CurAttribs.Pairs[sName] = new Colorf(r, g, b, a);
 
 
             } else if (sName[0] == 'z') {
                 if (sName[1] == 'd' && sName[2] == '3')
-                    curAttribSet[sName] = restore_list3d(sValue);
+                    CurAttribs.Pairs[sName] = restore_list3d(sValue);
                 else if (sName[1] == 'f' && sName[2] == '3')
-                    curAttribSet[sName] = restore_list3f(sValue);
+                    CurAttribs.Pairs[sName] = restore_list3f(sValue);
                 else if (sName[1] == 'i' && sName[2] == '3')
-                    curAttribSet[sName] = restore_list3i(sValue);
+                    CurAttribs.Pairs[sName] = restore_list3i(sValue);
                 else if (sName[1] == 'd' && sName[2] == '2')
-                    curAttribSet[sName] = restore_list2d(sValue);
+                    CurAttribs.Pairs[sName] = restore_list2d(sValue);
                 else if (sName[1] == 'f' && sName[2] == '2')
-                    curAttribSet[sName] = restore_list2f(sValue);
+                    CurAttribs.Pairs[sName] = restore_list2f(sValue);
                 else
                     DebugUtil.Warning("[SceneSerializer.Restore_OnAttribute] - unknown array format {0}", sName);
 
             } else if (sName[0] == 'x') {
                 if (sName[1] == 'd' && sName[2] == '3')
-                    curAttribSet[sName] = restore_list3d_binary(sValue);
+                    CurAttribs.Pairs[sName] = restore_list3d_binary(sValue);
                 else if (sName[1] == 'f' && sName[2] == '3')
-                    curAttribSet[sName] = restore_list3f_binary(sValue);
+                    CurAttribs.Pairs[sName] = restore_list3f_binary(sValue);
                 else if (sName[1] == 'i' && sName[2] == '3')
-                    curAttribSet[sName] = restore_list3i_binary(sValue);
+                    CurAttribs.Pairs[sName] = restore_list3i_binary(sValue);
                 //else if (sName[1] == 'd' && sName[2] == '2')
-                //    curAttribSet[sName] = restore_list2d_binary(sValue);
+                //    CurAttribs.Pairs[sName] = restore_list2d_binary(sValue);
                 else if (sName[1] == 'f' && sName[2] == '2')
-                    curAttribSet[sName] = restore_list2f_binary(sValue);
+                    CurAttribs.Pairs[sName] = restore_list2f_binary(sValue);
                 else
                     DebugUtil.Warning("[SceneSerializer.Restore_OnAttribute] - unknown binary format {0}", sName);
 
 
             } else {
-                curAttribSet[sName] = sValue;
+                CurAttribs.Pairs[sName] = sValue;
             }
 
 
