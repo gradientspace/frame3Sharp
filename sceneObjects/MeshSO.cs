@@ -40,6 +40,10 @@ namespace f3
         {
             return UnityUtil.UnityMeshToSimpleMesh(meshGO.GetSharedMesh(), bSwapLeftToRight);
         }
+        public DMesh3 GetDMesh(bool bSwapLeftToRight)
+        {
+            return UnityUtil.UnityMeshToDMesh(meshGO.GetSharedMesh(), bSwapLeftToRight);
+        }
 
 
         //

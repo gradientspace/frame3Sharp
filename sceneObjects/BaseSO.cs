@@ -186,5 +186,21 @@ namespace f3
             }
         }
 
+
+
+        //
+        // transform utility functions
+        //   [TODO] use f3 code to do this, rather than unity xform functions!
+        //
+        virtual public Vector3f ToWorldP(Vector3f ptLocal) {
+            Vector3f vW = this.RootGameObject.transform.TransformPoint(ptLocal);
+            return vW;
+        }
+        virtual public Vector3f ToLocalP(Vector3f ptWorld) {
+            Vector3f vL = this.RootGameObject.transform.InverseTransformPoint(ptWorld);
+            return vL;
+        }
+
+
     }
 }

@@ -644,6 +644,64 @@ namespace f3
 
 
 
+
+        public static DMesh3 UnityMeshToDMesh(Mesh mesh, bool bSwapLeftright)
+        {
+            Vector3[] vertices = mesh.vertices;
+            Vector3[] normals = mesh.normals;
+            Color32[] colors32 = mesh.colors32;
+            Color[] colors = mesh.colors;
+            Vector2[] uv = mesh.uv;
+
+            bool bNormals = (normals.Length == mesh.vertexCount);
+            bool bColors = (colors.Length == mesh.vertexCount || colors32.Length == mesh.vertexCount);
+            bool bByteColors = (colors32.Length == mesh.vertexCount);
+            bool bUVs = (uv.Length == mesh.vertexCount);
+
+            DMesh3 dmesh = new DMesh3(bNormals, bColors, bUVs, false);
+
+            for ( int i = 0; i < mesh.vertexCount; ++i ) {
+                Vector3d v = vertices[i];
+                if ( bSwapLeftright ) {
+                    v.x = -v.x;
+                    v.z = -v.z;
+                }
+                NewVertexInfo vInfo = new NewVertexInfo(v);
+                if ( bNormals ) {
+                    vInfo.bHaveN = true;
+                    vInfo.n = normals[i];
+                    if ( bSwapLeftright ) {
+                        vInfo.n.x = -vInfo.n.x;
+                        vInfo.n.z = -vInfo.n.z;
+                    }
+                }
+                if (bColors) {
+                    vInfo.bHaveC = true;
+                    if (bByteColors)
+                        vInfo.c = new Colorf(colors32[i].r, colors32[i].g, colors32[i].b, 255);
+                    else
+                        vInfo.c = colors[i];
+                }
+                if ( bUVs ) {
+                    vInfo.bHaveUV = true;
+                    vInfo.uv = uv[i];
+                }
+
+                int vid = dmesh.AppendVertex(vInfo);
+                if (vid != i)
+                    throw new InvalidOperationException("UnityUtil.UnityMeshToDMesh: indices weirdness...");
+            }
+
+            int[] triangles = mesh.triangles;
+            for (int i = 0; i < triangles.Length / 3; ++i)
+                dmesh.AppendTriangle(triangles[3 * i], triangles[3 * i + 1], triangles[3 * i + 2]);
+
+            return dmesh;
+        }
+
+
+
+
         // stupid per-type conversion functions because fucking C# 
         // can't do typecasts in generic functions
         public static Vector3[] dvector_to_vector3(DVector<double> vec)

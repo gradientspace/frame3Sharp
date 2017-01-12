@@ -140,12 +140,22 @@ namespace f3
         }
 
 
-        public void ScenePanFocus(Camera camera, Vector3 focusPoint)
+        public void ScenePanFocus(FScene scene, Camera camera, Vector3 focusPoint, bool bAnimated)
         {
             CameraAnimator animator = camera.gameObject.GetComponent<CameraAnimator>();
-            if (animator == null)
-                return;                 // [TODO] do non-animated version?
-            animator.PanFocus(focusPoint);
+            if (bAnimated == false || animator == null) {
+                // figure out the pan that we would apply to camera, then apply the delta to the scene
+                Vector3 curPos = camera.transform.position;
+                Vector3 curDir = camera.transform.forward;
+                float fDist = Vector3.Dot((focusPoint - curPos), curDir);
+                Vector3 newPos = focusPoint - fDist * curDir;
+                Vector3 delta = curPos - newPos;
+
+                scene.RootGameObject.transform.position += delta;
+                camera.SetTarget(focusPoint);
+                           
+            } else
+                animator.PanFocus(focusPoint);
         }
 
 
