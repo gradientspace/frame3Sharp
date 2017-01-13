@@ -477,6 +477,12 @@ namespace f3
         public Vector3f ToSceneP(Vector3f ptWorld) {
             return SceneFrame.ToFrameP(ptWorld) / GetSceneScale();
         }
+        public Vector3d ToWorldP(Vector3d ptScene) {
+            return (Vector3d)SceneFrame.FromFrameP( GetSceneScale() * (Vector3f)ptScene );
+        }
+        public Vector3d ToSceneP(Vector3d ptWorld) {
+            return (Vector3d)SceneFrame.ToFrameP((Vector3f)ptWorld) / GetSceneScale();
+        }
 
         public Vector3f ToWorldN(Vector3f normalScene)
         {
@@ -504,6 +510,11 @@ namespace f3
         {
             return SceneFrame.ToFrame(fWorldFrame).Scaled(1.0f / GetSceneScale());
         }
+
+
+        //public Vector3f TransferPoint(SceneObject fromSO, SceneObject toSO, Vector3f point)
+        //{
+        //}
 
     }
 }

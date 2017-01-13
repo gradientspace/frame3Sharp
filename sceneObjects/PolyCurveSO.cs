@@ -193,7 +193,7 @@ namespace f3
         }
 
 
-        override public bool FindRayIntersection(Ray ray, out SORayHit hit)
+        override public bool FindRayIntersection(Ray3f ray, out SORayHit hit)
         {
             hit = null;
 

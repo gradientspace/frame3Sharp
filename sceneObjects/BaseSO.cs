@@ -138,7 +138,7 @@ namespace f3
         }
 
 
-        virtual public bool FindRayIntersection(Ray ray, out SORayHit hit)
+        virtual public bool FindRayIntersection(Ray3f ray, out SORayHit hit)
         {
             hit = null;
             GameObjectRayHit hitg = null;

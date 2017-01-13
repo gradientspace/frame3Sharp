@@ -701,6 +701,28 @@ namespace f3
 
 
 
+        public static void UpdateMeshVertices(Mesh unityMesh, Vector3f[] vNewPositions, bool bRecalcNormals = true)
+        {
+            Vector3[] meshV = new Vector3[vNewPositions.Length];
+            for (int i = 0; i < vNewPositions.Length; ++i)
+                meshV[i] = vNewPositions[i];
+            unityMesh.vertices = meshV;
+
+            if (bRecalcNormals)
+                unityMesh.RecalculateNormals();
+        }
+        public static void UpdateMeshVertices(Mesh unityMesh, Vector3d[] vNewPositions, bool bRecalcNormals = true)
+        {
+            Vector3[] meshV = new Vector3[vNewPositions.Length];
+            for (int i = 0; i < vNewPositions.Length; ++i)
+                meshV[i] = (Vector3f)vNewPositions[i];
+            unityMesh.vertices = meshV;
+
+            if (bRecalcNormals)
+                unityMesh.RecalculateNormals();
+        }
+
+
 
         // stupid per-type conversion functions because fucking C# 
         // can't do typecasts in generic functions

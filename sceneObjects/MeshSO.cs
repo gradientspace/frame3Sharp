@@ -45,6 +45,13 @@ namespace f3
             return UnityUtil.UnityMeshToDMesh(meshGO.GetSharedMesh(), bSwapLeftToRight);
         }
 
+        public void UpdateVertexPositions(Vector3f[] vPositions)
+        {
+            UnityUtil.UpdateMeshVertices(meshGO.GetSharedMesh(), vPositions, true);
+            // update collider...
+        }
+
+
 
         //
         // SceneObject impl

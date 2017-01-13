@@ -130,7 +130,7 @@ namespace f3
             return target.GetLocalBoundingBox();
         }
 
-        public bool FindRayIntersection(Ray ray, out SORayHit hit)
+        public bool FindRayIntersection(Ray3f ray, out SORayHit hit)
         {
             hit = null;
             return false;

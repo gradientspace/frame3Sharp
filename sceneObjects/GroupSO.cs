@@ -201,7 +201,7 @@ namespace f3
 
         }
 
-        public bool FindRayIntersection(Ray ray, out SORayHit hit)
+        public bool FindRayIntersection(Ray3f ray, out SORayHit hit)
         {
             bool bHit = SceneUtil.FindNearestRayIntersection(vChildren, ray, out hit);
             if (bHit)

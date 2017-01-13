@@ -61,7 +61,7 @@ namespace f3
         // called on per-frame Update()
         void PreRender();
 
-		bool FindRayIntersection(Ray ray, out SORayHit hit);
+		bool FindRayIntersection(Ray3f ray, out SORayHit hit);
 
         Bounds GetTransformedBoundingBox();
         Bounds GetLocalBoundingBox();
