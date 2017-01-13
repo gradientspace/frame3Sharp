@@ -54,7 +54,7 @@ namespace f3
             ReadOptions options = new ReadOptions();
             options.ReadMaterials = true;
             LastReadResult = reader.Read(sPath, options);
-            if (LastReadResult.result != ReadResult.Ok)
+            if (LastReadResult.code != IOCode.Ok)
                 return false;
 
             // create the material set

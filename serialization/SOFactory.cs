@@ -261,8 +261,8 @@ namespace f3
 
             SceneMeshImporter import = new SceneMeshImporter();
             bool bOK = import.ReadFile(sUsePath);
-            if (bOK == false && import.LastReadResult.result != g3.ReadResult.Ok) {
-                emit_message("import of mesh [" + sUsePath + "] failed: " + import.LastReadResult.info);
+            if (bOK == false && import.LastReadResult.code != g3.IOCode.Ok) {
+                emit_message("import of mesh [" + sUsePath + "] failed: " + import.LastReadResult.message);
                 // [TODO] how can we show this message?
                 //HUDUtil.ShowCenteredStaticPopupMessage("popups/error_reading_file", activeCockpit);
                 return null;

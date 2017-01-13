@@ -11,13 +11,13 @@ namespace f3
     public class SceneMeshExporter
     {
 
-        public g3.WriteResult LastWriteStatus { get; set; }
+        public g3.IOCode LastWriteStatus { get; set; }
         public string LastErrorMessage { get; set; }
 
 
         public bool Export(FScene s, string filename)
         {
-            List<IMesh> vMeshes = new List<IMesh>();
+            List<WriteMesh> vMeshes = new List<WriteMesh>();
 
             foreach ( SceneObject so in s.SceneObjects ) {
                 if (so.IsTemporary)
@@ -50,7 +50,7 @@ namespace f3
                     }
                 }
 
-                vMeshes.Add(m);
+                vMeshes.Add( new WriteMesh(m, so.Name) );
             }
 
             StreamWriter file = File.CreateText(filename);
@@ -58,10 +58,10 @@ namespace f3
             IOWriteResult result = writer.Write(file, vMeshes, new WriteOptions());
             file.Close();
 
-            LastWriteStatus = result.result;
-            LastErrorMessage = result.info;
+            LastWriteStatus = result.code;
+            LastErrorMessage = result.message;
 
-            return (result.result == WriteResult.Ok);
+            return (result.code == IOCode.Ok);
         }
 
     }
