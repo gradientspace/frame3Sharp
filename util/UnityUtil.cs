@@ -106,6 +106,11 @@ namespace f3
             if (tmp != null)
                 tmp(sender, endValue);
         }
+        public static void SafeSendEvent(OnChangeOpHandler handler, object source, IChangeOp change) {
+            var tmp = handler;
+            if (tmp != null)
+                tmp(source, change);
+        }
 
 
         public static GameObject CreatePrimitiveGO(string name, PrimitiveType eType, Material setMaterial = null, bool bCollider = true)

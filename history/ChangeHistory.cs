@@ -38,6 +38,8 @@ namespace f3
     }
 
 
+    public delegate void OnChangeOpHandler(object source, IChangeOp op);
+
 
     public abstract class BaseChangeOp : IChangeOp
     {
@@ -87,6 +89,8 @@ namespace f3
 
         public OpStatus PushChange(IChangeOp op, bool bIsApplied = false)
         {
+            DebugUtil.Log(2, "ChangeHistory.PushChange: pushed {0}", op.Identifier());
+
             if (vHistory.Count > 0 && iCurrent < vHistory.Count)
                 TrimFuture();
 
@@ -119,6 +123,7 @@ namespace f3
                 return OpStatus.Success;        // weird but ok
 
             IChangeOp op = vHistory[iCurrent - 1];
+            DebugUtil.Log(2, "ChangeHistory.StepBack: reverting {0}", op.Identifier());
             OpStatus result = op.Revert();
             if (result.code != OpStatus.no_error) {
                 DebugUtil.Error("[ChangeHistory::StepBack] Revert() of ChangeOp {0} failed - result was code {1} message {2}",
@@ -162,6 +167,7 @@ namespace f3
                 return OpStatus.Success;
 
             IChangeOp op = vHistory[iCurrent];
+            DebugUtil.Log(2, "ChangeHistory.StepForward: applying {0}", op.Identifier());
             OpStatus result = op.Apply();
             if (result.code != OpStatus.no_error) {
                 DebugUtil.Error("[ChangeHistory::StepForward] Apply() of ChangeOp {0} failed - result was code {1} message {2}",
@@ -204,6 +210,8 @@ namespace f3
                     vHistory[i].Cull();
                 vHistory.RemoveRange(iCurrent, vHistory.Count - iCurrent);
             }
+            if (iCurrent >= vHistory.Count)
+                throw new Exception("ACK");
         }
 
 
