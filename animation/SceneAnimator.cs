@@ -34,7 +34,7 @@ namespace f3
         {
             yield return null;
 
-            Tweener tween = DOTween.To(() => CurrentTime, x => CurrentTime = x, fToTime, fDuration);
+            /*Tweener tween =*/ DOTween.To(() => CurrentTime, x => CurrentTime = x, fToTime, fDuration);
             //if (CompleteCallback != null)
             //    tween.OnComplete(CompleteCallback);
         }
