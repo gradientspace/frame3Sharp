@@ -26,6 +26,12 @@ namespace f3
                             (this.Time - parent1.Time) / (parent2.Time - parent1.Time);
             this.Frame = Frame3f.Interpolate(parent1.Frame, parent2.Frame, (float)a);
         }
+
+        public Keyframe(Keyframe copy)
+        {
+            Time = copy.Time;
+            Frame = copy.Frame;
+        }
     }
 
 
@@ -71,27 +77,62 @@ namespace f3
         }
 
 
-        public bool AddKey(Keyframe f, bool bReplace = false)
+        public OnChangeOpHandler ChangeOpEvent;
+
+
+        void add_or_update_key(Keyframe f)
         {
-            if (f.Time < validMin || f.Time > validMax)
+            Keys[f.Time] = f;
+        }
+        void remove_key(double time)
+        {
+            Keys.Remove(time);
+        }
+
+
+        public bool AddKey(Keyframe f)
+        {
+            if ( f.Time < validMin || f.Time > validMax )
                 throw new gException("KeyframeSequence.AddKey: time {0} is out of valid range", f.Time);
-            if (Keys.ContainsKey(f.Time) && bReplace == false)
+            if ( Keys.ContainsKey(f.Time) )
                 throw new gException("KeyframeSequence.AddKey: key already exists at time {0}!", f.Time);
 
-            Keys[f.Time] = f;
+            add_or_update_key(f);
+            UnityUtil.SafeSendEvent(ChangeOpEvent, this,
+                new KeyframeAddRemoveChange() { key = f, sequence = this, bAdded = true });
+
             return true;
         }
         public bool AddOrUpdateKey(Keyframe f) {
-            return AddKey(f, true);
+            if ( f.Time < validMin || f.Time > validMax )
+                throw new gException("KeyframeSequence.AddKey: time {0} is out of valid range", f.Time);
+
+            IChangeOp change;
+            if (Keys.ContainsKey(f.Time)) {
+                Keyframe prev = Keys[f.Time];
+                change = new KeyframeUpdateChange() { before = prev, after = f, sequence = this };
+            } else {
+                change = new KeyframeAddRemoveChange() { key = f, sequence = this, bAdded = true };
+            }
+
+            add_or_update_key(f);
+
+            UnityUtil.SafeSendEvent(ChangeOpEvent, this, change);
+
+            return true;
         }
 
 
         public bool RemoveKey(double time)
         {
-            if (Keys.ContainsKey(time) == false)
-                return false;
-            Keys.Remove(time);
-            return true;
+            if ( Keys.ContainsKey(time) ) {
+                Keyframe f = Keys[time];
+                remove_key(time);
+                UnityUtil.SafeSendEvent(ChangeOpEvent, this,
+                    new KeyframeAddRemoveChange() { key = f, sequence = this, bAdded = false });
+                return true;
+            }
+            return false;
         }
 
 
@@ -104,7 +145,10 @@ namespace f3
         public bool UpdateKey(Keyframe f)
         {
             if (Keys.ContainsKey(f.Time)) {
+                Keyframe prev = Keys[f.Time];
+                IChangeOp change = new KeyframeUpdateChange() { before = prev, after = f, sequence = this };
                 Keys[f.Time] = f;
+                UnityUtil.SafeSendEvent(ChangeOpEvent, this, change);
                 return true;
             }
             return false;
@@ -149,5 +193,74 @@ namespace f3
         }
 
 
+
+
+
+
+
+
+
+
+        // change ops for KeyframeSequence
+        public class KeyframeAddRemoveChange : BaseChangeOp
+        {
+            public Keyframe key;
+            public bool bAdded;
+            public KeyframeSequence sequence;       // do we need to hold ref to this??
+
+            public override string Identifier() { return "KeyframeAddedChange"; }
+
+            public override OpStatus Apply() {
+                if (bAdded)
+                    sequence.add_or_update_key(key);
+                else
+                    sequence.remove_key(key.Time);
+                return OpStatus.Success;
+            }
+
+            public override OpStatus Revert() {
+                if (bAdded)
+                    sequence.remove_key(key.Time);
+                else
+                    sequence.add_or_update_key(key);
+                return OpStatus.Success;
+            }
+
+            public override OpStatus Cull() {
+                return OpStatus.Success;
+            }
+        }
+
+
+
+        public class KeyframeUpdateChange : BaseChangeOp
+        {
+            public Keyframe before, after;
+            public KeyframeSequence sequence;       // do we need to hold ref to this??
+
+            public override string Identifier() { return "KeyframeUpdateChange"; }
+
+            public override OpStatus Apply() {
+                sequence.add_or_update_key(after);
+                return OpStatus.Success;
+            }
+
+            public override OpStatus Revert() {
+                sequence.add_or_update_key(before);
+                return OpStatus.Success;
+            }
+
+            public override OpStatus Cull() {
+                return OpStatus.Success;
+            }
+        }
+
+
+
+
     }
+
+
+
+
 }

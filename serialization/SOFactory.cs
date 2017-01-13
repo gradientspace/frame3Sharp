@@ -440,7 +440,7 @@ namespace f3
                     frame.Rotation = (Quaternionf)frameAttrib[IOStrings.AOrientation];
                 }
                 if (time != double.PositiveInfinity)
-                    keys.AddKey(new Keyframe(time, frame), true);
+                    keys.AddOrUpdateKey( new Keyframe(time, frame) );
             }
 
             return keys;
