@@ -23,6 +23,9 @@ namespace f3
         // if false, TransformManager is disabled, so no built-in transform gizmo, etc
         public bool EnableTransforms { get; set; }
 
+        // set this to your own gizmo builder to override default axis-transform gizmo
+        public ITransformGizmoBuilder DefaultGizmoBuilder { get; set; }
+
         // if false, no cockpit is created (probably this doesn't work right now!)
         public bool EnableCockpit { get; set; }
 

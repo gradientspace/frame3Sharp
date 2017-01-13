@@ -44,9 +44,9 @@ namespace f3
         public const string NoGizmoType = "no_gizmo";
 
         
-        public TransformManager()
+        public TransformManager( ITransformGizmoBuilder defaultBuilder )
         {
-            activeBuilder = new AxisTransformGizmoBuilder();
+            activeBuilder = defaultBuilder;
             activeGizmo = null;
 
             GizmoTypes = new Dictionary<string, ITransformGizmoBuilder>();

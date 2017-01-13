@@ -123,7 +123,10 @@ namespace f3 {
             if (options.SceneInitializer != null)
                 options.SceneInitializer.Initialize(GetScene());
 
-            transformManager = new TransformManager();
+            if (options.DefaultGizmoBuilder != null)
+                transformManager = new TransformManager(options.DefaultGizmoBuilder);
+            else
+                transformManager = new TransformManager( new AxisTransformGizmoBuilder() );
             if (options.EnableTransforms) {
                 transformManager.Initialize(this);
             }
