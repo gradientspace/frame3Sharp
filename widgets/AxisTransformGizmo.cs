@@ -71,6 +71,20 @@ namespace f3
         }
 
 
+
+        public virtual void OnTransformInteractionStart()
+        {
+            // this is called when the user starts an interactive transform change
+            // via the gizmo (eg mouse-down). Override to customize behavior.
+        }
+        public virtual void OnTransformInteractionEnd()
+        {
+            // this is called when the user ends an interactive transform change
+            // via the gizmo (eg mouse-up). Override to customize behavior.
+        }
+
+
+
 		public GameObject RootGameObject {
 			get { return gizmo; }
 		}
@@ -78,6 +92,9 @@ namespace f3
         {
             get { return targets; }
             set { Debug.Assert(false, "not implemented!"); }
+        }
+        public FScene Scene {
+            get { return parentScene; }
         }
 
 		public void Disconnect() {
@@ -304,6 +321,7 @@ namespace f3
 
 
 
+
 		public bool FindRayIntersection (Ray ray, out UIRayHit hit)
 		{
 			hit = null;
@@ -338,6 +356,7 @@ namespace f3
                     MaterialUtil.SetMaterial(w.RootGameObject, w.HoverMaterial);
                     targetWrapper.BeginTransformation ();
 					activeWidget = w;
+                    OnTransformInteractionStart();
                     return true;
 				}
 			}
@@ -362,9 +381,16 @@ namespace f3
 			if (activeWidget != null) {
                 MaterialUtil.SetMaterial(activeWidget.RootGameObject, activeWidget.StandardMaterial);
 
-                // update widget frame in case we want to do something like stay scene-aligned...
-                targetWrapper.DoneTransformation ();
-                onTransformModified(null);
+                // tell wrapper we are done with capture, so it should bake transform/etc
+                bool bModified = targetWrapper.DoneTransformation ();
+                if (bModified) {
+                    // update gizmo
+                    onTransformModified(null);
+                    // allow client/subclass to add any other change records
+                    OnTransformInteractionEnd();
+                    // gizmos drop change events by default
+                    Scene.History.PushInteractionCheckpoint();
+                }
 
 				activeWidget = null;
 			}

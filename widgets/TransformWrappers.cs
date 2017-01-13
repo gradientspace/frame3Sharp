@@ -9,7 +9,10 @@ namespace f3
     public interface ITransformWrapper : ITransformable
     {
         void BeginTransformation();
-        void DoneTransformation();
+
+        // returns true if changes were emitted
+        bool DoneTransformation();
+
         TransformableSceneObject Target { get; }
     }
 
@@ -46,7 +49,7 @@ namespace f3
             }
         }
 
-        virtual public void DoneTransformation()
+        virtual public bool DoneTransformation()
         {
             curChange.parentAfter = GetLocalFrame(CoordSpace.SceneCoords);
             curChange.parentScaleAfter = GetLocalScale();
@@ -60,7 +63,7 @@ namespace f3
             }
             target.GetScene().History.PushChange(curChange, true);
             curChange = null;
-            target.GetScene().History.PushInteractionCheckpoint();
+            return true;
         }
 
     }
@@ -75,9 +78,9 @@ namespace f3
         {
             base.BeginTransformation();
         }
-        override public void DoneTransformation()
+        override public bool DoneTransformation()
         {
-            base.DoneTransformation();
+            return base.DoneTransformation();
         }
         override public Frame3f GetLocalFrame(CoordSpace eSpace)
         {
@@ -131,10 +134,11 @@ namespace f3
             objectFrame = target.GetLocalFrame(CoordSpace.ObjectCoords);
             curRotation = Quaternionf.Identity;
         }
-        override public void DoneTransformation()
+        override public bool DoneTransformation()
         {
-            base.DoneTransformation();
+            bool bResult = base.DoneTransformation();
             curRotation = Quaternionf.Identity;
+            return bResult;
         }
 
         override public Frame3f GetLocalFrame(CoordSpace eSpace)
