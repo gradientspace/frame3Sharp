@@ -35,17 +35,29 @@ namespace f3
 
         public bool WriteInBackgroundThreads = true;
 
+        public bool WriteNormals = false;
+        public bool WriteUVs = false;
+        public bool WriteVertexColors = false;
+        public bool WriteFaceGroups = false;
+
+        public WriteOptions Options = WriteOptions.Defaults;
+
+
+
 
         public ExportStatus Export(FScene s, string filename)
         {
             List<WriteMesh> vMeshes = new List<WriteMesh>();
+
+            if (WriteFaceGroups)
+                throw new Exception("SceneMeshExporter.Export: writing face groups has not yet been implemented!");
 
             foreach ( SceneObject so in s.SceneObjects ) {
                 if (so.IsTemporary)
                     continue;
 
                 SimpleMesh m = new SimpleMesh();
-                m.Initialize(false, false, true);
+                m.Initialize(WriteNormals, WriteVertexColors, WriteUVs, WriteFaceGroups);
                 int groupCounter = 1;
 
                 GameObject go = so.RootGameObject;
@@ -56,31 +68,55 @@ namespace f3
                     if ( filter != null && filter.mesh != null ) {
                         Mesh curMesh = filter.sharedMesh;
                         Vector3[] vertices = curMesh.vertices;
+                        Vector3[] normals = (WriteNormals) ? curMesh.normals : null;
+                        Color[] colors = (WriteVertexColors) ? curMesh.colors : null;
+                        Vector2[] uvs = (WriteUVs) ? curMesh.uv : null;
+
                         if (vertexMap.Length < curMesh.vertexCount)
                             vertexMap = new int[curMesh.vertexCount*2];
 
                         for ( int i = 0; i < curMesh.vertexCount; ++i ) {
+                            NewVertexInfo vi = new NewVertexInfo();
+                            vi.bHaveN = WriteNormals; vi.bHaveC = WriteVertexColors; vi.bHaveUV = WriteUVs;
+
                             Vector3 v = vertices[i];
                             // local to world
                             v = filter.gameObject.transform.TransformPoint(v);
                             // world back to scene
-                            v = s.RootGameObject.transform.InverseTransformPoint(v);
-                            vertexMap[i] = m.AppendVertex(v.x, v.y, v.z);
+                            vi.v = UnityUtil.SwapLeftRight(s.RootGameObject.transform.InverseTransformPoint(v));
+
+                            if (WriteNormals) {
+                                Vector3 n = normals[i];
+                                n = filter.gameObject.transform.TransformDirection(n);
+                                vi.n = UnityUtil.SwapLeftRight(s.RootGameObject.transform.InverseTransformDirection(n));
+                            }
+                            if ( WriteVertexColors ) 
+                                vi.c = colors[i];
+                            if (WriteUVs)
+                                vi.uv = uvs[i];
+
+                            vertexMap[i] = m.AppendVertex(vi);
                         }
 
-                        m.AppendTriangles(curMesh.triangles, vertexMap, groupCounter++);
+                        int[] triangles = curMesh.triangles;
+                        int nTriangles = triangles.Length / 3;
+                        for ( int i = 0; i < nTriangles; ++i ) {
+                            int a = vertexMap[triangles[3 * i]];
+                            int b = vertexMap[triangles[3 * i + 1]];
+                            int c = vertexMap[triangles[3 * i + 2]];
+                            m.AppendTriangle(a, c, b, groupCounter);  // TRI ORIENTATION IS REVERSED HERE!!
+                        }
+                        groupCounter++;
                     }
                 }
 
                 vMeshes.Add( new WriteMesh(m, so.Name) );
             }
 
-            WriteOptions options = new WriteOptions();
-            options.bCombineMeshes = false;
 
             if (WriteInBackgroundThreads) {
                 BackgroundWriteThread t = new BackgroundWriteThread() {
-                    Meshes = vMeshes, options = options, Filename = filename
+                    Meshes = vMeshes, options = Options, Filename = filename
                 };
                 t.Start();
                 return new ExportStatus() {
@@ -88,7 +124,7 @@ namespace f3
                 };
 
             } else {
-                IOWriteResult result = StandardMeshWriter.WriteFile(filename, vMeshes, options);
+                IOWriteResult result = StandardMeshWriter.WriteFile(filename, vMeshes, Options);
                 LastWriteStatus = result.code;
                 LastErrorMessage = result.message;
                 return new ExportStatus() {
@@ -110,9 +146,7 @@ namespace f3
         public string Filename;
         public WriteOptions options;
 
-
         public IOWriteResult Status { get; set; }
-
 
         public void Start()
         {
