@@ -139,7 +139,7 @@ namespace f3
                 return AxisAlignedBox2f.Empty;
             float verticalSize = ((Camera)context.OrthoUICamera).orthographicSize * 2.0f;
             float horizontalSize = verticalSize * (float)Screen.width / (float)Screen.height;
-            return new AxisAlignedBox2f(-horizontalSize / 2, -verticalSize / 2, verticalSize / 2, horizontalSize / 2);
+            return new AxisAlignedBox2f(-horizontalSize / 2, -verticalSize / 2, horizontalSize / 2, verticalSize / 2);
         }
 
 
