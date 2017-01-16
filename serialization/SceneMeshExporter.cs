@@ -18,11 +18,18 @@ namespace f3
     public class ExportStatus
     {
         public SceneMeshExporter Exporter;
+
+        // If IsComputing == true, then exporter is still working in background
+        // threads. It will eventually go false and flags will be set.
+        // The computing function /might/ set the progress fields, but no guarantees
         public bool IsComputing;
 
         public bool Ok;
         public bool Error { get { return Ok == false; } }
         public string LastErrorMessage;
+
+        public int Progress = 0;
+        public int MaxProgress = 0;
     }
 
 
@@ -115,13 +122,27 @@ namespace f3
 
 
             if (WriteInBackgroundThreads) {
-                BackgroundWriteThread t = new BackgroundWriteThread() {
-                    Meshes = vMeshes, options = Options, Filename = filename
-                };
-                t.Start();
-                return new ExportStatus() {
+
+                ExportStatus status = new ExportStatus() {
                     Exporter = this, IsComputing = true
                 };
+                WriteOptions useOptions = Options;
+                useOptions.ProgressFunc = (cur, max) => {
+                    status.Progress = cur;
+                    status.MaxProgress = max;
+                };
+                BackgroundWriteThread t = new BackgroundWriteThread() {
+                    Meshes = vMeshes, options = useOptions, Filename = filename,
+                    CompletionF = (result) => {
+                        LastWriteStatus = result.code;
+                        LastErrorMessage = result.message;
+                        status.LastErrorMessage = result.message;
+                        status.Ok = (result.code == IOCode.Ok);
+                        status.IsComputing = false;
+                    }
+                };
+                t.Start();
+                return status;
 
             } else {
                 IOWriteResult result = StandardMeshWriter.WriteFile(filename, vMeshes, Options);
@@ -145,6 +166,7 @@ namespace f3
         public List<WriteMesh> Meshes;
         public string Filename;
         public WriteOptions options;
+        public Action<IOWriteResult> CompletionF;
 
         public IOWriteResult Status { get; set; }
 
@@ -157,6 +179,8 @@ namespace f3
         void ThreadFunc()
         {
             Status = StandardMeshWriter.WriteFile(Filename, Meshes, options);
+            if (CompletionF != null)
+                CompletionF(Status);
         }
     }
 
