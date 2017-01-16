@@ -111,7 +111,7 @@ namespace f3
             defaultPrimitiveType = SOTypes.Cylinder;
         }
 
-        public FContext ActiveController {
+        public FContext Context {
             get { return this.context; }
         }
         public fCamera ActiveCamera {

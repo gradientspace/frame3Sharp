@@ -55,12 +55,12 @@ namespace f3
 
             // TODO is this where we should be doing this??
             behaviors.Add(
-                new DrawPrimitivesTool_MouseBehavior(scene.ActiveController) { Priority = 5 } );
+                new DrawPrimitivesTool_MouseBehavior(scene.Context) { Priority = 5 } );
             behaviors.Add(
-                new DrawPrimitivesTool_SpatialDeviceBehavior(scene.ActiveController) { Priority = 5 });
+                new DrawPrimitivesTool_SpatialDeviceBehavior(scene.Context) { Priority = 5 });
 
             // shut off transform gizmo
-            scene.ActiveController.TransformManager.SetOverrideGizmoType(TransformManager.NoGizmoType);
+            scene.Context.TransformManager.SetOverrideGizmoType(TransformManager.NoGizmoType);
         }
 
 
@@ -78,7 +78,7 @@ namespace f3
 
         public void Shutdown()
         {
-            scene.ActiveController.TransformManager.ClearOverrideGizmoType();
+            scene.Context.TransformManager.ClearOverrideGizmoType();
         }
 
         public enum SupportedTypes
@@ -150,7 +150,7 @@ namespace f3
                 primStartW = sceneW;
                 primStartW.Origin = hitPos;
             } else {
-                if (scene.ActiveController.TransformManager.ActiveFrameType == FrameType.WorldFrame) {
+                if (scene.Context.TransformManager.ActiveFrameType == FrameType.WorldFrame) {
                     primStartW = sceneW;
                     primStartW.Origin = hitPos;
 

@@ -42,7 +42,7 @@ namespace f3
             if (hit.hitSO is TransformableSceneObject)
                 hitF = (hit.hitSO as TransformableSceneObject).GetLocalFrame(CoordSpace.WorldCoords);
             bool bUseLocal =
-                (TargetScene.ActiveController.TransformManager.ActiveFrameType == FrameType.LocalFrame);
+                (TargetScene.Context.TransformManager.ActiveFrameType == FrameType.LocalFrame);
             if (bUseLocal && hit.hitSO is TransformableSceneObject) {
                 hitF = (hit.hitSO as TransformableSceneObject).GetLocalFrame(CoordSpace.WorldCoords);
                 targetAxis = hitF.GetAxis(1);
