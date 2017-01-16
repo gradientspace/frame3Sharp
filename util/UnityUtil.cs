@@ -40,11 +40,21 @@ namespace f3
         {
             return go.GetComponent<MeshFilter>().sharedMesh;
         }
-        public static void SetMesh(this GameObject go, Mesh m) {
+        public static void SetMesh(this GameObject go, Mesh m, bool bUpdateCollider = false) {
             go.GetComponent<MeshFilter>().mesh = m;
+            if ( bUpdateCollider ) {
+                MeshCollider c = go.GetComponent<MeshCollider>();
+                if (c != null)
+                    c.sharedMesh = go.GetComponent<MeshFilter>().sharedMesh;
+            }
         }
-        public static void SetSharedMesh(this GameObject go, Mesh m) {
+        public static void SetSharedMesh(this GameObject go, Mesh m, bool bUpdateCollider = false) {
             go.GetComponent<MeshFilter>().sharedMesh = m;
+            if ( bUpdateCollider ) {
+                MeshCollider c = go.GetComponent<MeshCollider>();
+                if (c != null)
+                    c.sharedMesh = go.GetComponent<MeshFilter>().sharedMesh;
+            }
         }
 
         public static void SetMaterial(this GameObject go, fMaterial mat) {
