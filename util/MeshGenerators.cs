@@ -8,21 +8,23 @@ namespace f3 {
     // extension to geometry3Sharp.MeshGenerator so we can convert to UnityEngine.Mesh
     static public class MeshGenExt
     {
-        public static Vector3[] ToVector3(VectorArray3f a)
+        public static Vector3[] ToVector3(VectorArray3f a, bool bFlipLR = false)
         {
             Vector3[] v = new Vector3[a.Count];
+            float fXSign = (bFlipLR) ? -1 : 1;
             for (int i = 0; i < a.Count; ++i) {
-                v[i].x = a.array[3 * i];
+                v[i].x = fXSign * a.array[3 * i];
                 v[i].y = a.array[3 * i + 1];
                 v[i].z = a.array[3 * i + 2];
             }
             return v;
         }
-        public static Vector3[] ToVector3(VectorArray3d a)
+        public static Vector3[] ToVector3(VectorArray3d a, bool bFlipLR = false)
         {
             Vector3[] v = new Vector3[a.Count];
+            float fXSign = (bFlipLR) ? -1 : 1;
             for (int i = 0; i < a.Count; ++i) {
-                v[i].x = (float)a.array[3 * i];
+                v[i].x = fXSign * (float)a.array[3 * i];
                 v[i].y = (float)a.array[3 * i + 1];
                 v[i].z = (float)a.array[3 * i + 2];
             }
@@ -38,14 +40,14 @@ namespace f3 {
             return v;
         }
 
-        public static Mesh MakeUnityMesh(this MeshGenerator gen, bool bRecalcNormals = false)
+        public static Mesh MakeUnityMesh(this MeshGenerator gen, bool bRecalcNormals = false, bool bFlipLR = false)
         {
             Mesh m = new Mesh();
-            m.vertices = ToVector3(gen.vertices);
+            m.vertices = ToVector3(gen.vertices, bFlipLR);
             if ( gen.uv != null && gen.WantUVs )
                 m.uv = ToVector2(gen.uv);
             if (gen.normals != null && gen.WantNormals)
-                m.normals = ToVector3(gen.normals);
+                m.normals = ToVector3(gen.normals, bFlipLR);
             m.triangles = gen.triangles.array;
 
             if ( bRecalcNormals )
@@ -76,18 +78,18 @@ namespace f3 {
         // create a triangle fan
         public static Mesh CreateTrivialDisc(float radius, int nSteps, float fStartAngleDeg = 0.0f, float fEndAngleDeg = 360.0f) {
             TrivialDiscGenerator gen = new TrivialDiscGenerator() 
-                { Slices = nSteps, Clockwise = true, Radius = radius, StartAngleDeg = fStartAngleDeg, EndAngleDeg = fEndAngleDeg };
+                { Slices = nSteps, Clockwise = false, Radius = radius, StartAngleDeg = fStartAngleDeg, EndAngleDeg = fEndAngleDeg };
             gen.Generate();
-            return gen.MakeUnityMesh();
+            return gen.MakeUnityMesh(false, false);
         }
 
         public static Mesh CreatePuncturedDisc(float innerRadius, float outerRadius, int nSteps, float fStartAngleDeg = 0.0f, float fEndAngleDeg = 360.0f)
         {
             PuncturedDiscGenerator gen = new PuncturedDiscGenerator() 
-            { Slices = nSteps, Clockwise = true, InnerRadius = innerRadius, OuterRadius = outerRadius,
+            { Slices = nSteps, Clockwise = false, InnerRadius = innerRadius, OuterRadius = outerRadius,
                 StartAngleDeg = fStartAngleDeg, EndAngleDeg = fEndAngleDeg };
             gen.Generate();
-            return gen.MakeUnityMesh();
+            return gen.MakeUnityMesh(false, false);
         }
 
 
@@ -150,13 +152,13 @@ namespace f3 {
         public static Mesh CreateTrivialRect(float width, float height, UVRegionType eUVType)
         {
             TrivialRectGenerator gen = new TrivialRectGenerator() 
-                { Width = width, Height = height, Clockwise = true };
+                { Width = width, Height = height, Clockwise = false };
             if (eUVType == UVRegionType.CenteredUVRectangle)
                 gen.UVMode = TrivialRectGenerator.UVModes.CenteredUVRectangle;
             else if (eUVType == UVRegionType.BottomCornerUVRectangle)
                 gen.UVMode = TrivialRectGenerator.UVModes.BottomCornerUVRectangle;
             gen.Generate();
-            return gen.MakeUnityMesh();
+            return gen.MakeUnityMesh(false, false);
         }
 
 
