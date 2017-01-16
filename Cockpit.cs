@@ -23,6 +23,8 @@ namespace f3
         // special behaviors that are not part of regular capture-device handling
         public InputBehaviorSet OverrideBehaviors { get; set; }
 
+        public GenericAnimator HUDAnimator { get; set; }
+
 
         List<SceneUIElement> vUIElements;
         public int UIElementLayer { get; set; }     // Layer that UIElements will be placed in. default is FPlatform.HUDLayer
@@ -69,6 +71,7 @@ namespace f3
             vKeyHandlers = new List<IShortcutKeyHandler>();
             InputBehaviors = new InputBehaviorSet();
             OverrideBehaviors = new InputBehaviorSet();
+            HUDAnimator = new GenericAnimator();
 
             TiltAngle = ShiftAngle = 0.0f;
             DefaultCursorDepth = -1;
@@ -152,6 +155,9 @@ namespace f3
 			MeshRenderer ren = gameobject.GetComponent<MeshRenderer> ();
 			ren.enabled = false;
 			gameobject.GetComponent<MeshCollider> ().enabled = false;
+
+            // add hud animation controller
+            gameobject.AddComponent<UnityPerFrameAnimationBehavior>().Animator = HUDAnimator;                
 
             // create HUD
             try {
