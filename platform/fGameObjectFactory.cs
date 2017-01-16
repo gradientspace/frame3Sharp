@@ -66,6 +66,16 @@ namespace f3
         }
 
 
+        // disc with radius=1, lying in plane, centered at (0,0)
+        public static fDiscGameObject CreateDiscGO(string sName, float fRadius, Colorf color, bool bCollider)
+        {
+            GameObject go = new GameObject(sName);
+            Mesh discMesh = PrimitiveCache.GetPrimitiveMesh(fPrimitiveType.Disc);
+            initialize_meshgo(go, discMesh, bCollider);
+            go.SetMaterial(MaterialUtil.CreateFlatMaterialF(color));
+            return new fDiscGameObject(go, fRadius);
+        }
+
 
         public static fLineGameObject CreateLineGO(string sName, Colorf color, float fLineWidth)
         {

@@ -403,6 +403,86 @@ namespace f3
 
 
 
+
+    public class fMeshGameObject : fGameObject
+    {
+        public fMeshGameObject(GameObject go) : base (go)
+        {
+        }
+
+        public void UpdateMesh(Mesh m, bool bShared, bool bUpdateCollider)
+        {
+            if (bShared)
+                go.SetSharedMesh(m, bUpdateCollider);
+            else
+                go.SetMesh(m, bUpdateCollider);
+        }
+
+    }
+
+
+
+
+    public class fDiscGameObject : fMeshGameObject
+    {
+        float radius = 1;
+        float startAngleDeg = 0;
+        float endAngleDeg = 360;
+        bool bDiscValid;
+
+        public fDiscGameObject(GameObject go, float radiusIn = 1) : base(go)
+        {
+            radius = radiusIn;
+            bDiscValid = false;
+            SetLocalScale(new Vector3f(radius, 1, radius));
+        }
+
+        public void SetRadius(float fRadius) {
+            if ( radius != fRadius ) {
+                radius = fRadius;
+                SetLocalScale(new Vector3f(radius, 1, radius));
+            }
+        }
+        public float GetRadius() { return radius; }
+
+
+        public void SetStartAngleDeg(float fAngle) {
+            if ( startAngleDeg != fAngle ) {
+                startAngleDeg = fAngle;
+                bDiscValid = false;
+            }
+        }
+        public float GetStartAngleDeg() { return startAngleDeg; }
+
+        public void SetEndAngleDeg(float fAngle) {
+            if ( endAngleDeg != fAngle ) {
+                endAngleDeg = fAngle;
+                bDiscValid = false;
+            }
+        }
+        public float GetEndAngleDeg() { return endAngleDeg; }
+
+
+        public override void PreRender()
+        {
+            if (bDiscValid)
+                return;
+
+            TrivialDiscGenerator discGen = new TrivialDiscGenerator() {
+                StartAngleDeg = startAngleDeg, EndAngleDeg = endAngleDeg, Clockwise = false
+            };
+            discGen.Generate();
+            Mesh newMesh = discGen.MakeUnityMesh();
+            UpdateMesh(newMesh, true, true);
+
+            bDiscValid = true;
+        }
+
+    }
+
+
+
+
     public class PreRenderBehavior : MonoBehaviour
     {
         public fGameObject ParentFGO = null;
