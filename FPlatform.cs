@@ -75,7 +75,10 @@ namespace f3
 #if UNITY_STANDALONE_WIN
             IntPtr p = tinyfd_openFileDialog(sDialogTitle, sInitialPathAndFile, 
                 filterPatterns.Length, filterPatterns, sPatternDesc, 0);
-            return stringFromChar(p);
+            if (p == IntPtr.Zero)
+                return null;
+            else
+                return stringFromChar(p);
 #else
             // [TODO] implement
             return null;
@@ -94,7 +97,10 @@ namespace f3
 #if UNITY_STANDALONE_WIN
             IntPtr p = tinyfd_saveFileDialog(sDialogTitle, sInitialPathAndFile, 
                 filterPatterns.Length, filterPatterns, sPatternDesc);
-            return stringFromChar(p);
+            if (p == IntPtr.Zero)
+                return null;
+            else
+                return stringFromChar(p);
 #else
             // [TODO] implement
             return null;
