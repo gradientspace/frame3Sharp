@@ -145,6 +145,14 @@ namespace f3
             return new AxisAlignedBox2f(-horizontalSize / 2, -verticalSize / 2, horizontalSize / 2, verticalSize / 2);
         }
 
+        public virtual AxisAlignedBox2f GetPixelViewBounds()
+        {
+            if (context.OrthoUICamera == null)
+                return AxisAlignedBox2f.Empty;
+            return new AxisAlignedBox2f(0, 0, Screen.width, Screen.height);
+        }
+
+
 
         // these should be called by parent Unity functions
         public void Start( ICockpitInitializer setup )

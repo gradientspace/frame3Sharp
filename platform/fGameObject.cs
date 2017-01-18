@@ -61,6 +61,10 @@ namespace f3
             for (int k = 0; k < go.transform.childCount; ++k)
                 yield return go.transform.GetChild(k).gameObject;
         }
+        public virtual void AddChild(fGameObject child, bool bKeepWorldPosition = true)
+        {
+            child.go.transform.SetParent(go.transform, bKeepWorldPosition);
+        }
 
 
         public virtual Mesh GetMesh()

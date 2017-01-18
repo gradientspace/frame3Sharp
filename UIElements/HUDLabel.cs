@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 using g3;
+using UnityEngine;
 
 namespace f3
 {
     // NB: on creation, this button is oriented so that positive Z points away from the *back* of
-    //  this field (ie the field "faces" -Z). Important if you want to align button towards something!
-    public class HUDTextEntry : HUDStandardItem, IBoxModelElement
+    //  this field (ie the field "faces" -Z). 
+    public class HUDLabel : HUDStandardItem, IBoxModelElement
     {
         GameObject entry, bgMesh, textMesh;
 
@@ -26,7 +26,7 @@ namespace f3
             set { text = value; UpdateText(); }
         }
 
-        public HUDTextEntry()
+        public HUDLabel()
         {
             Width = 10;
             Height = 1;
@@ -45,7 +45,7 @@ namespace f3
         // creates a button in the desired geometry shape
         public void Create()
         {
-            entry = new GameObject(UniqueNames.GetNext("HUDTextEntry"));
+            entry = new GameObject(UniqueNames.GetNext("HUDLabel"));
             bgMesh = AppendMeshGO("background", make_background_mesh(),
                 MaterialUtil.CreateTransparentMaterial(BackgroundColor),
                 entry);
@@ -97,7 +97,6 @@ namespace f3
             get { return entry; }
         }
 
-
         override public bool WantsCapture(InputEvent e)
         {
             return (Enabled && HasGO(e.hit.hitGO));
@@ -148,6 +147,7 @@ namespace f3
         }
 
         #endregion
+
 
 
 
