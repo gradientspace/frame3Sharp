@@ -52,7 +52,9 @@ namespace f3
                 entry);
             bgMesh.transform.Rotate(Vector3.right, -90.0f); // ??
 
-            textMesh = GameObjectFactory.CreateTextMeshGO(
+            textMesh = 
+                //GameObjectFactory.CreateTextMeshGO(
+                GameObjectFactory.CreateTextMeshProGO(
                 "text", Text, TextColor, TextHeight,
                 BoxPosition.CenterLeft );
 

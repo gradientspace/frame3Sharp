@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using g3;
+using TMPro;
 
 namespace f3
 {
@@ -147,6 +148,68 @@ namespace f3
                 tm.transform.Translate(-fTextWidth / 2.0f, 0, 0);
             else if ( textOrigin == BoxPosition.CenterBottom )
                 tm.transform.Translate(-fTextWidth / 2.0f, fTextHeight, 0);
+
+            textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
+
+            return new fTextGameObject(textGO, new Vector2f(fTextWidth, fTextHeight) );
+        }
+
+
+        // [TODO] currently only allows for left-justified text.
+        // Can support center/right, but the translate block needs to be rewritten
+        // (can we generalize as target-center of 2D bbox??
+        public static fTextGameObject CreateTextMeshProGO(
+            string sName, string sText, 
+            Colorf textColor, float fTextHeight, 
+            BoxPosition textOrigin = BoxPosition.Center, 
+            float fOffsetZ = -0.01f)
+        {
+            GameObject textGO = new GameObject(sName);
+            TextMeshPro tm = textGO.AddComponent<TextMeshPro>();
+            //tm.isOrthographic = false;
+            tm.alignment = TextAlignmentOptions.TopLeft;
+            tm.enableWordWrapping = false;
+            tm.autoSizeTextContainer = true;
+            tm.fontSize = 32;
+            tm.text = sText;
+            tm.color = textColor;
+            // ignore material changes when we add to GameObjectSet
+            textGO.AddComponent<IgnoreMaterialChanges>();
+            // use our textmesh material instead
+            //MaterialUtil.SetTextMeshDefaultMaterial(tm);
+
+            TextContainer container = textGO.GetComponent<TextContainer>();
+            container.isAutoFitting = false;
+            container.anchorPosition = TextContainerAnchors.TopLeft;
+
+            tm.ForceMeshUpdate();
+
+            AxisAlignedBox3f bounds = tm.bounds;
+            Vector2f size = new Vector2f(bounds.Width, bounds.Height);
+            //Vector3f center = bounds.Center;
+            //AxisAlignedBox2f b = new AxisAlignedBox2f(new Vector2f(center.x,center.y), size.x/2, size.y/2);
+
+            float fScaleH = fTextHeight / size.y;
+            tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
+            float fTextWidth = fScaleH * size.x;
+
+            // by default text origin is top-left
+            if ( textOrigin == BoxPosition.Center )
+                tm.transform.Translate(-fTextWidth / 2.0f, fTextHeight / 2.0f, fOffsetZ);
+            else if ( textOrigin == BoxPosition.BottomLeft )
+                tm.transform.Translate(0, fTextHeight, fOffsetZ);
+            else if ( textOrigin == BoxPosition.TopRight )
+                tm.transform.Translate(-fTextWidth, 0, fOffsetZ);
+            else if ( textOrigin == BoxPosition.BottomRight )
+                tm.transform.Translate(-fTextWidth, fTextHeight, fOffsetZ);
+            else if ( textOrigin == BoxPosition.CenterLeft )
+                tm.transform.Translate(0, fTextHeight/2.0f, fOffsetZ);
+            else if ( textOrigin == BoxPosition.CenterRight )
+                tm.transform.Translate(-fTextWidth, fTextHeight/2.0f, fOffsetZ);
+            else if ( textOrigin == BoxPosition.CenterTop )
+                tm.transform.Translate(-fTextWidth / 2.0f, 0, fOffsetZ);
+            else if ( textOrigin == BoxPosition.CenterBottom )
+                tm.transform.Translate(-fTextWidth / 2.0f, fTextHeight, fOffsetZ);
 
             textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
 

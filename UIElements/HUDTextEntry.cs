@@ -51,25 +51,13 @@ namespace f3
                 entry);
             bgMesh.transform.Rotate(Vector3.right, -90.0f); // ??
 
-            textMesh = new GameObject("text");
-            TextMesh tm = textMesh.AddComponent<TextMesh>();
-            tm.text = Text;
-            tm.color = TextColor;
-            tm.fontSize = 50;
-            tm.offsetZ = -0.25f;
-            tm.alignment = TextAlignment.Left;
-            // ignore material changes when we add to GameObjectSet
-            textMesh.AddComponent<IgnoreMaterialChanges>();
-            // use our textmesh material instead
-            MaterialUtil.SetTextMeshDefaultMaterial(tm);
+            textMesh = 
+                //GameObjectFactory.CreateTextMeshGO(
+                GameObjectFactory.CreateTextMeshProGO(
+                "text", Text, TextColor, TextHeight,
+                BoxPosition.CenterLeft );
 
-            float fMargin = (Height - TextHeight) * 0.5f;
-            Vector2 size = UnityUtil.EstimateTextMeshDimensions(tm);
-            float fScaleH = TextHeight / size[1];
-            tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
-            tm.transform.Translate(-Width / 2.0f + fMargin, TextHeight / 2.0f + fMargin, 0.0f);
-
-            textMesh.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
+            BoxModel.Translate(textMesh, Vector2f.Zero, this.Bounds2D.CenterLeft);
 
             AppendNewGO(textMesh, entry, false);
         }
