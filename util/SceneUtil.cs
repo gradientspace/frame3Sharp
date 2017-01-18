@@ -100,6 +100,15 @@ namespace f3
         }
 
 
+
+        public static void TranslateInFrame(TransformableSceneObject so, Vector3f translate, CoordSpace eSpace = CoordSpace.ObjectCoords)
+        {
+            Frame3f f = so.GetLocalFrame(eSpace);
+            f.Origin += translate;
+            so.SetLocalFrame(f, eSpace);
+        }
+
+
         public static Bounds GetLocalBoundingBox(IEnumerable<SceneObject> vObjects) {
             int i = 0;
             Bounds b = UnityUtil.InvalidBounds;
