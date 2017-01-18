@@ -107,14 +107,18 @@ namespace f3
 
 
 
-        public static fTextGameObject CreateTextMeshGO(string sName, string sText, Colorf textColor, float fTextHeight)
+        public static fTextGameObject CreateTextMeshGO(
+            string sName, string sText, 
+            Colorf textColor, float fTextHeight, 
+            BoxPosition textOrigin = BoxPosition.Center, 
+            float fOffsetZ = -0.1f)
         {
             GameObject textGO = new GameObject(sName);
             TextMesh tm = textGO.AddComponent<TextMesh>();
             tm.text = sText;
             tm.color = textColor;
             tm.fontSize = 50;
-            tm.offsetZ = -0.25f;
+            tm.offsetZ = fOffsetZ;
             tm.alignment = TextAlignment.Left;
             // ignore material changes when we add to GameObjectSet
             textGO.AddComponent<IgnoreMaterialChanges>();
@@ -124,12 +128,31 @@ namespace f3
             Vector2f size = UnityUtil.EstimateTextMeshDimensions(tm);
             float fScaleH = fTextHeight / size.y;
             tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
-            //tm.transform.Translate(-Width / 2.0f, fTextHeight / 2.0f, 0.0f);
+            float fTextWidth = fScaleH * size.x;
+
+            // by default text origin is top-left
+            if ( textOrigin == BoxPosition.Center )
+                tm.transform.Translate(-fTextWidth / 2.0f, fTextHeight / 2.0f, 0);
+            else if ( textOrigin == BoxPosition.BottomLeft )
+                tm.transform.Translate(0, fTextHeight, 0);
+            else if ( textOrigin == BoxPosition.TopRight )
+                tm.transform.Translate(-fTextWidth, 0, 0);
+            else if ( textOrigin == BoxPosition.BottomRight )
+                tm.transform.Translate(-fTextWidth, fTextHeight, 0);
+            else if ( textOrigin == BoxPosition.CenterLeft )
+                tm.transform.Translate(0, fTextHeight/2.0f, 0);
+            else if ( textOrigin == BoxPosition.CenterRight )
+                tm.transform.Translate(-fTextWidth, fTextHeight/2.0f, 0);
+            else if ( textOrigin == BoxPosition.CenterTop )
+                tm.transform.Translate(-fTextWidth / 2.0f, 0, 0);
+            else if ( textOrigin == BoxPosition.CenterBottom )
+                tm.transform.Translate(-fTextWidth / 2.0f, fTextHeight, 0);
 
             textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
 
-            return new fTextGameObject(textGO, new Vector2f(fScaleH*size.x, fTextHeight) );
+            return new fTextGameObject(textGO, new Vector2f(fTextWidth, fTextHeight) );
         }
+
 
 
         public static void DestroyGO(fGameObject go) {
