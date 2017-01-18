@@ -29,6 +29,7 @@ namespace f3
         List<SceneUIElement> vUIElements;
         public int UIElementLayer { get; set; }     // Layer that UIElements will be placed in. default is FPlatform.HUDLayer
 
+        ITextEntryTarget activeTextTarget;
         List<IShortcutKeyHandler> vKeyHandlers;
 
         public enum MovementMode
@@ -265,6 +266,52 @@ namespace f3
 			return (hit != null);
 		}
 
+
+
+
+        public void RequestTextEntry(ITextEntryTarget target)
+        {
+            if ( activeTextTarget != null ) {
+                activeTextTarget.OnEndTextEntry();
+                activeTextTarget = null;
+            }
+            if ( target.OnBeginTextEntry() )
+                activeTextTarget = target;
+        }
+        public void ReleaseTextEntry(ITextEntryTarget target)
+        {
+            if (target != null) {
+                if (activeTextTarget != target && activeTextTarget == null)
+                    throw new Exception("Cockpit.ReleaseTextEntry: text entry was not captured!");
+                if (activeTextTarget != target)
+                    throw new Exception("Cockpit.ReleaseTextEntry: different ITextEntryTarget arleady active!");
+            }
+            activeTextTarget.OnEndTextEntry();
+            activeTextTarget = null;
+            return;
+        }
+        public bool ProcessTextEntryForFrame()
+        {
+            if (activeTextTarget == null)
+                return false;
+
+            // [TODO] this should happen somewhere else!!!
+            //      should handle repeat here (ie in the somewhere-else)
+
+            if (Input.GetKeyUp(KeyCode.Escape)) {
+                return activeTextTarget.OnEscape();
+            } else if ( Input.GetKeyUp(KeyCode.Return) ) {
+                return activeTextTarget.OnReturn();
+            } else if (Input.GetKeyDown(KeyCode.Backspace)) {
+                return activeTextTarget.OnBackspace();
+            } else if (Input.GetKeyDown(KeyCode.Delete)) {
+                return activeTextTarget.OnDelete();
+            } else if (Input.anyKeyDown) {
+                if (Input.inputString.Length > 0)
+                    return activeTextTarget.OnCharacters(Input.inputString);
+            }
+            return activeTextTarget.ConsumeAllInput();
+        }
 
 
         public void AddKeyHandler(IShortcutKeyHandler h)

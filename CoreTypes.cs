@@ -36,6 +36,20 @@ namespace f3
         bool HandleShortcuts();
     }
 
+
+    public interface ITextEntryTarget
+    {
+        bool ConsumeAllInput();
+        bool OnBeginTextEntry();
+        bool OnEndTextEntry();
+        bool OnBackspace();
+        bool OnDelete();
+        bool OnReturn();
+        bool OnEscape();
+        bool OnCharacters(string s);
+    }
+
+
     public enum CameraInteractionState
     {
         BeginCameraAction,

@@ -20,12 +20,23 @@ namespace f3
         public Color BackgroundColor { get; set; }
         public Color TextColor { get; set; }
 
+        // by default HUDTextEntry will capture text input on click (via Cockpit.RequestTextEntry)
+        public bool OverrideDefaultInputHandling { get; set; }
+
+        // set this to filter strings/etc. Arguments are old and new string,
+        // you return filtered string.
+        public Func<string, string, string> TextValidatorF = null;
+
         string text;
         public string Text
         {
             get { return text; }
-            set { text = value; UpdateText(); }
+            set {
+                text = validate_text(text, value);
+                UpdateText();
+            }
         }
+
 
         public HUDTextEntry()
         {
@@ -35,6 +46,15 @@ namespace f3
             BackgroundColor = Color.white;
             TextColor = Color.black;
             text = "(entry)";
+            OverrideDefaultInputHandling = false;
+        }
+
+
+        string validate_text(string oldstring, string newString)
+        {
+            if (TextValidatorF != null)
+                return TextValidatorF(oldstring, newString);
+            return newString;
         }
 
 
@@ -78,6 +98,20 @@ namespace f3
         public event EventHandler OnDoubleClicked;
 
 
+        void on_clicked()
+        {
+            // start capturing input
+            if ( OverrideDefaultInputHandling == false )
+                FContext.ActiveContext_HACK.ActiveCockpit.RequestTextEntry( new HUDTextEntryTarget(this) );
+
+            UnityUtil.SafeSendEvent(OnClicked, this, new EventArgs());    
+        }
+        void on_double_clicked()
+        {
+            UnityUtil.SafeSendEvent(OnDoubleClicked, this, new EventArgs());    
+        }
+
+
         #region SceneUIElement implementation
 
         override public UnityEngine.GameObject RootGameObject
@@ -112,19 +146,19 @@ namespace f3
 
                 if (sent_click == false) {
                     // on first click we reset timer
-                    UnityUtil.SafeSendEvent(OnClicked, this, new EventArgs());
+                    on_clicked();
                     sent_click = true;
                     last_click_time = FPlatform.RealTime();
                 } else {
                     float delta = FPlatform.RealTime() - last_click_time;
                     if (delta < double_click_delay) {
                         // if this second click comes fast enough, send doubleclick instead
-                        UnityUtil.SafeSendEvent(OnDoubleClicked, this, new EventArgs());
+                        on_double_clicked();
                         sent_click = false;
                         last_click_time = 0.0f;
                     } else {
                         // send single-click and reset timer
-                        UnityUtil.SafeSendEvent(OnClicked, this, new EventArgs());
+                        on_clicked();
                         sent_click = true;
                         last_click_time = FPlatform.RealTime();
                     }
@@ -155,5 +189,63 @@ namespace f3
 
 
     }
+
+
+
+
+
+    class HUDTextEntryTarget : ITextEntryTarget
+    {
+        HUDTextEntry Entry;
+        public HUDTextEntryTarget(HUDTextEntry entry) {
+            Entry = entry;
+        }
+
+        public bool ConsumeAllInput() {
+            return true;
+        }
+
+        public bool OnBeginTextEntry() {
+            return true;
+        }
+        public bool OnEndTextEntry() {
+            return true;
+        }
+
+        public bool OnBackspace() {
+            if (Entry.Text.Length > 0)
+                Entry.Text = Entry.Text.Substring(0, Entry.Text.Length - 1);
+            return true;
+        }
+
+        public bool OnDelete()
+        {   // weird!
+            if (Entry.Text.Length > 0)
+                Entry.Text = Entry.Text.Substring(1, Entry.Text.Length - 1);
+            return true;
+        }
+
+        public bool OnCharacters(string s)
+        {
+            Entry.Text += s;
+            return true;
+        }
+
+        public bool OnEscape()
+        {
+            // hack for now
+            FContext.ActiveContext_HACK.ActiveCockpit.ReleaseTextEntry(this);
+            return true;
+        }
+
+        public bool OnReturn()
+        {
+            // hack for now
+            FContext.ActiveContext_HACK.ActiveCockpit.ReleaseTextEntry(this);
+            return true;
+        }
+    }
+
+
 
 }

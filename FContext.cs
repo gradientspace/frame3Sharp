@@ -225,7 +225,7 @@ namespace f3 {
             MouseController.HideCursor();
 
             // have to do this after cursor update in case hotkey uses mouse position
-            DoShortcutkeys();
+            HandleKeyboardInput();
 
             // create our super-input object  (wraps all supported input types)
             InputState input = new InputState();
@@ -418,7 +418,7 @@ namespace f3 {
             MouseController.Update();
 
             // have to do this after cursor update in case hotkey uses mouse position
-            DoShortcutkeys();
+            HandleKeyboardInput();
 
             // create our super-input object  (wraps all supported input types)
             InputState input = new InputState();
@@ -709,11 +709,14 @@ namespace f3 {
 
 
 
-		bool DoShortcutkeys() {
+		bool HandleKeyboardInput() {
 
             if (options.EnableCockpit) {
-                bool bHandled = activeCockpit.HandleShortcutKeys();
-                if (bHandled)
+                bool bConsumed = activeCockpit.ProcessTextEntryForFrame();
+                if (bConsumed)
+                    return true;
+                bConsumed = activeCockpit.HandleShortcutKeys();
+                if (bConsumed)
                     return true;
             }
 
