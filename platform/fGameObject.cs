@@ -192,8 +192,25 @@ namespace f3
 
     public class fTextGameObject : fGameObject
     {
-        public fTextGameObject(GameObject go) : base(go)
+        Vector2f size;
+
+        public fTextGameObject(GameObject go, Vector2f size) : base(go)
         {
+            this.size = size;
+        }
+
+        public Vector2f GetSize() {
+            return size;
+        }
+
+        public void SetHeight(float fNewHeight)
+        {
+            TextMesh tm = go.GetComponent<TextMesh>();
+            tm.transform.localScale = Vector3f.One;
+            Vector2f size = UnityUtil.EstimateTextMeshDimensions(tm);
+            float fScaleH = fNewHeight / size.y;
+            tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
+            size = new Vector2f(fScaleH * size.x, fNewHeight);
         }
 
         public void SetText(string sText)

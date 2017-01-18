@@ -121,14 +121,14 @@ namespace f3
             // use our textmesh material instead
             MaterialUtil.SetTextMeshDefaultMaterial(tm);
 
-            Vector2 size = UnityUtil.EstimateTextMeshDimensions(tm);
-            float fScaleH = fTextHeight / size[1];
+            Vector2f size = UnityUtil.EstimateTextMeshDimensions(tm);
+            float fScaleH = fTextHeight / size.y;
             tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
             //tm.transform.Translate(-Width / 2.0f, fTextHeight / 2.0f, 0.0f);
 
             textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
 
-            return new fTextGameObject(textGO);
+            return new fTextGameObject(textGO, new Vector2f(fScaleH*size.x, fTextHeight) );
         }
 
 
