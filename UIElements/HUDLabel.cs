@@ -48,7 +48,7 @@ namespace f3
         {
             entry = new GameObject(UniqueNames.GetNext("HUDLabel"));
             bgMesh = AppendMeshGO("background", make_background_mesh(),
-                MaterialUtil.CreateTransparentMaterial(BackgroundColor),
+                MaterialUtil.CreateFlatMaterial(BackgroundColor),
                 entry);
             bgMesh.transform.Rotate(Vector3.right, -90.0f); // ??
 

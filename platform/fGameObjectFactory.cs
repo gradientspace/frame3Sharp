@@ -151,7 +151,8 @@ namespace f3
 
             textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
 
-            return new fTextGameObject(textGO, new Vector2f(fTextWidth, fTextHeight) );
+            return new fTextGameObject(textGO, new fText(tm, TextType.UnityTextMesh),
+                new Vector2f(fTextWidth, fTextHeight) );
         }
 
 
@@ -213,7 +214,8 @@ namespace f3
 
             textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
 
-            return new fTextGameObject(textGO, new Vector2f(fTextWidth, fTextHeight) );
+            return new fTextGameObject(textGO, new fText(tm, TextType.TextMeshPro),
+                new Vector2f(fTextWidth, fTextHeight) );
         }
 
 

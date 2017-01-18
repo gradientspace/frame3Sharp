@@ -11,7 +11,8 @@ namespace f3
     //  this field (ie the field "faces" -Z). Important if you want to align button towards something!
     public class HUDTextEntry : HUDStandardItem, IBoxModelElement
     {
-        GameObject entry, bgMesh, textMesh;
+        GameObject entry, bgMesh;
+        fTextGameObject textMesh;
 
         public float Width { get; set; }
         public float Height { get; set; }
@@ -47,7 +48,7 @@ namespace f3
         {
             entry = new GameObject(UniqueNames.GetNext("HUDTextEntry"));
             bgMesh = AppendMeshGO("background", make_background_mesh(),
-                MaterialUtil.CreateTransparentMaterial(BackgroundColor),
+                MaterialUtil.CreateFlatMaterial(BackgroundColor),
                 entry);
             bgMesh.transform.Rotate(Vector3.right, -90.0f); // ??
 
@@ -65,9 +66,8 @@ namespace f3
         void UpdateText()
         {
             if (textMesh != null) {
-                TextMesh tm = textMesh.GetComponent<TextMesh>();
-                tm.text = Text;
-                tm.color = TextColor;
+                textMesh.SetText(Text);
+                textMesh.SetColor(TextColor);
             }
         }
 

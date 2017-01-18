@@ -193,10 +193,12 @@ namespace f3
     public class fTextGameObject : fGameObject
     {
         Vector2f size;
+        fText textObj;
 
-        public fTextGameObject(GameObject go, Vector2f size) : base(go)
+        public fTextGameObject(GameObject go, fText textObj, Vector2f size) : base(go)
         {
             this.size = size;
+            this.textObj = textObj;
         }
 
         public Vector2f GetSize() {
@@ -217,14 +219,12 @@ namespace f3
 
         public void SetText(string sText)
         {
-            TextMesh tm = go.GetComponent<TextMesh>();
-            tm.text = sText;
+            textObj.SetText(sText);
         }
 
         public override void SetColor(Colorf color)
         {
-            TextMesh tm = go.GetComponent<TextMesh>();
-            tm.color = color;
+            textObj.SetColor(color);
         }
     }
 
