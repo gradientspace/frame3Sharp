@@ -116,6 +116,20 @@ namespace f3
             if (tmp != null)
                 tmp(sender, endValue);
         }
+
+        public static void SafeSendEvent(TextChangedHander handler, object sender, string newText) {
+            var tmp = handler;
+            if (tmp != null)
+                tmp(sender, newText);
+        }
+
+        public static void SafeSendEvent(EditStateChangeHandler handler, object source) {
+            var tmp = handler;
+            if (tmp != null)
+                tmp(source);
+        }
+            
+
         public static void SafeSendEvent(OnChangeOpHandler handler, object source, IChangeOp change) {
             var tmp = handler;
             if (tmp != null)

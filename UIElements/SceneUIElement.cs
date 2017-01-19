@@ -41,6 +41,10 @@ namespace f3
     public delegate void EndValueChangeHandler(object source, double fEndValue);
     public delegate void ValueChangedHandler(object source, double fOldValue, double fNewValue);
 
+    public delegate void TextChangedHander(object source, string newText);
+
+    public delegate void EditStateChangeHandler(object source);
+
 
     public interface SceneUIElement
 	{

@@ -17,8 +17,9 @@ namespace f3
         public float Width { get; set; }
         public float Height { get; set; }
         public float TextHeight { get; set; }
-        public Color BackgroundColor { get; set; }
-        public Color TextColor { get; set; }
+        public Colorf BackgroundColor { get; set; }
+        public Colorf ActiveBackgroundColor { get; set; }
+        public Colorf TextColor { get; set; }
 
         // by default HUDTextEntry will capture text input on click (via Cockpit.RequestTextEntry)
         public bool OverrideDefaultInputHandling { get; set; }
@@ -32,44 +33,47 @@ namespace f3
         {
             get { return text; }
             set {
-                text = validate_text(text, value);
-                UpdateText();
+                string newText = validate_text(text, value);
+                if (newText != text) {
+                    text = newText;
+                    UpdateText();
+                    UnityUtil.SafeSendEvent(OnTextChanged, this, text);
+                }
             }
         }
 
+
+        ITextEntryTarget active_entry = null;
+        public bool IsEditing
+        {
+            get { return (active_entry != null); }
+        }
+
+        fMaterial backgroundMaterial;
+        fMaterial activeBackgroundMaterial;
 
         public HUDTextEntry()
         {
             Width = 10;
             Height = 1;
             TextHeight = 0.8f;
-            BackgroundColor = Color.white;
-            TextColor = Color.black;
+            BackgroundColor = Colorf.White;
+            ActiveBackgroundColor = Colorf.Yellow; ;
+            TextColor = Colorf.Black;
             text = "(entry)";
             OverrideDefaultInputHandling = false;
         }
 
 
-        string validate_text(string oldstring, string newString)
-        {
-            if (TextValidatorF != null)
-                return TextValidatorF(oldstring, newString);
-            return newString;
-        }
-
-
-        Mesh make_background_mesh()
-        {
-            return MeshGenerators.CreateTrivialRect(Width, Height, MeshGenerators.UVRegionType.FullUVSquare);
-        }
 
         // creates a button in the desired geometry shape
         public void Create()
         {
             entry = new GameObject(UniqueNames.GetNext("HUDTextEntry"));
-            bgMesh = AppendMeshGO("background", make_background_mesh(),
-                MaterialUtil.CreateFlatMaterial(BackgroundColor),
-                entry);
+            Mesh mesh = MeshGenerators.CreateTrivialRect(Width, Height, MeshGenerators.UVRegionType.FullUVSquare);
+            backgroundMaterial = MaterialUtil.CreateFlatMaterialF(BackgroundColor);
+            activeBackgroundMaterial = MaterialUtil.CreateFlatMaterialF(ActiveBackgroundColor);
+            bgMesh = AppendMeshGO("background", mesh, backgroundMaterial, entry);
             bgMesh.transform.Rotate(Vector3.right, -90.0f); // ??
 
             textMesh = 
@@ -82,6 +86,29 @@ namespace f3
 
             AppendNewGO(textMesh, entry, false);
         }
+
+
+        public void SetText(string newText, bool bFromUserInput = true)
+        {
+            string validated = validate_text(text, newText);
+            if (validated != text) {
+                text = validated;
+                UpdateText();
+                UnityUtil.SafeSendEvent(OnTextChanged, this, text);
+                if (bFromUserInput)
+                    UnityUtil.SafeSendEvent(OnTextEdited, this, text);
+            }
+        }
+
+
+
+        string validate_text(string oldstring, string newString)
+        {
+            if (TextValidatorF != null)
+                return TextValidatorF(oldstring, newString);
+            return newString;
+        }
+
 
         void UpdateText()
         {
@@ -97,12 +124,34 @@ namespace f3
         public event EventHandler OnClicked;
         public event EventHandler OnDoubleClicked;
 
+        // this is sent whenever text changes - including programmatically
+        public event TextChangedHander OnTextChanged;
+
+        // this is sent when we get a text change from user input
+        public event TextChangedHander OnTextEdited;
+
+        public event EditStateChangeHandler OnBeginTextEditing;
+        public event EditStateChangeHandler OnEndTextEditing;
+
 
         void on_clicked()
         {
             // start capturing input
-            if ( OverrideDefaultInputHandling == false )
-                FContext.ActiveContext_HACK.ActiveCockpit.RequestTextEntry( new HUDTextEntryTarget(this) );
+            if (OverrideDefaultInputHandling == false) {
+                HUDTextEntryTarget entry = new HUDTextEntryTarget(this);
+                if (FContext.ActiveContext_HACK.ActiveCockpit.RequestTextEntry(entry)) {
+
+                    active_entry = entry;
+                    UnityUtil.SafeSendEvent(OnBeginTextEditing, this);
+                    bgMesh.SetMaterial(activeBackgroundMaterial);
+
+                    entry.OnTextEditingEnded += (s, e) => {
+                        bgMesh.SetMaterial(backgroundMaterial);
+                        active_entry = null;
+                        UnityUtil.SafeSendEvent(OnEndTextEditing, this);
+                    };
+                }
+            }
 
             UnityUtil.SafeSendEvent(OnClicked, this, new EventArgs());    
         }
@@ -197,6 +246,9 @@ namespace f3
     class HUDTextEntryTarget : ITextEntryTarget
     {
         HUDTextEntry Entry;
+
+        public EventHandler OnTextEditingEnded;
+
         public HUDTextEntryTarget(HUDTextEntry entry) {
             Entry = entry;
         }
@@ -209,25 +261,27 @@ namespace f3
             return true;
         }
         public bool OnEndTextEntry() {
+            if (OnTextEditingEnded != null)
+                OnTextEditingEnded(this, null);
             return true;
         }
 
         public bool OnBackspace() {
             if (Entry.Text.Length > 0)
-                Entry.Text = Entry.Text.Substring(0, Entry.Text.Length - 1);
+                Entry.SetText(Entry.Text.Substring(0, Entry.Text.Length - 1), true );
             return true;
         }
 
         public bool OnDelete()
         {   // weird!
             if (Entry.Text.Length > 0)
-                Entry.Text = Entry.Text.Substring(1, Entry.Text.Length - 1);
+                Entry.SetText( Entry.Text.Substring(1, Entry.Text.Length - 1), true);
             return true;
         }
 
         public bool OnCharacters(string s)
         {
-            Entry.Text += s;
+            Entry.SetText(Entry.Text + s, true);
             return true;
         }
 
@@ -235,6 +289,7 @@ namespace f3
         {
             // hack for now
             FContext.ActiveContext_HACK.ActiveCockpit.ReleaseTextEntry(this);
+            OnEndTextEntry();
             return true;
         }
 

@@ -269,14 +269,17 @@ namespace f3
 
 
 
-        public void RequestTextEntry(ITextEntryTarget target)
+        public bool RequestTextEntry(ITextEntryTarget target)
         {
             if ( activeTextTarget != null ) {
                 activeTextTarget.OnEndTextEntry();
                 activeTextTarget = null;
             }
-            if ( target.OnBeginTextEntry() )
+            if (target.OnBeginTextEntry()) {
                 activeTextTarget = target;
+                return true;
+            }
+            return false;
         }
         public void ReleaseTextEntry(ITextEntryTarget target)
         {
