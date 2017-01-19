@@ -21,7 +21,7 @@ namespace f3
         public Colorf ActiveBackgroundColor { get; set; }
         public Colorf TextColor { get; set; }
 
-        // by default HUDTextEntry will capture text input on click (via Cockpit.RequestTextEntry)
+        // by default HUDTextEntry will capture text input on click (via Context.RequestTextEntry)
         public bool OverrideDefaultInputHandling { get; set; }
 
         // set this to filter strings/etc. Arguments are old and new string,
@@ -139,7 +139,7 @@ namespace f3
             // start capturing input
             if (OverrideDefaultInputHandling == false) {
                 HUDTextEntryTarget entry = new HUDTextEntryTarget(this);
-                if (FContext.ActiveContext_HACK.ActiveCockpit.RequestTextEntry(entry)) {
+                if (FContext.ActiveContext_HACK.RequestTextEntry(entry)) {
 
                     active_entry = entry;
                     UnityUtil.SafeSendEvent(OnBeginTextEditing, this);
@@ -288,7 +288,7 @@ namespace f3
         public bool OnEscape()
         {
             // hack for now
-            FContext.ActiveContext_HACK.ActiveCockpit.ReleaseTextEntry(this);
+            FContext.ActiveContext_HACK.ReleaseTextEntry(this);
             OnEndTextEntry();
             return true;
         }
@@ -296,7 +296,7 @@ namespace f3
         public bool OnReturn()
         {
             // hack for now
-            FContext.ActiveContext_HACK.ActiveCockpit.ReleaseTextEntry(this);
+            FContext.ActiveContext_HACK.ReleaseTextEntry(this);
             return true;
         }
     }

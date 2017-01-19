@@ -38,6 +38,10 @@ namespace f3 {
                                                 // to specific events (like menu button)
 
 
+        ITextEntryTarget activeTextTarget;      // current object that receives text input
+                                                // (there can be only one!)
+
+
         public TransformManager TransformManager {
             get { return this.transformManager; }
         }
@@ -391,6 +395,11 @@ namespace f3 {
                         // filter out invalid requests
                         //  (??)
 
+                        // before we actually begin capture we will complete any text editing
+                        // [RMS] perhaps this should be configurable for behavior? Some behaviors
+                        // do not require this (eg view controls...)
+                        completeTextEntryOnFocusChange();
+
                         Capture c = vRequests[i].element.BeginCapture(input, CaptureSide.Any);
                         if (c.state == CaptureState.Begin)
                             capReq = c;
@@ -469,9 +478,16 @@ namespace f3 {
                         for (int i = 0; i < vRequests.Count && capReq == null; ++i) {
                             if (vRequests[i].side != CaptureSide.Any)
                                 continue;       // not possible in mouse paths...
+
+                            // before we actually begin capture we will complete any text editing
+                            // [RMS] perhaps this should be configurable for behavior? Some behaviors
+                            // do not require this (eg view controls...)
+                            completeTextEntryOnFocusChange();
+
                             Capture c = vRequests[i].element.BeginCapture(input, vRequests[i].side);
-                            if (c.state == CaptureState.Begin)
+                            if (c.state == CaptureState.Begin) {
                                 capReq = c;
+                            }
                         }
 
                         captureMouse = capReq;
@@ -705,18 +721,73 @@ namespace f3 {
 
 
 
+       public bool RequestTextEntry(ITextEntryTarget target)
+        {
+            if ( activeTextTarget != null ) {
+                activeTextTarget.OnEndTextEntry();
+                activeTextTarget = null;
+            }
+            if (target.OnBeginTextEntry()) {
+                activeTextTarget = target;
+                return true;
+            }
+            return false;
+        }
+        public void ReleaseTextEntry(ITextEntryTarget target)
+        {
+            if (target != null) {
+                if (activeTextTarget != target && activeTextTarget == null)
+                    throw new Exception("Cockpit.ReleaseTextEntry: text entry was not captured!");
+                if (activeTextTarget != target)
+                    throw new Exception("Cockpit.ReleaseTextEntry: different ITextEntryTarget arleady active!");
+            }
+            activeTextTarget.OnEndTextEntry();
+            activeTextTarget = null;
+            return;
+        }
+        void completeTextEntryOnFocusChange()
+        {
+            if (activeTextTarget != null)
+                ReleaseTextEntry(activeTextTarget);
+        }
+        public bool ProcessTextEntryForFrame()
+        {
+            if (activeTextTarget == null)
+                return false;
 
+            // [TODO] this should happen somewhere else!!!
+            //      should handle repeat here (ie in the somewhere-else)
+
+            if (Input.GetKeyUp(KeyCode.Escape)) {
+                return activeTextTarget.OnEscape();
+            } else if ( Input.GetKeyUp(KeyCode.Return) ) {
+                return activeTextTarget.OnReturn();
+            } else if (Input.GetKeyDown(KeyCode.Backspace)) {
+                return activeTextTarget.OnBackspace();
+            } else if (Input.GetKeyDown(KeyCode.Delete)) {
+                return activeTextTarget.OnDelete();
+            } else if (Input.anyKeyDown) {
+                if (Input.inputString.Length > 0)
+                    return activeTextTarget.OnCharacters(Input.inputString);
+            }
+            return activeTextTarget.ConsumeAllInput();
+        }
+
+        public bool IsTextEntryActive() {
+            return activeTextTarget != null;
+        }
+          
 
 
 
 		bool HandleKeyboardInput() {
+            // does current text-entry target want keyboard input?
+            if (ProcessTextEntryForFrame() == true)
+                return true;
 
+            // does cockpit want it?
             if (options.EnableCockpit) {
-                bool bConsumed = activeCockpit.ProcessTextEntryForFrame();
-                if (bConsumed)
-                    return true;
-                bConsumed = activeCockpit.HandleShortcutKeys();
-                if (bConsumed)
+                if ( activeCockpit.HandleShortcutKeys() )
                     return true;
             }
 
