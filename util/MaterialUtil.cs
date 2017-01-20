@@ -81,7 +81,9 @@ namespace f3
             m.mainTexture = tex;
             return m;
         }
-
+        public static fMaterial CreateTransparentImageMaterialF(string sResourcePath) {
+            return new fMaterial(CreateTransparentImageMaterial(sResourcePath));
+        }
 
         public static Material CreateTextMeshMaterial()
         {

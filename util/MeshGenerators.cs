@@ -82,6 +82,10 @@ namespace f3 {
             gen.Generate();
             return gen.MakeUnityMesh(false, false);
         }
+        public static fMesh CreateTrivialDiscF(float radius, int nSteps, float fStartAngleDeg = 0.0f, float fEndAngleDeg = 360.0f)
+        {
+            return new fMesh(CreateTrivialDisc(radius, nSteps, fStartAngleDeg, fEndAngleDeg));
+        }
 
         public static Mesh CreatePuncturedDisc(float innerRadius, float outerRadius, int nSteps, float fStartAngleDeg = 0.0f, float fEndAngleDeg = 360.0f)
         {
@@ -90,6 +94,9 @@ namespace f3 {
                 StartAngleDeg = fStartAngleDeg, EndAngleDeg = fEndAngleDeg };
             gen.Generate();
             return gen.MakeUnityMesh(false, false);
+        }
+        public static fMesh CreatePuncturedDiscF(float innerRadius, float outerRadius, int nSteps, float fStartAngleDeg = 0.0f, float fEndAngleDeg = 360.0f) {
+            return new fMesh(CreatePuncturedDisc(innerRadius, outerRadius, nSteps, fStartAngleDeg, fEndAngleDeg));
         }
 
 
@@ -160,7 +167,10 @@ namespace f3 {
             gen.Generate();
             return gen.MakeUnityMesh(false, false);
         }
-
+        public static fMesh CreateTrivialRectF(float width, float height, UVRegionType eUVType)
+        {
+            return new fMesh(CreateTrivialRect(width, height, eUVType));
+        }
 
 
 

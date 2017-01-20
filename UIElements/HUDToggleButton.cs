@@ -1,36 +1,57 @@
 ﻿using System;
-using UnityEngine;
+using System.Diagnostics;
+using g3;
 
 namespace f3
 {
 	// NB: on creation, this button is oriented so that positive Z points away from the *back* of
 	//  this button (ie the button "faces" -Z). Important if you want to align button towards something!
-	public class HUDToggleButton : HUDStandardItem
+	public class HUDToggleButton : HUDStandardItem, IBoxModelElement
 	{
-		GameObject button, buttonMesh;
+		fGameObject button, buttonMesh;
+        fTextGameObject labelMesh;
+
         HUDToggleGroup parentGroup;
 
         public HUDShape Shape { get; set; }
+
+        string text;
+        public string Text
+        {
+            get { return text; }
+            set { text = value; UpdateText(); }
+        }
+        public float TextHeight { get; set; }
+        public Colorf TextColor { get; set; }
+
 
         public HUDToggleButton()
 		{
             Shape = new HUDShape() { Type = HUDShapeType.Disc, Radius = 0.1f };
             bChecked = true;
+
+            TextHeight = 0.8f;
+            TextColor = Colorf.Black;
+            text = "";
         }
 
         bool bChecked;
         public bool Checked {
             get { return bChecked; }
-            set { if (bChecked != value) { bChecked = value; SendOnToggled(); }  }
+            set {
+                if (bChecked != value) {
+                    bChecked = value; SendOnToggled();
+                }
+            }
         }
 
 
-        Mesh make_button_body_mesh()
+        fMesh make_button_body_mesh()
         {
             if (Shape.Type == HUDShapeType.Disc) {
-                return MeshGenerators.CreateTrivialDisc(Shape.Radius, Shape.Slices);
+                return MeshGenerators.CreateTrivialDiscF(Shape.Radius, Shape.Slices);
             } else if (Shape.Type == HUDShapeType.Rectangle) {
-                return MeshGenerators.CreateTrivialRect(Shape.Width, Shape.Height,
+                return MeshGenerators.CreateTrivialRectF(Shape.Width, Shape.Height,
                     Shape.UseUVSubRegion == true ?
                         MeshGenerators.UVRegionType.CenteredUVRectangle : MeshGenerators.UVRegionType.FullUVSquare);
             } else {
@@ -39,12 +60,15 @@ namespace f3
         }
 
 
-        public void Create( Material defaultMaterial ) {
-			button = new GameObject(UniqueNames.GetNext("HUDToggleButton"));
+        public void Create( fMaterial defaultMaterial ) {
+			button = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDToggleButton"));
             buttonMesh = AppendMeshGO ("disc", make_button_body_mesh(), 
 				defaultMaterial, button);
 
-			buttonMesh.transform.Rotate (Vector3.right, -90.0f); // ??
+            buttonMesh.RotateD(Vector3f.AxisX, -90.0f); // ??
+
+            if (text.Length > 0)
+                UpdateText();
 		}
 
 
@@ -64,6 +88,25 @@ namespace f3
 			if ( tmp != null ) tmp(this, Checked);
 		}
 
+
+
+        void UpdateText()
+        {
+            if (button == null)
+                return;
+            if ( labelMesh == null && text.Length > 0 ) {
+                labelMesh =  GameObjectFactory.CreateTextMeshProGO(
+                    "label", Text, TextColor, TextHeight,
+                    BoxPosition.Center );
+                BoxModel.Translate(labelMesh, Vector2f.Zero, this.Bounds2D.Center);
+                AppendNewGO(labelMesh, button, false);
+            }
+
+            if ( labelMesh != null) {
+                labelMesh.SetColor(TextColor);
+                labelMesh.SetText(Text);
+            }
+        }
 
 
 
@@ -103,7 +146,26 @@ namespace f3
 			return true;
 		}
 
-		#endregion
-	}
+        #endregion
+
+
+        #region IBoxModelElement implementation
+
+
+        public Vector2f Size2D {
+            get { return Shape.Size; }
+        }
+
+        public AxisAlignedBox2f Bounds2D {
+            get {
+                Vector2f v = Shape.Size;
+                return new AxisAlignedBox2f(Vector2f.Zero, v.x / 2, v.y / 2);
+            }
+        }
+
+
+        #endregion
+
+    }
 }
 

@@ -115,8 +115,8 @@ namespace f3
                                             string enabledIcon, string disabledIcon,
                                             IGameObjectGenerator addGeometry = null)
         {
-            Material enabledMat = MaterialUtil.CreateTransparentImageMaterial(enabledIcon);
-            Material disabledMat = MaterialUtil.CreateTransparentImageMaterial(disabledIcon);
+            fMaterial enabledMat = MaterialUtil.CreateTransparentImageMaterialF(enabledIcon);
+            fMaterial disabledMat = MaterialUtil.CreateTransparentImageMaterialF(disabledIcon);
 
             HUDToggleButton button = new HUDToggleButton() { Shape = shape };
             button.Create(enabledMat);
