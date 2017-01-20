@@ -97,7 +97,7 @@ namespace f3
             get { return parentScene; }
         }
 
-		public void Disconnect() {
+		public virtual void Disconnect() {
 
             // we could get this while we are in an active capture, if selection
             // changes. in that case we need to terminate gracefully.
@@ -254,11 +254,17 @@ namespace f3
 
 
 
+        // configure gizmo - constructs necessary ITransformWrapper to provide
+        // desired gizmo behavior. You can modify behavior in subclasses by
+        // overriding InitializeTransformWrapper (but you must 
         void SetActiveFrame(FrameType eFrame) {
 
+            // disconect existing wrapper
             if (targetWrapper != null)
                 targetWrapper.Target.OnTransformModified -= onTransformModified;
 
+            // if we have multiple targets, we construct a transient SO to
+            // act as a parent (stored as internalGroupSO)
             if ( targets.Count > 1 && internalGroupSO == null ) {
                 internalGroupSO = new TransientGroupSO();
                 internalGroupSO.Create();
@@ -267,25 +273,38 @@ namespace f3
             }
             TransformableSceneObject useSO = (targets.Count == 1) ? targets[0] : internalGroupSO;
 
+            // construct the wrapper
+            targetWrapper = InitializeTransformWrapper(useSO, eFrame);
+
+            //connect up to it
+            targetWrapper.Target.OnTransformModified += onTransformModified;
+            onTransformModified(null);
+
+            // configure gizmo
+            UnityUtil.SetVisible(uniform_scale, targetWrapper.SupportsScaling);
+		}
+
+
+        // you can override this to modify behavior. Note that this default
+        // implementation currently uses some internal members for the relative-xform case
+        virtual protected ITransformWrapper InitializeTransformWrapper(TransformableSceneObject useSO, FrameType eFrame)
+        {
             if (frameSourceSO != null) {
                 internalXFormSO = new TransientXFormSO();
                 internalXFormSO.Create();
                 parentScene.AddSceneObject(internalXFormSO);
                 internalXFormSO.Connect(frameSourceSO, useSO);
-                targetWrapper = new PassThroughWrapper(internalXFormSO);
+                return new PassThroughWrapper(internalXFormSO);
 
             } else  if (eFrame == FrameType.LocalFrame) {
-				targetWrapper = new PassThroughWrapper (useSO);
+				return new PassThroughWrapper (useSO);
 
 			} else {
-				targetWrapper = new SceneFrameWrapper(parentScene, useSO);
+				return new SceneFrameWrapper(parentScene, useSO);
 			}
 
-            targetWrapper.Target.OnTransformModified += onTransformModified;
-            onTransformModified(null);
+        }
 
-            UnityUtil.SetVisible(uniform_scale, targetWrapper.SupportsScaling);
-		}
 
 
 

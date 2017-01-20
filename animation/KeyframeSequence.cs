@@ -174,6 +174,26 @@ namespace f3
         }
 
 
+        public void ApplyTransformation( Func<Frame3f, Frame3f> TransformF )
+        {
+            List<IChangeOp> changes = new List<IChangeOp>();
+
+            foreach ( Keyframe k in Keys.Values ) {
+                IChangeOp change = new KeyframeUpdateChange() {
+                    sequence = this, before = k,
+                    after = new Keyframe(k.Time, TransformF(k.Frame))
+                };
+                changes.Add(change);
+            }
+
+            for ( int i = 0; i < changes.Count; ++i ) {
+                changes[i].Apply();
+                UnityUtil.SafeSendEvent(ChangeOpEvent, this, changes[i]);
+            }
+
+        }
+
+
         void find_keys(double time, out Keyframe f0, out Keyframe f1)
         {
             int n0 = -1, n1 = -1;

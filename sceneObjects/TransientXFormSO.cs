@@ -40,7 +40,8 @@ namespace f3
 
         public void Disconnect()
         {
-            parentScene.ReparentSceneObject(target);
+            if ( target != null )
+                parentScene.ReparentSceneObject(target);
             increment_timestamp();
         }
 
@@ -76,7 +77,7 @@ namespace f3
         }
 
         virtual public bool IsSurface {
-            get { return target.IsSurface; }
+            get { return (target != null ) ? target.IsSurface : false; }
         }
 
         public SceneObject Duplicate()
@@ -119,7 +120,8 @@ namespace f3
         }
 
         public virtual void PreRender() {
-            target.PreRender();
+            if ( target != null )
+                target.PreRender();
         }
 
 
@@ -127,7 +129,7 @@ namespace f3
             return UnityUtil.GetBoundingBox(RootGameObject);
         }
         virtual public Bounds GetLocalBoundingBox() {
-            return target.GetLocalBoundingBox();
+            return (target != null) ? target.GetLocalBoundingBox() : (Bounds)AxisAlignedBox3f.Zero;
         }
 
         public bool FindRayIntersection(Ray3f ray, out SORayHit hit)
