@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using g3;
 
 namespace f3
 {
@@ -18,6 +19,11 @@ namespace f3
             Material m = new Material(Resources.Load(SceneGraphConfig.DefaultStandardMaterialPath) as Material);
             m.color = c;
             return m;
+        }
+        public static fMaterial CreateStandardMaterialF(Colorf c) {
+            Material m = new Material(Resources.Load(SceneGraphConfig.DefaultStandardMaterialPath) as Material);
+            m.color = c;
+            return new fMaterial(m);
         }
 
         public static Material CreateStandardVertexColorMaterial(Color c)

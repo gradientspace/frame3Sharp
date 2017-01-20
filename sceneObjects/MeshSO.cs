@@ -7,8 +7,8 @@ namespace f3
 {
 	public class MeshSO : BaseSO
 	{
-		GameObject parentGO;
-		GameObject meshGO;
+		protected fGameObject parentGO;
+		protected GameObject meshGO;
 
 		public MeshSO ()
 		{
@@ -24,7 +24,7 @@ namespace f3
         public virtual MeshSO Create( Mesh mesh, SOMaterial setMaterial) {
             AssignSOMaterial(setMaterial);       // need to do this to setup BaseSO material stack
 
-            parentGO = new GameObject(UniqueNames.GetNext("Mesh"));
+            parentGO = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("Mesh"));
 
             meshGO = new GameObject("mesh");
             meshGO.AddComponent<MeshFilter>();
@@ -32,7 +32,7 @@ namespace f3
             meshGO.AddComponent<MeshCollider>().enabled = false;
             meshGO.AddComponent<MeshRenderer>().material = CurrentMaterial;
 
-            AppendNewGO(meshGO, parentGO, true);
+            AppendNewGO(meshGO, (GameObject)parentGO, true);
             return this;
         }
 
