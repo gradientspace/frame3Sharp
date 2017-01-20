@@ -42,7 +42,7 @@ namespace f3
         Dictionary<SceneObject, FrameType> lastFrameTypeCache;
 
         public const string NoGizmoType = "no_gizmo";
-
+        public const string DefaultGizmoType = "default";
         
         public TransformManager( ITransformGizmoBuilder defaultBuilder )
         {
@@ -51,8 +51,8 @@ namespace f3
 
             GizmoTypes = new Dictionary<string, ITransformGizmoBuilder>();
             RegisterGizmoType(NoGizmoType, new NoGizmoBuilder());
-            RegisterGizmoType("default", activeBuilder);
-            sActiveGizmoType = "default";
+            RegisterGizmoType(DefaultGizmoType, activeBuilder);
+            sActiveGizmoType = DefaultGizmoType;
 
             defaultFrameType = FrameType.LocalFrame;
             lastFrameTypeCache = new Dictionary<SceneObject, FrameType>();

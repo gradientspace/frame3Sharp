@@ -171,7 +171,7 @@ namespace f3
             tm.alignment = TextAlignmentOptions.TopLeft;
             tm.enableWordWrapping = false;
             tm.autoSizeTextContainer = true;
-            tm.fontSize = 32;
+            tm.fontSize = 16;
             tm.text = sText;
             tm.color = textColor;
             // ignore material changes when we add to GameObjectSet
@@ -185,12 +185,24 @@ namespace f3
 
             tm.ForceMeshUpdate();
 
+            // set container width and height to just contain text
             AxisAlignedBox3f bounds = tm.bounds;
             Vector2f size = new Vector2f(bounds.Width, bounds.Height);
-            //Vector3f center = bounds.Center;
-            //AxisAlignedBox2f b = new AxisAlignedBox2f(new Vector2f(center.x,center.y), size.x/2, size.y/2);
+            container.width = size.x + 1;
+            container.height = size.y + 1;
 
-            float fScaleH = fTextHeight / size.y;
+            // Now we want to scale text to hit our target height, but if we scale by size.y
+            // then the scaling will vary by text height (eg "m" will get same height as "My").
+            // However: 1) size.y varies with tm.fontSize, but it's not clear how. 
+            //          2) fontInfo.LineHeight tells us the height we want but doesn't change w/ tm.fontSize
+            // I tried a few values and the relationship is linear. It is in the ballpark
+            // of just being 10x...actually closer to 11x. No other values in fontInfo have a nice
+            // round-number relationship. But this value is probably font-dependent!!
+            float t = tm.fontSize / tm.font.fontInfo.LineHeight;
+            float magic_k = 10.929f;        // [RMS] solve-for-x given a few different fontSize values
+            float font_size_y = magic_k * t;
+            float fScaleH = fTextHeight / font_size_y;
+
             tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
             float fTextWidth = fScaleH * size.x;
 
