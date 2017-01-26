@@ -10,7 +10,7 @@ namespace f3
 	public delegate void SceneSelectionChangedHandler(object sender, EventArgs e);
 
 
-	public class FScene
+	public class FScene : SceneUIParent
 	{
         ChangeHistory history;
         public ChangeHistory History { get { return history; } }
@@ -318,6 +318,7 @@ namespace f3
 
 		public void AddUIElement(SceneUIElement e, bool bIsInLocalFrame = true) {
 			vUIElements.Add (e);
+            e.Parent = this;
 			if (e.RootGameObject != null) {
 				// assume gizmo transform is set to a local transform, so we want to apply current scene transform
 				e.RootGameObject.transform.SetParent (sceneRoot.transform, (bIsInLocalFrame == false));
@@ -326,6 +327,7 @@ namespace f3
 
 		public void RemoveUIElement(SceneUIElement e, bool bDestroy) {
             e.Disconnect();
+            e.Parent = null;
 			vUIElements.Remove (e);
 			if ( e.RootGameObject != null && bDestroy) {
 				e.RootGameObject.transform.parent = null;

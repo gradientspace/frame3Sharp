@@ -46,9 +46,20 @@ namespace f3
     public delegate void EditStateChangeHandler(object source);
 
 
+    // object that is 'owner' of scene UI elements. This is both
+    // top-level things like Cockpit & Scene, and also intermediate
+    // parents like HUDPanel, HUDCollections, etc
+    public interface SceneUIParent
+    {
+        FContext Context { get; }
+    }
+
+
     public interface SceneUIElement
 	{
 		GameObject RootGameObject{ get; }
+
+		SceneUIParent Parent { get; set; }
 
 		void Disconnect();
 

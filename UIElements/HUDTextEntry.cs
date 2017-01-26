@@ -139,7 +139,7 @@ namespace f3
             // start capturing input
             if (OverrideDefaultInputHandling == false) {
                 HUDTextEntryTarget entry = new HUDTextEntryTarget(this);
-                if (FContext.ActiveContext_HACK.RequestTextEntry(entry)) {
+                if ( Parent.Context.RequestTextEntry(entry)) {
 
                     active_entry = entry;
                     UnityUtil.SafeSendEvent(OnBeginTextEditing, this);
@@ -288,7 +288,7 @@ namespace f3
         public bool OnEscape()
         {
             // hack for now
-            FContext.ActiveContext_HACK.ReleaseTextEntry(this);
+            Entry.Parent.Context.ReleaseTextEntry(this);
             OnEndTextEntry();
             return true;
         }
@@ -296,7 +296,7 @@ namespace f3
         public bool OnReturn()
         {
             // hack for now
-            FContext.ActiveContext_HACK.ReleaseTextEntry(this);
+            Entry.Parent.Context.ReleaseTextEntry(this);
             return true;
         }
     }

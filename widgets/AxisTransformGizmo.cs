@@ -34,6 +34,7 @@ namespace f3
         TransformableSceneObject frameSourceSO;
         TransientXFormSO internalXFormSO;
 
+        SceneUIParent parent;
 		FScene parentScene;
         List<TransformableSceneObject> targets;
 		ITransformWrapper targetWrapper;
@@ -95,6 +96,12 @@ namespace f3
         }
         public FScene Scene {
             get { return parentScene; }
+        }
+
+		public virtual SceneUIParent Parent
+        {
+            get { return parent; }
+            set { parent = value; }
         }
 
 		public virtual void Disconnect() {

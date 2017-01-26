@@ -12,11 +12,12 @@ namespace f3
     // to transform the set but that is not the intention. Just useful
     // for organizational purposes (eg can hide/show all at once)
     //
-    public class HUDCollection : SceneUIElement
+    public class HUDCollection : SceneUIParent, SceneUIElement
     {
         public List<SceneUIElement> Children { get; set; }
 
         GameObject gameObject;
+        SceneUIParent parent;
         //SceneUIElement pCapturing;
         //SceneUIElement pHovering;
 
@@ -34,6 +35,7 @@ namespace f3
         {
             if (!Children.Contains(ui)) {
                 Children.Add(ui);
+                ui.Parent = this;
                 ui.RootGameObject.transform.SetParent(gameObject.transform, true);
             }
         }
@@ -47,6 +49,7 @@ namespace f3
         {
             if (Children.Contains(ui)) {
                 Children.Remove(ui);
+                ui.Parent = null;
                 ui.RootGameObject.transform.SetParent(null);
 
                 // [RMS] should re-parent to cockpit/scene we are part of? currently no reference to do that...
@@ -60,6 +63,14 @@ namespace f3
                 RemoveChild(Children[0]);
         }
 
+
+
+        /*
+         * SceneUIParent impl 
+         */
+        public virtual FContext Context {
+            get { return Parent.Context; }
+        }
 
 
         /*
@@ -81,6 +92,12 @@ namespace f3
             get {
                 return gameObject;
             }
+        }
+
+		public virtual  SceneUIParent Parent
+        {
+            get { return parent; }
+            set { parent = value; }
         }
 
         public void Disconnect()

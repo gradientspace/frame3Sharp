@@ -11,7 +11,7 @@ namespace f3
     //
     // panel is like a 2D window, kind of...
     //
-    public class HUDPanel : HUDStandardItem, IBoxModelElement
+    public class HUDPanel : HUDStandardItem, SceneUIParent, IBoxModelElement
     {
         public List<SceneUIElement> Children { get; set; }
 
@@ -37,6 +37,7 @@ namespace f3
         {
             if (!Children.Contains(ui)) {
                 Children.Add(ui);
+                ui.Parent = this;
                 gameObject.AddChild(ui.RootGameObject, true);
             }
         }
@@ -50,6 +51,7 @@ namespace f3
         {
             if (Children.Contains(ui)) {
                 Children.Remove(ui);
+                ui.Parent = null;
                 ui.RootGameObject.transform.SetParent(null);
 
                 // [RMS] should re-parent to cockpit/scene we are part of? currently no reference to do that...
@@ -63,6 +65,14 @@ namespace f3
                 RemoveChild(Children[0]);
         }
 
+
+
+        /*
+         * SceneUIParent impl 
+         */
+        public virtual FContext Context {
+            get { return Parent.Context; }
+        }
 
 
         /*

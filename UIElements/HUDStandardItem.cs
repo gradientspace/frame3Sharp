@@ -8,6 +8,7 @@ namespace f3
 	public abstract class HUDStandardItem : GameObjectSet, SceneUIElement
 	{
         float _alphaFade = 1.0f;
+        SceneUIParent parent;
 
 		public HUDStandardItem ()
 		{
@@ -44,6 +45,12 @@ namespace f3
         //
 
         public abstract GameObject RootGameObject { get; }
+
+		public virtual SceneUIParent Parent
+        {
+            get { return parent; }
+            set { parent = value; }
+        }
 
 		public virtual void Disconnect() {
 			// standard is to do nothing

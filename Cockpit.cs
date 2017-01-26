@@ -12,7 +12,7 @@ namespace f3
     }
 
 
-	public class Cockpit
+	public class Cockpit : SceneUIParent
 	{
 		FContext context;
 		GameObject gameobject;
@@ -230,6 +230,7 @@ namespace f3
 
 		public void AddUIElement(SceneUIElement e, bool bIsInLocalFrame = true) {
 			vUIElements.Add (e);
+            e.Parent = this;
 			if (e.RootGameObject != null) {
 				// assume element transform is set to a local transform, so we want to apply current scene transform?
 				e.RootGameObject.transform.SetParent (RootGameObject.transform, (bIsInLocalFrame == false) );
@@ -241,6 +242,7 @@ namespace f3
 
 		public void RemoveUIElement(SceneUIElement e, bool bDestroy) {
 			vUIElements.Remove (e);
+            e.Parent = null;
 			if ( e.RootGameObject != null && bDestroy) {
 				e.RootGameObject.transform.parent = null;
 				UnityEngine.Object.Destroy (e.RootGameObject);
