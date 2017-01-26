@@ -110,6 +110,28 @@ namespace f3
 
 
 
+        public void Hide()
+        {
+            go.Hide();
+        }
+        public void Show()
+        {
+            go.Show();
+        }
+        public void SetVisible(bool bVisible)
+        {
+            go.SetVisible(bVisible);
+        }
+        public bool IsVisible()
+        {
+            return go.IsVisible();
+        }
+
+
+
+
+
+
         public virtual void SetPosition(Vector3f vPosition)
         {
             go.transform.position = vPosition;
@@ -199,6 +221,11 @@ namespace f3
         {
             this.size = size;
             this.textObj = textObj;
+        }
+
+        public fText TextObject
+        {
+            get { return textObj; }
         }
 
         public Vector2f GetSize() {

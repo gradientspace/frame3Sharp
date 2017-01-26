@@ -60,10 +60,10 @@ namespace f3
 
 
 
-        public static void Translate(fGameObject go, Vector2f from, Vector2f to)
+        public static void Translate(fGameObject go, Vector2f from, Vector2f to, float z = 0)
         {
             Vector2f dv = to - from;
-            go.Translate(new Vector3f(dv.x, dv.y, 0));
+            go.Translate(new Vector3f(dv.x, dv.y, z));
         }
 
     }

@@ -13,6 +13,7 @@ namespace f3
     {
         GameObject entry, bgMesh;
         fTextGameObject textMesh;
+        fRectangleGameObject cursor;
 
         public float Width { get; set; }
         public float Height { get; set; }
@@ -44,6 +45,8 @@ namespace f3
 
 
         ITextEntryTarget active_entry = null;
+        float start_active_time = 0;
+
         public bool IsEditing
         {
             get { return (active_entry != null); }
@@ -85,6 +88,12 @@ namespace f3
             BoxModel.Translate(textMesh, Vector2f.Zero, this.Bounds2D.CenterLeft);
 
             AppendNewGO(textMesh, entry, false);
+
+            cursor = GameObjectFactory.CreateRectangleGO("cursor", Height * 0.1f, Height * 0.8f, Colorf.VideoBlack, false);
+            BoxModel.Translate(cursor, Vector2f.Zero, this.Bounds2D.Center, -Height*0.1f);
+            cursor.RotateD(Vector3f.AxisX, -90.0f);
+            AppendNewGO(cursor, entry, false);
+            cursor.SetVisible(false);
         }
 
 
@@ -118,6 +127,17 @@ namespace f3
             }
         }
 
+
+        public override void PreRender()
+        {
+            if (IsEditing) {
+                // cursor blinks every 0.5s
+                float dt = FPlatform.RealTime() - start_active_time;
+                cursor.SetVisible( (int)(2 * dt) % 2 == 0 );
+            }
+        }
+
+
         // events for clicked and double-clicked.
         // NOTE: for doubleclick you will always receive an [OnClicked,OnDoubleClicked] pair.
         //    (alternative would be to delay OnClicked...perhaps that should be added as an option)
@@ -144,6 +164,7 @@ namespace f3
                     active_entry = entry;
                     UnityUtil.SafeSendEvent(OnBeginTextEditing, this);
                     bgMesh.SetMaterial(activeBackgroundMaterial);
+                    start_active_time = FPlatform.RealTime();
 
                     entry.OnTextEditingEnded += (s, e) => {
                         bgMesh.SetMaterial(backgroundMaterial);

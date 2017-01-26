@@ -50,5 +50,13 @@ namespace f3
             }
         }
 
+
+
+        public Vector2f GetCursorPosition(int i)
+        {
+            // todo
+            return Vector2f.Zero;
+        }
+
     }
 }
