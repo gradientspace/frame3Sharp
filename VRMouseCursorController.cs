@@ -160,7 +160,7 @@ namespace f3 {
             // auto-hide cursor if it doesn't move for a while
             if (fX == 0 && fY == 0 && SceneGraphConfig.MouseCursorHideTimeout > 0) {
                 if ((FPlatform.RealTime() - lastMouseEventTime) > SceneGraphConfig.MouseCursorHideTimeout) {
-                    UnityUtil.SetVisible(Cursor, false);
+                    Cursor.SetVisible(false);
                     mouseInactiveState = true;
                 }
                 if (mouseInactiveState)
@@ -168,7 +168,7 @@ namespace f3 {
             } else {
                 lastMouseEventTime = FPlatform.RealTime();
                 if (mouseInactiveState)
-                    UnityUtil.SetVisible(Cursor, true);
+                    Cursor.SetVisible(true);
                 mouseInactiveState = false;
             }
 
@@ -257,13 +257,13 @@ namespace f3 {
 
         public void HideCursor() {
             if (mouseInactiveState == false) {
-                UnityUtil.SetVisible(Cursor, false);
+                Cursor.SetVisible(false);
                 mouseInactiveState = true;
             }
         }
         public void ShowCursor()
         {
-            UnityUtil.Show(Cursor);
+            Cursor.Show();
             mouseInactiveState = false;
             lastMouseEventTime = FPlatform.RealTime();
         }

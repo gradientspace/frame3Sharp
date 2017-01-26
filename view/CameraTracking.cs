@@ -80,9 +80,9 @@ namespace f3 {
                 }
 
                 MaterialUtil.SetMaterial(targetGO, setMaterial);
-                UnityUtil.Show(targetGO);
+                targetGO.Show();
             } else {
-                UnityUtil.Hide(targetGO);
+                targetGO.Hide();
             }
 
         }

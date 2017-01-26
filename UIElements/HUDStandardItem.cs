@@ -58,10 +58,10 @@ namespace f3
 
         public virtual bool IsVisible {
             get {
-                return UnityUtil.IsVisible(RootGameObject);
+                return RootGameObject.IsVisible();
             }
             set {
-                UnityUtil.SetVisible(RootGameObject, value);
+                RootGameObject.SetVisible(value);
             }
         }
 

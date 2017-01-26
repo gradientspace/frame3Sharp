@@ -231,7 +231,7 @@ namespace f3
                     // add to deleted set
                     vDeleted.Add(so);
                     UnityUtil.AddChild(deleted_objects, so.RootGameObject, true);
-                    UnityUtil.SetVisible(so.RootGameObject, false);
+                    so.RootGameObject.SetVisible(false);
                 }
             }
         }
@@ -251,7 +251,7 @@ namespace f3
                 return;
             vDeleted.Remove(so);
             vObjects.Add(so);
-            UnityUtil.SetVisible(so.RootGameObject, true);
+            so.RootGameObject.SetVisible(true);
             UnityUtil.AddChild(scene_objects, so.RootGameObject, true);
             so.SetCurrentTime(currentTime);
         }

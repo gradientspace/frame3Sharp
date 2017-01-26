@@ -211,7 +211,7 @@ namespace f3
                 // actually want these GOs to be parented to itemGO
                 UnityUtil.AddChildren(itemGO, vTextElems, true);
 
-                UnityUtil.SetVisible(itemGO, false);
+                itemGO.SetVisible(false);
 
                 if (item.SubItems != null)
                     create_sub_items(item, fOuterRadius, fCurAngle, fCurAngle + fWedgeSpan);
@@ -228,7 +228,7 @@ namespace f3
             if (topItem.SubItems == null)
                 return;
             foreach (MenuItem i in topItem.SubItems)
-                UnityUtil.SetVisible(i.GO, true);
+                i.GO.SetVisible(true);
         }
 
         void hide_sub_menu(MenuItem topItem)
@@ -236,7 +236,7 @@ namespace f3
             if (topItem.SubItems == null)
                 return;
             foreach (MenuItem i in topItem.SubItems)
-                UnityUtil.SetVisible(i.GO, false);
+                i.GO.SetVisible(false);
         }
 
         void hide_child_menus(MenuItem topItem)

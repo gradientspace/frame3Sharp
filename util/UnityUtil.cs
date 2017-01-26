@@ -335,27 +335,6 @@ namespace f3
         }
 
 
-        public static void Hide(GameObject go)
-        {
-            if (go.activeSelf == true)
-                go.SetActive(false);
-        }
-        public static void Show(GameObject go)
-        {
-            if (go.activeSelf == false)
-                go.SetActive(true);
-        }
-        public static void SetVisible(GameObject go, bool bVisible)
-        {
-            if (bVisible) Show(go); else Hide(go);
-        }
-        public static bool IsVisible(GameObject go)
-        {
-            return (go.activeSelf == true);
-        }
-
-
-
 
         public static void ToggleChildMeshColliders(GameObject root, bool bEnable)
         {

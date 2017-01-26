@@ -109,10 +109,10 @@ namespace f3
         public virtual bool IsVisible {
             get {
                 // this is a bit meaningless...
-                return UnityUtil.IsVisible(RootGameObject);
+                return RootGameObject.IsVisible();
             }
             set {
-                UnityUtil.SetVisible(RootGameObject, value);
+                RootGameObject.SetVisible(value);
                 foreach (var ui in Children)
                     ui.IsVisible = value;
             }

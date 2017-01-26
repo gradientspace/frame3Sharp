@@ -129,8 +129,8 @@ namespace f3
         }
 
         public virtual bool IsVisible {
-            get { return UnityUtil.IsVisible(RootGameObject); }
-            set { UnityUtil.SetVisible(RootGameObject, value);}
+            get { return RootGameObject.IsVisible(); }
+            set { RootGameObject.SetVisible(value);}
         }
 
         // [TODO] why isn't this in GameObjectSet?
@@ -142,7 +142,7 @@ namespace f3
 
         // called on per-frame Update()
         virtual public void PreRender() {
-            UnityUtil.Show(gizmo);
+            gizmo.Show();
 
             float fScaling = VRUtil.GetVRRadiusForVisualAngle(
                gizmo.transform.position,
@@ -256,7 +256,7 @@ namespace f3
             // seems like possibly this geometry will be shown this frame, before PreRender()
             // is called, which means that on next frame the geometry will pop. 
             // So we hide here and show in PreRender
-            UnityUtil.Hide(gizmo);
+            gizmo.Hide();
         }
 
 
@@ -288,7 +288,7 @@ namespace f3
             onTransformModified(null);
 
             // configure gizmo
-            UnityUtil.SetVisible(uniform_scale, targetWrapper.SupportsScaling);
+            uniform_scale.SetVisible(targetWrapper.SupportsScaling);
 		}
 
 

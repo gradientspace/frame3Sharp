@@ -168,8 +168,8 @@ namespace f3 {
 
                 h.CursorActive = OVRInput.GetControllerPositionTracked(controller);
                 if (h.CursorActive) {
-                    UnityUtil.Show(h.Hand);
-                    UnityUtil.Show(h.Cursor);
+                    h.Hand.Show();
+                    h.Cursor.Show();
 
                     Vector3 handPos = OVRInput.GetLocalControllerPosition(controller);
                     Quaternion handRot = OVRInput.GetLocalControllerRotation(controller);
@@ -272,8 +272,8 @@ namespace f3 {
 
 
                 } else {
-                    UnityUtil.Hide(h.Hand);
-                    UnityUtil.Hide(h.Cursor);
+                    h.Hand.Hide();
+                    h.Cursor.Hide();
                 }
             }
 		}
