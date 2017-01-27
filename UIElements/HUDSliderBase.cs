@@ -7,15 +7,25 @@ using g3;
 
 namespace f3
 {
-    public class HUDSliderBase : HUDStandardItem
+    public class HUDSliderBase : HUDStandardItem, IBoxModelElement
     {
         fGameObject rootGO;
 
-        // should go in subclass...
-        fGameObject sliderbarGO;
-        fTriangleGameObject handleGO;
+        // should go in subclass...?
+        fRectangleGameObject sliderbarGO;
 
+        fTriangleGameObject handleGO;
         Frame3f handleStart;
+
+        int tick_count = 0;
+        public int TickCount
+        {
+            get { return tick_count; }
+            set { tick_count = MathUtil.Clamp(value, 0, 1000); update_geometry(); }
+        }
+        fMaterial tickMaterial;
+        Colorf tickColor = Colorf.VideoBlack;
+
 
 
         public void Create()
@@ -34,6 +44,8 @@ namespace f3
             handleGO.RotateD(Vector3f.AxisX, -90.0f); // ??
             handleGO.Translate(0.001f * Vector3f.AxisY);
             AppendNewGO(handleGO, rootGO, false);
+
+            tickMaterial = MaterialUtil.CreateFlatMaterialF(tickColor);
 
             handleStart = handleGO.GetLocalFrame();
 
@@ -118,6 +130,8 @@ namespace f3
             handleGO.SetWidth(height*0.5f);
 
             update_handle_position();
+
+            update_ticks();
         }
 
 
@@ -134,7 +148,54 @@ namespace f3
 
 
 
-        void update_value(double newValue, bool bSendEvent)
+
+
+        struct TickGO {
+            public fRectangleGameObject go;
+        }
+        List<TickGO> ticks = new List<TickGO>();
+
+
+        int tick_count_cache = -1;
+        void update_ticks()
+        {
+            tickMaterial.color = tickColor;
+
+            // create extra ticks if we need them
+            if ( tick_count > tick_count_cache ) {
+                while (ticks.Count < tick_count) {
+                    TickGO tick = new TickGO();
+                    tick.go = GameObjectFactory.CreateRectangleGO("tick", Height * 0.1f, Height, 
+                        tickMaterial, true, false);
+                    tick.go.RotateD(Vector3f.AxisX, -90.0f);
+                    AppendNewGO(tick.go, rootGO, false);
+                    BoxModel.Translate(tick.go, Vector2f.Zero, this.Bounds2D.CenterLeft, -Height*0.01f);
+                    ticks.Add(tick);
+                }
+                tick_count_cache = tick_count;
+            }
+
+            // align and show/hide ticks
+            for ( int i = 0; i < ticks.Count; ++i ) {
+                fRectangleGameObject go = ticks[i].go;
+                float t = (float)i / (float)(tick_count-1);
+                if (i < tick_count) {
+                    BoxModel.MoveTo(go, this.Bounds2D.CenterLeft, -Height * 0.01f);
+                    BoxModel.Translate(go, new Vector2f(t * Width, 0));
+                    go.SetVisible(true);
+                } else {
+                    ticks[i].go.SetVisible(false);
+                }
+            }
+
+        }
+
+
+
+
+
+
+        protected void update_value(double newValue, bool bSendEvent)
         {
             double prev = current_value;
             current_value = newValue;
@@ -253,6 +314,23 @@ namespace f3
 		}
 
 		#endregion
+
+
+
+
+
+       #region IBoxModelElement implementation
+
+
+        public Vector2f Size2D {
+            get { return new Vector2f(Width, Height); }
+        }
+
+        public AxisAlignedBox2f Bounds2D { 
+            get { return new AxisAlignedBox2f(Vector2f.Zero, Width/2, Height/2); }
+        }
+
+        #endregion
 
 
     }

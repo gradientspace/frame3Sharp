@@ -148,6 +148,8 @@ namespace f3
                 BoxModel.MoveTo(cursor, this.Bounds2D.CenterLeft, -Height * 0.1f);
                 Vector2f cursorPos = textMesh.TextObject.GetCursorPosition(cursor_position);
                 BoxModel.Translate(cursor, cursorPos);
+            } else {
+                cursor.SetVisible(false);
             }
         }
 

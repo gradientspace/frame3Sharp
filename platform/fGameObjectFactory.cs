@@ -40,11 +40,16 @@ namespace f3
         // unit rectangle lying in plane
         public static fRectangleGameObject CreateRectangleGO(string sName, float fWidth, float fHeight, Colorf color, bool bCollider)
         {
+            fMaterial mat = MaterialUtil.CreateFlatMaterialF(color);
+            return CreateRectangleGO(sName, fWidth, fHeight, mat, false, bCollider);
+        }
+        public static fRectangleGameObject CreateRectangleGO(string sName, float fWidth, float fHeight, fMaterial useMaterial, bool bShareMaterial, bool bCollider)
+        {
             GameObject go = new GameObject(sName);
             Mesh rectMesh = UnityUtil.GetPrimitiveMesh(PrimitiveType.Quad);
             UnityUtil.RotateMesh(rectMesh, Quaternionf.AxisAngleD(Vector3f.AxisX, 90), Vector3f.Zero);
             initialize_meshgo(go, rectMesh, bCollider);
-            go.SetMaterial(MaterialUtil.CreateFlatMaterialF(color));
+            go.SetMaterial(useMaterial, bShareMaterial);
             return new fRectangleGameObject(go, fWidth, fHeight);
         }
 

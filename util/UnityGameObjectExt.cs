@@ -55,8 +55,11 @@ namespace f3
             }
         }
 
-        public static void SetMaterial(this GameObject go, fMaterial mat) {
-            go.GetComponent<Renderer>().material = mat;
+        public static void SetMaterial(this GameObject go, fMaterial mat, bool bShared = false) {
+            if ( bShared )
+                go.GetComponent<Renderer>().sharedMaterial = mat;
+            else
+                go.GetComponent<Renderer>().material = mat;
         }
         public static fMaterial GetMaterial(this GameObject go) {
             return new fMaterial(go.GetComponent<Renderer>().material);

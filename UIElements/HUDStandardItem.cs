@@ -67,6 +67,7 @@ namespace f3
 
         public virtual void SetLayer(int nLayer)
         {
+            RootGameObject.SetLayer(nLayer);
             foreach (var go in GameObjects)
                 UnityUtil.SetLayerRecursive(go, nLayer);
         }

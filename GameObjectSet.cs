@@ -54,23 +54,19 @@ namespace f3
         {
             GameObject child = parent.transform.FindChild(childName).gameObject;
             vObjects.Add(child);
+            child.SetLayer(parent.GetLayer());
             return child;
         }
 
-        public virtual void AppendNewGO(GameObject go, GameObject parent, bool bKeepPosition)
-        {
-            vObjects.Add(go);
-            go.transform.SetParent(parent.transform, bKeepPosition);
-
-            foreach (GameObject child_go in go.Children())
-                vObjects.Add(child_go);
-        }
         public virtual void AppendNewGO(fGameObject go, fGameObject parent, bool bKeepPosition)
         {
             vObjects.Add(go);
             go.SetParent(parent, bKeepPosition);
-            foreach (GameObject child_go in go.Children())
+            go.SetLayer(parent.GetLayer());
+            foreach (GameObject child_go in go.Children()) {
                 vObjects.Add(child_go);
+                child_go.SetLayer(parent.GetLayer());
+            }
         }
 
 
@@ -88,6 +84,7 @@ namespace f3
 			vObjects.Add (gameObj);
 
             gameObj.transform.parent = parent.transform;
+            gameObj.SetLayer(parent.GetLayer());
 
 			return gameObj;
 		}
@@ -104,8 +101,10 @@ namespace f3
 
             vObjects.Add (gameObj);
 
-            if ( parent != null )
-			    gameObj.transform.parent = parent.transform;
+            if (parent != null) {
+                gameObj.transform.parent = parent.transform;
+                gameObj.SetLayer(parent.GetLayer());
+            }
 
 			return gameObj;
 		}

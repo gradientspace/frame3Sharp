@@ -237,7 +237,6 @@ namespace f3
 			}
 
             e.SetLayer(UIElementLayer);
-
         }
 
 		public void RemoveUIElement(SceneUIElement e, bool bDestroy) {
