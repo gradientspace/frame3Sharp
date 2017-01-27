@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+using g3;
 
 namespace f3
 {
@@ -25,7 +23,7 @@ namespace f3
         {
             if (input.bLeftTriggerPressed ^ input.bRightTriggerPressed) {
                 CaptureSide eSide = (input.bLeftTriggerPressed) ? CaptureSide.Left : CaptureSide.Right;
-                Ray useRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
+                Ray3f useRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
                 UIRayHit uiHit;
                 if (scene.FindUIHit(useRay, out uiHit)) {
                     bool bCanCapture = uiHit.hitUI.WantsCapture(InputEvent.OculusTouch(eSide, input, new AnyRayHit(uiHit)));
@@ -39,7 +37,7 @@ namespace f3
 
         public override Capture BeginCapture(InputState input, CaptureSide eSide)
         {
-            Ray useRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
+            Ray3f useRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
             UIRayHit uiHit;
             if (scene.FindUIHit(useRay, out uiHit)) {
                 bool bCanCapture = uiHit.hitUI.BeginCapture(InputEvent.OculusTouch(eSide, input, new AnyRayHit(uiHit)));

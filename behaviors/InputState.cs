@@ -55,13 +55,13 @@ namespace f3
 
         public Vector2f vMouseDelta2D;
         public Vector2f vMousePosition2D;
-        public Ray vMouseWorldRay;
-        public Ray vMouseOrthoWorldRay;
+        public Ray3f vMouseWorldRay;
+        public Ray3f vMouseOrthoWorldRay;
 
 
 
         // gamepad-specific
-        public Ray vGamepadWorldRay;
+        public Ray3f vGamepadWorldRay;
 
 
         // gamepad, oculus touch controllers
@@ -116,18 +116,18 @@ namespace f3
         public bool bMenuButtonReleased;
 
 
-        public Vector2 vLeftStickDelta2D;
-        public Vector2 vRightStickDelta2D;
-        public Vector2 StickDelta2D(int nSide) { return (nSide == 0) ? vLeftStickDelta2D : vRightStickDelta2D; }
+        public Vector2f vLeftStickDelta2D;
+        public Vector2f vRightStickDelta2D;
+        public Vector2f StickDelta2D(int nSide) { return (nSide == 0) ? vLeftStickDelta2D : vRightStickDelta2D; }
 
 
         // spatial controllers
         public bool bLeftControllerActive;
         public bool bRightControllerActive;
 
-        public Ray vLeftSpatialWorldRay;
-        public Ray vRightSpatialWorldRay;
-        public Ray SpatialWorldRay(int nSide) { return (nSide == 0) ? vLeftSpatialWorldRay : vRightSpatialWorldRay; }
+        public Ray3f vLeftSpatialWorldRay;
+        public Ray3f vRightSpatialWorldRay;
+        public Ray3f SpatialWorldRay(int nSide) { return (nSide == 0) ? vLeftSpatialWorldRay : vRightSpatialWorldRay; }
 
         public Frame3f LeftHandFrame;
         public Frame3f RightHandFrame;
@@ -144,7 +144,7 @@ namespace f3
 
         public Vector2f vTouchPosDelta2D;
         public Vector2f vTouchPosition2D;
-        public Ray vTouchWorldRay;
+        public Ray3f vTouchWorldRay;
 
         public bool bSecondTouchPressed;
         public bool bSecondTouchDown;
@@ -277,9 +277,9 @@ namespace f3
             //   that causes lots of exceptions elsewhere! So we return a default ray pointing
             //   straight up, but hopefully clients are checking active flag and will ignore it...
             vLeftSpatialWorldRay = (bLeftControllerActive) ?
-                s.SpatialController.Left.CursorRay : new Ray(Vector3.zero, Vector3.up);
+                s.SpatialController.Left.CursorRay : new Ray(Vector3f.Zero, Vector3f.AxisY);
             vRightSpatialWorldRay = (bRightControllerActive) ?
-                s.SpatialController.Right.CursorRay : new Ray(Vector3.zero, Vector3.up);
+                s.SpatialController.Right.CursorRay : new Ray(Vector3f.Zero, Vector3f.AxisY);
 
             LeftHandFrame = s.SpatialController.Left.SmoothedHandFrame;
             RightHandFrame = s.SpatialController.Right.SmoothedHandFrame;

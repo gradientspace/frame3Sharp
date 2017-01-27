@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
+using g3;
 
 namespace f3
 {
@@ -22,7 +22,7 @@ namespace f3
         {
             if (input.bLeftTriggerPressed ^ input.bRightTriggerPressed) {
                 CaptureSide eSide = (input.bLeftTriggerPressed) ? CaptureSide.Left : CaptureSide.Right;
-                Ray useRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
+                Ray3f useRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
                 SORayHit rayHit;
                 if (scene.Scene.FindSORayIntersection(useRay, out rayHit)) 
                     return CaptureRequest.Begin(this, eSide);
@@ -33,7 +33,7 @@ namespace f3
 
         public override Capture BeginCapture(InputState input, CaptureSide eSide)
         {
-            Ray useRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
+            Ray3f useRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
             SORayHit rayHit;
             if (scene.Scene.FindSORayIntersection(useRay, out rayHit)) 
                 return Capture.Begin(this, eSide, rayHit.hitSO);
@@ -50,7 +50,7 @@ namespace f3
 
             if ((data.which == CaptureSide.Left && input.bLeftTriggerReleased) ||
                  (data.which == CaptureSide.Right && input.bRightTriggerReleased)) {
-                Ray useRay = (data.which == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
+                Ray3f useRay = (data.which == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
                 SceneObject so = data.custom_data as SceneObject;
                 SORayHit rayHit;
                 if (so != null && so.FindRayIntersection(useRay, out rayHit)) {

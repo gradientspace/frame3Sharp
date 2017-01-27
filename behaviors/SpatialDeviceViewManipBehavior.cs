@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
+using g3;
 
 namespace f3
 {
@@ -67,8 +67,8 @@ namespace f3
             float /*dx2 = input.vRightStickDelta2D[0], */dy2 = input.vRightStickDelta2D[1];
 
             float fDead = 0.3f;
-            dx = Mathf.Clamp(Mathf.Abs(dx) - fDead, 0, 1.0f) * Mathf.Sign(dx);
-            dy = Mathf.Clamp(Mathf.Abs(dy) - fDead, 0, 1.0f) * Mathf.Sign(dy);
+            dx = MathUtil.Clamp(Math.Abs(dx) - fDead, 0, 1.0f) * Math.Sign(dx);
+            dy = MathUtil.Clamp(Math.Abs(dy) - fDead, 0, 1.0f) * Math.Sign(dy);
 
             if (data.which == CaptureSide.Left) {
                 cockpit.ActiveCamera.Manipulator().SceneOrbit(cockpit.Scene, cockpit.ActiveCamera, -0.75f * dx, -0.3f * dy);
