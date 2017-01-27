@@ -766,6 +766,10 @@ namespace f3 {
                 return activeTextTarget.OnBackspace();
             } else if (Input.GetKeyDown(KeyCode.Delete)) {
                 return activeTextTarget.OnDelete();
+            } else if (Input.GetKeyDown(KeyCode.LeftArrow)) {
+                return activeTextTarget.OnLeftArrow();
+            } else if (Input.GetKeyDown(KeyCode.RightArrow)) {
+                return activeTextTarget.OnRightArrow();
             } else if (Input.anyKeyDown) {
                 if (Input.inputString.Length > 0)
                     return activeTextTarget.OnCharacters(Input.inputString);

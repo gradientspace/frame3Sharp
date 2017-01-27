@@ -66,5 +66,16 @@ namespace f3
             go.Translate(new Vector3f(dv.x, dv.y, z));
         }
 
+        public static void Translate(fGameObject go, Vector2f delta, float z = 0)
+        {
+            Vector3f cur = go.GetLocalPosition();
+            cur.x += delta.x; cur.y += delta.y; cur.z += z;
+            go.SetLocalPosition(cur);
+        }
+        public static void MoveTo(fGameObject go, Vector2f to, float z = 0)
+        {
+            go.SetLocalPosition(new Vector3f(to.x, to.y, z));
+        }
+
     }
 }

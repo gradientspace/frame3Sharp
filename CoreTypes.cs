@@ -46,6 +46,8 @@ namespace f3
         bool OnDelete();
         bool OnReturn();
         bool OnEscape();
+        bool OnLeftArrow();
+        bool OnRightArrow();
         bool OnCharacters(string s);
     }
 

@@ -52,10 +52,19 @@ namespace f3
 
 
 
-        public Vector2f GetCursorPosition(int i)
+        public Vector2f GetCursorPosition(int iPos)
         {
-            // todo
-            return Vector2f.Zero;
+            // not supporting unity TextMesh
+            // this might do it: http://answers.unity3d.com/questions/31622/is-it-possible-to-find-the-width-of-a-text-mesh.html
+
+            TextMeshPro textmesh = (text_component as TextMeshPro);
+
+            if (iPos == 0)
+                return new Vector2f(0, 0);
+
+            float fWidth = textmesh.textInfo.characterInfo[iPos-1].xAdvance;
+            fWidth *= textmesh.transform.localScale[0];
+            return new Vector2f(fWidth, 0);
         }
 
     }

@@ -46,10 +46,17 @@ namespace f3
 
         ITextEntryTarget active_entry = null;
         float start_active_time = 0;
+        int cursor_position = 0;
 
         public bool IsEditing
         {
             get { return (active_entry != null); }
+        }
+
+        public int CursorPosition
+        {
+            get { return cursor_position; }
+            set { cursor_position = MathUtil.Clamp(value, 0, text.Length); }
         }
 
         fMaterial backgroundMaterial;
@@ -90,14 +97,14 @@ namespace f3
             AppendNewGO(textMesh, entry, false);
 
             cursor = GameObjectFactory.CreateRectangleGO("cursor", Height * 0.1f, Height * 0.8f, Colorf.VideoBlack, false);
-            BoxModel.Translate(cursor, Vector2f.Zero, this.Bounds2D.Center, -Height*0.1f);
+            BoxModel.Translate(cursor, Vector2f.Zero, this.Bounds2D.CenterLeft, -Height*0.1f);
             cursor.RotateD(Vector3f.AxisX, -90.0f);
             AppendNewGO(cursor, entry, false);
             cursor.SetVisible(false);
         }
 
 
-        public void SetText(string newText, bool bFromUserInput = true)
+        public bool SetText(string newText, bool bFromUserInput = true)
         {
             string validated = validate_text(text, newText);
             if (validated != text) {
@@ -106,7 +113,9 @@ namespace f3
                 UnityUtil.SafeSendEvent(OnTextChanged, this, text);
                 if (bFromUserInput)
                     UnityUtil.SafeSendEvent(OnTextEdited, this, text);
+                return true;
             }
+            return false;
         }
 
 
@@ -134,6 +143,11 @@ namespace f3
                 // cursor blinks every 0.5s
                 float dt = FPlatform.RealTime() - start_active_time;
                 cursor.SetVisible( (int)(2 * dt) % 2 == 0 );
+
+                // DO NOT DO THIS EVERY FRAME!!!
+                BoxModel.MoveTo(cursor, this.Bounds2D.CenterLeft, -Height * 0.1f);
+                Vector2f cursorPos = textMesh.TextObject.GetCursorPosition(cursor_position);
+                BoxModel.Translate(cursor, cursorPos);
             }
         }
 
@@ -165,6 +179,7 @@ namespace f3
                     UnityUtil.SafeSendEvent(OnBeginTextEditing, this);
                     bgMesh.SetMaterial(activeBackgroundMaterial);
                     start_active_time = FPlatform.RealTime();
+                    cursor_position = text.Length;
 
                     entry.OnTextEditingEnded += (s, e) => {
                         bgMesh.SetMaterial(backgroundMaterial);
@@ -258,6 +273,32 @@ namespace f3
         #endregion
 
 
+
+
+        // text editing functions
+        public void BackspaceAtCursor()
+        {
+            if ( cursor_position > 0 ) {
+                string new_text = text.Remove(cursor_position-1, 1);
+                if ( SetText(new_text, true) )
+                    cursor_position--;
+            }
+        }
+        public void DeleteAtCursor()
+        {
+            if ( cursor_position < text.Length-1 ) {
+                string new_text = text.Remove(cursor_position, 1);
+                SetText(new_text, true);
+            }
+        }
+        public void InsertAtCursor(string s)
+        {
+            string new_text = text.Insert(cursor_position, s);
+            if (SetText(new_text, true))
+                cursor_position += s.Length;
+        }
+
+
     }
 
 
@@ -288,21 +329,19 @@ namespace f3
         }
 
         public bool OnBackspace() {
-            if (Entry.Text.Length > 0)
-                Entry.SetText(Entry.Text.Substring(0, Entry.Text.Length - 1), true );
+            Entry.BackspaceAtCursor();
             return true;
         }
 
         public bool OnDelete()
-        {   // weird!
-            if (Entry.Text.Length > 0)
-                Entry.SetText( Entry.Text.Substring(1, Entry.Text.Length - 1), true);
+        {
+            Entry.DeleteAtCursor();
             return true;
         }
 
         public bool OnCharacters(string s)
         {
-            Entry.SetText(Entry.Text + s, true);
+            Entry.InsertAtCursor(s);
             return true;
         }
 
@@ -318,6 +357,17 @@ namespace f3
         {
             // hack for now
             Entry.Parent.Context.ReleaseTextEntry(this);
+            return true;
+        }
+
+        public bool OnLeftArrow()
+        {
+            Entry.CursorPosition = Entry.CursorPosition - 1;
+            return true;
+        }
+        public bool OnRightArrow()
+        {
+            Entry.CursorPosition = Entry.CursorPosition + 1;
             return true;
         }
     }
