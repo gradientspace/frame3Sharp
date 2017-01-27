@@ -140,7 +140,7 @@ namespace f3
             current_value = newValue;
             update_handle_position();
             if ( bSendEvent )
-                UnityUtil.SafeSendEvent(OnValueChanged, this, prev, current_value);
+                FUtil.SafeSendEvent(OnValueChanged, this, prev, current_value);
         }
 
 
@@ -156,7 +156,7 @@ namespace f3
 
         void onHandlePress(InputEvent e, Vector3f hitPosW)
         {
-            UnityUtil.SafeSendEvent(OnValueChangeBegin, this, current_value);
+            FUtil.SafeSendEvent(OnValueChangeBegin, this, current_value);
         }
 
         void onHandlePressDrag(InputEvent e, Vector3f hitPosW)
@@ -168,7 +168,7 @@ namespace f3
         void onSliderbarPress(InputEvent e, Vector3f hitPosW)
         {
             double t = get_slider_tx(hitPosW);
-            UnityUtil.SafeSendEvent(OnValueChangeBegin, this, current_value);
+            FUtil.SafeSendEvent(OnValueChangeBegin, this, current_value);
             update_value(t, true);
         }
 
@@ -182,7 +182,7 @@ namespace f3
 
         void onSliderbarClick(InputEvent e, Vector3f hitPosW)
         {
-            UnityUtil.SafeSendEvent(OnClicked, this, e);
+            FUtil.SafeSendEvent(OnClicked, this, e);
         }
 
 
@@ -247,7 +247,7 @@ namespace f3
 		override public bool EndCapture (InputEvent e)
 		{
             if ( eInterMode == InteractionMode.InHandleDrag || eInterMode == InteractionMode.InPressDrag ) {
-                UnityUtil.SafeSendEvent(OnValueChangeEnd, this, current_value);
+                FUtil.SafeSendEvent(OnValueChangeEnd, this, current_value);
             }
 			return true;
 		}

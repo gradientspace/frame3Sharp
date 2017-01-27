@@ -111,19 +111,19 @@ namespace f3
 
                 if (sent_click == false) {
                     // on first click we reset timer
-                    UnityUtil.SafeSendEvent(OnClicked, this, new EventArgs());
+                    FUtil.SafeSendEvent(OnClicked, this, new EventArgs());
                     sent_click = true;
                     last_click_time = FPlatform.RealTime();
                 } else {
                     float delta = FPlatform.RealTime() - last_click_time;
                     if (delta < double_click_delay) {
                         // if this second click comes fast enough, send doubleclick instead
-                        UnityUtil.SafeSendEvent(OnDoubleClicked, this, new EventArgs());
+                        FUtil.SafeSendEvent(OnDoubleClicked, this, new EventArgs());
                         sent_click = false;
                         last_click_time = 0.0f;
                     } else {
                         // send single-click and reset timer
-                        UnityUtil.SafeSendEvent(OnClicked, this, new EventArgs());
+                        FUtil.SafeSendEvent(OnClicked, this, new EventArgs());
                         sent_click = true;
                         last_click_time = FPlatform.RealTime();
                     }

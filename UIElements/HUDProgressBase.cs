@@ -43,9 +43,9 @@ namespace f3
                 current_progress = newValue;
                 update_geometry();
                 if (bSendEvent) {
-                    UnityUtil.SafeSendEvent(OnProgressChanged, this, prev, current_progress);
+                    FUtil.SafeSendEvent(OnProgressChanged, this, prev, current_progress);
                     if ( current_progress == max_progress )
-                        UnityUtil.SafeSendEvent(OnProgressCompleted, this, max_progress);
+                        FUtil.SafeSendEvent(OnProgressCompleted, this, max_progress);
 
                 }
             }

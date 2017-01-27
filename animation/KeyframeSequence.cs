@@ -98,7 +98,7 @@ namespace f3
                 throw new gException("KeyframeSequence.AddKey: key already exists at time {0}!", f.Time);
 
             add_or_update_key(f);
-            UnityUtil.SafeSendEvent(ChangeOpEvent, this,
+            FUtil.SafeSendEvent(ChangeOpEvent, this,
                 new KeyframeAddRemoveChange() { key = f, sequence = this, bAdded = true });
 
             return true;
@@ -117,7 +117,7 @@ namespace f3
 
             add_or_update_key(f);
 
-            UnityUtil.SafeSendEvent(ChangeOpEvent, this, change);
+            FUtil.SafeSendEvent(ChangeOpEvent, this, change);
 
             return true;
         }
@@ -128,7 +128,7 @@ namespace f3
             if ( Keys.ContainsKey(time) ) {
                 Keyframe f = Keys[time];
                 remove_key(time);
-                UnityUtil.SafeSendEvent(ChangeOpEvent, this,
+                FUtil.SafeSendEvent(ChangeOpEvent, this,
                     new KeyframeAddRemoveChange() { key = f, sequence = this, bAdded = false });
                 return true;
             }
@@ -148,7 +148,7 @@ namespace f3
                 Keyframe prev = Keys[f.Time];
                 IChangeOp change = new KeyframeUpdateChange() { before = prev, after = f, sequence = this };
                 Keys[f.Time] = f;
-                UnityUtil.SafeSendEvent(ChangeOpEvent, this, change);
+                FUtil.SafeSendEvent(ChangeOpEvent, this, change);
                 return true;
             }
             return false;
@@ -188,7 +188,7 @@ namespace f3
 
             for ( int i = 0; i < changes.Count; ++i ) {
                 changes[i].Apply();
-                UnityUtil.SafeSendEvent(ChangeOpEvent, this, changes[i]);
+                FUtil.SafeSendEvent(ChangeOpEvent, this, changes[i]);
             }
 
         }

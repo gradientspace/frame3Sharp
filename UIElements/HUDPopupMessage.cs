@@ -69,7 +69,7 @@ namespace f3
         override public bool EndCapture(InputEvent e)
         {
             if (IsGOHit(e.ray, popupMesh))
-                UnityUtil.SafeSendEvent(OnDismissed, this, new EventArgs());
+                FUtil.SafeSendEvent(OnDismissed, this, new EventArgs());
             return true;
         }
 

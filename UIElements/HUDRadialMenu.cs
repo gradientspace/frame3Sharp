@@ -19,7 +19,7 @@ namespace f3
 
             public event EventHandler OnSelected;
             public void selected(object sender) {
-                UnityUtil.SafeSendEvent(OnSelected, sender, new EventArgs());
+                FUtil.SafeSendEvent(OnSelected, sender, new EventArgs());
             }
 
             public bool hasParent(MenuItem i) {

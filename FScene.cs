@@ -8,6 +8,7 @@ namespace f3
 {
 
 	public delegate void SceneSelectionChangedHandler(object sender, EventArgs e);
+    public delegate void TimeChangedHandler(object sender, EventArgs e);
 
 
 	public class FScene : SceneUIParent
@@ -130,9 +131,12 @@ namespace f3
         }
         public void SetCurrentTime(double time)
         {
-            foreach (SceneObject so in vObjects)
-                so.SetCurrentTime(time);
-            currentTime = time;
+            if (currentTime != time) {
+                foreach (SceneObject so in vObjects)
+                    so.SetCurrentTime(time);
+                currentTime = time;
+                FUtil.SafeSendAnyEvent(TimeChangedEvent, this, null);
+            }
         }
 
         public SceneAnimator AnimationController {
@@ -140,10 +144,11 @@ namespace f3
         }
 
 
+        public event TimeChangedHandler TimeChangedEvent;
 		public event SceneSelectionChangedHandler SelectionChangedEvent;
+
 		protected virtual void OnSelectionChanged(EventArgs e) {
-			if (SelectionChangedEvent != null)
-				SelectionChangedEvent(this, e);
+            FUtil.SafeSendEvent(SelectionChangedEvent, this, e);
 		}
 
 

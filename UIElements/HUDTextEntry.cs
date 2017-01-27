@@ -38,7 +38,7 @@ namespace f3
                 if (newText != text) {
                     text = newText;
                     UpdateText();
-                    UnityUtil.SafeSendEvent(OnTextChanged, this, text);
+                    FUtil.SafeSendEvent(OnTextChanged, this, text);
                 }
             }
         }
@@ -110,9 +110,9 @@ namespace f3
             if (validated != text) {
                 text = validated;
                 UpdateText();
-                UnityUtil.SafeSendEvent(OnTextChanged, this, text);
+                FUtil.SafeSendEvent(OnTextChanged, this, text);
                 if (bFromUserInput)
-                    UnityUtil.SafeSendEvent(OnTextEdited, this, text);
+                    FUtil.SafeSendEvent(OnTextEdited, this, text);
                 return true;
             }
             return false;
@@ -176,7 +176,7 @@ namespace f3
                 if ( Parent.Context.RequestTextEntry(entry)) {
 
                     active_entry = entry;
-                    UnityUtil.SafeSendEvent(OnBeginTextEditing, this);
+                    FUtil.SafeSendEvent(OnBeginTextEditing, this);
                     bgMesh.SetMaterial(activeBackgroundMaterial);
                     start_active_time = FPlatform.RealTime();
                     cursor_position = text.Length;
@@ -184,16 +184,16 @@ namespace f3
                     entry.OnTextEditingEnded += (s, e) => {
                         bgMesh.SetMaterial(backgroundMaterial);
                         active_entry = null;
-                        UnityUtil.SafeSendEvent(OnEndTextEditing, this);
+                        FUtil.SafeSendEvent(OnEndTextEditing, this);
                     };
                 }
             }
 
-            UnityUtil.SafeSendEvent(OnClicked, this, new EventArgs());    
+            FUtil.SafeSendEvent(OnClicked, this, new EventArgs());    
         }
         void on_double_clicked()
         {
-            UnityUtil.SafeSendEvent(OnDoubleClicked, this, new EventArgs());    
+            FUtil.SafeSendEvent(OnDoubleClicked, this, new EventArgs());    
         }
 
 
