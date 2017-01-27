@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 using g3;
 
 namespace f3
@@ -11,39 +10,39 @@ namespace f3
 		}
 
 
-        public static float PlaneAngle(Vector3 a, Vector3 b, int nPlaneNormalIdx = 1)
+        public static float PlaneAngle(Vector3f a, Vector3f b, int nPlaneNormalIdx = 1)
         {
             a[nPlaneNormalIdx] = b[nPlaneNormalIdx] = 0.0f;
             a.Normalize();
             b.Normalize();
-            return Vector3.Angle(a, b);
+            return Vector3f.AngleD(a, b);
         }
-        public static float PlaneAngleSigned(Vector3 vFrom, Vector3 vTo, int nPlaneNormalIdx = 1)
+        public static float PlaneAngleSigned(Vector3f vFrom, Vector3f vTo, int nPlaneNormalIdx = 1)
         {
             vFrom[nPlaneNormalIdx] = vTo[nPlaneNormalIdx] = 0.0f;
             vFrom.Normalize();
             vTo.Normalize();
-            float fSign = Mathf.Sign(Vector3.Cross(vFrom, vTo)[nPlaneNormalIdx]);
-            float fAngle = fSign * Vector3.Angle(vFrom, vTo);
+            float fSign = Math.Sign(Vector3f.Cross(vFrom, vTo)[nPlaneNormalIdx]);
+            float fAngle = fSign * Vector3f.AngleD(vFrom, vTo);
             return fAngle;
         }
-        public static float PlaneAngleSigned(Vector3 vFrom, Vector3 vTo, Vector3 planeN)
+        public static float PlaneAngleSigned(Vector3f vFrom, Vector3f vTo, Vector3f planeN)
         {
-            vFrom = vFrom - Vector3.Dot(vFrom, planeN) * planeN;
-            vTo = vTo - Vector3.Dot(vTo, planeN) * planeN;
+            vFrom = vFrom - Vector3f.Dot(vFrom, planeN) * planeN;
+            vTo = vTo - Vector3f.Dot(vTo, planeN) * planeN;
             vFrom.Normalize();
             vTo.Normalize();
-            Vector3 c = Vector3.Cross(vFrom, vTo);
-            float fSign = Mathf.Sign(Vector3.Dot(c, planeN));
-            float fAngle = fSign * Vector3.Angle(vFrom, vTo);
+            Vector3f c = Vector3f.Cross(vFrom, vTo);
+            float fSign = Math.Sign(Vector3f.Dot(c, planeN));
+            float fAngle = fSign * Vector3f.AngleD(vFrom, vTo);
             return fAngle;
         }
 
-        public static Vector3 AngleLerp(Vector3 a, Vector3 b, float t)
+        public static Vector3f AngleLerp(Vector3f a, Vector3f b, float t)
         {
             // [TODO] should be doing a rotation!!
-            Vector3 v = (1.0f - t) * a + (t) * b;
-            return v.normalized;
+            Vector3f v = (1.0f - t) * a + (t) * b;
+            return v.Normalized;
         }
 
         public static float ArcLengthDeg(float fRadius, float fAngleSpanDeg)
@@ -52,9 +51,9 @@ namespace f3
         }
 
 		// Returns a distance value that corresponds to a fixed visual angle at the given distance
-		public static float GetVRRadiusForVisualAngle(Vector3 vWorldPos, Vector3 vEyePos, float fAngleInDegrees)
+		public static float GetVRRadiusForVisualAngle(Vector3f vWorldPos, Vector3f vEyePos, float fAngleInDegrees)
 		{
-            float r = (vWorldPos - vEyePos).magnitude;
+            float r = (vWorldPos - vEyePos).Length;
 			double a = fAngleInDegrees * (Math.PI/180.0);
 			float c = 2.0f * r * (float)Math.Sin (a / 2.0);
 			return c;
@@ -64,15 +63,15 @@ namespace f3
 
 		// horz angle is [-180,180] where negative is to the left
 		// vert angle is [-90,90] where negative is down
-		public static Ray MakeRayFromSphereCenter(float fAngleHorzDeg, float fAngleVertDeg) 
+		public static Ray3f MakeRayFromSphereCenter(float fAngleHorzDeg, float fAngleVertDeg) 
 		{
-			float fTheta = (Mathf.Deg2Rad * fAngleHorzDeg);
-			float fPhi = (Mathf.PI/2.0f) - (Mathf.Deg2Rad * fAngleVertDeg);
-			float z = Mathf.Cos (fTheta) * Mathf.Sin (fPhi);
-			float x = Mathf.Sin (fTheta) * Mathf.Sin (fPhi);
-			float y = Mathf.Cos (fPhi);
-			Vector3 d = new Vector3 (x, y, z);
-			return new Ray (Vector3.zero, d.normalized);
+			float fTheta = (MathUtil.Deg2Radf * fAngleHorzDeg);
+			float fPhi = (MathUtil.PIf/2.0f) - (MathUtil.Deg2Radf * fAngleVertDeg);
+			float z = (float)( Math.Cos (fTheta) * Math.Sin (fPhi) );
+			float x = (float)( Math.Sin (fTheta) * Math.Sin (fPhi) );
+			float y = (float)Math.Cos (fPhi);
+			Vector3f d = new Vector3f (x, y, z);
+			return new Ray3f (Vector3f.Zero, d.Normalized);
 		}
 
 
@@ -90,11 +89,11 @@ namespace f3
         // vert angle is [-90,90] where negative is down
         public static float HorizontalStepAngle(float fSphereR, float fVertAngle, float fStepWidth)
         {
-            float fSliceY = fSphereR * (float)Math.Sin(Mathf.Deg2Rad * fVertAngle);
+            float fSliceY = fSphereR * (float)Math.Sin(MathUtil.Deg2Radf * fVertAngle);
             float fYR = SphereSliceRadius(fSphereR, fSliceY);
 
-            float fStepSpanRad = 2.0f * Mathf.Asin(fStepWidth / (2.0f * fYR));
-            float fStepSpanDeg = fStepSpanRad * Mathf.Rad2Deg;
+            float fStepSpanRad = 2.0f * (float)Math.Asin(fStepWidth / (2.0f * fYR));
+            float fStepSpanDeg = fStepSpanRad * MathUtil.Rad2Degf;
             return fStepSpanDeg;
         }
 
@@ -157,7 +156,7 @@ namespace f3
 
             float rSum = 0; int iSum = 0;
             for (int k = 0; k < curve.VertexCount; k += nSubSampleInc) {
-                Vector3f vS = (Vector3)curve.GetVertex(k);
+                Vector3f vS = (Vector3f)curve.GetVertex(k);
                 vS = curveFrameS.FromFrameP(vS);
                 Vector3f dv = (vS - camPos).Normalized;
                 if (dv.Dot(camForward) < ViewConeDotThresh)
