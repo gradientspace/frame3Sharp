@@ -63,32 +63,38 @@ namespace f3
             //   Simplest way to do that is to "un-rotate" by the angles before the delta...
             //   (???)
 
-            scene.RootGameObject.transform.RotateAround(rotTarget, Vector3.right, -turntable_angles[1]);
-            scene.RootGameObject.transform.RotateAround(rotTarget, Vector3.up, -turntable_angles[0]);
+            Vector3f up = Vector3f.AxisY;
+            Vector3f right = cam.transform.right;
+
+            scene.RootGameObject.transform.RotateAround(rotTarget, right, -turntable_angles[1]);
+            scene.RootGameObject.transform.RotateAround(rotTarget, up, -turntable_angles[0]);
 
             turntable_angles[0] -= dAzimuth;
             turntable_angles[1] += dAltitude;
             turntable_angles[1] = Mathf.Clamp(turntable_angles[1], -89.9f, 89.9f);
 
-            scene.RootGameObject.transform.RotateAround(rotTarget, Vector3.up, turntable_angles[0]);
-            scene.RootGameObject.transform.RotateAround(rotTarget, Vector3.right, turntable_angles[1]);
+            scene.RootGameObject.transform.RotateAround(rotTarget, up, turntable_angles[0]);
+            scene.RootGameObject.transform.RotateAround(rotTarget, right, turntable_angles[1]);
         }
 
 
         public void ResetSceneOrbit(FScene scene, bool bAzimuth, bool bAltitude, bool bApply = true)
         {
+            Vector3f up = Vector3f.AxisY;
+            Vector3f right = getCamera().transform.right;
+
             Vector3 rotTarget = getCamera().GetTarget();
             if ( bApply ) {
-                scene.RootGameObject.transform.RotateAround(rotTarget, Vector3.right, -turntable_angles[1]);
-                scene.RootGameObject.transform.RotateAround(rotTarget, Vector3.up, -turntable_angles[0]);
+                scene.RootGameObject.transform.RotateAround(rotTarget, right, -turntable_angles[1]);
+                scene.RootGameObject.transform.RotateAround(rotTarget, up, -turntable_angles[0]);
             }
             if (bAzimuth == true)
                 turntable_angles[0] = 0.0f;
             if (bAltitude == true)
                 turntable_angles[1] = 0.0f;
             if ( bApply ) {
-                scene.RootGameObject.transform.RotateAround(rotTarget, Vector3.up, turntable_angles[0]);
-                scene.RootGameObject.transform.RotateAround(rotTarget, Vector3.right, turntable_angles[1]);
+                scene.RootGameObject.transform.RotateAround(rotTarget, up, turntable_angles[0]);
+                scene.RootGameObject.transform.RotateAround(rotTarget, right, turntable_angles[1]);
             }
         }
 
