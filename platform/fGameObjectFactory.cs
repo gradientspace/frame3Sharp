@@ -17,7 +17,7 @@ namespace f3
         }
 
 
-        static void initialize_meshgo(GameObject go, Mesh mesh, bool bCollider)
+        static void initialize_meshgo(GameObject go, fMesh mesh, bool bCollider)
         {
             go.AddComponent<MeshFilter>();
             if ( mesh != null )
@@ -30,11 +30,17 @@ namespace f3
         }
 
 
-        public static fGameObject CreateMeshGO(string sName, Mesh mesh = null, bool bCollider = false)
+        public static fMeshGameObject CreateMeshGO(string sName, Mesh mesh = null, bool bCollider = false)
+        {
+            GameObject go = new GameObject(sName);
+            initialize_meshgo(go, new fMesh(mesh), bCollider);
+            return new fMeshGameObject(go);
+        }
+        public static fMeshGameObject CreateMeshGO(string sName, fMesh mesh, bool bCollider = false)
         {
             GameObject go = new GameObject(sName);
             initialize_meshgo(go, mesh, bCollider);
-            return new fGameObject(go);
+            return new fMeshGameObject(go);
         }
 
         // unit rectangle lying in plane
@@ -48,7 +54,7 @@ namespace f3
             GameObject go = new GameObject(sName);
             Mesh rectMesh = UnityUtil.GetPrimitiveMesh(PrimitiveType.Quad);
             UnityUtil.RotateMesh(rectMesh, Quaternionf.AxisAngleD(Vector3f.AxisX, 90), Vector3f.Zero);
-            initialize_meshgo(go, rectMesh, bCollider);
+            initialize_meshgo(go, new fMesh(rectMesh), bCollider);
             go.SetMaterial(useMaterial, bShareMaterial);
             return new fRectangleGameObject(go, fWidth, fHeight);
         }
@@ -66,7 +72,7 @@ namespace f3
             triMesh.vertices = new Vector3[3] {
                 new Vector3(-w/2, 0.0f, -h/2), new Vector3(w/2, 0.0f, -h/2), new Vector3(0, 0, h/2) };
             triMesh.triangles = new int[3] { 0, 2, 1 };
-            initialize_meshgo(go, triMesh, bCollider);
+            initialize_meshgo(go, new fMesh(triMesh), bCollider);
             go.SetMaterial(MaterialUtil.CreateFlatMaterialF(color));
             return new fTriangleGameObject(go, fWidth, fHeight);
         }
@@ -77,7 +83,7 @@ namespace f3
         {
             GameObject go = new GameObject(sName);
             Mesh discMesh = PrimitiveCache.GetPrimitiveMesh(fPrimitiveType.Disc);
-            initialize_meshgo(go, discMesh, bCollider);
+            initialize_meshgo(go, new fMesh(discMesh), bCollider);
             go.SetMaterial(MaterialUtil.CreateFlatMaterialF(color));
             return new fDiscGameObject(go, fRadius);
         }

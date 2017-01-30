@@ -87,6 +87,9 @@ namespace f3
         static readonly public SOType Mesh =
             new SOType("MeshSO", Type.GetType("f3.MeshSO"));
 
+        static readonly public SOType DMesh =
+            new SOType("DMeshSO", Type.GetType("f3.DMeshSO"));
+
         static readonly public SOType MeshReference =
             new SOType("MeshReferenceSO", Type.GetType("f3.MeshReferenceSO"));
 

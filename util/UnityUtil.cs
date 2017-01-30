@@ -474,6 +474,53 @@ namespace f3
         }
 
 
+
+
+
+
+        public static Mesh DMeshToUnityMesh(DMesh3 m, bool bSwapLeftRight)
+        {
+            if (m.VertexCount > 65000 || m.TriangleCount > 65000) {
+                Debug.Log("[UnityUtil.DMeshToUnityMesh] attempted to import object larger than 65000 verts/tris, not supported by Unity!");
+                return null;
+            }
+
+            Mesh unityMesh = new Mesh();
+
+            Vector3[] vertices = dvector_to_vector3(m.VerticesBuffer);
+            Vector3[] normals = (m.HasVertexNormals) ? dvector_to_vector3(m.NormalsBuffer) : null;
+            if (bSwapLeftRight) {
+                int nV = vertices.Length;
+                for (int i = 0; i < nV; ++i) {
+                    vertices[i].x = -vertices[i].x;
+                    vertices[i].z = -vertices[i].z;
+                    if (normals != null) {
+                        normals[i].x = -normals[i].x;
+                        normals[i].z = -normals[i].z;
+                    }
+                }
+            }
+
+            unityMesh.vertices = vertices;
+            if (m.HasVertexNormals)
+                unityMesh.normals = normals;
+            if (m.HasVertexColors)
+                unityMesh.colors = dvector_to_color(m.ColorsBuffer);
+            if (m.HasVertexUVs)
+                unityMesh.uv = dvector_to_vector2(m.UVBuffer);
+            unityMesh.triangles = dvector_to_int(m.TrianglesBuffer);
+
+            if (m.HasVertexNormals == false)
+                unityMesh.RecalculateNormals();
+
+            return unityMesh;
+        }
+
+
+
+
+
+
         public static SimpleMesh UnityMeshToSimpleMesh(UnityEngine.Mesh mesh, bool bSwapLeftright)
         {
             SimpleMesh smesh = new SimpleMesh();
@@ -658,7 +705,15 @@ namespace f3
             }
             return result;
         }
-
+        public static int[] dvector_to_int(DVector<int> vec)
+        {
+            // todo this could be faster because we can directly copy chunks...
+            int nLen = vec.Length;
+            int[] result = new int[nLen];
+            for (int i = 0; i < nLen; ++i)
+                result[i] = vec[i];
+            return result;
+        }
 
 
 

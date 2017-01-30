@@ -11,10 +11,50 @@ namespace f3
     {
         Mesh unitymesh;
 
+
         public fMesh(UnityEngine.Mesh m)
         {
             unitymesh = m;
         }
+
+
+        public fMesh(DMesh3 source)
+        {
+            unitymesh = UnityUtil.DMeshToUnityMesh(source, false);
+        }
+
+
+        public fMesh(int[] triangles, DMesh3 source, int[] source_vertices, bool bCopyNormals = false, bool bCopyColors = false)
+        {
+            int NV = source_vertices.Length;
+            Vector3[] vertices = new Vector3[NV];
+            for ( int i = 0; i < NV; ++i ) {
+                vertices[i] = (Vector3)source.GetVertex(source_vertices[i]);
+            }
+
+            Mesh m = new Mesh();
+            m.vertices = vertices;
+            m.triangles = triangles;
+
+            if (bCopyNormals && source.HasVertexNormals) {
+                Vector3[] normals = new Vector3[NV];
+                for (int i = 0; i < NV; ++i)
+                    normals[i] =(Vector3)source.GetVertexNormal(source_vertices[i]);
+                m.normals = normals;
+            } else {
+                m.RecalculateNormals();
+            }
+
+            if ( bCopyColors && source.HasVertexColors ) {
+                Color[] colors = new Color[NV];
+                for ( int i = 0; i < NV; ++i )
+                    colors[i] = (Color)source.GetVertexColor(source_vertices[i]);
+                m.colors = colors;
+            }
+
+            unitymesh = m;
+        }
+
 
         public fMesh Clone()
         {
