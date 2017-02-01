@@ -6,11 +6,11 @@ using g3;
 
 namespace f3
 {
-    public class GroupSO : TransformableSceneObject, IParentSO
+    public class GroupSO : TransformableSO, IParentSO
     {
         GameObject gameObject;
         protected string uuid;
-        List<TransformableSceneObject> vChildren;
+        List<TransformableSO> vChildren;
 
         FScene parentScene;
         bool defer_origin_update;
@@ -22,7 +22,7 @@ namespace f3
         public GroupSO()
         {
             uuid = System.Guid.NewGuid().ToString();
-            vChildren = new List<TransformableSceneObject>();
+            vChildren = new List<TransformableSO>();
             defer_origin_update = false;
         }
         ~GroupSO()
@@ -38,7 +38,7 @@ namespace f3
         }
 
 
-        public void AddChild(TransformableSceneObject so)
+        public void AddChild(TransformableSO so)
         {
             if (!vChildren.Contains(so)) {
                 vChildren.Add(so);
@@ -48,16 +48,16 @@ namespace f3
                 //so.OnTransformModified += childTransformModified;
             }
         }
-        public void AddChildren(IEnumerable<TransformableSceneObject> v)
+        public void AddChildren(IEnumerable<TransformableSO> v)
         {
             defer_origin_update = true;
-            foreach (TransformableSceneObject so in v)
+            foreach (TransformableSO so in v)
                 AddChild(so);
             defer_origin_update = false;
             update_shared_origin();
         }
 
-        public void RemoveChild(TransformableSceneObject so)
+        public void RemoveChild(TransformableSO so)
         {
             if ( vChildren.Contains(so) ) {
                 //so.OnTransformModified -= childTransformModified;
@@ -89,13 +89,13 @@ namespace f3
             }
 
             Vector3f origin = Vector3f.Zero;
-            foreach (TransformableSceneObject so in vChildren) {
+            foreach (TransformableSO so in vChildren) {
                 origin += so.GetLocalFrame(CoordSpace.WorldCoords).Origin;
                 so.RootGameObject.transform.SetParent(null);
             }
             origin *= 1.0f / (float)vChildren.Count;
             RootGameObject.transform.position = origin;
-            foreach (TransformableSceneObject so in vChildren) {
+            foreach (TransformableSO so in vChildren) {
                 so.RootGameObject.transform.SetParent(gameObject.transform, true);
             }
         }

@@ -9,19 +9,19 @@ namespace f3
 
     public interface ITransformGizmo : SceneUIElement
     {
-        List<TransformableSceneObject> Targets { get; }
+        List<TransformableSO> Targets { get; }
 
         bool SupportsFrameMode { get; }
         FrameType CurrentFrameMode { get; set; }
 
         bool SupportsReferenceObject { get; }
-        void SetReferenceObject(TransformableSceneObject so);
+        void SetReferenceObject(TransformableSO so);
     }
 
     public interface ITransformGizmoBuilder
     {
         bool SupportsMultipleObjects { get; }
-        ITransformGizmo Build(FScene scene, List<TransformableSceneObject> targets);
+        ITransformGizmo Build(FScene scene, List<TransformableSO> targets);
     }
 
 
@@ -153,7 +153,7 @@ namespace f3
         }
 
 
-        public void SetActiveReferenceObject(TransformableSceneObject so)
+        public void SetActiveReferenceObject(TransformableSO so)
         {
             if (activeGizmo != null && activeGizmo.SupportsReferenceObject)
                 activeGizmo.SetReferenceObject(so);
@@ -172,19 +172,19 @@ namespace f3
 
 
         // 
-        FrameType initial_frame_type(TransformableSceneObject so)
+        FrameType initial_frame_type(TransformableSO so)
         {
             return FrameType.LocalFrame;
         }
 
 
-        public void AddGizmo( List<TransformableSceneObject> targets )
+        public void AddGizmo( List<TransformableSO> targets )
         {
             ITransformGizmoBuilder useBuilder = activeBuilder;
             if (sOverrideGizmoType != null && sOverrideGizmoType != "")
                 useBuilder = GizmoTypes[sOverrideGizmoType]; 
 
-            List<TransformableSceneObject> useTargets = new List<TransformableSceneObject>(targets);
+            List<TransformableSO> useTargets = new List<TransformableSO>(targets);
             if (useTargets.Count > 0 && useBuilder.SupportsMultipleObjects == false)
                 useTargets.RemoveRange(1, useTargets.Count - 1);
 
@@ -243,9 +243,9 @@ namespace f3
         private void Scene_SelectionChangedEvent(object sender, EventArgs e)
         {
             FScene scene = SceneManager.Scene;
-            List<TransformableSceneObject> vSelected = new List<TransformableSceneObject>();
+            List<TransformableSO> vSelected = new List<TransformableSO>();
             foreach ( SceneObject so in scene.Selected ) {
-                TransformableSceneObject tso = so as TransformableSceneObject;
+                TransformableSO tso = so as TransformableSO;
                 if (tso != null)
                     vSelected.Add(tso);
             }
@@ -272,7 +272,7 @@ namespace f3
         public bool SupportsMultipleObjects {
             get { return true; }
         }
-        public ITransformGizmo Build(FScene scene, List<TransformableSceneObject> targets)
+        public ITransformGizmo Build(FScene scene, List<TransformableSO> targets)
         {
             return null;
         }

@@ -284,7 +284,7 @@ namespace f3
 
 
 
-        public virtual void RestoreTransform(TransformableSceneObject so, TypedAttribSet attributes)
+        public virtual void RestoreTransform(TransformableSO so, TypedAttribSet attributes)
         {
             TypedAttribSet transform = find_struct(attributes, IOStrings.TransformStruct);
             if (transform == null)

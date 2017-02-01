@@ -245,8 +245,8 @@ namespace f3
                     else if (so is PolyCurveSO)
                         this.Emit(o, so as PolyCurveSO);
 
-                    else if (so is TransformableSceneObject)
-                        this.Emit(o, so as TransformableSceneObject);
+                    else if (so is TransformableSO)
+                        this.Emit(o, so as TransformableSO);
                     else
                         this.EmitUnknown(o, so);
                 }

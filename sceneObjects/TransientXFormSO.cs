@@ -5,10 +5,10 @@ using g3;
 
 namespace f3
 {
-    public class TransientXFormSO : TransformableSceneObject, IParentSO
+    public class TransientXFormSO : TransformableSO, IParentSO
     {
         GameObject gameObject;
-        TransformableSceneObject target;
+        TransformableSO target;
         //TransformableSceneObject source;
 
         FScene parentScene;
@@ -26,7 +26,7 @@ namespace f3
             increment_timestamp();
         }
 
-        public void Connect(TransformableSceneObject source, TransformableSceneObject target)
+        public void Connect(TransformableSO source, TransformableSO target)
         {
             //this.source = source;
             this.target = target;

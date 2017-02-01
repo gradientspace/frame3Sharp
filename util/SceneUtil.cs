@@ -40,7 +40,7 @@ namespace f3
 
 
         // stupid but convenient
-        public static bool FindNearestRayIntersection(IEnumerable<TransformableSceneObject> vSceneObjects, Ray ray, out SORayHit hit) {
+        public static bool FindNearestRayIntersection(IEnumerable<TransformableSO> vSceneObjects, Ray ray, out SORayHit hit) {
             hit = null;
             foreach (var so in vSceneObjects) {
                 SORayHit soHit;
@@ -56,17 +56,17 @@ namespace f3
 
 
         // descends parent/child SO hierarchy and finds the set of topmost non-temporary SOs
-        public static void FindAllPersistentTransformableChildren(SceneObject vParent, List<TransformableSceneObject> children)
+        public static void FindAllPersistentTransformableChildren(SceneObject vParent, List<TransformableSO> children)
         {
             if ( (vParent is IParentSO) == false )
                 return;
             foreach ( SceneObject so in (vParent as IParentSO).GetChildren() ) {
-                if ((so is TransformableSceneObject) == false)
+                if ((so is TransformableSO) == false)
                     continue;
                 if (so.IsTemporary)
                     FindAllPersistentTransformableChildren(so, children);
                 else
-                    children.Add(so as TransformableSceneObject);
+                    children.Add(so as TransformableSO);
             }
         }
 
@@ -101,7 +101,7 @@ namespace f3
 
 
 
-        public static void TranslateInFrame(TransformableSceneObject so, Vector3f translate, CoordSpace eSpace = CoordSpace.ObjectCoords)
+        public static void TranslateInFrame(TransformableSO so, Vector3f translate, CoordSpace eSpace = CoordSpace.ObjectCoords)
         {
             Frame3f f = so.GetLocalFrame(eSpace);
             f.Origin += translate;

@@ -69,8 +69,8 @@ namespace f3
 
 
     // should we just make scene object transformable??
-    public delegate void TransformChangedEventHandler(TransformableSceneObject so);
-	public interface TransformableSceneObject : SceneObject, ITransformable
+    public delegate void TransformChangedEventHandler(TransformableSO so);
+	public interface TransformableSO : SceneObject, ITransformable
 	{
         event TransformChangedEventHandler OnTransformModified;
 	}

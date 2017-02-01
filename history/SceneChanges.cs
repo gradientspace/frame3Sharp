@@ -94,7 +94,7 @@ namespace f3
 
     public class TransformSOChange : BaseChangeOp
     {
-        public TransformableSceneObject so;
+        public TransformableSO so;
         public Frame3f before, after;
 
         public override string Identifier() { return "TransformSOChange"; }
@@ -122,7 +122,7 @@ namespace f3
         public Frame3f parentBefore, parentAfter;
         public Vector3 parentScaleBefore, parentScaleAfter;
 
-        public List<TransformableSceneObject> childSOs;
+        public List<TransformableSO> childSOs;
         public List<Frame3f> before, after;
         public List<Vector3> scaleBefore, scaleAfter;
 
@@ -133,7 +133,7 @@ namespace f3
             // [RMS] parentSO may not be GC'd immediately, but GO be null as
             //   soon as Scene.RemoveSeceneObject() is called
             if ( parentSO.IsAlive && (parentSO.Target as SceneObject).RootGameObject != null) {
-                TransformableSceneObject tso = (parentSO.Target as TransformableSceneObject);
+                TransformableSO tso = (parentSO.Target as TransformableSO);
                 tso.SetLocalFrame(parentAfter, CoordSpace.SceneCoords);
                 if (tso.SupportsScaling)
                     tso.SetLocalScale(parentScaleAfter);
@@ -151,7 +151,7 @@ namespace f3
             // [RMS] parentSO may not be GC'd immediately, but GO be null as
             //   soon as Scene.RemoveSeceneObject() is called
             if (parentSO.IsAlive && (parentSO.Target as SceneObject).RootGameObject != null  ) {
-                TransformableSceneObject tso = (parentSO.Target as TransformableSceneObject);
+                TransformableSO tso = (parentSO.Target as TransformableSO);
                 tso.SetLocalFrame(parentBefore, CoordSpace.SceneCoords);
                 if (tso.SupportsScaling)
                     tso.SetLocalScale(parentScaleBefore);
