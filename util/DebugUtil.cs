@@ -76,6 +76,24 @@ namespace f3
 
 
 
+        static public GameObject EmitDebugAABB(string name, Vector3 center, Vector3f dims, Color color, GameObject inCoords = null) {
+			if (inCoords != null) {
+				Transform curt = inCoords.transform;
+				while (curt != null) {
+					center = curt.TransformPoint (center);
+					curt = curt.parent;
+				}
+			}
+			GameObject box = GameObject.CreatePrimitive (PrimitiveType.Cube);
+			box.SetName(name);
+			box.transform.position = center;
+            box.transform.localScale = dims;
+			box.GetComponent<MeshRenderer> ().material.color = color;
+			return box;
+		}
+
+
+
 		static public GameObject EmitDebugLine(string name, Vector3 start, Vector3 end, float diameter, Color color) {
 			GameObject line = new GameObject ();
 			line.SetName(name);

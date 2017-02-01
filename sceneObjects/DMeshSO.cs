@@ -14,7 +14,7 @@ namespace f3
         protected List<fMeshGameObject> displayGOs;
 
         DMesh3 mesh;
-        //DMeshAABBTree3 spatial;
+        DMeshAABBTree3 spatial;
         MeshDecomposition decomp;
 
 
@@ -28,6 +28,10 @@ namespace f3
             parentGO = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("DMesh"));
 
             this.mesh = mesh;
+
+            // always create spatial decomp ?
+            spatial = new DMeshAABBTree3(mesh);
+            spatial.Build();
 
             displayGOs = new List<fMeshGameObject>();
             update_decomposition();
@@ -50,7 +54,7 @@ namespace f3
         public void AddComponent(MeshDecomposition.Component C)
         {
             fMesh submesh = new fMesh(C.triangles, mesh, C.source_vertices, true, true);
-            fMeshGameObject go = GameObjectFactory.CreateMeshGO("component", submesh, true);
+            fMeshGameObject go = GameObjectFactory.CreateMeshGO("component", submesh, false);
             go.SetMaterial( new fMaterial(CurrentMaterial) );
             displayGOs.Add(go);
 
@@ -120,37 +124,38 @@ namespace f3
         }
 
 
+
         // [RMS] this is not working right now...
-        //override public bool FindRayIntersection(Ray3f ray, out SORayHit hit)
-        //{
-        //    if (spatial == null) {
-        //        spatial = new DMeshAABBTree3(mesh);
-        //        spatial.Build();
-        //    }
+        override public bool FindRayIntersection(Ray3f ray, out SORayHit hit)
+        {
+            if (spatial == null) {
+                spatial = new DMeshAABBTree3(mesh);
+                spatial.Build();
+            }
 
-        //    Transform xform = ((GameObject)RootGameObject).transform;
+            Transform xform = ((GameObject)RootGameObject).transform;
 
-        //    // convert ray to local
-        //    Ray3d local_ray = new Ray3d();
-        //    local_ray.Origin = xform.InverseTransformPoint(ray.Origin);
-        //    local_ray.Direction = xform.InverseTransformDirection(ray.Direction);
+            // convert ray to local
+            Ray3d local_ray = new Ray3d();
+            local_ray.Origin = xform.InverseTransformPoint(ray.Origin);
+            local_ray.Direction = xform.InverseTransformDirection(ray.Direction);
+            local_ray.Direction.Normalize();
 
-        //    hit = null;
-        //    int hit_tid = spatial.FindNearestHitTriangle(local_ray);
-        //    DebugUtil.Log(2, "TRIED HITTING {0} TRIS", spatial.LAST_NUM_TRIS_CHECKED);
-        //    if ( hit_tid != DMesh3.InvalidID) {
-        //        IntrRay3Triangle3 intr = MeshQueries.TriangleIntersection(mesh, hit_tid, local_ray);
+            hit = null;
+            int hit_tid = spatial.FindNearestHitTriangle(local_ray);
+            if (hit_tid != DMesh3.InvalidID) {
+                IntrRay3Triangle3 intr = MeshQueries.TriangleIntersection(mesh, hit_tid, local_ray);
 
-        //        hit = new SORayHit();
-        //        hit.fHitDist = (float)intr.RayParameter;
-        //        hit.hitPos = xform.TransformPoint( (Vector3f)local_ray.PointAt(intr.RayParameter) );
-        //        hit.hitNormal = xform.TransformDirection( (Vector3f)mesh.GetTriNormal(hit_tid) );
-        //        hit.hitGO = RootGameObject;
-        //        hit.hitSO = this;
-        //        return true;
-        //    }
-        //    return false;
-        //}
+                hit = new SORayHit();
+                hit.fHitDist = (float)intr.RayParameter;
+                hit.hitPos = xform.TransformPoint((Vector3f)local_ray.PointAt(intr.RayParameter));
+                hit.hitNormal = xform.TransformDirection((Vector3f)mesh.GetTriNormal(hit_tid));
+                hit.hitGO = RootGameObject;
+                hit.hitSO = this;
+                return true;
+            }
+            return false;
+        }
 
 
     }
