@@ -51,6 +51,8 @@ namespace f3
         }
 
 
+        #region IMeshComponentManager impl
+
         public void AddComponent(MeshDecomposition.Component C)
         {
             fMesh submesh = new fMesh(C.triangles, mesh, C.source_vertices, true, true);
@@ -66,6 +68,7 @@ namespace f3
             throw new Exception("argh");
         }
 
+        #endregion
 
 
         public void UpdateVertexPositions(Vector3f[] vPositions)
