@@ -210,8 +210,8 @@ namespace f3
                     vHistory[i].Cull();
                 vHistory.RemoveRange(iCurrent, vHistory.Count - iCurrent);
             }
-            if (iCurrent >= vHistory.Count)
-                throw new Exception("ACK");
+            if (iCurrent > vHistory.Count)
+                throw new Exception("ChangeHistory.TrimFuture: iCurrent points into non-existent future!");
         }
 
 
