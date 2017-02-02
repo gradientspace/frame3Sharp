@@ -9,6 +9,7 @@ namespace f3
 	{
         float _alphaFade = 1.0f;
         SceneUIParent parent;
+        bool enabled = true;
 
 		public HUDStandardItem ()
 		{
@@ -30,7 +31,17 @@ namespace f3
             set { RootGameObject.SetName(value); }
         }
 
-        public virtual bool Enabled { get; set; }
+        public virtual bool Enabled {
+            get { return enabled; }
+            set {
+                if (enabled != value) {
+                    enabled = value;
+                    OnEnabledChanged();
+                }
+            }
+        }
+        protected virtual void OnEnabledChanged() { }       // override to respond to enabled-changed
+
 
         // used for HUD animated transitions
         public virtual float AlphaFade

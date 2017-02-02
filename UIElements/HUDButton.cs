@@ -9,8 +9,23 @@ namespace f3
 	public class HUDButton : HUDStandardItem
 	{
 		protected GameObject button, buttonMesh;
+        protected fMaterial standard_mat, disabled_mat;
+
+        public fMaterial StandardMaterial
+        {
+            get { return standard_mat; }
+            set { standard_mat = value;  update_material(); }
+        }
+
+        public fMaterial DisabledMaterial
+        {
+            get { return disabled_mat; }
+            set { disabled_mat = value;  update_material(); }
+        }
+
 
         public HUDShape Shape { get; set; }
+
 
         public HUDButton ()
 		{
@@ -32,13 +47,17 @@ namespace f3
         }
 
         // creates a button in the desired geometry shape
-		public void Create( Material defaultMaterial ) {
+		public void Create( Material defaultMaterial, Material disabledMaterial = null ) {
             button = new GameObject(UniqueNames.GetNext("HUDButton"));
 			buttonMesh = AppendMeshGO ("disc", make_button_body_mesh(),
                 defaultMaterial, button);
 
 			buttonMesh.transform.Rotate (Vector3.right, -90.0f); // ??
             MaterialUtil.DisableShadows(buttonMesh);
+
+            standard_mat = new fMaterial(defaultMaterial);
+            if (disabledMaterial != null)
+                disabled_mat = new fMaterial(disabledMaterial);
         }
 
         // creates a button with a floating primitive in front of the button shape
@@ -54,6 +73,8 @@ namespace f3
 			prim.transform.Translate (0.0f, 0.0f, - primSize);
 			prim.transform.Rotate (-15.0f, 45.0f, 0.0f, Space.Self);
             MaterialUtil.DisableShadows(prim);
+
+            standard_mat = new fMaterial(bgMaterial);
         }
 
         // creates a button that is just the mesh, basically same as above but without the background disc
@@ -67,6 +88,8 @@ namespace f3
             buttonMesh.transform.Translate(0.0f, 0.0f, -primSize);
             buttonMesh.transform.Rotate(-15.0f, 45.0f, 0.0f, Space.Self);
             MaterialUtil.DisableShadows(buttonMesh);
+
+            standard_mat = new fMaterial(primMaterial);
         }
 
         // creates a button that is just the mesh
@@ -78,6 +101,8 @@ namespace f3
             meshGO.transform.localScale = new Vector3(fScale, fScale, fScale);
             meshGO.transform.localRotation *= transform;
             MaterialUtil.DisableShadows(meshGO);
+
+            standard_mat = new fMaterial(meshMaterial);
         }
 
         // creates a button with a background shape and a foreground mesh
@@ -94,6 +119,8 @@ namespace f3
             meshGO.transform.localPosition = deltaF.Origin;
             meshGO.transform.localRotation = deltaF.Rotation;
             MaterialUtil.DisableShadows(meshGO);
+
+            standard_mat = new fMaterial(bgMaterial);
         }
 
 
@@ -105,15 +132,30 @@ namespace f3
 
 
 
-        public virtual void SetBackgroundMaterial(Material m)
+        protected void update_material()
         {
-            MaterialUtil.SetMaterial(buttonMesh, m);
+            if ( Enabled == false && DisabledMaterial != null )
+                MaterialUtil.SetMaterial(buttonMesh, DisabledMaterial);
+            else
+                MaterialUtil.SetMaterial(buttonMesh, StandardMaterial);
         }
 
 
-		#region SceneUIElement implementation
 
-		override public UnityEngine.GameObject RootGameObject {
+        #region HUDStandardItem overrides
+
+        protected override void OnEnabledChanged()
+        {
+            update_material();
+        }
+
+        #endregion
+
+
+
+        #region SceneUIElement implementation
+
+        override public UnityEngine.GameObject RootGameObject {
 			get { return button; }
 		}
 
