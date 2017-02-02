@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using g3;
 
@@ -122,6 +123,32 @@ namespace f3
             lr.SetPosition(1, end);
             return line;
         }
+
+
+		static public GameObject EmitDebugCurve(string name, Vector3d[] curve, bool bClosed, 
+                                                float diameter, Colorf startColor, Colorf endColor, 
+                                                GameObject parent = null, bool bIsInWorldPos = true) {
+			GameObject line = new GameObject ();
+			line.SetName(name);
+			line.AddComponent<LineRenderer> ();
+			LineRenderer lr = line.GetComponent<LineRenderer> ();
+			lr.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
+            lr.startColor = startColor;
+            lr.endColor = endColor;
+            lr.startWidth = lr.endWidth = diameter;
+            Vector3[] verts = new Vector3[curve.Length];
+            for (int i = 0; i < curve.Length; ++i)
+                verts[i] = (Vector3)curve[i];
+            lr.numPositions = curve.Length;
+            lr.SetPositions(verts);
+            lr.useWorldSpace = (parent == null && bIsInWorldPos);
+
+            if (parent != null)
+                line.transform.SetParent(parent.transform, bIsInWorldPos);
+
+			return line;
+		}
+
 
 
         static public void EmitDebugFrame(string name, Frame3f f, float fAxisLength, float diameter = 0.05f) {
