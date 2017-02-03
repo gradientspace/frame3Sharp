@@ -18,7 +18,7 @@ namespace f3
         Frame3f handleStart;
 
         int tick_count = 0;
-        public int TickCount
+        public virtual int TickCount
         {
             get { return tick_count; }
             set { tick_count = MathUtil.Clamp(value, 0, 1000); update_geometry(); }
@@ -26,9 +26,15 @@ namespace f3
         fMaterial tickMaterial;
         Colorf tickColor = Colorf.VideoBlack;
 
+        bool snap_to_ticks = false;
+        public virtual bool EnableSnapToTicks
+        {
+            get { return snap_to_ticks; }
+            set { snap_to_ticks = value; update_value(current_value, false); }
+        }
 
 
-        public void Create()
+        public virtual void Create()
         {
             rootGO = new GameObject(UniqueNames.GetNext("HUDSlider"));
 
@@ -61,7 +67,7 @@ namespace f3
 
 
         double current_value;
-
+        double snapped_value;
 
 
         float width = 10;
@@ -69,7 +75,7 @@ namespace f3
         Colorf bgColor = Colorf.White;
         Colorf handleColor = Colorf.Black;
 
-        public float Width {
+        public virtual float Width {
             get { return width; }
             set {
                 if (width != value) {
@@ -78,7 +84,7 @@ namespace f3
                 }
             }
         }
-        public float Height {
+        public virtual float Height {
             get { return height; }
             set {
                 if (height != value) {
@@ -88,7 +94,7 @@ namespace f3
             }
         }
 
-        public Colorf BackgroundColor
+        public virtual Colorf BackgroundColor
         {
             get { return bgColor; }
             set {
@@ -98,7 +104,7 @@ namespace f3
         }
 
 
-        public Colorf HandleColor
+        public virtual Colorf HandleColor
         {
             get { return handleColor; }
             set {
@@ -108,9 +114,9 @@ namespace f3
         }
 
 
-        public double Value
+        public virtual double Value
         {
-            get { return current_value; }
+            get { return snapped_value; }
             set {
                 if (current_value != value)
                     update_value(value, true);
@@ -118,7 +124,7 @@ namespace f3
         }
 
 
-        void update_geometry()
+        protected virtual void update_geometry()
         {
             if (rootGO == null)
                 return;
@@ -137,7 +143,10 @@ namespace f3
 
         void update_handle_position()
         {
-            float t = (float)(current_value - 0.5);
+            if (handleGO == null)
+                return;
+
+            float t = (float)(snapped_value - 0.5);
             Frame3f handleF = handleStart;
             handleF.Translate(width * t * handleF.X);
             float h = handleGO.GetHeight();
@@ -178,8 +187,8 @@ namespace f3
             // align and show/hide ticks
             for ( int i = 0; i < ticks.Count; ++i ) {
                 fRectangleGameObject go = ticks[i].go;
-                float t = (float)i / (float)(tick_count-1);
                 if (i < tick_count) {
+                    float t = (float)i / (float)(tick_count-1);
                     BoxModel.MoveTo(go, this.Bounds2D.CenterLeft, -Height * 0.01f);
                     BoxModel.Translate(go, new Vector2f(t * Width, 0));
                     go.SetVisible(true);
@@ -195,13 +204,26 @@ namespace f3
 
 
 
-        protected void update_value(double newValue, bool bSendEvent)
+        protected virtual void update_value(double newValue, bool bSendEvent)
         {
             double prev = current_value;
             current_value = newValue;
+
+            snapped_value = current_value;
+
+            if (EnableSnapToTicks && TickCount > 0) {
+                double fTickSpan = 1.0 / (TickCount-1);
+                double fSnapped = Snapping.SnapToIncrement(snapped_value, fTickSpan);
+                // [RMS] only snap when close enough to tick?
+                //double fSnapT = fTickSpan * 0.25;
+                //if (Math.Abs(fSnapped - snapped_value) < fSnapT)
+                    snapped_value = fSnapped;
+            }
+
             update_handle_position();
+
             if ( bSendEvent )
-                FUtil.SafeSendEvent(OnValueChanged, this, prev, current_value);
+                FUtil.SafeSendEvent(OnValueChanged, this, prev, snapped_value);
         }
 
 
@@ -217,7 +239,7 @@ namespace f3
 
         void onHandlePress(InputEvent e, Vector3f hitPosW)
         {
-            FUtil.SafeSendEvent(OnValueChangeBegin, this, current_value);
+            FUtil.SafeSendEvent(OnValueChangeBegin, this, snapped_value);
         }
 
         void onHandlePressDrag(InputEvent e, Vector3f hitPosW)
@@ -229,7 +251,7 @@ namespace f3
         void onSliderbarPress(InputEvent e, Vector3f hitPosW)
         {
             double t = get_slider_tx(hitPosW);
-            FUtil.SafeSendEvent(OnValueChangeBegin, this, current_value);
+            FUtil.SafeSendEvent(OnValueChangeBegin, this, snapped_value);
             update_value(t, true);
         }
 
@@ -308,7 +330,7 @@ namespace f3
 		override public bool EndCapture (InputEvent e)
 		{
             if ( eInterMode == InteractionMode.InHandleDrag || eInterMode == InteractionMode.InPressDrag ) {
-                FUtil.SafeSendEvent(OnValueChangeEnd, this, current_value);
+                FUtil.SafeSendEvent(OnValueChangeEnd, this, snapped_value);
             }
 			return true;
 		}

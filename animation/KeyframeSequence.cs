@@ -75,6 +75,13 @@ namespace f3
         public int Count {
             get { return Keys.Count; }
         }
+        public Keyframe this[int index] {
+            get {
+                if (index >= Keys.Count)
+                    throw new Exception("KeyFrameSequenece[]: invalid index");
+                return Keys.Values[index];
+            }
+        }
 
 
         public OnChangeOpHandler ChangeOpEvent;
