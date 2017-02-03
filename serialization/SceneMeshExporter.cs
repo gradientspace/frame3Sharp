@@ -49,7 +49,9 @@ namespace f3
 
         public WriteOptions Options = WriteOptions.Defaults;
 
-
+        // Will be called for each GO child of an SO that contains a MeshFilter.
+        // Return false to not include that mesh in Export
+        public Func<SceneObject, GameObject, bool> GOFilterF = null;
 
 
         public ExportStatus Export(FScene s, string filename)
@@ -67,54 +69,57 @@ namespace f3
                 m.Initialize(WriteNormals, WriteVertexColors, WriteUVs, WriteFaceGroups);
                 int groupCounter = 1;
 
-                GameObject go = so.RootGameObject;
+                GameObject rootgo = so.RootGameObject;
                 
                 int[] vertexMap = new int[2048];
-                foreach ( GameObject o in go.Children() ) { 
-                    MeshFilter filter = o.GetComponent<MeshFilter>();
-                    if ( filter != null && filter.mesh != null ) {
-                        Mesh curMesh = filter.sharedMesh;
-                        Vector3[] vertices = curMesh.vertices;
-                        Vector3[] normals = (WriteNormals) ? curMesh.normals : null;
-                        Color[] colors = (WriteVertexColors) ? curMesh.colors : null;
-                        Vector2[] uvs = (WriteUVs) ? curMesh.uv : null;
+                foreach ( GameObject childgo in rootgo.Children() ) { 
+                    MeshFilter filter = childgo.GetComponent<MeshFilter>();
+                    if (filter == null || filter.mesh == null)
+                        continue;
+                    if (GOFilterF != null && GOFilterF(so, childgo) == false)
+                        continue;
 
-                        if (vertexMap.Length < curMesh.vertexCount)
-                            vertexMap = new int[curMesh.vertexCount*2];
+                    Mesh curMesh = filter.sharedMesh;
+                    Vector3[] vertices = curMesh.vertices;
+                    Vector3[] normals = (WriteNormals) ? curMesh.normals : null;
+                    Color[] colors = (WriteVertexColors) ? curMesh.colors : null;
+                    Vector2[] uvs = (WriteUVs) ? curMesh.uv : null;
 
-                        for ( int i = 0; i < curMesh.vertexCount; ++i ) {
-                            NewVertexInfo vi = new NewVertexInfo();
-                            vi.bHaveN = WriteNormals; vi.bHaveC = WriteVertexColors; vi.bHaveUV = WriteUVs;
+                    if (vertexMap.Length < curMesh.vertexCount)
+                        vertexMap = new int[curMesh.vertexCount*2];
 
-                            Vector3 v = vertices[i];
-                            // local to world
-                            v = filter.gameObject.transform.TransformPoint(v);
-                            // world back to scene
-                            vi.v = UnityUtil.SwapLeftRight(s.RootGameObject.transform.InverseTransformPoint(v));
+                    for ( int i = 0; i < curMesh.vertexCount; ++i ) {
+                        NewVertexInfo vi = new NewVertexInfo();
+                        vi.bHaveN = WriteNormals; vi.bHaveC = WriteVertexColors; vi.bHaveUV = WriteUVs;
 
-                            if (WriteNormals) {
-                                Vector3 n = normals[i];
-                                n = filter.gameObject.transform.TransformDirection(n);
-                                vi.n = UnityUtil.SwapLeftRight(s.RootGameObject.transform.InverseTransformDirection(n));
-                            }
-                            if ( WriteVertexColors ) 
-                                vi.c = colors[i];
-                            if (WriteUVs)
-                                vi.uv = uvs[i];
+                        Vector3 v = vertices[i];
+                        // local to world
+                        v = filter.gameObject.transform.TransformPoint(v);
+                        // world back to scene
+                        vi.v = UnityUtil.SwapLeftRight(s.RootGameObject.transform.InverseTransformPoint(v));
 
-                            vertexMap[i] = m.AppendVertex(vi);
+                        if (WriteNormals) {
+                            Vector3 n = normals[i];
+                            n = filter.gameObject.transform.TransformDirection(n);
+                            vi.n = UnityUtil.SwapLeftRight(s.RootGameObject.transform.InverseTransformDirection(n));
                         }
+                        if ( WriteVertexColors ) 
+                            vi.c = colors[i];
+                        if (WriteUVs)
+                            vi.uv = uvs[i];
 
-                        int[] triangles = curMesh.triangles;
-                        int nTriangles = triangles.Length / 3;
-                        for ( int i = 0; i < nTriangles; ++i ) {
-                            int a = vertexMap[triangles[3 * i]];
-                            int b = vertexMap[triangles[3 * i + 1]];
-                            int c = vertexMap[triangles[3 * i + 2]];
-                            m.AppendTriangle(a, c, b, groupCounter);  // TRI ORIENTATION IS REVERSED HERE!!
-                        }
-                        groupCounter++;
+                        vertexMap[i] = m.AppendVertex(vi);
                     }
+
+                    int[] triangles = curMesh.triangles;
+                    int nTriangles = triangles.Length / 3;
+                    for ( int i = 0; i < nTriangles; ++i ) {
+                        int a = vertexMap[triangles[3 * i]];
+                        int b = vertexMap[triangles[3 * i + 1]];
+                        int c = vertexMap[triangles[3 * i + 2]];
+                        m.AppendTriangle(a, c, b, groupCounter);  // TRI ORIENTATION IS REVERSED HERE!!
+                    }
+                    groupCounter++;
                 }
 
                 vMeshes.Add( new WriteMesh(m, so.Name) );
