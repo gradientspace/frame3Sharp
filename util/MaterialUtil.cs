@@ -16,19 +16,19 @@ namespace f3
         }
 
         public static Material CreateStandardMaterial(Color c) {
-            Material m = new Material(Resources.Load(SceneGraphConfig.DefaultStandardMaterialPath) as Material);
+            Material m = SafeLoadMaterial(SceneGraphConfig.DefaultStandardMaterialPath);
             m.color = c;
             return m;
         }
         public static fMaterial CreateStandardMaterialF(Colorf c) {
-            Material m = new Material(Resources.Load(SceneGraphConfig.DefaultStandardMaterialPath) as Material);
+            Material m = SafeLoadMaterial(SceneGraphConfig.DefaultStandardMaterialPath);
             m.color = c;
             return new fMaterial(m);
         }
 
         public static Material CreateStandardVertexColorMaterial(Color c)
         {
-            Material m = new Material(Resources.Load<Material>("StandardMaterials/default_vertex_colored"));
+            Material m = SafeLoadMaterial("StandardMaterials/default_vertex_colored");
             m.color = c;
             return m;
         }
@@ -36,48 +36,48 @@ namespace f3
 
         public static Material CreateTransparentMaterial(Color c)
         {
-            Material m = new Material(Resources.Load(SceneGraphConfig.DefaultTransparentMaterialPath) as Material);
+            Material m = SafeLoadMaterial(SceneGraphConfig.DefaultTransparentMaterialPath);
             m.color = c;
             return m;
         }
         public static Material CreateTransparentMaterial(Color c, float alpha) {
-            Material m = new Material(Resources.Load(SceneGraphConfig.DefaultTransparentMaterialPath) as Material);
+            Material m = SafeLoadMaterial(SceneGraphConfig.DefaultTransparentMaterialPath);
             m.color = MakeColor(c, alpha);
             return m;
         }
 
         public static fMaterial CreateTransparentMaterialF(Color c, float alpha)
         {
-            Material m = new Material(Resources.Load(SceneGraphConfig.DefaultTransparentMaterialPath) as Material);
+            Material m = SafeLoadMaterial(SceneGraphConfig.DefaultTransparentMaterialPath);
             m.color = MakeColor(c, alpha);
             return new fMaterial(m);
         }
 
 
         public static Material CreateFlatMaterial(Color c, float alpha = 1.0f) {
-            Material m = new Material(Resources.Load(SceneGraphConfig.DefaultUnlitTransparentMaterialPath) as Material);
+            Material m = SafeLoadMaterial(SceneGraphConfig.DefaultUnlitTransparentMaterialPath);
             m.color = MakeColor(c, c.a * alpha);
             return m;
         }
         public static fMaterial CreateFlatMaterialF(Color c, float alpha = 1.0f) {
-            Material m = new Material(Resources.Load(SceneGraphConfig.DefaultUnlitTransparentMaterialPath) as Material);
+            Material m = SafeLoadMaterial(SceneGraphConfig.DefaultUnlitTransparentMaterialPath);
             m.color = MakeColor(c, c.a * alpha);
             return new fMaterial(m);
         }
 
         public static Material CreateImageMaterial(string sResourcePath) {
-            Material m = new Material(Resources.Load(SceneGraphConfig.DefaultUnlitTextureMaterialPath) as Material);
+            Material m = SafeLoadMaterial(SceneGraphConfig.DefaultUnlitTextureMaterialPath);
             m.color = Color.white;
-            Texture2D tex = Resources.Load<Texture2D>(sResourcePath);
+            Texture2D tex = SafeLoadTexture2D(sResourcePath);
             m.mainTexture = tex;
             return m;
         }
 
         public static Material CreateTransparentImageMaterial(string sResourcePath)
         {
-            Material m = new Material(Resources.Load(SceneGraphConfig.DefaultUnlitTextureTransparentMaterialPath) as Material);
+            Material m = SafeLoadMaterial(SceneGraphConfig.DefaultUnlitTextureTransparentMaterialPath);
             m.color = Color.white;
-            Texture2D tex = Resources.Load<Texture2D>(sResourcePath);
+            Texture2D tex = SafeLoadTexture2D(sResourcePath);
             m.mainTexture = tex;
             return m;
         }
@@ -87,7 +87,7 @@ namespace f3
 
         public static Material CreateTextMeshMaterial()
         {
-            Material m = new Material(Resources.Load<Material>("StandardMaterials/default_text_material"));
+            Material m = SafeLoadMaterial("StandardMaterials/default_text_material");
             return m;
         }
         public static void SetTextMeshDefaultMaterial(TextMesh textMesh)
@@ -97,6 +97,38 @@ namespace f3
             textMesh.GetComponent<Renderer>().material = newMat;
         }
 
+
+
+        public static Material SafeLoadMaterial(string sPath)
+        {
+            Material mat = null;
+            try {
+                Material loaded = Resources.Load<Material>(sPath);
+                mat = new Material(loaded);
+            } catch (Exception e) {
+                DebugUtil.Log(2, "MaterialUtil.SafeLoadMaterial: exception: " + e.Message);
+                mat = new Material(Shader.Find("Standard"));
+                mat.color = Color.red;
+            }
+            return mat;
+        }
+
+
+        public static Texture2D SafeLoadTexture2D(string sPath)
+        {
+            Texture2D tex = null;
+            try {
+                Texture2D loaded = Resources.Load<Texture2D>(sPath);
+                if (loaded == null)
+                    throw new Exception("Texture " + sPath + " not found!!");
+                tex = loaded;
+                //tex = Texture2D.Instantiate<Texture2D>(loaded);
+            } catch ( Exception e) {
+                DebugUtil.Log(2, "MaterialUtil.SafeLoadTexture2D: exception: " + e.Message);
+                tex = Texture2D.Instantiate<Texture2D>(Texture2D.whiteTexture);
+            }
+            return tex;
+        }
 
 
         public static void SetMaterial(GameObject go, Material m)
