@@ -214,6 +214,7 @@ namespace f3
             if (EnableSnapToTicks && TickCount > 0) {
                 double fTickSpan = 1.0 / (TickCount-1);
                 double fSnapped = Snapping.SnapToIncrement(snapped_value, fTickSpan);
+                fSnapped = MathUtil.Clamp(fSnapped, 0, 1);
                 // [RMS] only snap when close enough to tick?
                 //double fSnapT = fTickSpan * 0.25;
                 //if (Math.Abs(fSnapped - snapped_value) < fSnapT)
