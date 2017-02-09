@@ -31,6 +31,8 @@ namespace f3
 
         public SOType defaultPrimitiveType;
 
+        public GenericAnimator ObjectAnimator { get; set; }
+
         FContext context;
 
         GameObject sceneRoot;
@@ -68,9 +70,12 @@ namespace f3
 			vSelected = new List<SceneObject> ();
 			vUIElements = new List<SceneUIElement> ();
 			vBoundsObjects = new List<GameObject> ();
+            ObjectAnimator = new GenericAnimator();
 
 			sceneRoot = new GameObject ("Scene");
-            sceneRoot.AddComponent<SceneAnimator>().Scene = this;        // for animation playbacks
+            // for animation playbacks
+            sceneRoot.AddComponent<SceneAnimator>().Scene = this;        
+            sceneRoot.AddComponent<UnityPerFrameAnimationBehavior>().Animator = ObjectAnimator;                
 
             scene_objects = new GameObject("scene_objects");
             UnityUtil.AddChild(sceneRoot, scene_objects, false);

@@ -58,20 +58,16 @@ namespace f3
 
 
 
-        static public GameObject EmitDebugSphere(string name, Vector3 position, float diameter, Color color, GameObject inCoords = null) {
-			if (inCoords != null) {
-				Transform curt = inCoords.transform;
-				while (curt != null) {
-					position = curt.TransformPoint (position);
-					curt = curt.parent;
-				}
-			}
-
+        static public GameObject EmitDebugSphere(string name, Vector3 position, float diameter, Color color, GameObject parent = null, bool bIsInWorldPos = true) {
 			GameObject sphere = GameObject.CreatePrimitive (PrimitiveType.Sphere);
 			sphere.SetName(name);
 			sphere.transform.position = position;
 			sphere.transform.localScale = new Vector3(diameter,diameter,diameter);
 			sphere.GetComponent<MeshRenderer> ().material.color = color;
+
+            if (parent != null)
+                sphere.transform.SetParent(parent.transform, bIsInWorldPos);
+
 			return sphere;
 		}
 

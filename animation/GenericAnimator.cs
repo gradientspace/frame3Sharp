@@ -29,7 +29,7 @@ namespace f3
         public void Register(IAnimatable a)
         {
             if (objects.Contains(a))
-                throw new Exception("GenericAnimnator.Register: already contains object!!");
+                throw new Exception("GenericAnimator.Register: already contains object!!");
             objects.Add(a);
         }
 
