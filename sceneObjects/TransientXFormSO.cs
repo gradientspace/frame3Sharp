@@ -125,11 +125,11 @@ namespace f3
         }
 
 
-        virtual public Bounds GetTransformedBoundingBox() {
+        virtual public AxisAlignedBox3f GetTransformedBoundingBox() {
             return UnityUtil.GetBoundingBox(RootGameObject);
         }
-        virtual public Bounds GetLocalBoundingBox() {
-            return (target != null) ? target.GetLocalBoundingBox() : (Bounds)AxisAlignedBox3f.Zero;
+        virtual public AxisAlignedBox3f GetLocalBoundingBox() {
+            return (target != null) ? target.GetLocalBoundingBox() : AxisAlignedBox3f.Zero;
         }
 
         public bool FindRayIntersection(Ray3f ray, out SORayHit hit)

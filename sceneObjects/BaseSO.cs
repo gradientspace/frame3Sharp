@@ -130,10 +130,10 @@ namespace f3
         }
 
 
-        virtual public Bounds GetTransformedBoundingBox() {
+        virtual public AxisAlignedBox3f GetTransformedBoundingBox() {
             return UnityUtil.GetBoundingBox(RootGameObject);
         }
-        virtual public Bounds GetLocalBoundingBox() {
+        virtual public AxisAlignedBox3f GetLocalBoundingBox() {
             return GetTransformedBoundingBox();
         }
 

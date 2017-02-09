@@ -63,8 +63,8 @@ namespace f3
 
 		bool FindRayIntersection(Ray3f ray, out SORayHit hit);
 
-        Bounds GetTransformedBoundingBox();
-        Bounds GetLocalBoundingBox();
+        AxisAlignedBox3f GetTransformedBoundingBox();
+        AxisAlignedBox3f GetLocalBoundingBox();
 	}
 
 

@@ -164,17 +164,17 @@ namespace f3
 
 
 
-        public Bounds GetBoundingBox(bool bIncludeBoundsObjects)
+        public AxisAlignedBox3f GetBoundingBox(bool bIncludeBoundsObjects)
         {
-            Bounds b = UnityUtil.InvalidBounds;
+            AxisAlignedBox3f b = UnityUtil.InvalidBounds;
 
             foreach ( SceneObject so in SceneObjects ) {
-                b.Encapsulate(so.GetTransformedBoundingBox());
+                b.Contain(so.GetTransformedBoundingBox());
             }
             if (b == UnityUtil.InvalidBounds || bIncludeBoundsObjects)
                 UnityUtil.Combine(b, UnityUtil.GetBoundingBox(BoundsObjects));
             if (b == UnityUtil.InvalidBounds) {
-                b.Encapsulate(Vector3.zero);
+                b.Contain(Vector3.zero);
                 b.Expand(1.0f);
             }
             return b;

@@ -185,34 +185,35 @@ namespace f3
 
 
 
-        public static readonly Bounds InvalidBounds = new Bounds(Vector3.zero, new Vector3(-1.31337f, -1.31337f, -1.31337f));
+        public static readonly AxisAlignedBox3f InvalidBounds = AxisAlignedBox3f.Infinite;
+            //new Bounds(Vector3.zero, new Vector3(-1.31337f, -1.31337f, -1.31337f));
 
-        public static Bounds GetBoundingBox(GameObject go)
+        public static AxisAlignedBox3f GetBoundingBox(GameObject go)
         {
             Renderer r = go.GetComponent<Renderer>();
             if (r != null) {
                 return r.bounds;
             } else if ( go.HasChildren() ) {
-                Bounds b = InvalidBounds; int i = 0;
+                AxisAlignedBox3f b = InvalidBounds; int i = 0;
                 foreach (GameObject child_go in go.Children()) {
                     if (i++ == 0)
                         b = GetBoundingBox(child_go);
                     else
-                        b.Encapsulate(GetBoundingBox(child_go));
+                        b.Contain(GetBoundingBox(child_go));
                 }
                 return b;
             } else {
-                return new Bounds(go.transform.position, new Vector3(0.001f, 0.001f, 0.001f));
+                return new AxisAlignedBox3f(go.transform.position, new Vector3(0.001f, 0.001f, 0.001f));
             }
         }
 
 
-        public static Bounds GetBoundingBox(List<GameObject> objects) {
+        public static AxisAlignedBox3f GetBoundingBox(List<GameObject> objects) {
             if (objects.Count == 0)
                 return InvalidBounds;
-            Bounds b = GetBoundingBox(objects[0]);
+            AxisAlignedBox3f b = GetBoundingBox(objects[0]);
             for (int i = 1; i < objects.Count; ++i)
-                b.Encapsulate(GetBoundingBox(objects[i]));
+                b.Contain(GetBoundingBox(objects[i]));
             return b;
         }
 
@@ -223,33 +224,33 @@ namespace f3
 
 
         // will return InvalidBounds if GO doesn't have a mesh
-        public static Bounds GetGeometryBoundingBox(GameObject obj) {
+        public static AxisAlignedBox3f GetGeometryBoundingBox(GameObject obj) {
             MeshFilter f = obj.GetComponent<MeshFilter>();
-            return (f != null) ? f.mesh.bounds : InvalidBounds;
+            return (f != null) ? (AxisAlignedBox3f)f.mesh.bounds : InvalidBounds;
         }
 
         // will return InvalidBounds if any element in list doesn't have a mesh
-        public static Bounds GetGeometryBoundingBox(List<GameObject> objects)
+        public static AxisAlignedBox3f GetGeometryBoundingBox(List<GameObject> objects)
         {
             if (objects.Count == 0)
                 return InvalidBounds;
-            Bounds b = GetGeometryBoundingBox(objects[0]);
+            AxisAlignedBox3f b = GetGeometryBoundingBox(objects[0]);
             foreach ( GameObject go in objects ) 
-                b.Encapsulate(GetGeometryBoundingBox(go));
+                b.Contain(GetGeometryBoundingBox(go));
             return b;
         }
 
 
 
         // knows about our magic invalid value
-        public static Bounds Combine(Bounds b1, Bounds b2)
+        public static AxisAlignedBox3f Combine(AxisAlignedBox3f b1, AxisAlignedBox3f b2)
         {
             if (b1 == InvalidBounds)
                 return b2;
             else if (b2 == InvalidBounds)
                 return b1;
-            Bounds r = b1;
-            r.Encapsulate(b2);
+            AxisAlignedBox3f r = b1;
+            r.Contain(b2);
             return r;
         }
 

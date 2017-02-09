@@ -85,15 +85,11 @@ namespace f3
             return copy;
         }
 
-        override public Bounds GetLocalBoundingBox()
+        override public AxisAlignedBox3f GetLocalBoundingBox()
         {
-            Bounds b = meshGO.GetSharedMesh().bounds;
-            Vector3 s = meshGO.transform.localScale;
-            b.extents = new Vector3(
-                            b.extents[0] * s[0],
-                            b.extents[1] * s[1],
-                            b.extents[2] * s[2]);
-
+            AxisAlignedBox3f b = (AxisAlignedBox3f)meshGO.GetSharedMesh().bounds;
+            Vector3f scale = parentGO.GetLocalScale();
+            b.Scale(scale.x, scale.y, scale.z);
             return b;
         }
 

@@ -182,11 +182,9 @@ namespace f3
             return copy;
         }
 
-        override public Bounds GetLocalBoundingBox()
+        override public AxisAlignedBox3f GetLocalBoundingBox()
         {
-            return new Bounds(
-                new Vector3(0, 0, 0),
-                new Vector3(2*ScaledRadius, ScaledHeight, 2*ScaledRadius));
+            return new AxisAlignedBox3f(Vector3f.Zero, ScaledRadius, ScaledHeight / 2, ScaledRadius);
         }
 
 

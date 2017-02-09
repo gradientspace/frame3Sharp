@@ -183,13 +183,13 @@ namespace f3
 
 
 
-        override public Bounds GetTransformedBoundingBox()
+        override public AxisAlignedBox3f GetTransformedBoundingBox()
         {
             throw new NotImplementedException("PolyCurveSO.GetTransformedBoundingBox");
         }
-        override public Bounds GetLocalBoundingBox()
+        override public AxisAlignedBox3f GetLocalBoundingBox()
         {
-            return new Bounds((Vector3)localBounds.Center, (Vector3)localBounds.Diagonal);
+            return new AxisAlignedBox3f((Vector3f)localBounds.Min, (Vector3f)localBounds.Max);
         }
 
 

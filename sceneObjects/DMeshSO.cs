@@ -110,14 +110,11 @@ namespace f3
             return copy;
         }
 
-        override public Bounds GetLocalBoundingBox()
+        override public AxisAlignedBox3f GetLocalBoundingBox()
         {
-            Bounds b = (AxisAlignedBox3f)mesh.CachedBounds;
-            Vector3f s = parentGO.GetLocalScale();
-            b.extents = new Vector3f(
-                            b.extents[0] * s[0],
-                            b.extents[1] * s[1],
-                            b.extents[2] * s[2]);
+            AxisAlignedBox3f b = (AxisAlignedBox3f)mesh.CachedBounds;
+            Vector3f scale = parentGO.GetLocalScale();
+            b.Scale(scale.x, scale.y, scale.z);
             return b;
         }
 
