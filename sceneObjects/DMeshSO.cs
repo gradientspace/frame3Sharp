@@ -40,6 +40,13 @@ namespace f3
         }
 
 
+        // Currently do not support changing mesh after creation!!
+        public DMesh3 Mesh
+        {
+            get { return mesh; }
+        }
+
+
 
 
         void update_decomposition()
