@@ -447,8 +447,11 @@ namespace f3 {
                 ActiveCamera.SetTargetVisible(true);
                 MouseCameraController.DoCameraControl(Scene, ActiveCamera, input);
 
-
             } else {
+
+                // run override behaviors
+                overrideBehaviors.SendOverrideInputs(input);
+
                 input.MouseGamepadCaptureActive = (captureMouse != null);
 
                 if (InCaptureMouse) {

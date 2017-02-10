@@ -3,15 +3,28 @@ using g3;
 
 namespace f3
 {
+    //
+    // This behavior handles the common case of wanting to differentiate between
+    // click-in-place and click-and-drag actions. You implement each of those as
+    // a separate Behavior, and then use this to handle the click vs drag decision.
+    //
+    // Note that the sub-Behaviors need to be able to handle getting their Begin/UpdateCapture
+    // calls with a different InputState from the one sent to their WantsCapture calls
+    //
+    // You can change which mouse button this is based on by setting the ButtonPressedF functions.
+    // Default is left-mouse.
+    //
     public class MouseClickDragSuperBehavior : StandardInputBehavior
     {
         public StandardInputBehavior ClickBehavior;
         public StandardInputBehavior DragBehavior;
 
-        public Func<InputState, bool> ButtonPressedF = (input) => { return input.bLeftMousePressed; };
-        public Func<InputState, bool> ButtonReleasedF = (input) => { return input.bLeftMouseReleased; };
+        public Func<InputState, bool> ButtonPressedF = MouseBehaviors.LeftButtonPressedF;
+        public Func<InputState, bool> ButtonReleasedF = MouseBehaviors.LeftButtonReleasedF;
 
+        // how far cursor has to move in pixel-space units to switch from Click to Drag behavior
         public float DragTolerance = 2.5f;
+
 
         Vector2f mouseDownPos;
         StandardInputBehavior inBehavior;
