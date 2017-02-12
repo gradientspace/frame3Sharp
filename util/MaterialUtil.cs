@@ -11,11 +11,11 @@ namespace f3
         }
 
 
-        public static Color MakeColor(Color c, float alpha) {
-            return new Color(c.r, c.g, c.b, alpha);
+        public static Colorf MakeColor(Colorf c, float alpha) {
+            return new Colorf(c.r, c.g, c.b, alpha);
         }
 
-        public static Material CreateStandardMaterial(Color c) {
+        public static Material CreateStandardMaterial(Colorf c) {
             Material m = SafeLoadMaterial(SceneGraphConfig.DefaultStandardMaterialPath);
             m.color = c;
             return m;
@@ -26,7 +26,7 @@ namespace f3
             return new fMaterial(m);
         }
 
-        public static Material CreateStandardVertexColorMaterial(Color c)
+        public static Material CreateStandardVertexColorMaterial(Colorf c)
         {
             Material m = SafeLoadMaterial("StandardMaterials/default_vertex_colored");
             m.color = c;
@@ -34,19 +34,25 @@ namespace f3
         }
 
 
-        public static Material CreateTransparentMaterial(Color c)
+        public static Material CreateTransparentMaterial(Colorf c)
         {
             Material m = SafeLoadMaterial(SceneGraphConfig.DefaultTransparentMaterialPath);
             m.color = c;
             return m;
         }
-        public static Material CreateTransparentMaterial(Color c, float alpha) {
+        public static fMaterial CreateTransparentMaterialF(Colorf c)
+        {
+            Material m = SafeLoadMaterial(SceneGraphConfig.DefaultTransparentMaterialPath);
+            m.color = c;
+            return new fMaterial(m);
+        }
+
+        public static Material CreateTransparentMaterial(Colorf c, float alpha) {
             Material m = SafeLoadMaterial(SceneGraphConfig.DefaultTransparentMaterialPath);
             m.color = MakeColor(c, alpha);
             return m;
         }
-
-        public static fMaterial CreateTransparentMaterialF(Color c, float alpha)
+        public static fMaterial CreateTransparentMaterialF(Colorf c, float alpha)
         {
             Material m = SafeLoadMaterial(SceneGraphConfig.DefaultTransparentMaterialPath);
             m.color = MakeColor(c, alpha);
@@ -54,12 +60,12 @@ namespace f3
         }
 
 
-        public static Material CreateFlatMaterial(Color c, float alpha = 1.0f) {
+        public static Material CreateFlatMaterial(Colorf c, float alpha = 1.0f) {
             Material m = SafeLoadMaterial(SceneGraphConfig.DefaultUnlitTransparentMaterialPath);
             m.color = MakeColor(c, c.a * alpha);
             return m;
         }
-        public static fMaterial CreateFlatMaterialF(Color c, float alpha = 1.0f) {
+        public static fMaterial CreateFlatMaterialF(Colorf c, float alpha = 1.0f) {
             Material m = SafeLoadMaterial(SceneGraphConfig.DefaultUnlitTransparentMaterialPath);
             m.color = MakeColor(c, c.a * alpha);
             return new fMaterial(m);
@@ -67,7 +73,7 @@ namespace f3
 
         public static Material CreateImageMaterial(string sResourcePath) {
             Material m = SafeLoadMaterial(SceneGraphConfig.DefaultUnlitTextureMaterialPath);
-            m.color = Color.white;
+            m.color = Colorf.White;
             Texture2D tex = SafeLoadTexture2D(sResourcePath);
             m.mainTexture = tex;
             return m;
@@ -76,7 +82,7 @@ namespace f3
         public static Material CreateTransparentImageMaterial(string sResourcePath)
         {
             Material m = SafeLoadMaterial(SceneGraphConfig.DefaultUnlitTextureTransparentMaterialPath);
-            m.color = Color.white;
+            m.color = Colorf.White;
             Texture2D tex = SafeLoadTexture2D(sResourcePath);
             m.mainTexture = tex;
             return m;
