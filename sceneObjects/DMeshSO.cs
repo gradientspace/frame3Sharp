@@ -46,6 +46,11 @@ namespace f3
             get { return mesh; }
         }
 
+        public DMeshAABBTree3 Spatial
+        {
+            get { return spatial; }
+        }
+
 
 
 
@@ -80,6 +85,7 @@ namespace f3
 
         public void UpdateVertexPositions(Vector3f[] vPositions)
         {
+            throw new NotImplementedException("DMeshSO.UpdateVertexPositions");
             //UnityUtil.UpdateMeshVertices(meshGO.GetSharedMesh(), vPositions, true);
             // update collider...
         }
