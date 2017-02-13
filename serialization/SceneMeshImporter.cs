@@ -90,9 +90,9 @@ namespace f3
             return SceneObjects.Count > 0;
         }
 
-        private void on_warning(object sender, ErrorEventArgs e)
+        private void on_warning(string message, object extra_data)
         {
-            Debug.Log("[SimpleMeshReader/Warning] " + e.GetException().ToString());
+            Debug.Log("[SimpleMeshReader/Warning] " + message);
         }
 
  
