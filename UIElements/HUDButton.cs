@@ -6,7 +6,7 @@ namespace f3
 {
 	// NB: on creation, this button is oriented so that positive Z points away from the *back* of
 	//  this button (ie the button "faces" -Z). Important if you want to align button towards something!
-	public class HUDButton : HUDStandardItem
+	public class HUDButton : HUDStandardItem, IBoxModelElement
 	{
 		protected GameObject button, buttonMesh;
         protected fMaterial standard_mat, disabled_mat;
@@ -210,6 +210,31 @@ namespace f3
 		}
 
 		#endregion
+
+
+
+
+       #region IBoxModelElement implementation
+
+
+        public Vector2f Size2D {
+            get {
+                if (Shape.Type == HUDShapeType.Disc)
+                    return new Vector2f(2 * Shape.Radius, 2 * Shape.Radius);
+                else
+                    return new Vector2f(Shape.Width, Shape.Height);
+            }
+        }
+
+        public AxisAlignedBox2f Bounds2D { 
+            get {
+                Vector2f sz = Size2D;
+                return new AxisAlignedBox2f(Vector2f.Zero, sz.x / 2, sz.y / 2);
+            }
+        }
+
+
+        #endregion
 	}
 }
 

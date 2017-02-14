@@ -199,11 +199,11 @@ namespace f3
 
         public static implicit operator UnityEngine.GameObject(fGameObject go)
         {
-            return go.go;
+            return (go != null) ? go.go : null;
         }
         public static implicit operator fGameObject(UnityEngine.GameObject go)
         {
-            return new fGameObject(go);
+            return (go != null) ? new fGameObject(go) : null;
         }
     }
 

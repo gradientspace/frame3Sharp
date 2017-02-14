@@ -20,6 +20,9 @@ namespace f3
         public Color BackgroundColor { get; set; }
         public Color TextColor { get; set; }
 
+        public enum HorizontalAlignment { Left, Center, Right }
+        public HorizontalAlignment AlignmentHorz { get; set; }
+
         string text;
         public string Text
         {
@@ -34,6 +37,7 @@ namespace f3
             TextHeight = 0.8f;
             BackgroundColor = Color.white;
             TextColor = Color.black;
+            AlignmentHorz = HorizontalAlignment.Left;
             text = "(entry)";
         }
 
@@ -52,13 +56,19 @@ namespace f3
                 entry);
             bgMesh.transform.Rotate(Vector3.right, -90.0f); // ??
 
+            BoxPosition horzAlign = BoxPosition.CenterLeft;
+            if (AlignmentHorz == HorizontalAlignment.Center)
+                horzAlign = BoxPosition.Center;
+            else if (AlignmentHorz == HorizontalAlignment.Right)
+                horzAlign = BoxPosition.CenterRight;
+
             textMesh = 
                 //GameObjectFactory.CreateTextMeshGO(
                 GameObjectFactory.CreateTextMeshProGO(
-                "text", Text, TextColor, TextHeight,
-                BoxPosition.CenterLeft );
+                "text", Text, TextColor, TextHeight, horzAlign );
 
-            BoxModel.Translate(textMesh, Vector2f.Zero, this.Bounds2D.CenterLeft);
+            Vector2f toPos = BoxModel.GetBoundsPosition(this, horzAlign);
+            BoxModel.Translate(textMesh, Vector2f.Zero, toPos);
 
             AppendNewGO(textMesh, entry, false);
         }

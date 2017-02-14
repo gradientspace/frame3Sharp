@@ -28,12 +28,21 @@ namespace f3
             Children = new List<SceneUIElement>();
         }
 
+
+
         public virtual void Create()
         {
             gameObject = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDPanel"));
         }
 
-        public virtual void AddChild(SceneUIElement ui)
+
+        // [RMS] management of Panel children. Currently we do not use Panel
+        //   directly, so these are not publicly accessible. I don't entirely like this.
+        //   However, C# does not allow us to "hide" a public member in a subclass,
+        //   which means that Panel implementations would directly expose these, when
+        //   in most cases they should not be exposed...
+
+        protected virtual void AddChild(SceneUIElement ui)
         {
             if (!Children.Contains(ui)) {
                 Children.Add(ui);
@@ -41,13 +50,13 @@ namespace f3
                 gameObject.AddChild(ui.RootGameObject, true);
             }
         }
-        public virtual void AddChildren(IEnumerable<SceneUIElement> v)
+        protected virtual void AddChildren(IEnumerable<SceneUIElement> v)
         {
             foreach (SceneUIElement ui in v)
                 AddChild(ui);
         }
 
-        public virtual void RemoveChild(SceneUIElement ui)
+        protected virtual void RemoveChild(SceneUIElement ui)
         {
             if (Children.Contains(ui)) {
                 Children.Remove(ui);
@@ -59,7 +68,7 @@ namespace f3
             }
         }
 
-        public virtual void RemoveAllChildren()
+        protected virtual void RemoveAllChildren()
         {
             while (Children.Count > 0)
                 RemoveChild(Children[0]);
@@ -82,7 +91,7 @@ namespace f3
         public override GameObject RootGameObject
         {
             get {
-                return gameObject;
+                return (gameObject == null) ? null : gameObject;
             }
         }
 

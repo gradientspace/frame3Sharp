@@ -152,6 +152,12 @@ namespace f3
             return new AxisAlignedBox2f(0, 0, Screen.width, Screen.height);
         }
 
+        public float GetPixelScale()
+        {
+            AxisAlignedBox2f uiBounds = GetOrthoViewBounds();
+            AxisAlignedBox2f pixelBounds = GetPixelViewBounds();
+            return uiBounds.MaxDim / pixelBounds.MaxDim;
+        }
 
 
         // these should be called by parent Unity functions
