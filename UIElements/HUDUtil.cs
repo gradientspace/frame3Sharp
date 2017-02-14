@@ -75,6 +75,9 @@ namespace f3
             Frame3f objFrame = hudItem.GetObjectFrame().Translated(vPosition);
             hudItem.SetObjectFrame(viewFrame.FromFrame(objFrame));
         }
+        public static void PlaceInViewPlane(HUDStandardItem hudItem, Frame3f viewFrame) {
+            PlaceInViewPlane(hudItem, Vector3f.Zero, viewFrame);
+        }
 
 
 

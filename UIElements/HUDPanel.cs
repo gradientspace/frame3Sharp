@@ -17,7 +17,10 @@ namespace f3
 
         public float Width { get; set; }
         public float Height { get; set; }
+        public float Padding { get; set; }
 
+        public float PaddedWidth { get { return Width - 2*Padding; } }
+        public float PaddedHeight { get { return Height - 2*Padding; } }
 
         fGameObject gameObject;
         //SceneUIElement pCapturing;
@@ -26,6 +29,9 @@ namespace f3
         public HUDPanel()
         {
             Children = new List<SceneUIElement>();
+            Width = 1;
+            Height = 1;
+            Padding = 0;
         }
 
 

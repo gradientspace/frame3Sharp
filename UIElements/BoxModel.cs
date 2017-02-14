@@ -28,20 +28,30 @@ namespace f3
 
         public static Vector2f GetBoundsPosition(IBoxModelElement element, BoxPosition pos)
         {
+            AxisAlignedBox2f bounds = element.Bounds2D;
+
             switch (pos) {
-                case BoxPosition.Center: return element.Bounds2D.Center;
-                case BoxPosition.BottomLeft: return element.Bounds2D.BottomLeft;
-                case BoxPosition.BottomRight: return element.Bounds2D.BottomRight;
-                case BoxPosition.TopRight: return element.Bounds2D.TopRight;
-                case BoxPosition.TopLeft: return element.Bounds2D.TopLeft;
+                case BoxPosition.Center: return bounds.Center;
+                case BoxPosition.BottomLeft: return bounds.BottomLeft;
+                case BoxPosition.BottomRight: return bounds.BottomRight;
+                case BoxPosition.TopRight: return bounds.TopRight;
+                case BoxPosition.TopLeft: return bounds.TopLeft;
 
-                case BoxPosition.CenterLeft: return element.Bounds2D.CenterLeft;
-                case BoxPosition.CenterRight: return element.Bounds2D.CenterRight;
-                case BoxPosition.CenterTop: return element.Bounds2D.CenterTop;
-                case BoxPosition.CenterBottom: return element.Bounds2D.CenterBottom;
+                case BoxPosition.CenterLeft: return bounds.CenterLeft;
+                case BoxPosition.CenterRight: return bounds.CenterRight;
+                case BoxPosition.CenterTop: return bounds.CenterTop;
+                case BoxPosition.CenterBottom: return bounds.CenterBottom;
 
-                default: return element.Bounds2D.Center;
+                default: return bounds.Center;
             }
+        }
+
+
+        public static AxisAlignedBox2f PaddedBounds(IBoxModelElement element, float fPadding)
+        {
+            AxisAlignedBox2f bounds = element.Bounds2D;
+            bounds.Contract(fPadding);
+            return bounds;
         }
 
 
@@ -58,6 +68,15 @@ namespace f3
             item.SetObjectFrame(f);
         }
 
+
+        public static void SetObjectPosition( IBoxModelElement element, BoxPosition elemPos,
+            IBoxModelElement relativeTo, BoxPosition relPos, 
+            Vector2f vOffset, float z = 0)
+        {
+            Vector2f pos = GetBoundsPosition(relativeTo, relPos);
+            pos += vOffset;
+            SetObjectPosition(element, elemPos, pos, z);
+        }
 
 
         public static void Translate(fGameObject go, Vector2f from, Vector2f to, float z = 0)

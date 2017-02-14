@@ -132,6 +132,12 @@ namespace f3
             return new Frame3f(viewF.Origin, Quaternion.AngleAxis(fAngle, Vector3.up));
         }
 
+        // frame centered at cockpit location and aligned with camera direction
+        public virtual Frame3f GetViewFrame2D()
+        {
+            return new Frame3f(Vector3f.Zero, ActiveCamera.transform.rotation);
+        }
+
 
         // get bounds of current orthographic camera view, in world coordinates (ie
         // box.Min is bottom-left corner of screen and box.Max is top-right

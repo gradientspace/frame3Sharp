@@ -20,7 +20,9 @@ namespace f3
         public float TextHeight { get; set; }
         public Colorf BackgroundColor { get; set; }
         public Colorf ActiveBackgroundColor { get; set; }
-        public Colorf TextColor { get; set; }
+
+        public enum HorizontalAlignment { Left, Center, Right }
+        public HorizontalAlignment AlignmentHorz { get; set; }
 
         // by default HUDTextEntry will capture text input on click (via Context.RequestTextEntry)
         public bool OverrideDefaultInputHandling { get; set; }
@@ -28,6 +30,12 @@ namespace f3
         // set this to filter strings/etc. Arguments are old and new string,
         // you return filtered string.
         public Func<string, string, string> TextValidatorF = null;
+
+        Colorf text_color;
+        public Colorf TextColor {
+            get { return text_color; }
+            set { text_color = value; UpdateText(); }
+        }
 
         string text;
         public string Text
@@ -86,12 +94,17 @@ namespace f3
             bgMesh = AppendMeshGO("background", mesh, backgroundMaterial, entry);
             bgMesh.transform.Rotate(Vector3.right, -90.0f); // ??
 
-            textMesh = 
-                GameObjectFactory.CreateTextMeshGO(
-                "text", Text, TextColor, TextHeight,
-                BoxPosition.CenterLeft );
+            BoxPosition horzAlign = BoxPosition.CenterLeft;
+            if (AlignmentHorz == HorizontalAlignment.Center)
+                horzAlign = BoxPosition.Center;
+            else if (AlignmentHorz == HorizontalAlignment.Right)
+                horzAlign = BoxPosition.CenterRight;
 
-            BoxModel.Translate(textMesh, Vector2f.Zero, this.Bounds2D.CenterLeft);
+            textMesh = GameObjectFactory.CreateTextMeshGO(
+                "text", Text, TextColor, TextHeight, horzAlign );
+
+            Vector2f toPos = BoxModel.GetBoundsPosition(this, horzAlign);
+            BoxModel.Translate(textMesh, Vector2f.Zero, toPos);
 
             AppendNewGO(textMesh, entry, false);
 
