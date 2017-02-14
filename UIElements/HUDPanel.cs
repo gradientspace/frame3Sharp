@@ -42,18 +42,19 @@ namespace f3
         //   which means that Panel implementations would directly expose these, when
         //   in most cases they should not be exposed...
 
-        protected virtual void AddChild(SceneUIElement ui)
+        protected virtual void AddChild(SceneUIElement ui, bool bKeepWorldPosition = true)
         {
             if (!Children.Contains(ui)) {
                 Children.Add(ui);
                 ui.Parent = this;
-                gameObject.AddChild(ui.RootGameObject, true);
+                ui.SetLayer(this.Layer);
+                gameObject.AddChild(ui.RootGameObject, bKeepWorldPosition);
             }
         }
-        protected virtual void AddChildren(IEnumerable<SceneUIElement> v)
+        protected virtual void AddChildren(IEnumerable<SceneUIElement> v, bool bKeepWorldPosition = true)
         {
             foreach (SceneUIElement ui in v)
-                AddChild(ui);
+                AddChild(ui, bKeepWorldPosition);
         }
 
         protected virtual void RemoveChild(SceneUIElement ui)

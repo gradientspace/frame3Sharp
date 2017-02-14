@@ -49,7 +49,7 @@ namespace f3
             //AddChild(background);
 
             foreach (SceneUIElement elem in ListItems)
-                AddChild(elem);
+                AddChild(elem, false);
 
             update_layout();
         }

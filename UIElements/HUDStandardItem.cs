@@ -82,6 +82,11 @@ namespace f3
             foreach (var go in GameObjects)
                 UnityUtil.SetLayerRecursive(go, nLayer);
         }
+        public virtual int Layer
+        {
+            get { return RootGameObject.GetLayer(); }
+        }
+
 
         public virtual void PreRender()
         {

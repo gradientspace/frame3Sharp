@@ -123,6 +123,17 @@ namespace f3
             string sName, string sText, 
             Colorf textColor, float fTextHeight, 
             BoxPosition textOrigin = BoxPosition.Center, 
+            float fOffsetZ = -0.1f )
+        {
+            //return CreateUnityTextMeshGO(sName, sText, textColor, fTextHeight, textOrigin, fOffsetZ);
+            return CreateTextMeshProGO(sName, sText, textColor, fTextHeight, textOrigin, fOffsetZ);
+        }
+
+
+        public static fTextGameObject CreateUnityTextMeshGO(
+            string sName, string sText, 
+            Colorf textColor, float fTextHeight, 
+            BoxPosition textOrigin = BoxPosition.Center, 
             float fOffsetZ = -0.1f)
         {
             GameObject textGO = new GameObject(sName);

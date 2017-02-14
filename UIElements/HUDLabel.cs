@@ -17,8 +17,13 @@ namespace f3
         public float Width { get; set; }
         public float Height { get; set; }
         public float TextHeight { get; set; }
-        public Color BackgroundColor { get; set; }
-        public Color TextColor { get; set; }
+        public Colorf BackgroundColor { get; set; }
+
+        Colorf text_color;
+        public Colorf TextColor {
+            get { return text_color; }
+            set { text_color = value; UpdateText(); }
+        }
 
         public enum HorizontalAlignment { Left, Center, Right }
         public HorizontalAlignment AlignmentHorz { get; set; }
@@ -35,8 +40,8 @@ namespace f3
             Width = 10;
             Height = 1;
             TextHeight = 0.8f;
-            BackgroundColor = Color.white;
-            TextColor = Color.black;
+            BackgroundColor = Colorf.White;
+            TextColor = Colorf.Black;
             AlignmentHorz = HorizontalAlignment.Left;
             text = "(entry)";
         }
@@ -63,8 +68,7 @@ namespace f3
                 horzAlign = BoxPosition.CenterRight;
 
             textMesh = 
-                //GameObjectFactory.CreateTextMeshGO(
-                GameObjectFactory.CreateTextMeshProGO(
+                GameObjectFactory.CreateTextMeshGO(
                 "text", Text, TextColor, TextHeight, horzAlign );
 
             Vector2f toPos = BoxModel.GetBoundsPosition(this, horzAlign);
@@ -157,7 +161,10 @@ namespace f3
         }
 
         public AxisAlignedBox2f Bounds2D { 
-            get { return new AxisAlignedBox2f(Vector2f.Zero, Width/2, Height/2); }
+            get {
+                Vector2f origin2 = RootGameObject.GetLocalPosition().xy;
+                return new AxisAlignedBox2f(origin2, Width/2, Height/2);
+            }
         }
 
 
