@@ -53,6 +53,24 @@ namespace f3
 
 
 
+        public void ReplaceMesh(DMesh3 newMesh)
+        {
+            // discard existing
+            foreach (fMeshGameObject go in displayGOs) {
+                RemoveGO(go);
+                go.Destroy();
+            }
+            displayGOs = new List<fMeshGameObject>();
+
+            this.mesh = newMesh;
+            spatial = new DMeshAABBTree3(mesh);
+            spatial.Build();
+
+            decomp = null;
+            update_decomposition();
+        }
+
+
 
         void update_decomposition()
         {

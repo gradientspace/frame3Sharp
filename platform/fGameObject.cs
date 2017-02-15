@@ -26,6 +26,12 @@ namespace f3
         }
 
 
+        public virtual void Destroy() {
+            if ( go != null )
+                GameObject.Destroy(go);
+        }
+
+
 
         // allow game object wrapper to do things here, eg lazy updates, etc
         // This will be called by the GameObject itself, using the PreRenderBehavior (!)
