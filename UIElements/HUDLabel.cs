@@ -25,6 +25,12 @@ namespace f3
             set { text_color = value; UpdateText(); }
         }
 
+        Colorf disabled_text_color;
+        public Colorf DisabledTextColor {
+            get { return disabled_text_color; }
+            set { disabled_text_color = value; UpdateText(); }
+        }
+
         public enum HorizontalAlignment { Left, Center, Right }
         public HorizontalAlignment AlignmentHorz { get; set; }
 
@@ -40,8 +46,9 @@ namespace f3
             Width = 10;
             Height = 1;
             TextHeight = 0.8f;
-            BackgroundColor = Colorf.White;
-            TextColor = Colorf.Black;
+            BackgroundColor = Colorf.VideoWhite;
+            TextColor = Colorf.VideoBlack;
+            DisabledTextColor = Colorf.DimGrey;
             AlignmentHorz = HorizontalAlignment.Left;
             text = "(entry)";
         }
@@ -80,7 +87,7 @@ namespace f3
         void UpdateText()
         {
             if (textMesh != null) {
-                textMesh.SetColor(TextColor);
+                textMesh.SetColor( (Enabled) ? TextColor : DisabledTextColor );
                 textMesh.SetText(Text);
             }
         }
@@ -90,6 +97,15 @@ namespace f3
         //    (alternative would be to delay OnClicked...perhaps that should be added as an option)
         public event EventHandler OnClicked;
         public event EventHandler OnDoubleClicked;
+
+
+
+        protected override void OnEnabledChanged()
+        {
+            base.OnEnabledChanged();
+            UpdateText();
+        }       
+
 
 
         #region SceneUIElement implementation
