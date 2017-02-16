@@ -36,6 +36,12 @@ namespace f3
         }
 
 
+        static private bool _in_unity_editor = Application.isEditor;
+        static public bool InUnityEditor()
+        {
+            return _in_unity_editor;
+        }
+
         static public bool IsUsingVR()
         {
             return UnityEngine.VR.VRSettings.enabled;

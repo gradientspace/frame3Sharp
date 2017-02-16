@@ -16,6 +16,9 @@ namespace f3
     public interface IAnimatable
     {
         void Update();
+
+        // if you return true, this animation is removed
+        bool DeregisterNextFrame { get; }
     }
 
 
@@ -43,6 +46,11 @@ namespace f3
 
         public void NextFrame()
         {
+            foreach (IAnimatable a in objects) {
+                if (a.DeregisterNextFrame)
+                    remove.Add(a);
+            }
+
             foreach (IAnimatable a in remove)
                 objects.Remove(a);
             remove.Clear();
