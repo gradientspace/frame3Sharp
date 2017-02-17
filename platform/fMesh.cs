@@ -56,6 +56,40 @@ namespace f3
         }
 
 
+        public void FastUpdateVertices(DMesh3 source, int[] source_vertices, bool bCopyNormals = false, bool bCopyColors = false)
+        {
+            int NV = source_vertices.Length;
+            Vector3[] vertices = new Vector3[NV];
+            for ( int i = 0; i < NV; ++i ) {
+                vertices[i] = (Vector3)source.GetVertex(source_vertices[i]);
+            }
+
+            unitymesh.vertices = vertices;
+
+            if (bCopyNormals && source.HasVertexNormals) {
+                Vector3[] normals = new Vector3[NV];
+                for (int i = 0; i < NV; ++i)
+                    normals[i] =(Vector3)source.GetVertexNormal(source_vertices[i]);
+                unitymesh.normals = normals;
+            }
+
+            if ( bCopyColors && source.HasVertexColors ) {
+                Color[] colors = new Color[NV];
+                for ( int i = 0; i < NV; ++i )
+                    colors[i] = (Color)source.GetVertexColor(source_vertices[i]);
+                unitymesh.colors = colors;
+            }
+        }
+
+
+        public void RecalculateNormals() {
+            unitymesh.RecalculateNormals();
+        }
+        public void RecalculateBounds() {
+            unitymesh.RecalculateBounds();
+        }
+
+
         public fMesh Clone()
         {
             return new fMesh(Mesh.Instantiate(unitymesh));

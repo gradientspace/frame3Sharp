@@ -403,7 +403,7 @@ namespace f3
         {
             if (!UnityUtil.primitiveMeshes.ContainsKey(type)) {
                 GameObject gameObject = GameObject.CreatePrimitive(type);
-                Mesh mesh = gameObject.GetComponent<MeshFilter>().sharedMesh;
+                Mesh mesh = gameObject.GetComponent<MeshFilter>().mesh;
                 GameObject.Destroy(gameObject);
                 UnityUtil.primitiveMeshes[type] = mesh;
             }

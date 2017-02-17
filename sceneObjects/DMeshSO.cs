@@ -11,7 +11,13 @@ namespace f3
     public class DMeshSO : BaseSO, IMeshComponentManager
     {
         protected fGameObject parentGO;
-        protected List<fMeshGameObject> displayGOs;
+
+        protected struct DisplayMeshComponent
+        {
+            public fMeshGameObject go;
+            public int[] source_vertices;
+        }
+        protected List<DisplayMeshComponent> displayComponents;
 
         DMesh3 mesh;
         MeshDecomposition decomp;
@@ -33,7 +39,7 @@ namespace f3
             this.mesh = mesh;
             on_mesh_changed();
 
-            displayGOs = new List<fMeshGameObject>();
+            displayComponents = new List<DisplayMeshComponent>();
             validate_decomp();
 
             return this;
@@ -81,9 +87,13 @@ namespace f3
                 mesh.SetVertex(vid, vPositions[vid]);
             }
 
-            // [TODO] fast spatial decomposition update (we can keep structure,
-            //   just need to update mesh vertices and collider stuff...)
-            on_mesh_changed();
+            // fast update of existing spatial decomp
+            foreach (var comp in displayComponents) {
+                comp.go.Mesh.FastUpdateVertices(this.mesh, comp.source_vertices, false, false);
+                comp.go.Mesh.RecalculateNormals();
+            }
+
+            on_mesh_changed(true, false);
             validate_decomp();
         }
 
@@ -94,20 +104,24 @@ namespace f3
         public void AddComponent(MeshDecomposition.Component C)
         {
             fMesh submesh = new fMesh(C.triangles, mesh, C.source_vertices, true, true);
-            fMeshGameObject go = GameObjectFactory.CreateMeshGO("component", submesh, false);
-            go.SetMaterial( new fMaterial(CurrentMaterial) );
-            displayGOs.Add(go);
+            fMeshGameObject submesh_go = GameObjectFactory.CreateMeshGO("component", submesh, false);
+            submesh_go.SetMaterial(new fMaterial(CurrentMaterial));
+            displayComponents.Add(new DisplayMeshComponent() {
+                go = submesh_go, source_vertices = C.source_vertices
+            });
 
-            AppendNewGO(go, parentGO, false);
+            AppendNewGO(submesh_go, parentGO, false);
         }
 
         public void ClearAllComponents()
         {
-            foreach (fMeshGameObject go in displayGOs) {
-                RemoveGO(go);
-                go.Destroy();
+            if (displayComponents != null) {
+                foreach (DisplayMeshComponent comp in displayComponents) {
+                    RemoveGO(comp.go);
+                    comp.go.Destroy();
+                }
             }
-            displayGOs = new List<fMeshGameObject>();
+            displayComponents = new List<DisplayMeshComponent>();
         }
 
         #endregion
@@ -119,19 +133,16 @@ namespace f3
         //
         // internals
         // 
-        void on_mesh_changed()
+        void on_mesh_changed(bool bInvalidateSpatial = true, bool bInvalidateDecomp = true)
         {
-            spatial = null;
-            decomp = null;
+            if (bInvalidateSpatial) 
+                spatial = null;
 
             // discard existing mesh GOs
-            if (displayGOs != null) {
-                foreach (fMeshGameObject go in displayGOs) {
-                    RemoveGO(go);
-                    go.Destroy();
-                }
+            if (bInvalidateDecomp) {
+                ClearAllComponents();
+                decomp = null;
             }
-            displayGOs = new List<fMeshGameObject>();
         }
 
         void validate_spatial()

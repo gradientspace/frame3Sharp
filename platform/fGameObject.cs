@@ -462,16 +462,22 @@ namespace f3
 
     public class fMeshGameObject : fGameObject
     {
-        public fMeshGameObject(GameObject go) : base (go)
+        public fMesh Mesh;
+
+        public fMeshGameObject(GameObject go, fMesh mesh) : base (go)
         {
+            Mesh = mesh;
         }
 
-        public void UpdateMesh(Mesh m, bool bShared, bool bUpdateCollider)
+        public void UpdateMesh(fMesh m, bool bShared, bool bUpdateCollider)
         {
-            if (bShared)
+            if (bShared) {
+                Mesh = m;
                 go.SetSharedMesh(m, bUpdateCollider);
-            else
+            } else {
                 go.SetMesh(m, bUpdateCollider);
+                Mesh = new fMesh(go.GetSharedMesh());
+            }
         }
 
     }
@@ -486,7 +492,7 @@ namespace f3
         float endAngleDeg = 360;
         bool bDiscValid;
 
-        public fDiscGameObject(GameObject go, float radiusIn = 1) : base(go)
+        public fDiscGameObject(GameObject go, fMesh mesh, float radiusIn = 1) : base(go, mesh)
         {
             radius = radiusIn;
             bDiscValid = false;
@@ -528,7 +534,7 @@ namespace f3
                 StartAngleDeg = startAngleDeg, EndAngleDeg = endAngleDeg, Clockwise = false
             };
             discGen.Generate();
-            Mesh newMesh = discGen.MakeUnityMesh();
+            fMesh newMesh = new fMesh(discGen.MakeUnityMesh());
             UpdateMesh(newMesh, true, true);
 
             bDiscValid = true;
