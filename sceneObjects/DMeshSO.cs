@@ -14,8 +14,11 @@ namespace f3
         protected List<fMeshGameObject> displayGOs;
 
         DMesh3 mesh;
-        DMeshAABBTree3 spatial;
         MeshDecomposition decomp;
+
+
+        bool enable_spatial = true;
+        DMeshAABBTree3 spatial;
 
 
 		public DMeshSO()
@@ -28,13 +31,10 @@ namespace f3
             parentGO = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("DMesh"));
 
             this.mesh = mesh;
-
-            // always create spatial decomp ?
-            spatial = new DMeshAABBTree3(mesh);
-            spatial.Build();
+            on_mesh_changed();
 
             displayGOs = new List<fMeshGameObject>();
-            update_decomposition();
+            validate_decomp();
 
             return this;
         }
@@ -46,39 +46,47 @@ namespace f3
             get { return mesh; }
         }
 
+
+
+
         public DMeshAABBTree3 Spatial
         {
-            get { return spatial; }
+            get { validate_spatial(); return spatial; }
         }
+        public bool EnableSpatial
+        {
+            get { return enable_spatial; }
+            set { enable_spatial = value; }
+        }
+
+
 
 
 
         public void ReplaceMesh(DMesh3 newMesh)
         {
-            // discard existing
-            foreach (fMeshGameObject go in displayGOs) {
-                RemoveGO(go);
-                go.Destroy();
-            }
-            displayGOs = new List<fMeshGameObject>();
-
             this.mesh = newMesh;
-            spatial = new DMeshAABBTree3(mesh);
-            spatial.Build();
 
-            decomp = null;
-            update_decomposition();
+            on_mesh_changed();
+            validate_decomp();
         }
 
 
-
-        void update_decomposition()
+        public void UpdateVertexPositions(Vector3f[] vPositions)
         {
-            if ( decomp == null ) {
-                decomp = new MeshDecomposition(mesh, this);
-                decomp.BuildLinear();
+            if (vPositions.Length != mesh.MaxVertexID)
+                throw new Exception("DMeshSO.UpdateVertexPositions: not enough positions provided!");
+
+            foreach ( int vid in mesh.VertexIndices() ) {
+                mesh.SetVertex(vid, vPositions[vid]);
             }
+
+            // [TODO] fast spatial decomposition update (we can keep structure,
+            //   just need to update mesh vertices and collider stuff...)
+            on_mesh_changed();
+            validate_decomp();
         }
+
 
 
         #region IMeshComponentManager impl
@@ -95,17 +103,51 @@ namespace f3
 
         public void ClearAllComponents()
         {
-            throw new Exception("argh");
+            foreach (fMeshGameObject go in displayGOs) {
+                RemoveGO(go);
+                go.Destroy();
+            }
+            displayGOs = new List<fMeshGameObject>();
         }
 
         #endregion
 
 
-        public void UpdateVertexPositions(Vector3f[] vPositions)
+
+
+
+        //
+        // internals
+        // 
+        void on_mesh_changed()
         {
-            throw new NotImplementedException("DMeshSO.UpdateVertexPositions");
-            //UnityUtil.UpdateMeshVertices(meshGO.GetSharedMesh(), vPositions, true);
-            // update collider...
+            spatial = null;
+            decomp = null;
+
+            // discard existing mesh GOs
+            if (displayGOs != null) {
+                foreach (fMeshGameObject go in displayGOs) {
+                    RemoveGO(go);
+                    go.Destroy();
+                }
+            }
+            displayGOs = new List<fMeshGameObject>();
+        }
+
+        void validate_spatial()
+        {
+            if ( enable_spatial && spatial == null ) {
+                spatial = new DMeshAABBTree3(mesh);
+                spatial.Build();
+            }
+        }
+
+        void validate_decomp()
+        {
+            if ( decomp == null ) {
+                decomp = new MeshDecomposition(mesh, this);
+                decomp.BuildLinear();
+            }
         }
 
 
