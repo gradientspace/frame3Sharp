@@ -10,6 +10,14 @@ namespace f3
     {
         public float Spacing { get; set; }
 
+        public enum ListDirection
+        {
+            Horizontal,
+            Vertical
+        }
+        public ListDirection Direction { get; set; }
+
+
         List<SceneUIElement> ListItems = new List<SceneUIElement>();
 
         public HUDElementList()
@@ -17,6 +25,7 @@ namespace f3
             Width = 100;
             Height = 100;
             Spacing = 10;
+            Direction = ListDirection.Vertical;
         }
 
 
@@ -65,7 +74,11 @@ namespace f3
             for ( int i = 0; i < N; ++i ) {
                 IBoxModelElement boxelem = ListItems[i] as IBoxModelElement;
                 BoxModel.SetObjectPosition(boxelem, BoxPosition.TopLeft, insertPos);
-                insertPos.y -= boxelem.Bounds2D.Height + Spacing;
+
+                if ( Direction == ListDirection.Vertical )
+                    insertPos.y -= boxelem.Bounds2D.Height + Spacing;
+                else
+                    insertPos.x += boxelem.Bounds2D.Width + Spacing;
             }
         }
     }

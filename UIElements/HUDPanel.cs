@@ -202,7 +202,10 @@ namespace f3
         }
 
         public AxisAlignedBox2f Bounds2D { 
-            get { return new AxisAlignedBox2f(Vector2f.Zero, Width/2, Height/2); }
+            get {
+                Vector2f origin2 = RootGameObject.GetLocalPosition().xy;
+                return new AxisAlignedBox2f(origin2, Width/2, Height/2);
+            }
         }
 
         #endregion

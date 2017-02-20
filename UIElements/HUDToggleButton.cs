@@ -158,8 +158,9 @@ namespace f3
 
         public AxisAlignedBox2f Bounds2D {
             get {
+                Vector2f origin2 = RootGameObject.GetLocalPosition().xy;
                 Vector2f v = Shape.Size;
-                return new AxisAlignedBox2f(Vector2f.Zero, v.x / 2, v.y / 2);
+                return new AxisAlignedBox2f(origin2, v.x / 2, v.y / 2);
             }
         }
 
