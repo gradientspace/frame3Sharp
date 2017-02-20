@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using g3;
-using UnityEngine;
 
 namespace f3
 {
@@ -11,13 +10,19 @@ namespace f3
     //  this field (ie the field "faces" -Z). 
     public class HUDLabel : HUDStandardItem, IBoxModelElement
     {
-        GameObject entry, bgMesh;
+        fGameObject entry;
+        fGameObject bgMesh;
         fTextGameObject textMesh;
 
         public float Width { get; set; }
         public float Height { get; set; }
         public float TextHeight { get; set; }
-        public Colorf BackgroundColor { get; set; }
+
+        Colorf bg_color;
+        public Colorf BackgroundColor {
+            get { return bg_color; }
+            set { bg_color = value;  UpdateText(); }
+        }
 
         Colorf text_color;
         public Colorf TextColor {
@@ -54,19 +59,21 @@ namespace f3
         }
 
 
-        Mesh make_background_mesh()
+        fMesh make_background_mesh()
         {
-            return MeshGenerators.CreateTrivialRect(Width, Height, MeshGenerators.UVRegionType.FullUVSquare);
+            return new fMesh(
+                MeshGenerators.CreateTrivialRect(Width, Height, MeshGenerators.UVRegionType.FullUVSquare));
         }
 
         // creates a button in the desired geometry shape
         public void Create()
         {
-            entry = new GameObject(UniqueNames.GetNext("HUDLabel"));
-            bgMesh = AppendMeshGO("background", make_background_mesh(),
-                MaterialUtil.CreateFlatMaterial(BackgroundColor),
-                entry);
-            bgMesh.transform.Rotate(Vector3.right, -90.0f); // ??
+            entry = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDLabel"));
+
+            bgMesh = new fGameObject(AppendMeshGO("background", make_background_mesh(),
+                MaterialUtil.CreateFlatMaterialF(BackgroundColor),
+                entry));
+            bgMesh.RotateD(Vector3f.AxisX, -90.0f);
 
             BoxPosition horzAlign = BoxPosition.CenterLeft;
             if (AlignmentHorz == HorizontalAlignment.Center)
@@ -86,6 +93,9 @@ namespace f3
 
         void UpdateText()
         {
+            if ( bgMesh != null ) {
+                bgMesh.SetColor(BackgroundColor);
+            }
             if (textMesh != null) {
                 textMesh.SetColor( (Enabled) ? TextColor : DisabledTextColor );
                 textMesh.SetText(Text);

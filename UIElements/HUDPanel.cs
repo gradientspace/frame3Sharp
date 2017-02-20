@@ -36,6 +36,24 @@ namespace f3
 
 
 
+        // sets total Width and Height such that content area has specified dimensions)
+        public void SetContentSize(float width, float height)
+        {
+            Width = width + 2 * Padding;
+            Height = height + 2 * Padding;
+        }
+        public Vector2f ContentSize {
+            get { return BoxModel.PaddedSize(this, Padding); }
+        }
+        public AxisAlignedBox2f ContentBounds {
+            get { if (gameObject == null)
+                    return new AxisAlignedBox2f(ContentSize.x, ContentSize.y);
+                else
+                    return BoxModel.PaddedBounds(this, Padding);
+            }
+        }
+
+
         public virtual void Create()
         {
             gameObject = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDPanel"));

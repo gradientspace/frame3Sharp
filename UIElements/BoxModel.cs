@@ -54,6 +54,13 @@ namespace f3
             return bounds;
         }
 
+        public static Vector2f PaddedSize(IBoxModelElement element, float fPadding)
+        {
+            Vector2f size = element.Size2D;
+            size -= 2*fPadding;
+            return size;
+        }
+
 
         // kind of feeling like this should maybe go somewhere else...
         public static void SetObjectPosition( IBoxModelElement element, BoxPosition objectPos, 
