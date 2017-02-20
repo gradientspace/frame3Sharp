@@ -25,11 +25,14 @@ namespace f3
             pivot = new GameObject(UniqueNames.GetNext("Pivot"));
             meshGO = AppendUnityPrimitiveGO("pivotMesh", PrimitiveType.Sphere, CurrentMaterial, pivot);
             meshGO.transform.localScale = 0.9f * Vector3.one;
-            frameMesh = UnityUtil.CreateMeshGO("pivotFrame", "icon_meshes/axis_frame", 1.0f,
-                UnityUtil.MeshAlignOption.NoAlignment, frameMaterial, false);
-            frameMesh.AddComponent<IgnoreMaterialChanges>();
-            MaterialUtil.DisableShadows(frameMesh);
-            AppendNewGO(frameMesh, pivot, false);
+
+            if (frameMaterial != null) {
+                frameMesh = UnityUtil.CreateMeshGO("pivotFrame", "icon_meshes/axis_frame", 1.0f,
+                    UnityUtil.MeshAlignOption.NoAlignment, frameMaterial, false);
+                frameMesh.AddComponent<IgnoreMaterialChanges>();
+                MaterialUtil.DisableShadows(frameMesh);
+                AppendNewGO(frameMesh, pivot, false);
+            }
 
             if (nSphereLayer >= 0)
                 meshGO.SetLayer(nSphereLayer);
@@ -81,7 +84,9 @@ namespace f3
         {
             PivotSO copy = new PivotSO();
             copy.parentScene = this.parentScene;
-            copy.Create(this.GetAssignedSOMaterial(), frameMesh.GetComponent<Renderer>().material, meshGO.layer);
+            copy.Create(this.GetAssignedSOMaterial(), 
+                (frameMesh != null) ? frameMesh.GetComponent<Renderer>().material : null, 
+                meshGO.layer);
             copy.SetLocalFrame(
                 this.GetLocalFrame(CoordSpace.ObjectCoords), CoordSpace.ObjectCoords);
             return copy;
