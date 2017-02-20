@@ -83,17 +83,22 @@ namespace f3
             }
         }
 
-
+        // emission of undo/redo events, does not happen *during* undo/redo
         public OnChangeOpHandler ChangeOpEvent;
+
+        // basic modified signal, happens even during undo/redo
+        public EventHandler ModifiedEvent;
 
 
         void add_or_update_key(Keyframe f)
         {
             Keys[f.Time] = f;
+            FUtil.SafeSendEvent(ModifiedEvent, this, null);
         }
         void remove_key(double time)
         {
             Keys.Remove(time);
+            FUtil.SafeSendEvent(ModifiedEvent, this, null);
         }
 
 
@@ -198,6 +203,7 @@ namespace f3
                 FUtil.SafeSendEvent(ChangeOpEvent, this, changes[i]);
             }
 
+            FUtil.SafeSendEvent(ModifiedEvent, this, null);
         }
 
 
