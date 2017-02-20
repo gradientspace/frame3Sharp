@@ -9,6 +9,11 @@ namespace f3
     {
         protected static Dictionary<string, int> uniqueNameCounters = new Dictionary<string, int>();
 
+        static public void Reset()
+        {
+            uniqueNameCounters = new Dictionary<string, int>();
+        }
+
         // allocate next unique integer ID for given basename
         static public string GetNext(string sBaseName)
         {

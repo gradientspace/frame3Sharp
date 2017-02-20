@@ -593,6 +593,8 @@ namespace f3 {
             Scene.RemoveAllUIElements();
             Scene.SetCurrentTime(0);
 
+            UniqueNames.Reset();
+
             ResetView();
         }
 
