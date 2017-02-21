@@ -103,7 +103,7 @@ namespace f3
             textMesh = GameObjectFactory.CreateTextMeshGO(
                 "text", Text, TextColor, TextHeight, horzAlign );
 
-            Vector2f toPos = BoxModel.GetBoundsPosition(this, horzAlign);
+            Vector2f toPos = BoxModel.GetBoxPosition(this, horzAlign);
             BoxModel.Translate(textMesh, Vector2f.Zero, toPos);
 
             AppendNewGO(textMesh, entry, false);

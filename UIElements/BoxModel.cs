@@ -26,7 +26,7 @@ namespace f3
     {
 
 
-        public static Vector2f GetBoundsPosition(IBoxModelElement element, BoxPosition pos)
+        public static Vector2f GetBoxPosition(IBoxModelElement element, BoxPosition pos)
         {
             AxisAlignedBox2f bounds = element.Bounds2D;
 
@@ -46,7 +46,15 @@ namespace f3
             }
         }
 
+        public static Vector2f GetBoxOffset(IBoxModelElement element, BoxPosition pos)
+        {
+            return GetBoxPosition(element, pos) - element.Bounds2D.Center;
+        }
 
+
+
+        // This returns Bounds2D-Padding. Note that Bounds2D includes local translation 
+        //  (ie relative to parent)
         public static AxisAlignedBox2f PaddedBounds(IBoxModelElement element, float fPadding)
         {
             AxisAlignedBox2f bounds = element.Bounds2D;
@@ -54,6 +62,7 @@ namespace f3
             return bounds;
         }
 
+        // This returns Size-Padding
         public static Vector2f PaddedSize(IBoxModelElement element, float fPadding)
         {
             Vector2f size = element.Size2D;
@@ -62,16 +71,38 @@ namespace f3
         }
 
 
+        // This returns element.Bounds2D re-centered at origin, ie without the local
+        // translation of element. Child elements should be laid out relative to this box.
+        public static AxisAlignedBox2f ContentBounds(IBoxModelElement element, float fPadding)
+        {
+            AxisAlignedBox2f bounds = element.Bounds2D;
+            bounds.Translate(-bounds.Center);
+            return bounds;
+        }
+
+
+        // This returns ContentBounds with a padding offset
+        public static AxisAlignedBox2f PaddedContentBounds(IBoxModelElement element, float fPadding)
+        {
+            AxisAlignedBox2f bounds = element.Bounds2D;
+            bounds.Translate(-bounds.Center);
+            bounds.Contract(fPadding);
+            return bounds;
+        }
+
+
+
         // kind of feeling like this should maybe go somewhere else...
         public static void SetObjectPosition( IBoxModelElement element, BoxPosition objectPos, 
                                               Vector2f pos, float z = 0)
         {
-            Vector2f corner = GetBoundsPosition(element, objectPos);
-
             // [RMS] this is true for now...need to rethink though
             HUDStandardItem item = element as HUDStandardItem;
 
-            Frame3f f = new Frame3f(new Vector3f(pos.x-corner.x, pos.y-corner.y, z));
+            Vector2f corner_offset = GetBoxOffset(element, objectPos);
+            Vector2f new_pos = pos - corner_offset;
+
+            Frame3f f = new Frame3f(new Vector3f(new_pos.x, new_pos.y, z));
             item.SetObjectFrame(f);
         }
 
@@ -80,7 +111,7 @@ namespace f3
             IBoxModelElement relativeTo, BoxPosition relPos, 
             Vector2f vOffset, float z = 0)
         {
-            Vector2f pos = GetBoundsPosition(relativeTo, relPos);
+            Vector2f pos = GetBoxPosition(relativeTo, relPos);
             pos += vOffset;
             SetObjectPosition(element, elemPos, pos, z);
         }

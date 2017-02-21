@@ -12,8 +12,7 @@ namespace f3
         // this is the dimension of the element
         Vector2f Size2D { get; }
 
-        // this is the bounds of the element in its local coordinate system
-        // (usually [-size/2, size/2]
+        // this is the bounds of the element in its local coordinate system, ie relative to parent
         AxisAlignedBox2f Bounds2D { get; }
     }
 

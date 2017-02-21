@@ -20,12 +20,15 @@ namespace f3
 
         List<SceneUIElement> ListItems = new List<SceneUIElement>();
 
+        bool is_layout_valid;
+
         public HUDElementList()
         {
             Width = 100;
             Height = 100;
             Spacing = 10;
             Direction = ListDirection.Vertical;
+            is_layout_valid = false;
         }
 
 
@@ -43,6 +46,7 @@ namespace f3
                 throw new Exception("HUDElementList.AddElement: cannot add element " + element.RootGameObject.name + ", does not implement IBoxModelElement!");
 
             ListItems.Add(element);
+            is_layout_valid = false;
         }
 
 
@@ -64,22 +68,48 @@ namespace f3
         }
 
 
+        virtual public void InvalidateLayout()
+        {
+            is_layout_valid = false;
+        }
+        virtual public void RecalculateLayout()
+        {
+            InvalidateLayout();
+            update_layout();
+        }
+
+
+        override public void PreRender()
+        {
+            base.PreRender();
+            if (is_layout_valid == false)
+                update_layout();
+        }
+
+
+
         void update_layout()
         {
-            AxisAlignedBox2f frameBounds = this.Bounds2D;
-
-            Vector2f insertPos = frameBounds.TopLeft;
+            AxisAlignedBox2f contentBounds = BoxModel.PaddedContentBounds(this, Padding);
+            Vector2f insertPos = contentBounds.TopLeft;
 
             int N = ListItems.Count;
             for ( int i = 0; i < N; ++i ) {
                 IBoxModelElement boxelem = ListItems[i] as IBoxModelElement;
+                if (ListItems[i].IsVisible == false) {
+                    BoxModel.SetObjectPosition(boxelem, BoxPosition.TopLeft, contentBounds.TopLeft);
+                    continue;
+                }
+
                 BoxModel.SetObjectPosition(boxelem, BoxPosition.TopLeft, insertPos);
 
                 if ( Direction == ListDirection.Vertical )
-                    insertPos.y -= boxelem.Bounds2D.Height + Spacing;
+                    insertPos.y -= boxelem.Size2D.y + Spacing;
                 else
-                    insertPos.x += boxelem.Bounds2D.Width + Spacing;
+                    insertPos.x += boxelem.Size2D.y + Spacing;
             }
+
+            is_layout_valid = true;
         }
     }
 }
