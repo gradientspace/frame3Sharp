@@ -12,10 +12,11 @@ namespace f3
         fGameObject rootGO;
 
         // should go in subclass...?
-        fRectangleGameObject sliderbarGO;
+        fRectangleGameObject backgroundGO;
 
-        fTriangleGameObject handleGO;
+        fGameObject handleGO;
         Frame3f handleStart;
+
 
         int tick_count = 0;
         public virtual int TickCount
@@ -33,30 +34,62 @@ namespace f3
             set { snap_to_ticks = value; update_value(current_value, false); }
         }
 
+        public virtual Vector2f TickDimensions {
+            get { return new Vector2f(Height * 0.1f, Height * 1.0f); }
+        }
+
 
         public virtual void Create()
         {
             rootGO = new GameObject(UniqueNames.GetNext("HUDSlider"));
 
-            sliderbarGO = GameObjectFactory.CreateRectangleGO(rootGO.GetName() + "_bar",
-                width, height, bgColor, true);
-            MaterialUtil.DisableShadows(sliderbarGO);
-            sliderbarGO.RotateD(Vector3f.AxisX, -90.0f); // ??
-            AppendNewGO(sliderbarGO, rootGO, false);
+            fMaterial useMaterial = MaterialUtil.CreateFlatMaterialF(bgColor);
+            backgroundGO = GameObjectFactory.CreateRectangleGO("background",
+                width, height, useMaterial, true, true);
+            MaterialUtil.DisableShadows(backgroundGO);
+            backgroundGO.RotateD(Vector3f.AxisX, -90.0f); // ??
+            AppendNewGO(backgroundGO, rootGO, false);
 
-            handleGO = GameObjectFactory.CreateTriangleGO(rootGO.GetName() + "_handle",
-                height, height, handleColor, true);
-            MaterialUtil.DisableShadows(handleGO);
-            handleGO.RotateD(Vector3f.AxisX, -90.0f); // ??
-            handleGO.Translate(0.001f * Vector3f.AxisY);
-            AppendNewGO(handleGO, rootGO, false);
+            handleGO = create_handle_go();
+            if (handleGO != null) {
+                handleGO.Translate(0.001f * Vector3f.AxisY);
+                AppendNewGO(handleGO, rootGO, false);
+                handleStart = handleGO.GetLocalFrame();
+            }
+
+            create_visuals_geometry();
 
             tickMaterial = MaterialUtil.CreateFlatMaterialF(tickColor);
 
-            handleStart = handleGO.GetLocalFrame();
-
             update_geometry();
         }
+
+
+
+        protected float width = 10;
+        protected float height = 1;
+        protected Colorf bgColor = Colorf.White;
+        protected Colorf handleColor = Colorf.Black;
+
+
+        
+
+        // override this to change handle shape
+        public virtual fGameObject create_handle_go()
+        {
+            fTriangleGameObject handle = GameObjectFactory.CreateTriangleGO(
+                "handle", Height, Height, handleColor, true);
+            MaterialUtil.DisableShadows(handle);
+            handle.RotateD(Vector3f.AxisX, -90.0f); // ??
+            return handle;
+        }
+
+
+        // override this to add extra UI stuff that 
+        public virtual void create_visuals_geometry()
+        {
+        }
+
 
 
         public event InputEventHandler OnClicked;
@@ -70,10 +103,6 @@ namespace f3
         double snapped_value;
 
 
-        float width = 10;
-        float height = 1;
-        Colorf bgColor = Colorf.White;
-        Colorf handleColor = Colorf.Black;
 
         public virtual float Width {
             get { return width; }
@@ -99,7 +128,8 @@ namespace f3
             get { return bgColor; }
             set {
                 bgColor = value;
-                sliderbarGO.SetColor(bgColor);
+                if ( backgroundGO != null )
+                    backgroundGO.SetColor(bgColor);
             }
         }
 
@@ -109,7 +139,8 @@ namespace f3
             get { return handleColor; }
             set {
                 handleColor = value;
-                handleGO.SetColor(handleColor);
+                if ( handleGO != null )
+                    handleGO.SetColor(handleColor);
             }
         }
 
@@ -129,11 +160,13 @@ namespace f3
             if (rootGO == null)
                 return;
 
-            (sliderbarGO as fRectangleGameObject).SetWidth(width);
-            (sliderbarGO as fRectangleGameObject).SetHeight(height);
+            backgroundGO.SetWidth(width);
+            backgroundGO.SetHeight(height);
 
-            handleGO.SetHeight(height*0.5f);
-            handleGO.SetWidth(height*0.5f);
+            if (handleGO != null) {
+                (handleGO as fTriangleGameObject).SetHeight(height * 0.5f);
+                (handleGO as fTriangleGameObject).SetWidth(height * 0.5f);
+            }
 
             update_handle_position();
 
@@ -149,7 +182,7 @@ namespace f3
             float t = (float)(snapped_value - 0.5);
             Frame3f handleF = handleStart;
             handleF.Translate(width * t * handleF.X);
-            float h = handleGO.GetHeight();
+            float h = (handleGO as fTriangleGameObject).GetHeight();
             float dz = -(height/2) - h/2;
             handleF.Translate(dz * handleF.Z);
             handleGO.SetLocalFrame(handleF);
@@ -170,11 +203,13 @@ namespace f3
         {
             tickMaterial.color = tickColor;
 
+            Vector2f tickSize = TickDimensions;
+
             // create extra ticks if we need them
             if ( tick_count > tick_count_cache ) {
                 while (ticks.Count < tick_count) {
                     TickGO tick = new TickGO();
-                    tick.go = GameObjectFactory.CreateRectangleGO("tick", Height * 0.1f, Height, 
+                    tick.go = GameObjectFactory.CreateRectangleGO("tick", tickSize.x, tickSize.y, 
                         tickMaterial, true, false);
                     tick.go.RotateD(Vector3f.AxisX, -90.0f);
                     AppendNewGO(tick.go, rootGO, false);
@@ -189,6 +224,8 @@ namespace f3
                 fRectangleGameObject go = ticks[i].go;
                 if (i < tick_count) {
                     float t = (float)i / (float)(tick_count-1);
+                    ticks[i].go.SetWidth(tickSize.x);
+                    ticks[i].go.SetHeight(tickSize.y);
                     BoxModel.MoveTo(go, this.Bounds2D.CenterLeft, -Height * 0.01f);
                     BoxModel.Translate(go, new Vector2f(t * Width, 0));
                     go.SetVisible(true);
@@ -303,7 +340,7 @@ namespace f3
                 eInterMode = InteractionMode.InHandleDrag;
                 vStartHitW = hit.hitPos;
                 vHandleStartW = handleGO.GetWorldFrame();
-            } else if ( hit.hitGO == sliderbarGO ) {
+            } else if ( hit.hitGO == backgroundGO ) {
                 onSliderbarPress(e, hit.hitPos);
                 eInterMode = InteractionMode.InPressDrag;
                 vStartHitW = hit.hitPos;

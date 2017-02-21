@@ -131,6 +131,12 @@ namespace f3
         }
 
 
+        public void TakeFocus()
+        {
+            begin_editing();
+        }
+
+
 
         string validate_text(string oldstring, string newString)
         {
@@ -182,7 +188,8 @@ namespace f3
         public event EditStateChangeHandler OnEndTextEditing;
 
 
-        void on_clicked()
+
+        void begin_editing()
         {
             // start capturing input
             if (OverrideDefaultInputHandling == false) {
@@ -202,6 +209,13 @@ namespace f3
                     };
                 }
             }
+        }
+
+
+
+        void on_clicked()
+        {
+            begin_editing();
 
             FUtil.SafeSendEvent(OnClicked, this, new EventArgs());    
         }
