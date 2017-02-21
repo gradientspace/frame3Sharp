@@ -43,6 +43,15 @@ namespace f3
             return false;
         }
 
+        public Vector2f ClickPoint(InputState input)
+        {
+            if (input.IsForDevice(InputDevice.Mouse))
+                return input.vMousePosition2D;
+            else if (input.IsForDevice(InputDevice.TabletFingers))
+                return input.vTouchPosition2D;
+            return Vector2f.Zero;
+        }
+
         public Ray3f WorldRay(InputState input)
         {
             if (input.IsForDevice(InputDevice.Mouse))
