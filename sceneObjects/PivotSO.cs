@@ -43,6 +43,14 @@ namespace f3
 
 
 
+        override public void DisableShadows() {
+            MaterialUtil.DisableShadows(meshGO, true, true);
+            if ( frameMesh != null )
+                MaterialUtil.DisableShadows(frameMesh, true, true);
+        }
+
+
+
 
         //
         // SceneObject impl
