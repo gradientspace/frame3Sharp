@@ -95,7 +95,7 @@ namespace f3
             if (button == null)
                 return;
             if ( labelMesh == null && text.Length > 0 ) {
-                labelMesh =  GameObjectFactory.CreateTextMeshProGO(
+                labelMesh =  GameObjectFactory.CreateTextMeshGO(
                     "label", Text, TextColor, TextHeight,
                     BoxPosition.Center );
                 BoxModel.Translate(labelMesh, Vector2f.Zero, this.Bounds2D.Center);

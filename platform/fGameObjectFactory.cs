@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using g3;
-using TMPro;
+
 
 namespace f3
 {
@@ -129,8 +129,9 @@ namespace f3
             BoxPosition textOrigin = BoxPosition.Center, 
             float fOffsetZ = -0.1f )
         {
-            //return CreateUnityTextMeshGO(sName, sText, textColor, fTextHeight, textOrigin, fOffsetZ);
-            return CreateTextMeshProGO(sName, sText, textColor, fTextHeight, textOrigin, fOffsetZ);
+            return TextMeshProUtil.HaveTextMeshPro ?
+                  TextMeshProUtil.CreateTextMeshProGO(sName, sText, textColor, fTextHeight, textOrigin, fOffsetZ)
+                : CreateUnityTextMeshGO(sName, sText, textColor, fTextHeight, textOrigin, fOffsetZ);
         }
 
 
@@ -182,79 +183,7 @@ namespace f3
         }
 
 
-        // [TODO] currently only allows for left-justified text.
-        // Can support center/right, but the translate block needs to be rewritten
-        // (can we generalize as target-center of 2D bbox??
-        public static fTextGameObject CreateTextMeshProGO(
-            string sName, string sText, 
-            Colorf textColor, float fTextHeight, 
-            BoxPosition textOrigin = BoxPosition.Center, 
-            float fOffsetZ = -0.01f)
-        {
-            GameObject textGO = new GameObject(sName);
-            TextMeshPro tm = textGO.AddComponent<TextMeshPro>();
-            //tm.isOrthographic = false;
-            tm.alignment = TextAlignmentOptions.TopLeft;
-            tm.enableWordWrapping = false;
-            tm.autoSizeTextContainer = true;
-            tm.fontSize = 16;
-            tm.text = sText;
-            tm.color = textColor;
-            // ignore material changes when we add to GameObjectSet
-            textGO.AddComponent<IgnoreMaterialChanges>();
-            // use our textmesh material instead
-            //MaterialUtil.SetTextMeshDefaultMaterial(tm);
 
-            TextContainer container = textGO.GetComponent<TextContainer>();
-            container.isAutoFitting = false;
-            container.anchorPosition = TextContainerAnchors.TopLeft;
-
-            tm.ForceMeshUpdate();
-
-            // set container width and height to just contain text
-            AxisAlignedBox3f bounds = tm.bounds;
-            Vector2f size = new Vector2f(bounds.Width, bounds.Height);
-            container.width = size.x + 1;
-            container.height = size.y + 1;
-
-            // Now we want to scale text to hit our target height, but if we scale by size.y
-            // then the scaling will vary by text height (eg "m" will get same height as "My").
-            // However: 1) size.y varies with tm.fontSize, but it's not clear how. 
-            //          2) fontInfo.LineHeight tells us the height we want but doesn't change w/ tm.fontSize
-            // I tried a few values and the relationship is linear. It is in the ballpark
-            // of just being 10x...actually closer to 11x. No other values in fontInfo have a nice
-            // round-number relationship. But this value is probably font-dependent!!
-            float t = tm.fontSize / tm.font.fontInfo.LineHeight;
-            float magic_k = 10.929f;        // [RMS] solve-for-x given a few different fontSize values
-            float font_size_y = magic_k * t;
-            float fScaleH = fTextHeight / font_size_y;
-
-            tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
-            float fTextWidth = fScaleH * size.x;
-
-            // by default text origin is top-left
-            if ( textOrigin == BoxPosition.Center )
-                tm.transform.Translate(-fTextWidth / 2.0f, fTextHeight / 2.0f, fOffsetZ);
-            else if ( textOrigin == BoxPosition.BottomLeft )
-                tm.transform.Translate(0, fTextHeight, fOffsetZ);
-            else if ( textOrigin == BoxPosition.TopRight )
-                tm.transform.Translate(-fTextWidth, 0, fOffsetZ);
-            else if ( textOrigin == BoxPosition.BottomRight )
-                tm.transform.Translate(-fTextWidth, fTextHeight, fOffsetZ);
-            else if ( textOrigin == BoxPosition.CenterLeft )
-                tm.transform.Translate(0, fTextHeight/2.0f, fOffsetZ);
-            else if ( textOrigin == BoxPosition.CenterRight )
-                tm.transform.Translate(-fTextWidth, fTextHeight/2.0f, fOffsetZ);
-            else if ( textOrigin == BoxPosition.CenterTop )
-                tm.transform.Translate(-fTextWidth / 2.0f, 0, fOffsetZ);
-            else if ( textOrigin == BoxPosition.CenterBottom )
-                tm.transform.Translate(-fTextWidth / 2.0f, fTextHeight, fOffsetZ);
-
-            textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
-
-            return new fTextGameObject(textGO, new fText(tm, TextType.TextMeshPro),
-                new Vector2f(fTextWidth, fTextHeight) );
-        }
 
 
 
