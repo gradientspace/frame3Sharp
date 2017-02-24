@@ -27,9 +27,9 @@ namespace f3
         DMeshAABBTree3 spatial;
 
 
-		public DMeshSO()
-		{
-		}
+        public DMeshSO()
+        {
+        }
 
         public virtual DMeshSO Create(DMesh3 mesh, SOMaterial setMaterial)
         {
@@ -78,25 +78,30 @@ namespace f3
         }
 
 
-        public void UpdateVertexPositions(Vector3f[] vPositions)
-        {
-            if (vPositions.Length != mesh.MaxVertexID)
+        public void UpdateVertexPositions(Vector3f[] vPositions) {
+            if (vPositions.Length < mesh.MaxVertexID)
                 throw new Exception("DMeshSO.UpdateVertexPositions: not enough positions provided!");
-
-            foreach ( int vid in mesh.VertexIndices() ) {
+            foreach (int vid in mesh.VertexIndices())
                 mesh.SetVertex(vid, vPositions[vid]);
-            }
+            fast_mesh_update();
+        }
+        public void UpdateVertexPositions(Vector3d[] vPositions) {
+            if (vPositions.Length < mesh.MaxVertexID)
+                throw new Exception("DMeshSO.UpdateVertexPositions: not enough positions provided!");
+            foreach (int vid in mesh.VertexIndices())
+                mesh.SetVertex(vid, vPositions[vid]);
+            fast_mesh_update();
+        }
 
-            // fast update of existing spatial decomp
+        // fast update of existing spatial decomp
+        void fast_mesh_update() {
             foreach (var comp in displayComponents) {
                 comp.go.Mesh.FastUpdateVertices(this.mesh, comp.source_vertices, false, false);
                 comp.go.Mesh.RecalculateNormals();
             }
-
             on_mesh_changed(true, false);
             validate_decomp();
         }
-
 
 
         #region IMeshComponentManager impl
