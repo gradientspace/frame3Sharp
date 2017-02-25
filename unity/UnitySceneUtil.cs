@@ -13,7 +13,7 @@ namespace f3
         // converts input GameObject into a DMeshSO. Original GameObject is not used by DMeshSO,
         // so it can be destroyed.
         // [TODO] transfer materials!!
-        public static void WrapMeshGameObject(GameObject wrapGO, FContext context, bool bDestroyOriginal)
+        public static TransformableSO WrapMeshGameObject(GameObject wrapGO, FContext context, bool bDestroyOriginal)
         {
             var wrapperSO = ImportExistingUnityMesh(wrapGO, context.Scene, true, true, true,
                         (mesh, material) => {
@@ -23,19 +23,21 @@ namespace f3
             if ( bDestroyOriginal )
                 GameObject.Destroy(wrapGO);
             context.Scene.AddSceneObject(wrapperSO, true);
+            return wrapperSO;
         }
 
 
 
         // embeds input GameObject in a GOWrapperSO, which provides some basic
         // F3 functionality for arbitrary game objects
-        public static void WrapAnyGameObject(GameObject wrapGO, FContext context, bool bAllowMaterialChanges)
+        public static TransformableSO WrapAnyGameObject(GameObject wrapGO, FContext context, bool bAllowMaterialChanges)
         {
             GOWrapperSO wrapperSO = new GOWrapperSO() {
                 AllowMaterialChanges = bAllowMaterialChanges
             };
             wrapperSO.Create(wrapGO);
             context.Scene.AddSceneObject(wrapperSO, true);
+            return wrapperSO;
         }
 
 
