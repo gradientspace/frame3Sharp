@@ -87,9 +87,7 @@ animation, plugins, util, unity interop
 
 
 
-# Features / Capabilities
 
-*we'll get there...*
 
 
 # Usage
@@ -97,6 +95,14 @@ animation, plugins, util, unity interop
 I use this project exclusively as a git submodule, so the structure/etc is set up to make that easy. You just add frame3Sharp as a submodule with a local path inside the **/Assets** folder of your Unity project directory. 
 
 Currently this project is not usable outside of Unity. Someday!!
+
+
+
+# Scene Setup
+
+- main camera must have tag **MainCamera**
+
+
 
 
 # Plugins
