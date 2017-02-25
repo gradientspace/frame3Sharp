@@ -18,33 +18,42 @@ I am developing frame3Sharp to use in [gradientspace](https://www.gradientspace.
 
 Frame3Sharp (F3) concerns itself with the management and manipulation of a 3D scene that contains a set of objects and interface elements, as well as a 2.5D "heads-up display"-type overlay of additional interface elements. 
 
-#### Objects in the 3D Scene
+### Objects in the 3D Scene
 
 At the topmost level there is an **FContext**, you can think of this as the "universe" in which everything exists. An FContext contains an **FScene**, which then contains **SceneObject**s and **SceneUIElement**s. The idea here is that a SceneObject is permanent - a cube, a sphere, etc - while a SceneUIElement is transient. So a 3D transformation gizmo would be a SceneUIElement, as would a clickable button that was in the 3D scene.
 
-#### User Interface Cockpit / HUD
+A number of SceneObject implementations are built-in. There are basic primitives like **SphereSO** and **BoxSO**, as well as 3D curves like **PolyCurveSO** and **PolyTubeSO**. **PivotSO** provides a way to represent 3D coordinate frames explicitly in the scene as manipulable objects. **MeshSO** wraps a unity Mesh, and provides functions for dynamic updates. 
+
+**DMeshSO** wraps a [geometry3Sharp](https://github.com/gradientspace/geometry3Sharp) **DMesh3** dynamic mesh, which can be arbitrarily large, and provides a rich set of operations for remeshing, deformation, and so on. DMeshSO automatically decomposes large DMesh3 meshes into a set of unity Mesh objects (limited to 64k triangles) for rendering. DMeshSO also provides a spatial data structure which supports efficient queries like ray-intersection and nearest-point on the entire mesh.
+
+### User Interface Cockpit / HUD
 
 The FContext also contains a **Cockpit**, which manages the "near-field" user interface, which could be a 3D HUD in VR, or a set of layered 2D widgets in a desktop app. It is useful to think of this as 2.5D, and many of the objects work this way, with X/Y positioning (although in VR this might be X/Y on a cylinder or sphere) and Z as distance from the camera. The Cockpit elements are also **SceneUIElement** objects. The FContext maintains a stack of Cockpits, so you can "push" a new interface at any time. 
 
-#### 3D widgets and Gizmos
+### 3D widgets and Gizmos
 
 A common paradigm in 3D tools is that when you select something, you get a gizmo that lets you do something with it - translate, scale, resize, etc. The **TransformManager** in **FContext** handles this. Gizmos are classes that implement **ITransformGizmo**, and once registered with TransformManager, will be automatically managed when the FScene selection-set changes. The built-in **AxisTransformGizmo** implements a standard move/rotate/scale gizmo, including transforming groups, rotation around arbitrary pivot points, etc. This gizmo is composed of **Widget** sub-elements, the idea is that these Widgets can be re-assembled into other Gizmos.
 
-#### Tools
+### Tools
 
 Another standard aspect of 3D tools is...the Tools. The FContext has a **ToolManager** which keeps track of which **ITool** is active. The set of possible tools must be registered with ToolManager at startup. Generally a Tool is modal, so when a Tool is active it takes control of the interaction to some extent. For example the provided **DrawPrimitivesTool** overrides the standard left mouse button behavior to draw primitives on left-click-drag. A separate Tool can be active on each input device, so if you are using VR hand controllers you can have a Tool in each hand.
 
 Only a few Tools are provided, and writing a new Tool is a bit complicated. But we are working on abstractions, such as **BaseSingleClickTool** which allows you to easily implement a standard click-object-to-apply type of Tool with minimal code.
 
-#### Cursors
+### Undo/Redo/History
+
+**FScene** exposes a **ChangeHistory** object which implements standard undo/redo behavior via **IChangeOp** objects that apply/revert changes to the scene. A set of standard change operations are provided to enable undo/redo of add/delete objects, change materials, editing of primitive parameters, and 3D transformations. This is built in to the existing Tools and Gizmos, so for basic interfaces Undo is effectively "free".
+
+
+### Cursors
 
 If you're using a mouse, you generally have a 2D cursor. In Touch-based interfaces, you also have a cursor, although it behaves a bit differently. And finally in a VR app you might still want to use the mouse (gasp!), or a gamepad to control an on-screen cursor. FContext abstracts these different options via an **ICursorController**, which tracks the cursor and defines things like how the 2D cursor location maps to a 3D ray into the scene. **SystemMouseCursorController**, **TouchMouseCursorController**, and **VRMouseCursorController** provide implementations for the common cases.
 
-#### 3D Spatial-Input Controllers
+### 3D Spatial-Input Controllers
 
 VR controllers like the Vive wands and Oculus Touch break the standard 3D tool paradigm in many ways. The most immediate is that you can have two simultaneous "cursors", attached to tracked hand controllers. When using VR, and such a device is active, FContext provides a **SpatialInputController** class that tracks each hand and a 3D cursor/ray in the scene. Much of F3 already supports these devices, such as having two tools active at the same time. 
 
-#### Behavior System
+### Behavior System
 
 One of the most complicated aspects of 3D tools is managing the huge input-device state machine that is built up over time. Even a relatively basic CAD tool has lots of different interactions - camera controls, selection, moving things around, drawing and editing tools, etc. Often this degenerates into a spaghetti of checks and branching.
 
@@ -55,7 +64,7 @@ An InputBehavior might be something as simple as a **MouseMultiSelectBehavior**,
 The *behaviors* folder contains a variety of standard behaviors, and some useful abstractions such as **MouseClickDragSuperBehavior**, which allows you to implement click-release vs click-drag actions as separate InputBehaviors and them compose them.
 
 
-#### UI Elements
+### UI Elements
 
 Anything can be turned into an interactive user interface element by implementing **SceneUIElement**. Interactive 3D elements in the scene, like Gizmos, implement this. So do the 2.5D HUD UI elements in the Cockpit, which are in fact also full 3D objects, just positioned relative to the eye rather than the scene. As a result they can easily be used in 2D desktop apps, VR interfaces, and placed directly in the 3D scene.
 
@@ -63,11 +72,16 @@ We are implementing a standard set of UI elements - **HUDLabel**, **HUDButton**,
 
 The Unity 2D canvas system is *not* used by these UI elements. All elements are standard GameObjects. 
 
+### Serialization
+
+The set of current SceneObjects can be stored by **SceneSerializer** to an **IOutputStream** (**XMLOutputStream** is provided), or restored via **IInputStream**. You can support store/restore of custom SO types by registering serialize and build functions with the **SORegistry** stored in the Scene.
+
+**SceneMeshImporter** supports reading in mesh files at runtime as MeshSO objects (DMeshSO support coming soon). Any format that [geometry3Sharp](https://github.com/gradientspace/geometry3Sharp) supports can be read, and for OBJ files, materials and texture maps will also be loaded. Similarly **SceneMeshExporter** can export any SOs that contains Meshes.
 
 
-## TODO
+### TODO
 
-history, scene objects, serialization, animation, plugins, util, unity interop
+animation, plugins, util, unity interop
 
 
 
