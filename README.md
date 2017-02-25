@@ -1,17 +1,37 @@
 # frame3Sharp
-Open Source (MIT License) C# library for building CAD tools in Unity.
+Open Source (MIT License) C# library for building 3D Tools in Unity.
 
 Questions? Contact Ryan Schmidt [@rms80](http://www.twitter.com/rms80) / [gradientspace](http://www.gradientspace.com)
 
 # What is this??
 
-Unity is a great platform for games, but CAD tools are not games. Even the most basic CAD tools have much more complex, structured state. You might need different "modes" for different tools or operations, complex 3D user interface elements with state-dependent behavior, Undo/Redo, an easily serializable structured datamodel, and so on. 
+Unity is a great platform for games, but 3D tools are not games. Even the most basic 3D tools have much more complex, structured state. You might need different "modes" for different tools or operations, complex 3D user interface elements with state-dependent behavior, Undo/Redo, an easily serializable structured datamodel, and so on. 
 
-However, although every CAD tool has some kind of architecture that does these things, you won't easily find one you can use to build your own tools. Keeping this kind of "CAD shell" independent from the actual tool you are building is requires a lot of effort. Application functionality tends to bleed over into the infrastructure, to the point where the system is so tightly coupled that re-using the scaffolding becomes implausible.
+However, although every 3D tool has some kind of architecture that does these things, you won't easily find one you can use to build your own tools. Keeping this kind of "3D tool shell" independent from the actual tool you are building is requires a lot of effort. Application functionality tends to bleed over into the infrastructure, to the point where the system is so tightly coupled that re-using the scaffolding becomes implausible.
 
 I've done this 4 times myself. And I don't want to do it again, ever. So, the purpose of **frame3Sharp** is an attempt to provide the "cad shell" infrastucture independent of any particular tool. I am building it on Unity to isolate the CAD-level aspects from the rendering/display subsystem (another area where coupling tends to creep in). Ultimately the Unity-specific elements will be abstracted, so that the system architecture could be ported to other rendering platforms (game engines, three.js, etc). 
 
-I am developing frame3Sharp to use in [gradientspace](https://www.gradientspace.com) products, first and foremost. However I do think that with the rise of distributed manufacturing - from mass customization to on-site medical device fabrication - there is a growing need for focused design tools that solve specific problems. My home is that frame3Sharp will make this easy, or at least easier.
+I am developing frame3Sharp to use in [gradientspace](https://www.gradientspace.com) products, first and foremost. However I do think that with the rise of distributed manufacturing - from mass customization to on-site medical device fabrication - there is a growing need for focused design tools that solve specific problems. My hope is that frame3Sharp will make this easy, or at least easier.
+
+
+# Overview
+
+Frame3Sharp (F3) concerns itself with the management and manipulation of a 3D scene that contains a set of objects and interface elements, as well as a 2.5D "heads-up display"-type overlay of additional interface elements. 
+
+At the topmost level there is an **FContext**, you can think of this as the "universe" in which everything exists. An FContext contains an **FScene**, which then contains **SceneObject**s and **SceneUIElement**s. The idea here is that a SceneObject is permanent - a cube, a sphere, etc - while a SceneUIElement is transient. So a 3D transformation gizmo would be a SceneUIElement, as would a clickable button that was in the 3D scene.
+
+The FContext also contains a **Cockpit**, which manages the "near-field" user interface, which could be a 3D HUD in VR, or a set of layered 2D widgets in a desktop app. It is useful to think of this as 2.5D, and many of the objects work this way, with X/Y positioning (although in VR this might be X/Y on a cylinder or sphere) and Z as distance from the camera. The Cockpit elements are also **SceneUIElement** objects. The FContext maintains a stack of Cockpits, so you can "push" a new interface at any time. 
+
+A common paradigm in 3D tools is that when you select something, you get a gizmo that lets you do something with it - translate, scale, resize, etc. The **TransformManager** in **FContext** handles this. Gizmos are classes that implement **ITransformGizmo**, and once registered with TransformManager, will be automatically managed when the FScene selection-set changes. The built-in **AxisTransformGizmo** implements a standard move/rotate/scale gizmo, including transforming groups, rotation around arbitrary pivot points, etc. This gizmo is composed of **Widget** sub-elements, the idea is that these Widgets can be re-assembled into other Gizmos.
+
+
+
+
+
+
+
+
+
 
 # Features / Capabilities
 
