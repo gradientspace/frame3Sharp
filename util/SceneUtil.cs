@@ -111,55 +111,14 @@ namespace f3
 
         public static Bounds GetLocalBoundingBox(IEnumerable<SceneObject> vObjects) {
             int i = 0;
-            Bounds b = UnityUtil.InvalidBounds;
+            AxisAlignedBox3f b = AxisAlignedBox3f.Infinite;
             foreach ( SceneObject so in vObjects ) {
                 if (i == 0)
                     b = so.GetLocalBoundingBox();
                 else
-                    b.Encapsulate(so.GetLocalBoundingBox());
+                    b.Contain(so.GetLocalBoundingBox());
             }
             return b;
-        }
-
-
-
-
-        public static TransformableSO ImportExistingUnityMesh(GameObject go, FScene scene, 
-            bool bAddToScene = true, bool bKeepWorldPosition = true,
-            Func<Mesh, SOMaterial, TransformableSO> MakeSOFunc = null )
-        {
-            MeshFilter meshF = go.GetComponent<MeshFilter>();
-            if (meshF == null)
-                throw new Exception("SceneUtil.ImportExistingUnityMesh: gameObject is not a mesh!!");
-
-            Mesh useMesh = meshF.mesh;
-            AxisAlignedBox3f bounds = useMesh.bounds;
-            UnityUtil.TranslateMesh(useMesh, -bounds.Center.x, -bounds.Center.y, -bounds.Center.z);
-            useMesh.RecalculateBounds();
-
-            TransformableSO newSO = (MakeSOFunc != null) ? 
-                MakeSOFunc(useMesh, scene.DefaultMeshSOMaterial)
-                : new MeshSO().Create(useMesh, scene.DefaultMeshSOMaterial);
-
-            if ( bAddToScene )
-                scene.AddSceneObject(newSO, false);
-
-            if ( bKeepWorldPosition ) {
-                Frame3f goFrameW = UnityUtil.GetGameObjectFrame(go, CoordSpace.WorldCoords);
-                Frame3f goFrameS = scene.ToSceneFrame(goFrameW);
-                Vector3f boundsCenterS = scene.ToSceneP(goFrameW.Origin + bounds.Center);
-
-                // translate to position in scene
-                Frame3f curF = newSO.GetLocalFrame(CoordSpace.SceneCoords);
-                curF.Origin += boundsCenterS;
-                newSO.SetLocalFrame(curF, CoordSpace.SceneCoords);
-
-                curF = newSO.GetLocalFrame(CoordSpace.SceneCoords);
-                curF.RotateAround(Vector3.zero, goFrameS.Rotation);
-                newSO.SetLocalFrame(curF, CoordSpace.SceneCoords);
-            }
-
-            return newSO;
         }
 
 

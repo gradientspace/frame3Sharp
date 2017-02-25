@@ -262,6 +262,9 @@ namespace f3
             } else if (m.Type == SOMaterial.MaterialType.UnlitRGBColor) {
                 return MaterialUtil.CreateFlatMaterial(m.RGBColor);
 
+            } else if ( m is UnitySOMaterial ) {
+                return (m as UnitySOMaterial).unityMaterial;
+
             } else {
                 return MaterialUtil.CreateStandardMaterial(Color.black);
             }

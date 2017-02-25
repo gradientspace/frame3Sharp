@@ -9,7 +9,7 @@ namespace f3
 {
     public class SOMaterial
     {
-        public string Name { get; set; }
+        public virtual string Name { get; set; }
 
         public enum MaterialType
         {
@@ -17,14 +17,16 @@ namespace f3
             TransparentRGBColor,
             PerVertexColor,
             TextureMap,
-            UnlitRGBColor
-        };
-        public MaterialType Type { get; set; }
+            UnlitRGBColor,
 
-        public Colorf RGBColor { get; set; }
+            Custom
+        };
+        public virtual MaterialType Type { get; set; }
+
+        public virtual Colorf RGBColor { get; set; }
 
         // [TODO] abstract this so we don't use unity.Texture2D
-        public Texture2D MainTexture { get; set; }
+        public virtual Texture2D MainTexture { get; set; }
 
 
         public SOMaterial()
@@ -34,7 +36,12 @@ namespace f3
             RGBColor = Colorf.VideoWhite;
         }
 
-        public SOMaterial Clone() {
+        // in some subclasses we don't want to do default constructor...
+        protected SOMaterial(bool do_nothing)
+        {
+        }
+
+        public virtual SOMaterial Clone() {
             return new SOMaterial() {
                 Name = this.Name, Type = this.Type,
                 RGBColor = this.RGBColor, MainTexture = this.MainTexture

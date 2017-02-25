@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using g3;
 
 namespace f3
 {
@@ -10,18 +11,31 @@ namespace f3
     {
         GameObject parentGO;
 
+        // Currently we do not handle the case of child GOs having multiple different
+        // materials. The material stack in BaseSO only considers a single SOMaterial for
+        // the entire object. If you set this to false, then material change requests (eg
+        // by the selection system) will be ignored
+        public bool AllowMaterialChanges = true;
+
+
         public GOWrapperSO()
         {
         }
 
-        public void Create(GameObject gameObj)
+        public GOWrapperSO Create(GameObject gameObj)
         {
+            SOMaterial setMaterial = new UnitySOMaterial(gameObj.GetMaterial());
+            AssignSOMaterial(setMaterial); 
+
             this.parentGO = gameObj;
+            AppendExistingGO(gameObj);
 
             List<GameObject> children = new List<GameObject>();
             UnityUtil.CollectAllChildren(gameObj, children);
             for (int i = 0; i < children.Count; ++i)
                 AppendExistingGO(children[i]);
+
+            return this;
         }
 
 
@@ -35,7 +49,8 @@ namespace f3
         }
 
         // GOWrapperSO is for wrapping GOs that were created elsewhere, which
-        //  we probably are not going to serialize (change this behavior via subclass and override)
+        //  we probably are not going to serialize
+        //  (To change this behavior, subclass and override)
         override public string UUID
         {
             get { return SceneUtil.InvalidUUID; }
@@ -63,11 +78,21 @@ namespace f3
 
         override public void AssignSOMaterial(SOMaterial m)
         {
-            base.AssignSOMaterial(m);
+            if ( AllowMaterialChanges )
+                base.AssignSOMaterial(m);
         }
         override public SOMaterial GetAssignedSOMaterial()
         {
             return base.GetAssignedSOMaterial();
+        }
+
+        override public void PushOverrideMaterial(Material m) {
+            if (AllowMaterialChanges)
+                base.PushOverrideMaterial(m);
+        }
+        override public void PopOverrideMaterial() {
+            if (AllowMaterialChanges)
+                base.PopOverrideMaterial();
         }
 
 

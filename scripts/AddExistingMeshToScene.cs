@@ -19,7 +19,7 @@ namespace f3
             BaseSceneConfig config = ContextSource.GetComponent<BaseSceneConfig>();
             if (config != null && config.Context != null && config.Context.Scene != null) {
 
-                SceneUtil.ImportExistingUnityMesh(this.gameObject, config.Context.Scene);
+                UnitySceneUtil.ImportExistingUnityMesh(this.gameObject, config.Context.Scene);
 
                 Component.Destroy(this.gameObject.GetComponent<AddExistingMeshToScene>());
                 if (DeleteOriginal)
