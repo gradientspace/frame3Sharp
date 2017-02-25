@@ -15,7 +15,7 @@ namespace f3
         // [TODO] transfer materials!!
         public static void WrapMeshGameObject(GameObject wrapGO, FContext context, bool bDestroyOriginal)
         {
-            var wrapperSO = ImportExistingUnityMesh(wrapGO, context.Scene, true, true, 
+            var wrapperSO = ImportExistingUnityMesh(wrapGO, context.Scene, true, true, true,
                         (mesh, material) => {
                             DMeshSO gso = new DMeshSO();
                             return gso.Create(UnityUtil.UnityMeshToDMesh(mesh, false), material);
@@ -41,21 +41,26 @@ namespace f3
 
 
 
+
         // extracts MeshFilter object from input GameObject and passes it to a custom constructor
         // function MakeSOFunc (if null, creates basic MeshSO). Then optionally adds to Scene,
         // preserving existing 3D position if desired (default true)
         public static TransformableSO ImportExistingUnityMesh(GameObject go, FScene scene, 
-            bool bAddToScene = true, bool bKeepWorldPosition = true,
+            bool bAddToScene = true, bool bKeepWorldPosition = true, bool bRecenterFrame = true,
             Func<Mesh, SOMaterial, TransformableSO> MakeSOFunc = null )
         {
             MeshFilter meshF = go.GetComponent<MeshFilter>();
             if (meshF == null)
                 throw new Exception("SceneUtil.ImportExistingUnityMesh: gameObject is not a mesh!!");
 
-            Mesh useMesh = meshF.mesh;
+            Vector3f scale = go.transform.localScale;
+
+            Mesh useMesh = meshF.mesh;      // makes a copy
             AxisAlignedBox3f bounds = useMesh.bounds;
-            UnityUtil.TranslateMesh(useMesh, -bounds.Center.x, -bounds.Center.y, -bounds.Center.z);
-            useMesh.RecalculateBounds();
+            if (bRecenterFrame) {           // shift bbox center to origin
+                UnityUtil.TranslateMesh(useMesh, -bounds.Center.x, -bounds.Center.y, -bounds.Center.z);
+                useMesh.RecalculateBounds();
+            }
 
             TransformableSO newSO = (MakeSOFunc != null) ? 
                 MakeSOFunc(useMesh, scene.DefaultMeshSOMaterial)
@@ -67,16 +72,23 @@ namespace f3
             if ( bKeepWorldPosition ) {
                 Frame3f goFrameW = UnityUtil.GetGameObjectFrame(go, CoordSpace.WorldCoords);
                 Frame3f goFrameS = scene.ToSceneFrame(goFrameW);
-                Vector3f boundsCenterS = scene.ToSceneP(goFrameW.Origin + bounds.Center);
+                Vector3f originW = goFrameW.Origin;
+                if (bRecenterFrame)
+                    originW += scale * bounds.Center;   // offset initial frame to be at center of mesh
+                Vector3f boundsCenterS = scene.ToSceneP(originW);
 
                 // translate to position in scene
                 Frame3f curF = newSO.GetLocalFrame(CoordSpace.SceneCoords);
                 curF.Origin += boundsCenterS;
                 newSO.SetLocalFrame(curF, CoordSpace.SceneCoords);
 
+                // apply rotation
                 curF = newSO.GetLocalFrame(CoordSpace.SceneCoords);
-                curF.RotateAround(Vector3.zero, goFrameS.Rotation);
+                curF.RotateAround(curF.Origin, goFrameS.Rotation);
                 newSO.SetLocalFrame(curF, CoordSpace.SceneCoords);
+
+                // apply scale
+                newSO.SetLocalScale(scale);
             }
 
             return newSO;

@@ -94,7 +94,7 @@ namespace f3
     public static class TextMeshProUtil
     {
 #if G3_ENABLE_TEXT_MESH_PRO
-        public const bool HaveTextMeshPro = true;
+        public static bool HaveTextMeshPro { get { return true; } }
 
         // [TODO] currently only allows for left-justified text.
         // Can support center/right, but the translate block needs to be rewritten
@@ -171,7 +171,7 @@ namespace f3
         }
 
 #else
-        public const bool HaveTextMeshPro = false;
+        public static bool HaveTextMeshPro { get { return false; } }
 
         public static fTextGameObject CreateTextMeshProGO(
             string sName, string sText,

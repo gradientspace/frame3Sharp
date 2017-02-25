@@ -24,8 +24,13 @@ namespace f3
 
         public GOWrapperSO Create(GameObject gameObj)
         {
-            SOMaterial setMaterial = new UnitySOMaterial(gameObj.GetMaterial());
-            AssignSOMaterial(setMaterial); 
+            fMaterial unityMaterial = gameObj.GetMaterial();
+            if (unityMaterial == null) {
+                AllowMaterialChanges = false;
+            } else {
+                SOMaterial setMaterial = new UnitySOMaterial(unityMaterial);
+                AssignSOMaterial(setMaterial);
+            }
 
             this.parentGO = gameObj;
             AppendExistingGO(gameObj);

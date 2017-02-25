@@ -62,7 +62,8 @@ namespace f3
                 go.GetComponent<Renderer>().material = mat;
         }
         public static fMaterial GetMaterial(this GameObject go) {
-            return new fMaterial(go.GetComponent<Renderer>().material);
+            Renderer r = go.GetComponent<Renderer>();
+            return (r != null) ? new fMaterial(r.material) : null;
         }
 
 
