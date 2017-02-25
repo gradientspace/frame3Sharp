@@ -164,7 +164,7 @@ namespace f3
         public static bool FindGORayIntersection(Ray ray, GameObject go, out GameObjectRayHit hit)
         {
             hit = null;
-            MeshCollider collider = go.GetComponent<MeshCollider>();
+            Collider collider = go.GetComponent<Collider>();
             if (collider == null)
                 return false;
 

@@ -144,7 +144,7 @@ namespace f3
             //}
 
 			foreach (var go in vObjects) {
-                MeshCollider collider = go.GetComponent<MeshCollider>();
+                Collider collider = go.GetComponent<Collider>();
                 if (collider) {
                     collider.enabled = true;
                     if (collider.Raycast(ray, out hitInfo, Mathf.Infinity)) {
