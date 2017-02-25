@@ -20,6 +20,11 @@ namespace f3
     {
         public int LogLevel { get; set; }
 
+
+        // If true, SceneLightingSetup object is attached to Scene, which creates basic scene lighting
+        // If false, you are responsible for your own lighting
+        public bool EnableDefaultLighting { get; set; }
+
         // if false, TransformManager is disabled, so no built-in transform gizmo, etc
         public bool EnableTransforms { get; set; }
 
@@ -64,6 +69,7 @@ namespace f3
 
         public SceneOptions()
         {
+            EnableDefaultLighting = true;
             EnableCockpit = true;
             EnableTransforms = true;
             CockpitInitializer = null;
