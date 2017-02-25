@@ -24,6 +24,9 @@ The FContext also contains a **Cockpit**, which manages the "near-field" user in
 
 A common paradigm in 3D tools is that when you select something, you get a gizmo that lets you do something with it - translate, scale, resize, etc. The **TransformManager** in **FContext** handles this. Gizmos are classes that implement **ITransformGizmo**, and once registered with TransformManager, will be automatically managed when the FScene selection-set changes. The built-in **AxisTransformGizmo** implements a standard move/rotate/scale gizmo, including transforming groups, rotation around arbitrary pivot points, etc. This gizmo is composed of **Widget** sub-elements, the idea is that these Widgets can be re-assembled into other Gizmos.
 
+Another standard aspect of 3D tools is...the Tools. The FContext has a **ToolManager** which keeps track of which **ITool** is active. The set of possible tools must be registered with ToolManager at startup. Generally a Tool is modal, so when a Tool is active it takes control of the interaction to some extent. For example the provided **DrawPrimitivesTool** overrides the standard left mouse button behavior to draw primitives on left-click-drag. A separate Tool can be active on each input device, so if you are using VR hand controllers you can have a Tool in each hand.
+
+
 
 
 
