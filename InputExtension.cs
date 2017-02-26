@@ -4,7 +4,8 @@ using g3;
 
 namespace f3
 {
-
+    // InputTrigger converts an Axis input (eg like a trigger on a gamepad) to 
+    // a Pressed/Down/Released-style button, based on "down" and "up" thresholds
     public class InputTrigger
     {
         float fPrevValue = 0, fCurValue = 0;
@@ -148,11 +149,11 @@ namespace f3
         public InputButton GamepadA, GamepadB, GamepadX, GamepadY;
         public InputButton GamepadLeftShoulder, GamepadRightShoulder;
 
-        public InputTrigger OculusLeftTrigger;
-        public InputTrigger OculusRightTrigger;
+        public InputTrigger SpatialLeftTrigger;
+        public InputTrigger SpatialRightTrigger;
 
-        public InputTrigger OculusLeftShoulder;
-        public InputTrigger OculusRightShoulder;
+        public InputTrigger SpatialLeftShoulder;
+        public InputTrigger SpatialRightShoulder;
 
 
         public void Start()
@@ -265,23 +266,12 @@ namespace f3
             }
 
 
+            // configure spatial controller triggers
 
-
-            // configure Oculus
-
-
-            OculusLeftTrigger = new InputTrigger(() => {
-                return OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger, OVRInput.Controller.LTouch);
-            }, 0.9f, 0.1f);
-            OculusRightTrigger = new InputTrigger(() => {
-                return OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
-            }, 0.9f, 0.1f);
-            OculusLeftShoulder = new InputTrigger(() => {
-                return OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.LTouch);
-            }, 0.9f, 0.1f);
-            OculusRightShoulder = new InputTrigger(() => {
-                return OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.RTouch);
-            }, 0.9f, 0.1f);
+            SpatialLeftTrigger = VRPlatform.LeftTrigger;
+            SpatialRightTrigger = VRPlatform.RightTrigger;
+            SpatialLeftShoulder = VRPlatform.LeftSecondaryTrigger;
+            SpatialRightShoulder = VRPlatform.RightSecondaryTrigger;
         }
 
         // call this from a MonoBehavior Update before you use the Input extension methods
@@ -289,10 +279,10 @@ namespace f3
         {
             GamepadLeft.Update();
             GamepadRight.Update();
-            OculusLeftTrigger.Update();
-            OculusRightTrigger.Update();
-            OculusLeftShoulder.Update();
-            OculusRightShoulder.Update();
+            SpatialLeftTrigger.Update();
+            SpatialRightTrigger.Update();
+            SpatialLeftShoulder.Update();
+            SpatialRightShoulder.Update();
         }
 
 

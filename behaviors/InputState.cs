@@ -221,24 +221,25 @@ namespace f3
         {
             eDevice = InputDevice.OculusTouch;
 
-            bLeftControllerActive = OVRInput.GetControllerPositionTracked(OVRInput.Controller.LTouch);
-            bRightControllerActive = OVRInput.GetControllerPositionTracked(OVRInput.Controller.RTouch);
+            // would we ever get this far if controller was not tracked?
+            bLeftControllerActive = VRPlatform.IsSpatialDeviceTracked(0);
+            bRightControllerActive = VRPlatform.IsSpatialDeviceTracked(1);
 
-            bLeftTriggerPressed = InputExtension.Get.OculusLeftTrigger.Pressed;
-            bLeftTriggerDown = InputExtension.Get.OculusLeftTrigger.Down;
-            bLeftTriggerReleased = InputExtension.Get.OculusLeftTrigger.Released;
+            bLeftTriggerPressed = InputExtension.Get.SpatialLeftTrigger.Pressed;
+            bLeftTriggerDown = InputExtension.Get.SpatialLeftTrigger.Down;
+            bLeftTriggerReleased = InputExtension.Get.SpatialLeftTrigger.Released;
 
-            bRightTriggerPressed = InputExtension.Get.OculusRightTrigger.Pressed;
-            bRightTriggerDown = InputExtension.Get.OculusRightTrigger.Down;
-            bRightTriggerReleased = InputExtension.Get.OculusRightTrigger.Released;
+            bRightTriggerPressed = InputExtension.Get.SpatialRightTrigger.Pressed;
+            bRightTriggerDown = InputExtension.Get.SpatialRightTrigger.Down;
+            bRightTriggerReleased = InputExtension.Get.SpatialRightTrigger.Released;
 
-            bLeftShoulderPressed = InputExtension.Get.OculusLeftShoulder.Pressed;
-            bLeftShoulderDown = InputExtension.Get.OculusLeftShoulder.Down;
-            bLeftShoulderReleased = InputExtension.Get.OculusLeftShoulder.Released;
+            bLeftShoulderPressed = InputExtension.Get.SpatialLeftShoulder.Pressed;
+            bLeftShoulderDown = InputExtension.Get.SpatialLeftShoulder.Down;
+            bLeftShoulderReleased = InputExtension.Get.SpatialLeftShoulder.Released;
 
-            bRightShoulderPressed = InputExtension.Get.OculusRightShoulder.Pressed;
-            bRightShoulderDown = InputExtension.Get.OculusRightShoulder.Down;
-            bRightShoulderReleased = InputExtension.Get.OculusRightShoulder.Released;
+            bRightShoulderPressed = InputExtension.Get.SpatialRightShoulder.Pressed;
+            bRightShoulderDown = InputExtension.Get.SpatialRightShoulder.Down;
+            bRightShoulderReleased = InputExtension.Get.SpatialRightShoulder.Released;
 
             bLeftStickPressed = OVRInput.GetDown(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.LTouch);
             bLeftStickDown = OVRInput.Get(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.LTouch);

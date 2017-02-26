@@ -49,9 +49,7 @@ namespace f3
                     return OVRInput.GetControllerPositionTracked(OVRInput.Controller.LTouch) ||
                             OVRInput.GetControllerPositionTracked(OVRInput.Controller.RTouch);
                 } else if ( CurrentVRDevice == Device.HTCVive ) {
-                    int iLeft = SteamVR_Controller.GetDeviceIndex(SteamVR_Controller.DeviceRelation.Leftmost);
-                    int iRight = SteamVR_Controller.GetDeviceIndex(SteamVR_Controller.DeviceRelation.Rightmost);
-                    return SteamVR_Controller.Input(iLeft).connected || SteamVR_Controller.Input(iRight).connected;
+                    return LeftViveControllerDevice.connected || RightViveControllerDevice.connected;
                 } else {
                     return false;
                 }
@@ -68,10 +66,8 @@ namespace f3
                 return OVRInput.GetControllerPositionTracked(controller);
 
             } else if ( CurrentVRDevice == Device.HTCVive ) {
-                int idx = SteamVR_Controller.GetDeviceIndex( (i == 0) ? 
-                    SteamVR_Controller.DeviceRelation.Leftmost :
-                    SteamVR_Controller.DeviceRelation.Rightmost );
-                return SteamVR_Controller.Input(idx).hasTracking;
+                var device = (i == 0) ? LeftViveControllerDevice : RightViveControllerDevice;
+                return device.hasTracking;
 
             } else {
                 return false;
@@ -87,7 +83,7 @@ namespace f3
                 return OVRInput.GetLocalControllerPosition(controller);
 
             } else if ( CurrentVRDevice == Device.HTCVive ) {
-                GameObject controller = (i == 0) ? LeftViveController : RightViveController;
+                GameObject controller = (i == 0) ? LeftViveControllerGO : RightViveControllerGO;
                 if (controller == null)
                     return Vector3f.Zero;
                 SteamVR_TrackedObject tracker = controller.GetComponent<SteamVR_TrackedObject>();
@@ -109,7 +105,7 @@ namespace f3
                 return rotation;
 
             } else if ( CurrentVRDevice == Device.HTCVive ) {
-                GameObject controller = (i == 0) ? LeftViveController : RightViveController;
+                GameObject controller = (i == 0) ? LeftViveControllerGO : RightViveControllerGO;
                 if (controller == null)
                     return Quaternionf.Identity;
                 SteamVR_TrackedObject tracker = controller.GetComponent<SteamVR_TrackedObject>();
@@ -126,6 +122,102 @@ namespace f3
 
 
 
+        static InputTrigger leftTrigger;
+        public static InputTrigger LeftTrigger
+        {
+            get {
+                if ( leftTrigger == null ) {
+                    if (CurrentVRDevice == Device.OculusRift) {
+                        leftTrigger = new InputTrigger(() => {
+                            return OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger, OVRInput.Controller.LTouch);
+                        }, 0.9f, 0.1f);
+                    } else if (CurrentVRDevice == Device.HTCVive) {
+                        leftTrigger = new InputTrigger(() => {
+                            Vector2f v = LeftViveControllerDevice.GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger);
+                            return v.x;
+                        }, 0.8f, 0.1f);
+                    } else {
+                        leftTrigger = InputTrigger.NoTrigger;
+                    }
+                }
+                return leftTrigger;
+            }
+        }
+
+
+
+        static InputTrigger rightTrigger;
+        public static InputTrigger RightTrigger
+        {
+            get {
+                if ( rightTrigger == null ) {
+                    if (CurrentVRDevice == Device.OculusRift) {
+                        rightTrigger = new InputTrigger(() => {
+                            return OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
+                        }, 0.9f, 0.1f);
+                    } else if (CurrentVRDevice == Device.HTCVive) {
+                        rightTrigger = new InputTrigger(() => {
+                            Vector2f v = RightViveControllerDevice.GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger);
+                            return v.x;
+                        }, 0.8f, 0.1f);
+                    } else {
+                        rightTrigger = InputTrigger.NoTrigger;
+                    }
+                }
+                return rightTrigger;
+            }
+        }
+
+
+
+
+
+        static InputTrigger leftSecondaryTrigger;
+        public static InputTrigger LeftSecondaryTrigger
+        {
+            get {
+                if ( leftSecondaryTrigger == null ) {
+                    if (CurrentVRDevice == Device.OculusRift) {
+                        leftSecondaryTrigger = new InputTrigger(() => {
+                            return OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.LTouch);
+                        }, 0.9f, 0.1f);
+                    } else if (CurrentVRDevice == Device.HTCVive) {
+                        leftSecondaryTrigger = new InputTrigger(() => {
+                            bool bDown = LeftViveControllerDevice.GetPress(SteamVR_Controller.ButtonMask.Grip);
+                            return (bDown) ? 1.0f : 0.0f;
+                        }, 0.9f, 0.1f);
+                    } else {
+                        leftSecondaryTrigger = InputTrigger.NoTrigger;
+                    }
+                }
+                return leftSecondaryTrigger;
+            }
+        }
+
+
+
+
+        static InputTrigger rightSecondaryTrigger;
+        public static InputTrigger RightSecondaryTrigger
+        {
+            get {
+                if ( rightSecondaryTrigger == null ) {
+                    if (CurrentVRDevice == Device.OculusRift) {
+                        leftSecondaryTrigger = new InputTrigger(() => {
+                            return OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.RTouch);
+                        }, 0.9f, 0.1f);
+                    } else if (CurrentVRDevice == Device.HTCVive) {
+                        rightSecondaryTrigger = new InputTrigger(() => {
+                            bool bDown = RightViveControllerDevice.GetPress(SteamVR_Controller.ButtonMask.Grip);
+                            return (bDown) ? 1.0f : 0.0f;
+                        }, 0.9f, 0.1f);
+                    } else {
+                        rightSecondaryTrigger = InputTrigger.NoTrigger;
+                    }
+                }
+                return rightSecondaryTrigger;
+            }
+        }
 
 
 
@@ -133,11 +225,21 @@ namespace f3
         // Vive-specific stuff. Unlike OVR, SteamVR does not provide very straightforward
         // code-level access to controllers. We need to find a MonoBehavior attached to
         // each controller, which is set up by the [CameraRig] prefab. 
+        // 
+        // Also, in SteamVR the left/right relationship of controllers will change if the
+        // user switches hands. This messes up all sorts of stuff if we are looking it up
+        // dynamically. So, cache it first time and stick with it.
         static GameObject leftViveController, rightViveController;
+        static int iLeftViveDeviceIdx = -1, iRightViveDeviceIdx = -1;
         static void lookup_vive_controllers()
         {
-            int iLeft = SteamVR_Controller.GetDeviceIndex(SteamVR_Controller.DeviceRelation.Leftmost);
-            int iRight = SteamVR_Controller.GetDeviceIndex(SteamVR_Controller.DeviceRelation.Rightmost);
+            if (spatialCameraRig == null)
+                return;
+            if (leftViveController != null && rightViveController != null)
+                return;
+
+            iLeftViveDeviceIdx = SteamVR_Controller.GetDeviceIndex(SteamVR_Controller.DeviceRelation.Leftmost);
+            iRightViveDeviceIdx = SteamVR_Controller.GetDeviceIndex(SteamVR_Controller.DeviceRelation.Rightmost);
 
             List<GameObject> children = new List<GameObject>(spatialCameraRig.Children());
             for (int i = 0; i < children.Count; ++i) {
@@ -145,30 +247,38 @@ namespace f3
                 if (tracked == null)
                     continue;
                 int idx = (int)tracked.index;
-                if (idx == iLeft)
+                if (idx == iLeftViveDeviceIdx)
                     leftViveController = children[i];
-                else if (idx == iRight)
+                else if (idx == iRightViveDeviceIdx)
                     rightViveController = children[i];
             }
         }
 
-        static GameObject LeftViveController
-        {
+        static GameObject LeftViveControllerGO {
             get {
-                if ( leftViveController == null && spatialCameraRig != null )
-                    lookup_vive_controllers();
+                lookup_vive_controllers();
                 return leftViveController;
             }
         }
-        static GameObject RightViveController
-        {
+        static GameObject RightViveControllerGO {
             get {
-                if ( rightViveController == null && spatialCameraRig != null )
-                    lookup_vive_controllers();
+                lookup_vive_controllers();
                 return rightViveController;
             }
         }
 
+        static SteamVR_Controller.Device LeftViveControllerDevice {
+            get {
+                lookup_vive_controllers();
+                return SteamVR_Controller.Input(iLeftViveDeviceIdx);
+            }
+        }
+        static SteamVR_Controller.Device RightViveControllerDevice {
+            get {
+                lookup_vive_controllers();
+                return SteamVR_Controller.Input(iRightViveDeviceIdx);
+            }
+        }
 
     }
 }
