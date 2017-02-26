@@ -116,19 +116,6 @@ namespace f3 {
         }
 
 
-        public enum VRDevice
-        {
-            NoVRDevice, OculusRift, HTCVive
-        }
-
-        public VRDevice CurrentVRDevice
-        {
-            //get { return VRDevice.NoVRDevice; }
-            //get { return VRDevice.OculusRift; }
-            get { return VRDevice.HTCVive; }
-        }
-
-
 		// Use this for initialization
 		public void Initialize (FContext controller) {
             this.controller = controller;
@@ -146,7 +133,7 @@ namespace f3 {
 
             // on Vive the MainCamera will have some child cameras that are a problem, 
             // so get rid of them
-            if ( CurrentVRDevice == VRDevice.HTCVive ) {
+            if ( VRPlatform.CurrentVRDevice == VRPlatform.Device.HTCVive ) {
                 List<GameObject> children = new List<GameObject>(mainCameraObj.Children());
                 foreach (var child in children) {
                     mainCameraObj.RemoveChild(child);

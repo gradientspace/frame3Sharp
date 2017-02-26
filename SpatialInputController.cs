@@ -60,9 +60,7 @@ namespace f3 {
             if (spatialCamRig == null)
                 return false;
 
-            bool bTracking =
-                OVRInput.GetControllerPositionTracked(OVRInput.Controller.LTouch) ||
-                OVRInput.GetControllerPositionTracked(OVRInput.Controller.RTouch);
+            bool bTracking = VRPlatform.HaveActiveSpatialInput;
             if (bTracking) {
                 SpatialInputActive = true;
                 if (spatialInputInitialized == false)
@@ -75,6 +73,7 @@ namespace f3 {
 
 
         Quaternion handGeomRotation = Quaternion.FromToRotation(Vector3.up, Vector3.forward);
+
 
         Mesh standardCursorMesh;
         Mesh activeToolCursorMesh;
@@ -156,28 +155,27 @@ namespace f3 {
             if (CheckForSpatialInputActive() == false)
                 return;
 
-            var OVRCamRig = spatialCamRig;
-            Vector3 rootPos = OVRCamRig.transform.position;
+            Vector3 rootPos = spatialCamRig.transform.position;
 
             SpatialDevice[] hands = { Left, Right };
-            OVRInput.Controller[] controllers = { OVRInput.Controller.LTouch, OVRInput.Controller.RTouch };
-
             for (int i = 0; i < 2; ++i) {
                 SpatialDevice h = hands[i];
-                OVRInput.Controller controller = controllers[i];
 
-                h.CursorActive = OVRInput.GetControllerPositionTracked(controller);
+                h.CursorActive = VRPlatform.IsSpatialDeviceTracked(i);
                 if (h.CursorActive) {
                     h.Hand.Show();
                     h.Cursor.Show();
 
-                    Vector3 handPos = OVRInput.GetLocalControllerPosition(controller);
-                    Quaternion handRot = OVRInput.GetLocalControllerRotation(controller);
+                    Vector3 handPos = VRPlatform.GetLocalControllerPosition(i);
+                    Quaternion handRot = VRPlatform.GetLocalControllerRotation(i);
 
                     h.AbsoluteHandFrame = new Frame3f(rootPos + handPos, handRot);
 
                     float fPositionT = 0.2f;
                     float fRotationT = 0.2f;
+                    //float fPositionT = 1.0f;
+                    //float fRotationT = 1.0f;
+
                     if (h.SmoothedHandFrame.Origin != Vector3f.Zero) {
                         Vector3 new_origin = 
                             Vector3.Lerp(h.SmoothedHandFrame.Origin, h.AbsoluteHandFrame.Origin, fPositionT);

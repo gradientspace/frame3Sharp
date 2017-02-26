@@ -91,8 +91,11 @@ namespace f3 {
         public SpatialInputController SpatialController
         {
             get {
-                if (spatialCursor == null)
+                if (spatialCursor == null) {
+                    if (options.SpatialCameraRig != null)
+                        VRPlatform.SetSpatialRig(options.SpatialCameraRig);
                     spatialCursor = new SpatialInputController(options.SpatialCameraRig, ActiveCamera, this);
+                }
                 return spatialCursor;
             }
         }
