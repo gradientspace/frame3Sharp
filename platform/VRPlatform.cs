@@ -616,6 +616,89 @@ namespace f3
 
 
 
+
+
+
+
+
+
+        /*
+         * Automatically replace dummy Main Camera with VR Platform-Specific camera rig
+         *    - finds main cam via MainCamera tag
+         *    - this main camera is destroyed
+         *    - for Vive, instantiates SteamVR camera rig prefabs (must be in /SteamVR/ path in a /Resources/ folder)
+         *    - For Rift (...)
+         *  
+         *  NOTE: this code is called before any other F3 setup. So, many F3 things
+         *  are not initialized (eg like DebugUtil.Log)
+         */
+        public static GameObject AutoConfigureVR()
+        {
+            if (VREnabled == false)
+                return null;
+
+            string sModel = VRDevice.model;
+            UnityEngine.Debug.Log(string.Format(
+                "VRPlatform.AutoConfigureVR: VRDevice Model is \"{0}\", SteamVR.enabled={1}", sModel, SteamVR.enabled));
+
+            GameObject camRig = null;
+
+            if (SteamVR.enabled )
+                camRig = AutoConfigure_SteamVR();
+
+            UnityEngine.Debug.Log(string.Format(
+                "VRPlatform.AutoConfigureVR: {0}", (camRig == null) ? "failed" : "success!"));
+
+            return camRig;
+        }
+        static GameObject AutoConfigure_SteamVR()
+        {
+            GameObject cameraRig = null;
+            GameObject mainCamGO = null;
+            Camera mainCam = null;
+
+            // create vive VR prefabs and keep track of camera rig
+            try {
+                mainCamGO = find_main_camera();
+                mainCam = mainCamGO.GetComponent<Camera>();
+
+                GameObject steamVR = GameObject.Instantiate(Resources.Load("SteamVR/[SteamVR]")) as GameObject;
+                steamVR.name = "[SteamVR]";
+                cameraRig = GameObject.Instantiate(Resources.Load("SteamVR/[CameraRig]")) as GameObject;
+                cameraRig.name = "[CameraRig]";
+            } catch ( Exception e ) {
+                UnityEngine.Debug.Log(string.Format(
+                    "VRPlatform.AutoConfigureVR: Error instantiating Vive VR Prefabs: " + e.Message));
+                return null;
+            }
+
+            // set to same position as mainCam (should be same position as in Editor)
+            cameraRig.transform.position = mainCamGO.transform.position;
+
+            // disconnect the existing camera
+            mainCam.tag = "Untagged";
+            mainCamGO.tag = "Untagged";
+            GameObject.Destroy(mainCamGO);
+            Component.Destroy(mainCam);
+
+            return cameraRig;
+        }
+        static GameObject find_main_camera()
+        {
+            GameObject[] mainCameras = GameObject.FindGameObjectsWithTag("MainCamera");
+            if (mainCameras.Length != 1)
+                throw new Exception("found multiple objects tagged MainCamera, aborting");
+            return mainCameras[0];
+        }
+
+
+
+
+
+
+
+
+
         /*
          * Internals below here
          */

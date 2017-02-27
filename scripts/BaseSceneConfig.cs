@@ -11,6 +11,8 @@ namespace f3
         public abstract FContext Context { get; }
 
 
+        public bool AutoConfigVR = false;
+
 
     }
 }
