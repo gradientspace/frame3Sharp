@@ -55,11 +55,15 @@ namespace f3
             if (meshF == null)
                 throw new Exception("SceneUtil.ImportExistingUnityMesh: gameObject is not a mesh!!");
 
-            Vector3f scale = go.transform.localScale;
+            Vector3f scale = go.GetLocalScale();
 
             Mesh useMesh = meshF.mesh;      // makes a copy
-            AxisAlignedBox3f bounds = useMesh.bounds;
-            if (bRecenterFrame) {           // shift bbox center to origin
+            AxisAlignedBox3f bounds = useMesh.bounds;       // bounds.Center is wrt local frame of input go
+                                                            // ie offset from origin in local coordinates
+
+            // if we want to move frame to center of mesh, we have to re-center it at origin
+            // in local coordinates
+            if (bRecenterFrame) {           
                 UnityUtil.TranslateMesh(useMesh, -bounds.Center.x, -bounds.Center.y, -bounds.Center.z);
                 useMesh.RecalculateBounds();
             }
@@ -72,24 +76,32 @@ namespace f3
                 scene.AddSceneObject(newSO, false);
 
             if ( bKeepWorldPosition ) {
+
+                // compute world rotation/location. If we re-centered the mesh, we need
+                // to offset by the transform we applied above in local coordinates 
+                // (hence we have to rotate & scale)
+                if (go.transform.parent != null)
+                    throw new Exception("UnitySceneUtil.ImportExistingUnityMesh: Not handling case where GO has a parent transform");
                 Frame3f goFrameW = UnityUtil.GetGameObjectFrame(go, CoordSpace.WorldCoords);
-                Frame3f goFrameS = scene.ToSceneFrame(goFrameW);
                 Vector3f originW = goFrameW.Origin;
                 if (bRecenterFrame)
-                    originW += scale * bounds.Center;   // offset initial frame to be at center of mesh
+                    originW += goFrameW.Rotation * (scale * bounds.Center);   // offset initial frame to be at center of mesh
+
+                // convert world frame and offset to scene coordinates
+                Frame3f goFrameS = scene.ToSceneFrame(goFrameW);
                 Vector3f boundsCenterS = scene.ToSceneP(originW);
 
-                // translate to position in scene
+                // translate new object to position in scene
                 Frame3f curF = newSO.GetLocalFrame(CoordSpace.SceneCoords);
                 curF.Origin += boundsCenterS;
                 newSO.SetLocalFrame(curF, CoordSpace.SceneCoords);
 
-                // apply rotation
+                // apply rotation (around current origin)
                 curF = newSO.GetLocalFrame(CoordSpace.SceneCoords);
                 curF.RotateAround(curF.Origin, goFrameS.Rotation);
                 newSO.SetLocalFrame(curF, CoordSpace.SceneCoords);
 
-                // apply scale
+                // apply local scale
                 newSO.SetLocalScale(scale);
             }
 

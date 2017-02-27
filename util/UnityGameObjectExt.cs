@@ -89,7 +89,10 @@ namespace f3
 
 
 
-
+        public static Vector3f GetLocalScale(this GameObject go)
+        {
+            return go.transform.localScale;
+        }
         public static Vector3f GetLocalPosition(this GameObject go)
         {
             return go.transform.localPosition;
