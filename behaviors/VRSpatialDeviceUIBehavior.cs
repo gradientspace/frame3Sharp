@@ -16,7 +16,7 @@ namespace f3
         }
 
         public override InputDevice SupportedDevices {
-            get { return InputDevice.OculusTouch; }
+            get { return InputDevice.AnySpatialDevice; }
         }
 
         public override CaptureRequest WantsCapture(InputState input)
@@ -26,7 +26,7 @@ namespace f3
                 Ray3f useRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
                 UIRayHit uiHit;
                 if (scene.FindUIHit(useRay, out uiHit)) {
-                    bool bCanCapture = uiHit.hitUI.WantsCapture(InputEvent.OculusTouch(eSide, input, new AnyRayHit(uiHit)));
+                    bool bCanCapture = uiHit.hitUI.WantsCapture(InputEvent.Spatial(eSide, input, new AnyRayHit(uiHit)));
                     if (bCanCapture)
                         return CaptureRequest.Begin(this, eSide);
                 }
@@ -40,7 +40,7 @@ namespace f3
             Ray3f useRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
             UIRayHit uiHit;
             if (scene.FindUIHit(useRay, out uiHit)) {
-                bool bCanCapture = uiHit.hitUI.BeginCapture(InputEvent.OculusTouch(eSide, input, new AnyRayHit(uiHit)));
+                bool bCanCapture = uiHit.hitUI.BeginCapture(InputEvent.Spatial(eSide, input, new AnyRayHit(uiHit)));
                 if (bCanCapture) {
                     return Capture.Begin(this, eSide, uiHit.hitUI );
                 }
@@ -56,14 +56,14 @@ namespace f3
                  (data.which == CaptureSide.Right && input.bRightTriggerReleased)) {
 
                 if (uiElem != null)
-                    uiElem.EndCapture(InputEvent.OculusTouch(data.which, input));
+                    uiElem.EndCapture(InputEvent.Spatial(data.which, input));
                 return Capture.End;
 
             } else if ((data.which == CaptureSide.Left && input.bLeftTriggerDown) ||
                        (data.which == CaptureSide.Right && input.bRightTriggerDown)) {
 
                 if ( uiElem != null )
-                    uiElem.UpdateCapture(InputEvent.OculusTouch(data.which, input));
+                    uiElem.UpdateCapture(InputEvent.Spatial(data.which, input));
                 return Capture.Continue;
 
             } else {
@@ -78,7 +78,7 @@ namespace f3
         {
             SceneUIElement uiElem = data.custom_data as SceneUIElement;
             if (uiElem != null)
-                uiElem.EndCapture(InputEvent.OculusTouch(data.which, input));
+                uiElem.EndCapture(InputEvent.Spatial(data.which, input));
             return Capture.End;
         }
 

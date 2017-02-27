@@ -15,7 +15,8 @@ namespace f3
         Gamepad = 2,
 
         OculusTouch = 4,
-        HTCVive = 8,
+        HTCViveWands = 8,
+        AnySpatialDevice = OculusTouch | HTCViveWands,
 
         TabletFingers = 1024
     }
@@ -25,6 +26,9 @@ namespace f3
     //   means a ton of copies!! maybe should be a class??
     public struct InputState
     {
+        public static bool IsHandedDevice(InputDevice d) { return (d & InputDevice.AnySpatialDevice) != 0; }
+        public static bool IsDevice(InputDevice set, InputDevice test) { return (set & test) != 0; }
+
         public InputDevice eDevice;
         public bool IsForDevice(InputDevice d) { return (eDevice & d) != 0; }
 
@@ -111,10 +115,14 @@ namespace f3
         public bool bYButtonDown;
         public bool bYButtonReleased;
 
-        public bool bMenuButtonPressed;
-        public bool bMenuButtonDown;
-        public bool bMenuButtonReleased;
+        public bool bLeftMenuButtonPressed;
+        public bool bLeftMenuButtonDown;
+        public bool bLeftMenuButtonReleased;
 
+        // Oculus Touch does not have 'right' menu button, but Vive does
+        public bool bRightMenuButtonPressed;
+        public bool bRightMenuButtonDown;
+        public bool bRightMenuButtonReleased;
 
         public Vector2f vLeftStickDelta2D;
         public Vector2f vRightStickDelta2D;
@@ -217,13 +225,14 @@ namespace f3
 
 
 
-        public void Initialize_Oculus(FContext s)
+        public void Initialize_SpatialController(FContext s)
         {
-            eDevice = InputDevice.OculusTouch;
+            eDevice = (VRPlatform.CurrentVRDevice == VRPlatform.Device.HTCVive) ?
+                InputDevice.HTCViveWands : InputDevice.OculusTouch;
 
             // would we ever get this far if controller was not tracked?
-            bLeftControllerActive = VRPlatform.IsSpatialDeviceTracked(0);
-            bRightControllerActive = VRPlatform.IsSpatialDeviceTracked(1);
+            bLeftControllerActive = VRPlatform.IsLeftControllerTracked;
+            bRightControllerActive = VRPlatform.IsRightControllerTracked;
 
             bLeftTriggerPressed = InputExtension.Get.SpatialLeftTrigger.Pressed;
             bLeftTriggerDown = InputExtension.Get.SpatialLeftTrigger.Down;
@@ -241,38 +250,44 @@ namespace f3
             bRightShoulderDown = InputExtension.Get.SpatialRightShoulder.Down;
             bRightShoulderReleased = InputExtension.Get.SpatialRightShoulder.Released;
 
-            bLeftStickPressed = OVRInput.GetDown(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.LTouch);
-            bLeftStickDown = OVRInput.Get(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.LTouch);
-            bLeftStickReleased = OVRInput.GetUp(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.LTouch);
-            bLeftStickTouching = OVRInput.Get(OVRInput.Touch.PrimaryThumbstick, OVRInput.Controller.LTouch);
+            bLeftStickPressed = VRPlatform.LeftStickPressed;
+            bLeftStickDown = VRPlatform.LeftStickDown;
+            bLeftStickReleased = VRPlatform.LeftStickReleased;
+            bLeftStickTouching = VRPlatform.LeftStickTouching;
 
-            bRightStickPressed = OVRInput.GetDown(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.RTouch);
-            bRightStickDown = OVRInput.Get(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.RTouch);
-            bRightStickReleased = OVRInput.GetUp(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.RTouch);
-            bRightStickTouching = OVRInput.Get(OVRInput.Touch.PrimaryThumbstick, OVRInput.Controller.RTouch);
+            bRightStickPressed = VRPlatform.RightStickPressed;
+            bRightStickDown = VRPlatform.RightStickDown;
+            bRightStickReleased = VRPlatform.RightStickReleased;
+            bRightStickTouching = VRPlatform.RightStickTouching;
 
-            bAButtonPressed = OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch);
-            bAButtonDown = OVRInput.Get(OVRInput.Button.One, OVRInput.Controller.RTouch);
-            bAButtonReleased = OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.RTouch);
+            // [TODO] emulate these buttons w/ vive touchpad locations?
 
-            bBButtonPressed = OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.RTouch);
-            bBButtonDown = OVRInput.Get(OVRInput.Button.Two, OVRInput.Controller.RTouch);
-            bBButtonReleased = OVRInput.GetUp(OVRInput.Button.Two, OVRInput.Controller.RTouch);
+            bAButtonPressed = VRPlatform.AButtonPressed;
+            bAButtonDown = VRPlatform.AButtonDown;
+            bAButtonReleased = VRPlatform.AButtonReleased;
 
-            bXButtonPressed = OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.LTouch);
-            bXButtonDown = OVRInput.Get(OVRInput.Button.One, OVRInput.Controller.LTouch);
-            bXButtonReleased = OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.LTouch);
+            bBButtonPressed = VRPlatform.BButtonPressed;
+            bBButtonDown = VRPlatform.BButtonDown;
+            bBButtonReleased = VRPlatform.BButtonReleased;
 
-            bYButtonPressed = OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.LTouch);
-            bYButtonDown = OVRInput.Get(OVRInput.Button.Two, OVRInput.Controller.LTouch);
-            bYButtonReleased = OVRInput.GetUp(OVRInput.Button.Two, OVRInput.Controller.LTouch);
+            bXButtonPressed = VRPlatform.XButtonPressed;
+            bXButtonDown = VRPlatform.XButtonDown;
+            bXButtonReleased = VRPlatform.XButtonReleased;
 
-            bMenuButtonPressed = OVRInput.GetDown(OVRInput.Button.Start);
-            bMenuButtonDown = OVRInput.Get(OVRInput.Button.Start);
-            bMenuButtonReleased = OVRInput.Get(OVRInput.Button.Start);
+            bYButtonPressed = VRPlatform.YButtonPressed;
+            bYButtonDown = VRPlatform.YButtonDown;
+            bYButtonReleased = VRPlatform.YButtonReleased;
 
-            vLeftStickDelta2D = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.LTouch);
-            vRightStickDelta2D = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+            bLeftMenuButtonPressed = VRPlatform.LeftMenuButtonPressed;
+            bLeftMenuButtonDown = VRPlatform.LeftMenuButtonDown;
+            bLeftMenuButtonReleased = VRPlatform.LeftMenuButtonReleased;
+
+            bRightMenuButtonPressed = VRPlatform.RightMenuButtonPressed;
+            bRightMenuButtonDown = VRPlatform.RightMenuButtonDown;
+            bRightMenuButtonReleased = VRPlatform.RightMenuButtonReleased;
+
+            vLeftStickDelta2D = VRPlatform.LeftStickPosition;
+            vRightStickDelta2D = VRPlatform.RightStickPosition;
 
             // [RMS] bit of a hack here, if controller is not active then ray is 0/0, and
             //   that causes lots of exceptions elsewhere! So we return a default ray pointing

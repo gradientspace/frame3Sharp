@@ -31,7 +31,7 @@ namespace f3
 
         public override Capture UpdateCapture(InputState input, CaptureData data)
         {
-            if (input.bMenuButtonReleased) {
+            if (input.bLeftMenuButtonReleased) {
 
                 string sDate =
                     DateTime.Now.ToString("MMMdd_hhmmss") + DateTime.Now.ToString("tt").ToLower();

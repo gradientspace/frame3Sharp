@@ -26,10 +26,21 @@ namespace f3
             return new InputEvent() {
                 ray = input.vTouchWorldRay, side = CaptureSide.Any, device = InputDevice.TabletFingers, input = input, hit = hit };
         }
+
         public static InputEvent OculusTouch(CaptureSide which, InputState input, AnyRayHit hit = null) {
             return new InputEvent() {
                 ray = (which == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay,
                 side = which, device = InputDevice.OculusTouch, input = input, hit = hit };
+        }
+        public static InputEvent HTCVive(CaptureSide which, InputState input, AnyRayHit hit = null) {
+            return new InputEvent() {
+                ray = (which == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay,
+                side = which, device = InputDevice.HTCViveWands, input = input, hit = hit };
+        }
+        public static InputEvent Spatial(CaptureSide which, InputState input, AnyRayHit hit = null) {
+            return new InputEvent() {
+                ray = (which == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay,
+                side = which, device = InputDevice.AnySpatialDevice, input = input, hit = hit };
         }
 
     }

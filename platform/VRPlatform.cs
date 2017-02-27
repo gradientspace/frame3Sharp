@@ -2,9 +2,15 @@
 using System.Collections.Generic;
 using g3;
 using UnityEngine;
+using UnityEngine.VR;
 
 namespace f3
 {
+    /// <summary>
+    ///  Abstraction of VR platforms. Since HMDs are basically the same,
+    ///  this is really more about the spatial controllers (Touch vs Vive Wand).
+    ///  The various properties try to provide a uniform interface to these devices.
+    /// </summary>
     public static class VRPlatform
     {
         // TODO:
@@ -19,29 +25,62 @@ namespace f3
         public static float ViveControllerRotationAngle = 60.0f;
 
 
+        // this is really more about the controllers...
         public enum Device
         {
-            NoVRDevice, OculusRift, HTCVive
+            NoVRDevice, GenericVRDevice, OculusRift, HTCVive
         }
 
-        public static Device CurrentVRDevice
+
+
+        // platform interface to detect if VR is enabled/disabled
+        public static bool VREnabled
         {
-            //get { return VRDevice.NoVRDevice; }
-            //get { return VRDevice.OculusRift; }
-            get { return Device.HTCVive; }
+            get { return VRSettings.enabled; }
+            set { VRSettings.enabled = value; }
         }
+
 
 
 
         static GameObject spatialCameraRig = null;
-        public static void SetSpatialRig(GameObject root)
+        static Device currentVRDevice = Device.NoVRDevice;
+        public static bool Initialize(GameObject SpatialCameraRig)
         {
-            spatialCameraRig = root;
+            spatialCameraRig = SpatialCameraRig;
+
+            if (VRSettings.isDeviceActive) {
+
+                string sModel = VRDevice.model;
+                DebugUtil.Log(2, "VRPlatform.Initialize: VRDevice Model is \"{0}\"", sModel);
+
+                if (spatialCameraRig == null) {
+                    currentVRDevice = Device.GenericVRDevice;
+                    DebugUtil.Log(2, "VRPlatform.Initialize: no spatial camera rig provided, using generic VR device");
+                } else if (SteamVR.active) {
+                    currentVRDevice = Device.HTCVive;
+                } else {
+                    currentVRDevice = Device.OculusRift;
+                }
+                return true;
+
+            } else
+                return false;
         }
 
 
 
+        public static Device CurrentVRDevice {
+            get {
+                return currentVRDevice;
+            }
+        }
 
+
+
+        /// <summary>
+        /// Check if a 3D Spatial controller is activated
+        /// </summary>
         public static bool HaveActiveSpatialInput
         {
             get {
@@ -49,7 +88,7 @@ namespace f3
                     return OVRInput.GetControllerPositionTracked(OVRInput.Controller.LTouch) ||
                             OVRInput.GetControllerPositionTracked(OVRInput.Controller.RTouch);
                 } else if ( CurrentVRDevice == Device.HTCVive ) {
-                    return LeftViveControllerDevice.connected || RightViveControllerDevice.connected;
+                    return LeftViveControllerDevice != null || RightViveControllerDevice != null;
                 } else {
                     return false;
                 }
@@ -58,7 +97,15 @@ namespace f3
 
 
 
-        // 0 = left, 1 = right
+        /*
+         * Check if Left / Right controller is being tracked
+         */
+        public static bool IsLeftControllerTracked {
+            get { return IsSpatialDeviceTracked(0);  }
+        }
+        public static bool IsRightControllerTracked {
+            get { return IsSpatialDeviceTracked(1);  }
+        }
         public static bool IsSpatialDeviceTracked(int i)
         {
             if ( CurrentVRDevice == Device.OculusRift ) {
@@ -75,7 +122,12 @@ namespace f3
         }
 
 
-
+        public static Vector3f LeftControllerPosition {
+            get { return GetLocalControllerPosition(0); }
+        }
+        public static Vector3f RightControllerPosition {
+            get { return GetLocalControllerPosition(1); }
+        }
         public static Vector3f GetLocalControllerPosition(int i)
         {
             if ( CurrentVRDevice == Device.OculusRift ) {
@@ -95,6 +147,12 @@ namespace f3
         }
 
 
+        public static Quaternionf LeftControllerRotation {
+            get { return GetLocalControllerRotation(0); }
+        }
+        public static Quaternionf RightControllerRotation {
+            get { return GetLocalControllerRotation(1); }
+        }
         public static Quaternionf GetLocalControllerRotation(int i)
         {
             if ( CurrentVRDevice == Device.OculusRift ) {
@@ -122,6 +180,18 @@ namespace f3
 
 
 
+        /*
+         * Primary and Secondary Triggers
+         *    - on Oculus Touch, Primary = Front/Index-Finger Trigger and Secondary = Grip/Middle-Finger Trigger
+         *    - on Vive Wand, Primary = Trigger and Secondary = Grip Button
+         *    - Triggers provide float value in [0..1], InputTrigger turns this into
+         *      standard Pressed / Down / Released states
+         *    - Vive Grip Buttons are not actually triggers! So they only have values 0 and 1.
+         *      But InputTrigger handles this just fine.
+         */
+
+
+
         static InputTrigger leftTrigger;
         public static InputTrigger LeftTrigger
         {
@@ -133,6 +203,8 @@ namespace f3
                         }, 0.9f, 0.1f);
                     } else if (CurrentVRDevice == Device.HTCVive) {
                         leftTrigger = new InputTrigger(() => {
+                            if (LeftViveControllerDevice == null)
+                                return 0.0f;
                             Vector2f v = LeftViveControllerDevice.GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger);
                             return v.x;
                         }, 0.8f, 0.1f);
@@ -157,6 +229,8 @@ namespace f3
                         }, 0.9f, 0.1f);
                     } else if (CurrentVRDevice == Device.HTCVive) {
                         rightTrigger = new InputTrigger(() => {
+                            if (RightViveControllerDevice == null)
+                                return 0.0f;
                             Vector2f v = RightViveControllerDevice.GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger);
                             return v.x;
                         }, 0.8f, 0.1f);
@@ -183,6 +257,8 @@ namespace f3
                         }, 0.9f, 0.1f);
                     } else if (CurrentVRDevice == Device.HTCVive) {
                         leftSecondaryTrigger = new InputTrigger(() => {
+                            if (LeftViveControllerDevice == null)
+                                return 0.0f;
                             bool bDown = LeftViveControllerDevice.GetPress(SteamVR_Controller.ButtonMask.Grip);
                             return (bDown) ? 1.0f : 0.0f;
                         }, 0.9f, 0.1f);
@@ -208,6 +284,8 @@ namespace f3
                         }, 0.9f, 0.1f);
                     } else if (CurrentVRDevice == Device.HTCVive) {
                         rightSecondaryTrigger = new InputTrigger(() => {
+                            if (RightViveControllerDevice == null)
+                                return 0.0f;
                             bool bDown = RightViveControllerDevice.GetPress(SteamVR_Controller.ButtonMask.Grip);
                             return (bDown) ? 1.0f : 0.0f;
                         }, 0.9f, 0.1f);
@@ -219,6 +297,328 @@ namespace f3
             }
         }
 
+
+
+
+
+        /*
+         * Left and Right "Sticks"
+         *     - on Oculus Touch these are the joysticks
+         *     - On Vive Wand these are the trackpad areas
+         *     - (Left|Right)StickPosition    : 2D point in range [-1,1]x[-1,1] 
+         *     - (Left|Right)StickTouching    : is joystick/touchpad being touched
+         *     - (Left|Right)Pressed          : was joystick/touchpad clicked down this frame   
+         *     - (Left|Right)Down             : is joystick/touchpad clicked down
+         *     - (Left|Right)Released         : was joystick/touchpad click-down released this frame
+         */
+
+
+
+
+        public static Vector2f LeftStickPosition
+        {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.LTouch);
+                } else if (CurrentVRDevice == Device.HTCVive) {
+                    return LeftViveControllerDevice.GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad);
+                } else
+                    return Vector2f.Zero;
+            }
+        }
+
+
+        public static Vector2f RightStickPosition
+        {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+                } else if (CurrentVRDevice == Device.HTCVive) {
+                    return RightViveControllerDevice.GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad);
+                } else
+                    return Vector2f.Zero;
+            }
+        }
+
+
+
+
+        public static bool LeftStickTouching {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.Get(OVRInput.Touch.PrimaryThumbstick, OVRInput.Controller.LTouch);
+                } else if (CurrentVRDevice == Device.HTCVive) {
+                    return LeftViveControllerDevice.GetTouch(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad);
+                } else
+                    return false;
+            }
+        }
+        public static bool LeftStickPressed {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.GetDown(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.LTouch);
+                } else if (CurrentVRDevice == Device.HTCVive) {
+                    return LeftViveControllerDevice.GetPressDown(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad);
+                } else
+                    return false;
+            }
+        }
+        public static bool LeftStickDown {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.Get(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.LTouch);
+                } else if (CurrentVRDevice == Device.HTCVive) {
+                    return LeftViveControllerDevice.GetPress(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad);
+                } else
+                    return false;
+            }
+        }
+        public static bool LeftStickReleased {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.GetUp(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.LTouch);
+                } else if (CurrentVRDevice == Device.HTCVive) {
+                    return LeftViveControllerDevice.GetPressUp(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad);
+                } else
+                    return false;
+            }
+        }
+
+
+
+        public static bool RightStickTouching {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.Get(OVRInput.Touch.PrimaryThumbstick, OVRInput.Controller.RTouch);
+                } else if (CurrentVRDevice == Device.HTCVive) {
+                    return RightViveControllerDevice.GetTouch(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad);
+                } else
+                    return false;
+            }
+        }
+        public static bool RightStickPressed {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.GetDown(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.RTouch);
+                } else if (CurrentVRDevice == Device.HTCVive) {
+                    return RightViveControllerDevice.GetPressDown(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad);
+                } else
+                    return false;
+            }
+        }
+        public static bool RightStickDown {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.Get(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.RTouch);
+                } else if (CurrentVRDevice == Device.HTCVive) {
+                    return RightViveControllerDevice.GetPress(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad);
+                } else
+                    return false;
+            }
+        }
+        public static bool RightStickReleased {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.GetUp(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.RTouch);
+                } else if (CurrentVRDevice == Device.HTCVive) {
+                    return RightViveControllerDevice.GetPressUp(Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad);
+                } else
+                    return false;
+            }
+        }
+
+        
+
+
+
+        /*
+         *  Menu Buttons
+         *     - Oculus only has one menu butotn, on left controller
+         *     - Vive has Left and Right menu buttons
+         *     - Each button has Pressed / Down / Released state properties
+         */
+
+        public static bool LeftMenuButtonPressed {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.GetDown(OVRInput.Button.Start);
+                } else if (CurrentVRDevice == Device.HTCVive) {
+                    return LeftViveControllerDevice.GetPressDown(Valve.VR.EVRButtonId.k_EButton_ApplicationMenu);
+                } else
+                    return false;
+            }
+        }
+        public static bool LeftMenuButtonDown {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.Get(OVRInput.Button.Start);
+                } else if (CurrentVRDevice == Device.HTCVive) {
+                    return LeftViveControllerDevice.GetPress(Valve.VR.EVRButtonId.k_EButton_ApplicationMenu);
+                } else
+                    return false;
+            }
+        }
+        public static bool LeftMenuButtonReleased {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.GetUp(OVRInput.Button.Start);
+                } else if (CurrentVRDevice == Device.HTCVive) {
+                    return LeftViveControllerDevice.GetPressUp(Valve.VR.EVRButtonId.k_EButton_ApplicationMenu);
+                } else
+                    return false;
+            }
+        }
+
+
+
+        // Oculus Touch does not have right menu button
+        public static bool RightMenuButtonPressed {
+            get {
+                if (CurrentVRDevice == Device.HTCVive) {
+                    return RightViveControllerDevice.GetPressDown(Valve.VR.EVRButtonId.k_EButton_ApplicationMenu);
+                } else
+                    return false;
+            }
+        }
+        public static bool RightMenuButtonDown {
+            get {
+                if (CurrentVRDevice == Device.HTCVive) {
+                    return RightViveControllerDevice.GetPress(Valve.VR.EVRButtonId.k_EButton_ApplicationMenu);
+                } else
+                    return false;
+            }
+        }
+        public static bool RightMenuButtonReleased {
+            get {
+                if (CurrentVRDevice == Device.HTCVive) {
+                    return RightViveControllerDevice.GetPressUp(Valve.VR.EVRButtonId.k_EButton_ApplicationMenu);
+                } else
+                    return false;
+            }
+        }
+
+
+
+
+
+        /*
+         * A/B/X/Y Buttons
+         *    - only supported on Rift
+         */
+
+        public static bool AButtonPressed {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch);
+                } else
+                    return false;
+            }
+        }
+        public static bool AButtonDown {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.Get(OVRInput.Button.One, OVRInput.Controller.RTouch);
+                } else
+                    return false;
+            }
+        }
+        public static bool AButtonReleased {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.RTouch);
+                } else
+                    return false;
+            }
+        }
+
+
+
+        public static bool BButtonPressed {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.RTouch);
+                } else
+                    return false;
+            }
+        }
+        public static bool BButtonDown {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.Get(OVRInput.Button.Two, OVRInput.Controller.RTouch);
+                } else
+                    return false;
+            }
+        }
+        public static bool BButtonReleased {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.GetUp(OVRInput.Button.Two, OVRInput.Controller.RTouch);
+                } else
+                    return false;
+            }
+        }
+
+
+
+
+        public static bool XButtonPressed {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.LTouch);
+                } else
+                    return false;
+            }
+        }
+        public static bool XButtonDown {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.Get(OVRInput.Button.One, OVRInput.Controller.LTouch);
+                } else
+                    return false;
+            }
+        }
+        public static bool XButtonReleased {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.LTouch);
+                } else
+                    return false;
+            }
+        }
+
+
+
+
+        public static bool YButtonPressed {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.LTouch);
+                } else
+                    return false;
+            }
+        }
+        public static bool YButtonDown {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.Get(OVRInput.Button.Two, OVRInput.Controller.LTouch);
+                } else
+                    return false;
+            }
+        }
+        public static bool YButtonReleased {
+            get {
+                if (CurrentVRDevice == Device.OculusRift) {
+                    return OVRInput.GetUp(OVRInput.Button.Two, OVRInput.Controller.LTouch);
+                } else
+                    return false;
+            }
+        }
+
+
+
+        /*
+         * Internals below here
+         */
 
 
 
@@ -270,12 +670,16 @@ namespace f3
         static SteamVR_Controller.Device LeftViveControllerDevice {
             get {
                 lookup_vive_controllers();
+                if (iLeftViveDeviceIdx == -1)
+                    return null;
                 return SteamVR_Controller.Input(iLeftViveDeviceIdx);
             }
         }
         static SteamVR_Controller.Device RightViveControllerDevice {
             get {
                 lookup_vive_controllers();
+                if (iRightViveDeviceIdx == -1)
+                    return null;
                 return SteamVR_Controller.Input(iRightViveDeviceIdx);
             }
         }
