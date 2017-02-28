@@ -14,5 +14,17 @@ namespace f3
         public bool AutoConfigVR = false;
 
 
+        // Update is called once per frame
+        public virtual void Update()
+        {
+            Context.Update();
+        }
+
+
+        public virtual void OnApplicationFocus( bool hasFocus )
+        {
+            Context.OnFocusChange(hasFocus);
+        }
+
     }
 }

@@ -106,7 +106,7 @@ namespace f3
                 if ( Direction == ListDirection.Vertical )
                     insertPos.y -= boxelem.Size2D.y + Spacing;
                 else
-                    insertPos.x += boxelem.Size2D.y + Spacing;
+                    insertPos.x += boxelem.Size2D.x + Spacing;
             }
 
             is_layout_valid = true;

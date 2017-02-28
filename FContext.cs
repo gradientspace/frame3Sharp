@@ -186,6 +186,10 @@ namespace f3 {
         }
 
 
+        // sometimes we need the last valid InputState
+        //  (should this be exposed somehow?)
+        InputState lastInputState;
+
         // Update is called once per frame
         public void Update() {
 
@@ -244,7 +248,7 @@ namespace f3 {
             // create our super-input object  (wraps all supported input types)
             InputState input = new InputState();
             input.Initialize_SpatialController(this);
-
+            lastInputState = input;
 
             // run override behaviors
             overrideBehaviors.SendOverrideInputs(input);
@@ -369,6 +373,7 @@ namespace f3 {
             // create our super-input object  (wraps all supported input types)
             InputState input = new InputState();
             input.Initialize_TouchInput(this);
+            lastInputState = input;
 
             // run override behaviors
             overrideBehaviors.SendOverrideInputs(input);
@@ -442,6 +447,7 @@ namespace f3 {
             // create our super-input object  (wraps all supported input types)
             InputState input = new InputState();
             input.Initialize_MouseGamepad(this);
+            lastInputState = input;
 
             CameraInteractionState eCamState = (MouseCameraController != null) 
                 ? MouseCameraController.CheckCameraControls(input) : CameraInteractionState.Ignore;
@@ -532,6 +538,43 @@ namespace f3 {
         {
             inputBehaviors.EndHover(input);
         }
+
+        void TerminateCaptures(InputState input)
+        {
+            if ( captureMouse != null ) {
+                captureMouse.element.ForceEndCapture(lastInputState, captureMouse.data);
+                captureMouse = null;
+            }
+            if ( captureTouch != null ) {
+                captureTouch.element.ForceEndCapture(lastInputState, captureTouch.data);
+                captureTouch = null;
+            }
+            if ( captureLeft != null ) {
+                captureLeft.element.ForceEndCapture(lastInputState, captureLeft.data);
+                captureLeft = null;
+            }
+            if ( captureRight != null ) {
+                captureRight.element.ForceEndCapture(lastInputState, captureRight.data);
+                captureRight = null;
+            }
+        }
+
+
+        // called when we lose window focus
+        public virtual void OnFocusChange(bool bFocused)
+        {
+            if (bFocused == false) {
+                TerminateHovers(lastInputState);
+                TerminateCaptures(lastInputState);
+
+                if (bInCameraControl) {
+                    bInCameraControl = false;
+                    ActiveCamera.SetTargetVisible(false);
+                }
+            }
+        }
+
+
 
 
 
