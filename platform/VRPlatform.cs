@@ -57,10 +57,13 @@ namespace f3
                 if (spatialCameraRig == null) {
                     currentVRDevice = Device.GenericVRDevice;
                     DebugUtil.Log(2, "VRPlatform.Initialize: no spatial camera rig provided, using generic VR device");
+                } else if (OVRManager.isHmdPresent) { 
+                    currentVRDevice = Device.OculusRift;
                 } else if (SteamVR.active) {
                     currentVRDevice = Device.HTCVive;
                 } else {
-                    currentVRDevice = Device.OculusRift;
+                    currentVRDevice = Device.GenericVRDevice;
+                    DebugUtil.Log(2, "VRPlatform.Initialize: could not detect Oculus Rift or HTC Vive, using generic VR device");
                 }
                 return true;
 
@@ -279,7 +282,7 @@ namespace f3
             get {
                 if ( rightSecondaryTrigger == null ) {
                     if (CurrentVRDevice == Device.OculusRift) {
-                        leftSecondaryTrigger = new InputTrigger(() => {
+                        rightSecondaryTrigger = new InputTrigger(() => {
                             return OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.RTouch);
                         }, 0.9f, 0.1f);
                     } else if (CurrentVRDevice == Device.HTCVive) {
@@ -643,13 +646,56 @@ namespace f3
 
             GameObject camRig = null;
 
-            if (SteamVR.enabled )
+            if (OVRManager.isHmdPresent)
+                camRig = AutoConfigure_OVR();
+            else if ( SteamVR.active )
                 camRig = AutoConfigure_SteamVR();
 
             UnityEngine.Debug.Log(string.Format(
                 "VRPlatform.AutoConfigureVR: {0}", (camRig == null) ? "failed" : "success!"));
 
             return camRig;
+        }
+        static GameObject AutoConfigure_OVR()
+        {
+            GameObject cameraRig = null;
+            GameObject mainCamGO = null;
+            Camera mainCam = null;
+
+            // create Oculus OVR prefabs and keep track of camera rig
+            try {
+                mainCamGO = find_main_camera();
+                mainCam = mainCamGO.GetComponent<Camera>();
+
+                cameraRig = GameObject.Instantiate(Resources.Load("OVR/OVRCameraRig")) as GameObject;
+                cameraRig.name = "OVRCameraRig";
+
+                // prefab has all three of these tagged MainCamera?
+                List<GameObject> children = new List<GameObject>();
+                UnityUtil.CollectAllChildren(cameraRig, children);
+                foreach ( var child in children ) {
+                    if ( child.tag == "MainCamera" ) {
+                        if (child.name != "CenterEyeAnchor")
+                            child.tag = "Untagged";
+                    }
+                }
+
+            } catch ( Exception e ) {
+                UnityEngine.Debug.Log(string.Format(
+                    "VRPlatform.AutoConfigureVR: Error instantiating Oculus VR Prefabs: " + e.Message));
+                return null;
+            }
+
+            // set to same position as mainCam (should be same position as in Editor)
+            cameraRig.transform.position = mainCamGO.transform.position;
+
+            // disconnect the existing camera
+            mainCam.tag = "Untagged";
+            mainCamGO.tag = "Untagged";
+            GameObject.Destroy(mainCamGO);
+            Component.Destroy(mainCam);
+
+            return cameraRig;
         }
         static GameObject AutoConfigure_SteamVR()
         {
