@@ -24,9 +24,22 @@ namespace f3
         public static bool HasChildren(this GameObject go) {
             return go.transform.childCount > 0;
         }
-        public static System.Collections.IEnumerable Children(this GameObject go) {
+        public static IEnumerable<GameObject> Children(this GameObject go) {
             for (int k = 0; k < go.transform.childCount; ++k)
                 yield return go.transform.GetChild(k).gameObject;
+        }
+
+        public static void AddChild(this GameObject go, GameObject child, bool bKeepWorldPosition)
+        {
+            child.transform.SetParent(go.transform, bKeepWorldPosition);
+        }
+        public static void RemoveChild(this GameObject go, GameObject child)
+        {
+            child.transform.SetParent(null);
+        }
+        public static void RemoveFromParent(this GameObject go)
+        {
+            go.transform.SetParent(null);
         }
 
 

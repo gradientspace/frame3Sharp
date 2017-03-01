@@ -91,8 +91,9 @@ namespace f3 {
         public SpatialInputController SpatialController
         {
             get {
-                if (spatialCursor == null)
+                if (spatialCursor == null) {
                     spatialCursor = new SpatialInputController(options.SpatialCameraRig, ActiveCamera, this);
+                }
                 return spatialCursor;
             }
         }
@@ -116,6 +117,14 @@ namespace f3 {
             this.options = options;
 
             DebugUtil.LogLevel = options.LogLevel;
+
+            // initialize VR platform if VR is active
+            if (gs.VRPlatform.VREnabled) {
+                if (options.Use2DCockpit)
+                    throw new Exception("FContext.Start: cannot use 2D Orthographic Cockpit with VR!");
+                if (options.SpatialCameraRig != null)
+                    gs.VRPlatform.Initialize(options.SpatialCameraRig);
+            }
 
             InputExtension.Get.Start();
 
@@ -223,7 +232,8 @@ namespace f3 {
         void Configure_SpaceControllers()
         {
             SceneGraphConfig.ActiveDoubleClickDelay = SceneGraphConfig.TriggerDoubleClickDelay;
-            ActiveInputDevice = InputDevice.OculusTouch;
+            ActiveInputDevice = (gs.VRPlatform.CurrentVRDevice == gs.VRPlatform.Device.HTCVive) ?
+                InputDevice.HTCViveWands : InputDevice.OculusTouch;
         }
 
         void HandleInput_SpaceControllers()
@@ -237,7 +247,7 @@ namespace f3 {
 
             // create our super-input object  (wraps all supported input types)
             InputState input = new InputState();
-            input.Initialize_Oculus(this);
+            input.Initialize_SpatialController(this);
             lastInputState = input;
 
             // run override behaviors

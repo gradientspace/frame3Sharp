@@ -1,5 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 
 namespace f3 {
@@ -119,24 +120,42 @@ namespace f3 {
 		public void Initialize (FContext controller) {
             this.controller = controller;
 
-			// find main camera
-			var mainCameraObj = GameObject.FindWithTag ("MainCamera");
-            if ( mainCameraObj == null ) {
-                throw new MissingComponentException("[CameraTracking.Initialize] could not find camera with tag MainCamera");
+            // find main camera
+            GameObject[] mainCameras = GameObject.FindGameObjectsWithTag("MainCamera");
+            if ( mainCameras.Length == 0 ) {
+                throw new MissingComponentException("CameraTracking.Initialize: could not find camera with tag MainCamera");
+            }
+            var mainCameraObj = mainCameras[0];
+            if ( mainCameras.Length > 1 ) {
+                DebugUtil.Log(2, "CameraTracking.Initialize: there are multiple objects with tag MainCamera. Using the one named " + mainCameraObj.GetName());
             }
 			mainCamera = mainCameraObj.GetComponent<Camera> () as Camera;
+
+            // on Vive the MainCamera will have some child cameras that are a problem, 
+            // so get rid of them
+            if ( gs.VRPlatform.CurrentVRDevice == gs.VRPlatform.Device.HTCVive ) {
+                List<GameObject> children = new List<GameObject>(mainCameraObj.Children());
+                foreach (var child in children) {
+                    mainCameraObj.RemoveChild(child);
+                    GameObject.Destroy(child);
+                }
+            }
+
+            List<Camera> newCameras = new List<Camera>();
 
             // create camera for 3D widgets layer
             widgetCamera = Camera.Instantiate (mainCamera);
 			widgetCamera.SetName("WidgetCamera");
             widgetCamera.transform.position = mainCamera.transform.position;
             widgetCamera.transform.rotation = mainCamera.transform.rotation;
+            newCameras.Add(widgetCamera);
 
             // create camera for HUD layer
             hudCamera = Camera.Instantiate(mainCamera);
             hudCamera.SetName("HUDCamera");
             hudCamera.transform.position = mainCamera.transform.position;
             hudCamera.transform.rotation = mainCamera.transform.rotation;
+            newCameras.Add(hudCamera);
 
             // create camera for UI
             uiCamera = Camera.Instantiate(mainCamera);
@@ -145,24 +164,25 @@ namespace f3 {
             uiCamera.transform.rotation = mainCamera.transform.rotation;
             uiCamera.orthographic = true;
             uiCamera.orthographicSize = 0.5f;
+            newCameras.Add(uiCamera);
 
             // create camera for cursor
             cursorCamera = Camera.Instantiate(mainCamera);
             cursorCamera.SetName("CursorCamera");
             cursorCamera.transform.position = mainCamera.transform.position;
             cursorCamera.transform.rotation = mainCamera.transform.rotation;
+            newCameras.Add(cursorCamera);
 
             // configure these cameras
-            //   - must disable audio listener
+            //   - must disable audio listener if it exists
             //   - do depth clear so we can draw on top of other layers
-            (widgetCamera.GetComponent<AudioListener> () as AudioListener).enabled = false;
-			widgetCamera.clearFlags = CameraClearFlags.Depth;
-            (hudCamera.GetComponent<AudioListener>() as AudioListener).enabled = false;
-            hudCamera.clearFlags = CameraClearFlags.Depth;
-            (uiCamera.GetComponent<AudioListener>() as AudioListener).enabled = false;
-            uiCamera.clearFlags = CameraClearFlags.Depth;
-            (cursorCamera.GetComponent<AudioListener>() as AudioListener).enabled = false;
-            cursorCamera.clearFlags = CameraClearFlags.Depth;
+            foreach ( Camera cam in newCameras ) {
+                AudioListener listener = cam.GetComponent<AudioListener>();
+                if (listener != null)
+                    listener.enabled = false;
+
+                cam.clearFlags = CameraClearFlags.Depth;
+            }
 
 
             // set up camera masks

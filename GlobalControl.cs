@@ -12,7 +12,6 @@ namespace f3
         public static void Quit()
         {
             Application.Quit();
-            //OVRManager.instance.ReturnToLauncher();
         }
     }
 }
