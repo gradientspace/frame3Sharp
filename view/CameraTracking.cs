@@ -133,7 +133,7 @@ namespace f3 {
 
             // on Vive the MainCamera will have some child cameras that are a problem, 
             // so get rid of them
-            if ( VRPlatform.CurrentVRDevice == VRPlatform.Device.HTCVive ) {
+            if ( gs.VRPlatform.CurrentVRDevice == gs.VRPlatform.Device.HTCVive ) {
                 List<GameObject> children = new List<GameObject>(mainCameraObj.Children());
                 foreach (var child in children) {
                     mainCameraObj.RemoveChild(child);

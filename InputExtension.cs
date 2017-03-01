@@ -268,10 +268,15 @@ namespace f3
 
             // configure spatial controller triggers
 
-            SpatialLeftTrigger = VRPlatform.LeftTrigger;
-            SpatialRightTrigger = VRPlatform.RightTrigger;
-            SpatialLeftShoulder = VRPlatform.LeftSecondaryTrigger;
-            SpatialRightShoulder = VRPlatform.RightSecondaryTrigger;
+            float fDownThresh = (gs.VRPlatform.CurrentVRDevice == gs.VRPlatform.Device.HTCVive) ? 0.8f : 0.9f;
+            SpatialLeftTrigger = 
+                new InputTrigger(() => { return gs.VRPlatform.LeftTrigger; }, fDownThresh, 0.1f);
+            SpatialRightTrigger = 
+                new InputTrigger(() => { return gs.VRPlatform.RightTrigger; }, fDownThresh, 0.1f);
+            SpatialLeftShoulder = 
+                new InputTrigger(() => { return gs.VRPlatform.LeftSecondaryTrigger; }, fDownThresh, 0.1f);
+            SpatialRightShoulder = 
+                new InputTrigger(() => { return gs.VRPlatform.RightSecondaryTrigger; }, fDownThresh, 0.1f);
         }
 
         // call this from a MonoBehavior Update before you use the Input extension methods

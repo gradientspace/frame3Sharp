@@ -119,11 +119,11 @@ namespace f3 {
             DebugUtil.LogLevel = options.LogLevel;
 
             // initialize VR platform if VR is active
-            if (VRPlatform.VREnabled) {
+            if (gs.VRPlatform.VREnabled) {
                 if (options.Use2DCockpit)
                     throw new Exception("FContext.Start: cannot use 2D Orthographic Cockpit with VR!");
                 if (options.SpatialCameraRig != null)
-                    VRPlatform.Initialize(options.SpatialCameraRig);
+                    gs.VRPlatform.Initialize(options.SpatialCameraRig);
             }
 
             InputExtension.Get.Start();
@@ -232,7 +232,7 @@ namespace f3 {
         void Configure_SpaceControllers()
         {
             SceneGraphConfig.ActiveDoubleClickDelay = SceneGraphConfig.TriggerDoubleClickDelay;
-            ActiveInputDevice = (VRPlatform.CurrentVRDevice == VRPlatform.Device.HTCVive) ?
+            ActiveInputDevice = (gs.VRPlatform.CurrentVRDevice == gs.VRPlatform.Device.HTCVive) ?
                 InputDevice.HTCViveWands : InputDevice.OculusTouch;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using g3;
+using gs;  // for VRPlatform
 
 namespace f3
 {
