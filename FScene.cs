@@ -7,6 +7,12 @@ using g3;
 namespace f3
 {
 
+    public enum SceneChangeType
+    {
+        Added, Removed, Modified
+    }
+
+    public delegate void SceneModifiedHandler(object sender, SceneObject so, SceneChangeType type);
 	public delegate void SceneSelectionChangedHandler(object sender, EventArgs e);
     public delegate void TimeChangedHandler(object sender, EventArgs e);
 
@@ -151,9 +157,13 @@ namespace f3
 
         public event TimeChangedHandler TimeChangedEvent;
 		public event SceneSelectionChangedHandler SelectionChangedEvent;
+        public event SceneModifiedHandler ChangedEvent;
 
 		protected virtual void OnSelectionChanged(EventArgs e) {
             FUtil.SafeSendEvent(SelectionChangedEvent, this, e);
+		}
+		protected virtual void OnSceneChanged(SceneObject so, SceneChangeType type) {
+            FUtil.SafeSendAnyEvent(ChangedEvent, this, so, type);
 		}
 
 
@@ -216,6 +226,8 @@ namespace f3
             so.SetScene(this);
             so.RootGameObject.transform.SetParent(scene_objects.transform, bUseExistingWorldPos);
             so.SetCurrentTime(currentTime);
+
+            OnSceneChanged(so, SceneChangeType.Added);
         }
 
         // this removes so from a SO/parent hierarchy and parents to Scene instead
@@ -234,6 +246,8 @@ namespace f3
                 Deselect(so);
             }
             vObjects.Remove(so);
+            OnSceneChanged(so, SceneChangeType.Removed);
+
             if (so.RootGameObject != null) {
                 if (bDestroy) {
                     SceneUtil.DestroySO(so);
