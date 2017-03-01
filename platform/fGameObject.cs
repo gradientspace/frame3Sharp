@@ -342,6 +342,42 @@ namespace f3
 
 
 
+
+    public class fPolylineGameObject : fCurveGameObject
+    {
+        Vector3f[] Vertices;
+        bool bVertsValid;
+
+        public fPolylineGameObject(GameObject go) : base(go)
+        {
+        }
+
+
+        public void SetVertices(List<Vector3f> vertices) {
+            Vertices = vertices.ToArray();
+            bVertsValid = false;
+        }
+
+
+        public override void PreRender()
+        {
+            if (bVertsValid)
+                return;
+
+            LineRenderer r = go.GetComponent<LineRenderer>();
+            if (r.numPositions != Vertices.Length)
+                r.numPositions = Vertices.Length;
+            for (int i = 0; i < Vertices.Length; ++i)
+                r.SetPosition(i, Vertices[i]);
+
+            bVertsValid = true;
+        }
+    }
+
+
+
+
+
     public class fCircleGameObject : fCurveGameObject
     {
         float radius = 1.0f;

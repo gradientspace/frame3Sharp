@@ -123,6 +123,20 @@ namespace f3
 
 
 
+        public static fPolylineGameObject CreatePolylineGO(string sName, List<Vector3f> vVertices, Colorf color, float fLineWidth)
+        {
+            GameObject go = new GameObject(sName);
+            LineRenderer r = go.AddComponent<LineRenderer>();
+            r.useWorldSpace = false;
+            r.material = MaterialUtil.CreateTransparentMaterial(Color.black, 0.75f);
+            fPolylineGameObject fgo = new fPolylineGameObject(go);
+            fgo.SetColor(color);
+            fgo.SetLineWidth(fLineWidth);
+            fgo.SetVertices(vVertices);
+            return fgo;
+        }
+
+
         public static fTextGameObject CreateTextMeshGO(
             string sName, string sText, 
             Colorf textColor, float fTextHeight, 
