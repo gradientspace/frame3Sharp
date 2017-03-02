@@ -238,6 +238,11 @@ namespace f3
 
         }
 
+        public void InvalidateStaticPosition()
+        {
+            bStaticUpdated = false;
+        }
+
 
 
 		public void AddUIElement(SceneUIElement e, bool bIsInLocalFrame = true) {
