@@ -46,17 +46,25 @@ namespace f3
 
         public void NextFrame()
         {
-            foreach (IAnimatable a in objects) {
+            int nObjects = objects.Count;
+            for ( int i = 0; i < nObjects; ++i ) {
+                IAnimatable a = objects[i];
                 if (a.DeregisterNextFrame)
                     remove.Add(a);
             }
 
-            foreach (IAnimatable a in remove)
+            int nRemove = remove.Count;
+            for ( int i = 0; i < nRemove; ++i ) {
+                IAnimatable a = remove[i];
                 objects.Remove(a);
+            }
             remove.Clear();
 
-            foreach (IAnimatable a in objects)
+            nObjects = objects.Count;
+            for (int i = 0; i < nObjects; ++i) {
+                IAnimatable a = objects[i];
                 a.Update();
+            }
         }
 
     }
