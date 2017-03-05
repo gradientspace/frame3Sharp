@@ -22,7 +22,6 @@ namespace f3
                         } );
             if ( bDestroyOriginal )
                 GameObject.Destroy(wrapGO);
-            context.Scene.AddSceneObject(wrapperSO, true);
             return wrapperSO;
         }
 
