@@ -124,6 +124,55 @@ namespace f3
 
 
 
+        public static void CombineSO(DMeshSO so1, DMeshSO so2)
+        {
+            FScene scene = so1.GetScene();
+            if (scene.IsSelected(so1))
+                scene.Deselect(so1);
+            if (scene.IsSelected(so2))
+                scene.Deselect(so2);
+
+            Frame3f f1 = so1.GetLocalFrame(CoordSpace.ObjectCoords);
+            Vector3f scale1 = so1.GetLocalScale();
+            Frame3f f2 = so2.GetLocalFrame(CoordSpace.ObjectCoords);
+            Vector3f scale2 = so2.GetLocalScale();
+
+            DMesh3 mesh1 = so1.Mesh;
+
+            DMesh3 mesh2 = so2.Mesh;
+            foreach ( int vid in mesh2.VertexIndices() ) {
+
+                // convert point in mesh2 to scene coords
+                Vector3f v2 = (Vector3f)mesh2.GetVertex(vid);
+                v2 *= scale2;
+                Vector3f v2s = f2.FromFrameP(v2);
+
+                // transfer that scene coord into local coords of mesh1
+                Vector3f v2in1 = f1.ToFrameP(v2s);
+                v2in1 /= scale1;
+                mesh2.SetVertex(vid, v2in1);
+
+                if (mesh1.HasVertexNormals && mesh2.HasVertexNormals) {
+                    Vector3f n = mesh2.GetVertexNormal(vid);
+                    Vector3f ns = f2.FromFrameV(n);
+                    Vector3f ns2 = f1.ToFrameV(ns);
+                    mesh2.SetVertexNormal(vid, ns2);
+                }
+            }
+
+            MeshEditor editor = new MeshEditor(mesh1);
+            editor.AppendMesh(mesh2);
+
+            so1.NotifyMeshEdited();
+
+            // [TODO] change record!
+
+            scene.RemoveSceneObject(so2, true);
+        }
+
+
+
+
         public static void DestroySO(SceneObject so)
         {
             so.RootGameObject.transform.parent = null;
