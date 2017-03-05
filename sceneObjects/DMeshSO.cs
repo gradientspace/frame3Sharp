@@ -68,6 +68,12 @@ namespace f3
 
 
 
+        public void NotifyMeshEdited()
+        {
+            on_mesh_changed();
+            validate_decomp();
+        }
+
 
         public void ReplaceMesh(DMesh3 newMesh)
         {
