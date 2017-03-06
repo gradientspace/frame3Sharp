@@ -91,10 +91,11 @@ namespace f3
 
 
 
-		static public GameObject EmitDebugLine(string name, Vector3 start, Vector3 end, float diameter, Color color) {
+		static public GameObject EmitDebugLine(string name, Vector3f start, Vector3f end, float diameter, Colorf color,
+                                               GameObject parent = null, bool bIsInWorldPos = true) {
 			GameObject line = new GameObject ();
 			line.SetName(name);
-			line.transform.position = start;
+            line.transform.position = (bIsInWorldPos) ? start : Vector3f.Zero;
 			line.AddComponent<LineRenderer> ();
 			LineRenderer lr = line.GetComponent<LineRenderer> ();
 			lr.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
@@ -102,13 +103,20 @@ namespace f3
             lr.startWidth = lr.endWidth = diameter;
 			lr.SetPosition (0, start);
 			lr.SetPosition (1, end);
+
+            if (parent != null) {
+                lr.useWorldSpace = bIsInWorldPos;
+                line.transform.SetParent(parent.transform, bIsInWorldPos);
+            }
+
 			return line;
 		}
-        static public GameObject EmitDebugLine(string name, Vector3 start, Vector3 end, float diameter, Color startColor, Color endColor)
+        static public GameObject EmitDebugLine(string name, Vector3f start, Vector3f end, float diameter, Colorf startColor, Colorf endColor,
+                                               GameObject parent = null, bool bIsInWorldPos = true)
         {
             GameObject line = new GameObject();
             line.SetName(name);
-            line.transform.position = start;
+            line.transform.position =  (bIsInWorldPos) ? start : Vector3f.Zero;
             line.AddComponent<LineRenderer>();
             LineRenderer lr = line.GetComponent<LineRenderer>();
             lr.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
@@ -117,6 +125,12 @@ namespace f3
             lr.startWidth = lr.endWidth = diameter;
             lr.SetPosition(0, start);
             lr.SetPosition(1, end);
+
+            if (parent != null) {
+                lr.useWorldSpace = bIsInWorldPos;
+                line.transform.SetParent(parent.transform, bIsInWorldPos);
+            }
+
             return line;
         }
 
