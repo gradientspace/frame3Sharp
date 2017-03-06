@@ -8,7 +8,7 @@ using g3;
 
 namespace f3
 {
-   public static class GameObjectFactory
+    public static partial class GameObjectFactory
     {
         public static fGameObject CreateParentGO(string sName)
         {
@@ -202,6 +202,7 @@ namespace f3
 
 
         public static void DestroyGO(fGameObject go) {
+            go.SetParent(null);
             UnityEngine.GameObject.Destroy(go);
         }
 
