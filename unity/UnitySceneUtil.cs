@@ -13,12 +13,18 @@ namespace f3
         // converts input GameObject into a DMeshSO. Original GameObject is not used by DMeshSO,
         // so it can be destroyed.
         // [TODO] transfer materials!!
-        public static TransformableSO WrapMeshGameObject(GameObject wrapGO, FContext context, bool bDestroyOriginal)
+        public static TransformableSO WrapMeshGameObject(GameObject wrapGO, FContext context, bool bDestroyOriginal, bool bPreserveColor = true)
         {
+            SOMaterial overrideMaterial = null;
+            if (bPreserveColor) {
+                if (wrapGO.GetMaterial() != null)
+                    overrideMaterial = MaterialUtil.FromUnityMaterial(wrapGO.GetMaterial());
+            }
             var wrapperSO = ImportExistingUnityMesh(wrapGO, context.Scene, true, true, true,
                         (mesh, material) => {
                             DMeshSO gso = new DMeshSO();
-                            return gso.Create(UnityUtil.UnityMeshToDMesh(mesh, false), material);
+                            var useMaterial = (overrideMaterial != null) ? overrideMaterial : material;
+                            return gso.Create(UnityUtil.UnityMeshToDMesh(mesh, false), useMaterial);
                         } );
             if ( bDestroyOriginal )
                 GameObject.Destroy(wrapGO);
