@@ -124,7 +124,55 @@ namespace f3
 
 
 
-        public static void CombineSO(DMeshSO so1, DMeshSO so2)
+        public static GOWrapperSO CombineAnySOs(SceneObject s1, SceneObject s2, bool bDeleteExisting = true)
+        {
+            FScene scene = s1.GetScene();
+
+            if (scene.IsSelected(s1))
+                scene.Deselect(s1);
+            if (scene.IsSelected(s2))
+                scene.Deselect(s2);
+
+            fGameObject parentGO = GameObjectFactory.CreateParentGO("combined");
+
+            fGameObject copy1 = GameObjectFactory.Duplicate(s1.RootGameObject);
+            fGameObject copy2 = GameObjectFactory.Duplicate(s2.RootGameObject);
+
+
+            // if inputs are DMeshSOs, they do not have colliders, which we will need...
+            if (s1 is DMeshSO) {
+                foreach (var go in copy1.Children()) {
+                    if (go.GetComponent<MeshFilter>() != null && go.GetComponent<MeshCollider>() == null)
+                        go.AddComponent<MeshCollider>();
+                }
+            }
+            if (s2 is DMeshSO) {
+                foreach (var go in copy2.Children()) {
+                    if (go.GetComponent<MeshFilter>() != null && go.GetComponent<MeshCollider>() == null)
+                        go.AddComponent<MeshCollider>();
+                }
+            }
+
+            parentGO.AddChild(copy1, true);
+            parentGO.AddChild(copy2, true);
+
+            GOWrapperSO wrapperSO = new GOWrapperSO() { AllowMaterialChanges = false };
+            wrapperSO.Create(parentGO);
+
+            if ( bDeleteExisting ) {
+                scene.RemoveSceneObject(s1, false);
+                scene.RemoveSceneObject(s2, false);
+            }
+
+            scene.AddSceneObject(wrapperSO, false);
+
+            return wrapperSO;
+        }
+
+
+
+
+        public static GroupSO CreateGroupSO(TransformableSO so1, TransformableSO so2)
         {
             FScene scene = so1.GetScene();
             if (scene.IsSelected(so1))
@@ -132,14 +180,35 @@ namespace f3
             if (scene.IsSelected(so2))
                 scene.Deselect(so2);
 
-            Frame3f f1 = so1.GetLocalFrame(CoordSpace.ObjectCoords);
-            Vector3f scale1 = so1.GetLocalScale();
-            Frame3f f2 = so2.GetLocalFrame(CoordSpace.ObjectCoords);
-            Vector3f scale2 = so2.GetLocalScale();
+            GroupSO group = new GroupSO();
+            group.Create();
 
-            DMesh3 mesh1 = so1.Mesh;
+            scene.AddSceneObject(group);
 
-            DMesh3 mesh2 = so2.Mesh;
+            group.AddChild(so1);
+            group.AddChild(so2);
+
+            return group;
+        }
+
+
+
+        public static void AppendMeshSO(DMeshSO appendTo, DMeshSO append)
+        {
+            FScene scene = appendTo.GetScene();
+            if (scene.IsSelected(appendTo))
+                scene.Deselect(appendTo);
+            if (scene.IsSelected(append))
+                scene.Deselect(append);
+
+            Frame3f f1 = appendTo.GetLocalFrame(CoordSpace.ObjectCoords);
+            Vector3f scale1 = appendTo.GetLocalScale();
+            Frame3f f2 = append.GetLocalFrame(CoordSpace.ObjectCoords);
+            Vector3f scale2 = append.GetLocalScale();
+
+            DMesh3 mesh1 = appendTo.Mesh;
+
+            DMesh3 mesh2 = append.Mesh;
             foreach ( int vid in mesh2.VertexIndices() ) {
 
                 // convert point in mesh2 to scene coords
@@ -163,11 +232,11 @@ namespace f3
             MeshEditor editor = new MeshEditor(mesh1);
             editor.AppendMesh(mesh2);
 
-            so1.NotifyMeshEdited();
+            appendTo.NotifyMeshEdited();
 
             // [TODO] change record!
 
-            scene.RemoveSceneObject(so2, true);
+            scene.RemoveSceneObject(append, false);
         }
 
 
