@@ -217,7 +217,7 @@ namespace f3
 			get { return vObjects; }
 		}
 
-
+        // add new SO to scene
         public void AddSceneObject(SceneObject so, bool bUseExistingWorldPos = false)
 		{
             DebugUtil.Log(1, "[Scene.AddSceneObject] adding {0}", so.Name);
@@ -237,7 +237,24 @@ namespace f3
             so.RootGameObject.transform.SetParent(scene_objects.transform, bKeepPosition);
         }
 
+        // grouping support. currently does not properly handle undo!
+        public void AddSceneObjectToParentSO(SceneObject so, SceneObject parent)
+        {
+            vObjects.Remove(so);
+            parent.RootGameObject.AddChild(so.RootGameObject, true);
+        }
+        public void RemoveSceneObjectFromParentSO(SceneObject so)
+        {
+            if ( vObjects.Contains(so) == false )
+                vObjects.Add(so);
+            so.RootGameObject.transform.SetParent(null);
+            so.RootGameObject.transform.SetParent(scene_objects.transform, true);
+        }
 
+
+        // remove SO from scene. 
+        // bDestroy means that SO is actually deleted, otherwise just added 
+        // to internal Deleted set, so it can be recovered by undo.
         public void RemoveSceneObject(SceneObject so, bool bDestroy)
         {
             DebugUtil.Log(1, "[Scene.AddSceneObject] removing {0} (destroy: {1})", so.Name, bDestroy);

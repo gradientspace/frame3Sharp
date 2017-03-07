@@ -42,7 +42,7 @@ namespace f3
         {
             if (!vChildren.Contains(so)) {
                 vChildren.Add(so);
-                so.RootGameObject.transform.SetParent(gameObject.transform, true);
+                parentScene.AddSceneObjectToParentSO(so, this);
                 update_shared_origin();
                 increment_timestamp();
                 //so.OnTransformModified += childTransformModified;
@@ -62,7 +62,7 @@ namespace f3
             if ( vChildren.Contains(so) ) {
                 //so.OnTransformModified -= childTransformModified;
                 vChildren.Remove(so);
-                parentScene.ReparentSceneObject(so);
+                parentScene.RemoveSceneObjectFromParentSO(so);
                 update_shared_origin();
                 increment_timestamp();
             }
