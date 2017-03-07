@@ -10,6 +10,12 @@ namespace f3
 {
     public static partial class GameObjectFactory
     {
+        public static CurveRendererFactory CurveRendererSource = new UnityCurveRendererFactory();
+
+
+
+
+
         public static fGameObject CreateParentGO(string sName)
         {
             GameObject go = new GameObject(sName);
@@ -96,10 +102,9 @@ namespace f3
         public static fLineGameObject CreateLineGO(string sName, Colorf color, float fLineWidth)
         {
             GameObject go = new GameObject(sName);
-            LineRenderer r = go.AddComponent<LineRenderer>();
-            r.useWorldSpace = false;
-            r.material = MaterialUtil.CreateTransparentMaterial(Color.black, 0.75f);
-            fLineGameObject lgo = new fLineGameObject(go);
+            CurveRendererImplementation curveRen = CurveRendererSource.Build();
+            curveRen.initialize(go, new Colorf(Colorf.Black, 0.75f) );
+            fLineGameObject lgo = new fLineGameObject(go, curveRen);
             lgo.SetColor(color);
             lgo.SetLineWidth(fLineWidth);
             return lgo;
@@ -110,10 +115,9 @@ namespace f3
         public static fCircleGameObject CreateCircleGO(string sName, float fRadius, Colorf color, float fLineWidth)
         {
             GameObject go = new GameObject(sName);
-            LineRenderer r = go.AddComponent<LineRenderer>();
-            r.useWorldSpace = false;
-            r.material = MaterialUtil.CreateTransparentMaterial(Color.black, 0.75f);
-            fCircleGameObject fgo = new fCircleGameObject(go);
+            CurveRendererImplementation curveRen = CurveRendererSource.Build();
+            curveRen.initialize(go, new Colorf(Colorf.Black, 0.75f) );
+            fCircleGameObject fgo = new fCircleGameObject(go, curveRen);
             fgo.SetColor(color);
             fgo.SetLineWidth(fLineWidth);
             fgo.SetSteps(32);
@@ -126,10 +130,9 @@ namespace f3
         public static fPolylineGameObject CreatePolylineGO(string sName, List<Vector3f> vVertices, Colorf color, float fLineWidth)
         {
             GameObject go = new GameObject(sName);
-            LineRenderer r = go.AddComponent<LineRenderer>();
-            r.useWorldSpace = false;
-            r.material = MaterialUtil.CreateTransparentMaterial(Color.black, 0.75f);
-            fPolylineGameObject fgo = new fPolylineGameObject(go);
+            CurveRendererImplementation curveRen = CurveRendererSource.Build();
+            curveRen.initialize(go, new Colorf(Colorf.Black, 0.75f) );
+            fPolylineGameObject fgo = new fPolylineGameObject(go, curveRen);
             fgo.SetColor(color);
             fgo.SetLineWidth(fLineWidth);
             fgo.SetVertices(vVertices);

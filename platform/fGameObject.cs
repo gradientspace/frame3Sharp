@@ -8,6 +8,23 @@ using g3;
 namespace f3
 {
 
+    public interface CurveRendererImplementation
+    {
+        void initialize(fGameObject go, Colorf color);
+        void update_curve(Vector3f[] Vertices);
+        void update_num_points(int N);
+        void update_position(int i, Vector3f v);
+        void update_width(float width);
+        void update_color(Colorf color);
+    }
+    public interface CurveRendererFactory
+    {
+        CurveRendererImplementation Build();
+    }
+
+
+
+
     //
     // fGameObject wraps a GameObject for frame3Sharp. The idea is that eventually we
     //  will be able to "replace" GameObject with something else, ie non-Unity stuff.
@@ -268,13 +285,19 @@ namespace f3
 
 
 
+
+
+
     public class fCurveGameObject : fGameObject
     {
         float width = 0.05f;
         Colorf color = Colorf.Black;
 
-        public fCurveGameObject(GameObject go) : base(go)
+        CurveRendererImplementation renderer;
+
+        public fCurveGameObject(GameObject go, CurveRendererImplementation curveRenderer) : base(go)
         {
+            renderer = curveRenderer;
         }
 
 
@@ -294,13 +317,28 @@ namespace f3
             LineRenderer r = go.GetComponent<LineRenderer>();
             if (width != newWidth) {
                 width = newWidth;
-                r.startWidth = r.endWidth = width;
+                renderer.update_width(width);
             }
             if (color != newColor) {
                 color = newColor;
-                r.startColor = r.endColor = color;
+                renderer.update_color(color);
                 base.SetColor(color);       // material overrides line renderer??
             }
+        }
+
+        protected void update_curve(Vector3f[] Vertices)
+        {
+            renderer.update_curve(Vertices);
+        }
+
+        protected void update_num_points(int N)
+        {
+            renderer.update_num_points(N);
+        }
+        
+        protected void update_position(int i, Vector3f v)
+        {
+            renderer.update_position(i, v);
         }
 
     }
@@ -313,7 +351,8 @@ namespace f3
     {
         Vector3f start, end;
 
-        public fLineGameObject(GameObject go) : base(go)
+        public fLineGameObject(GameObject go, CurveRendererImplementation curveRenderer) 
+            : base(go, curveRenderer)
         {
             LineRenderer r = go.GetComponent<LineRenderer>();
             r.numPositions = 2;
@@ -349,7 +388,8 @@ namespace f3
         Vector3f[] Vertices;
         bool bVertsValid;
 
-        public fPolylineGameObject(GameObject go) : base(go)
+        public fPolylineGameObject(GameObject go, CurveRendererImplementation curveRenderer) 
+            : base(go, curveRenderer)
         {
         }
 
@@ -364,13 +404,7 @@ namespace f3
         {
             if (bVertsValid)
                 return;
-
-            LineRenderer r = go.GetComponent<LineRenderer>();
-            if (r.numPositions != Vertices.Length)
-                r.numPositions = Vertices.Length;
-            for (int i = 0; i < Vertices.Length; ++i)
-                r.SetPosition(i, Vertices[i]);
-
+            update_curve(Vertices);
             bVertsValid = true;
         }
     }
@@ -385,7 +419,8 @@ namespace f3
         int steps = 32;
         bool bCircleValid = false;
 
-        public fCircleGameObject(GameObject go) : base(go)
+        public fCircleGameObject(GameObject go, CurveRendererImplementation curveRenderer) 
+            : base(go, curveRenderer)
         {
         }
 
@@ -412,16 +447,14 @@ namespace f3
             if (bCircleValid)
                 return;
 
-            LineRenderer r = go.GetComponent<LineRenderer>();
-            if (r.numPositions != steps + 1)
-                r.numPositions = steps + 1;
+            update_num_points(steps + 1);
             float twopi = (float)(2 * Math.PI);
             for (int i = 0; i <= steps; ++i) {
                 float t = (float)i / (float)steps;
                 float a = t * twopi;
                 float x = radius * (float)Math.Cos(a);
                 float y = radius * (float)Math.Sin(a);
-                r.SetPosition(i, new Vector3f(x, 0, y));
+                update_position(i, new Vector3f(x, 0, y));
             }
 
             bCircleValid = true;
