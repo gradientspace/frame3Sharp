@@ -200,6 +200,18 @@ namespace f3
 
 
 
+        public static fGameObject Duplicate(fGameObject go)
+        {
+            GameObject copy = GameObject.Instantiate<GameObject>(go);
+            fGameObject fcopy = new fGameObject(copy);
+
+            // have to set parent fgo in PreRenderBehavior script...
+            if (copy.GetComponent<PreRenderBehavior>() != null)
+                copy.GetComponent<PreRenderBehavior>().ParentFGO = fcopy;
+
+            return fcopy;            
+        }
+
 
         public static void DestroyGO(fGameObject go) {
             UnityEngine.GameObject.Destroy(go);

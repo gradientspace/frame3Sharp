@@ -27,8 +27,9 @@ namespace f3
 
 
         public virtual void Destroy() {
-            if ( go != null )
+            if (go != null) {
                 GameObject.Destroy(go);
+            }
         }
 
 
@@ -62,7 +63,7 @@ namespace f3
         {
             return go.transform.childCount > 0;
         }
-        public virtual System.Collections.IEnumerable Children()
+        public virtual IEnumerable<GameObject> Children()
         {
             for (int k = 0; k < go.transform.childCount; ++k)
                 yield return go.transform.GetChild(k).gameObject;
@@ -585,7 +586,13 @@ namespace f3
     {
         public fGameObject ParentFGO = null;
         void Update() {
-            ParentFGO.PreRender();
+            // [RMS] this can be null if we created a GO by copying an fGO using Unity functions (eg Object.Instantiate).
+            // The GO wil be created, and the PreRenderBehavior script will be copied, however there
+            // is no ParentFGO. We need a deep-copy of FGOs to fix this!
+            //
+            // Currently only happens when using UnityWrapperSO? so not a crisis.
+            if ( ParentFGO != null )
+                ParentFGO.PreRender();
         }
     }
 

@@ -7,7 +7,7 @@ using g3;
 
 namespace f3
 {
-    class GOWrapperSO : BaseSO
+    public class GOWrapperSO : BaseSO
     {
         GameObject parentGO;
 
