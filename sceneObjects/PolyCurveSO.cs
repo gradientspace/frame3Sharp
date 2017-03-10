@@ -10,7 +10,7 @@ namespace f3
     public delegate void PolyCurveSOModifiedEvent(PolyCurveSO so);
 
 
-    public class PolyCurveSO : BaseSO
+    public class PolyCurveSO : BaseSO, DCurve3Source
     {
         protected GameObject root;
 
