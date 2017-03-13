@@ -314,7 +314,6 @@ namespace f3
 
         protected void update(float newWidth, Colorf newColor)
         {
-            LineRenderer r = go.GetComponent<LineRenderer>();
             if (width != newWidth) {
                 width = newWidth;
                 renderer.update_width(width);

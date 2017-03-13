@@ -124,11 +124,12 @@ namespace f3
 
                 if (EnableLineRenderer) {
                     LineRenderer ren = root.GetComponent<LineRenderer>();
-                    Vector3[] vec = new Vector3[curve.VertexCount];
-                    int i = 0;
-                    foreach (var v in curve.Vertices)
-                        vec[i++] = (Vector3)v;
-                    ren.numPositions = curve.VertexCount;
+                    int Nc = curve.VertexCount;
+                    int N = (curve.Closed) ? Nc + 1 : Nc;
+                    Vector3[] vec = new Vector3[N];
+                    for ( int i = 0; i < N; ++i )
+                        vec[i] = (Vector3)curve[ i % Nc ];
+                    ren.numPositions = N;
                     ren.SetPositions(vec);
                 }
 

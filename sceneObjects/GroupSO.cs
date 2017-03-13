@@ -19,6 +19,10 @@ namespace f3
         int _timestamp = 0;
         protected void increment_timestamp() { _timestamp++; }
 
+
+        public bool EnableSelection = true;
+
+
         public GroupSO()
         {
             uuid = System.Guid.NewGuid().ToString();
@@ -203,6 +207,10 @@ namespace f3
 
         public bool FindRayIntersection(Ray3f ray, out SORayHit hit)
         {
+            hit = null;
+            if (EnableSelection == false)
+                return false;
+
             bool bHit = SceneUtil.FindNearestRayIntersection(vChildren, ray, out hit);
             if (bHit)
                 hit.hitSO = this;
