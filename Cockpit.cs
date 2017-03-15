@@ -183,7 +183,8 @@ namespace f3
             try {
                 setup.Initialize(this);
             } catch ( Exception e ) {
-                Debug.Log(String.Format("[Cockpit.Start] exception in initializer: {0}", e.Message));
+                DebugUtil.Log(2, "[Cockpit.Start] exception in initializer: {0}\nTrace:\n{1}", e.Message,
+                    e.StackTrace);
                 // if hud setup fails we still want to keep going
             }
 
