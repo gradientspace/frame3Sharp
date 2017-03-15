@@ -15,7 +15,7 @@ namespace f3
         public Vector3 scenePosition;
         public Quaternion sceneRotation;
         public Vector3 target;
-        public float turntable_x, turntable_y;
+        public float turntableAzimuth, turntableAltitude;
     }
 
 
@@ -31,7 +31,8 @@ namespace f3
         }
 
         // camera stuff
-        public float[] turntable_angles = { 0.0f, 0.0f };
+        public float turntableAzimuth = 0;
+        public float turntableAltitude = 0;
 
         public CameraManipulator()
         {
@@ -51,7 +52,7 @@ namespace f3
         }
 
 
-        public void SceneOrbit(FScene scene, Camera cam, float dAzimuth, float dAltitude)
+        public void SceneOrbit(FScene scene, Camera cam, float deltaAzimuth, float deltaAltitude, bool bSet = false)
         {
             //Vector3 sceneOrigin = scene.RootGameObject.transform.position;
             Vector3 rotTarget = cam.GetTarget();
@@ -66,15 +67,20 @@ namespace f3
             Vector3f up = Vector3f.AxisY;
             Vector3f right = cam.transform.right;
 
-            scene.RootGameObject.transform.RotateAround(rotTarget, right, -turntable_angles[1]);
-            scene.RootGameObject.transform.RotateAround(rotTarget, up, -turntable_angles[0]);
+            scene.RootGameObject.transform.RotateAround(rotTarget, right, -turntableAltitude);
+            scene.RootGameObject.transform.RotateAround(rotTarget, up, -turntableAzimuth);
 
-            turntable_angles[0] -= dAzimuth;
-            turntable_angles[1] += dAltitude;
-            turntable_angles[1] = Mathf.Clamp(turntable_angles[1], -89.9f, 89.9f);
+            if (bSet) {
+                turntableAzimuth = deltaAzimuth;
+                turntableAltitude = deltaAltitude;
+            } else {
+                turntableAzimuth -= deltaAzimuth;
+                turntableAltitude += deltaAltitude;
+            }
+            turntableAltitude = Mathf.Clamp(turntableAltitude, -89.9f, 89.9f);
 
-            scene.RootGameObject.transform.RotateAround(rotTarget, up, turntable_angles[0]);
-            scene.RootGameObject.transform.RotateAround(rotTarget, right, turntable_angles[1]);
+            scene.RootGameObject.transform.RotateAround(rotTarget, up, turntableAzimuth);
+            scene.RootGameObject.transform.RotateAround(rotTarget, right, turntableAltitude);
         }
 
 
@@ -85,16 +91,16 @@ namespace f3
 
             Vector3 rotTarget = getCamera().GetTarget();
             if ( bApply ) {
-                scene.RootGameObject.transform.RotateAround(rotTarget, right, -turntable_angles[1]);
-                scene.RootGameObject.transform.RotateAround(rotTarget, up, -turntable_angles[0]);
+                scene.RootGameObject.transform.RotateAround(rotTarget, right, -turntableAltitude);
+                scene.RootGameObject.transform.RotateAround(rotTarget, up, -turntableAzimuth);
             }
             if (bAzimuth == true)
-                turntable_angles[0] = 0.0f;
+                turntableAzimuth = 0.0f;
             if (bAltitude == true)
-                turntable_angles[1] = 0.0f;
+                turntableAltitude = 0.0f;
             if ( bApply ) {
-                scene.RootGameObject.transform.RotateAround(rotTarget, up, turntable_angles[0]);
-                scene.RootGameObject.transform.RotateAround(rotTarget, right, turntable_angles[1]);
+                scene.RootGameObject.transform.RotateAround(rotTarget, up, turntableAzimuth);
+                scene.RootGameObject.transform.RotateAround(rotTarget, right, turntableAltitude);
             }
         }
 
@@ -176,8 +182,8 @@ namespace f3
             s.scenePosition = scene.RootGameObject.transform.position;
             s.sceneRotation = scene.RootGameObject.transform.rotation;
             s.target = getCamera().GetTarget();
-            s.turntable_x = turntable_angles[0];
-            s.turntable_y = turntable_angles[1];
+            s.turntableAzimuth = turntableAzimuth;
+            s.turntableAltitude = turntableAltitude;
             return s;
         }
 
@@ -187,8 +193,8 @@ namespace f3
             scene.RootGameObject.transform.position = s.scenePosition;
             scene.RootGameObject.transform.rotation = s.sceneRotation;
             getCamera().SetTarget(s.target);
-            turntable_angles[0] = s.turntable_x;
-            turntable_angles[1] = s.turntable_y;
+            turntableAzimuth = s.turntableAzimuth;
+            turntableAltitude = s.turntableAltitude;
         }
 
 

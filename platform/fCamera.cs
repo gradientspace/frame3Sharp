@@ -91,6 +91,16 @@ namespace f3
         }
 
 
+        public Frame3f GetWorldFrame()
+        {
+            return new Frame3f(camera.transform.position, camera.transform.rotation);
+        }
+        public void SetWorldFrame(Frame3f f)
+        {
+            camera.transform.position = f.Origin;
+            camera.transform.rotation = f.Rotation;
+        }
+
 
         public Vector3f Forward()
         {
