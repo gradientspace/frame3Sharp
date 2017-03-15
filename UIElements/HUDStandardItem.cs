@@ -11,9 +11,24 @@ namespace f3
         SceneUIParent parent;
         bool enabled = true;
 
+        /// <summary>
+        /// Any Action added to this set will be called every frame, during PreRender().
+        /// The main purpose here is to allow UI update code to be attached to the object 
+        /// (eg "if some state == Y, set color to X"). This kind of code has to go /somewhere/,
+        /// if you use PerFrameActions you can have it as a lambda right at the place
+        /// the object is constructed.
+        /// 
+        /// Of course you can also use this to attach any other code, but
+        /// be warned that at some point in the future we may decide not to 
+        /// run UpdateActions every frame, for performance reasons.
+        /// </summary>
+        public ActionSet UpdateActions;
+
+
 		public HUDStandardItem ()
 		{
             Enabled = true;
+            UpdateActions = new ActionSet();
         }
 
 		// utility functions
@@ -90,6 +105,8 @@ namespace f3
 
         public virtual void PreRender()
         {
+            if (UpdateActions != null)
+                UpdateActions.Run();
         }
 
         public virtual bool FindRayIntersection (UnityEngine.Ray ray, out UIRayHit hit)
