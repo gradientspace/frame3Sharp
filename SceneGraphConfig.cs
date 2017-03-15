@@ -114,6 +114,14 @@ namespace f3
         public static float DefaultSceneCurveVisualDegrees = 1.0f;
 
 
+        // Default Z-offset for text relative to background rect, used in HUDLabel, HUDTextEntry, etc...
+        // In 2D, this doesn't matter except that if it is too small there might be Z-fighting, and if
+        // you have overlapping 2D elements it might make the text poke through.
+        // In 3D, if it is too large there will be large gaps between text and widgets
+        // Only used at widget creation time, so you can change it dynamically if need be.
+        public static float TextLabelZOffset = -0.01f;
+
+
         // determined by geometry in SpatialInputController.cs
         public static float HandTipOffset = 0.1f;
 

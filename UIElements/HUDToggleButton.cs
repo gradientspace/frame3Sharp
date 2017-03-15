@@ -97,7 +97,7 @@ namespace f3
             if ( labelMesh == null && text.Length > 0 ) {
                 labelMesh =  GameObjectFactory.CreateTextMeshGO(
                     "label", Text, TextColor, TextHeight,
-                    BoxPosition.Center );
+                    BoxPosition.Center, SceneGraphConfig.TextLabelZOffset );
                 BoxModel.Translate(labelMesh, Vector2f.Zero, this.Bounds2D.Center);
                 AppendNewGO(labelMesh, button, false);
             }

@@ -101,7 +101,7 @@ namespace f3
                 horzAlign = BoxPosition.CenterRight;
 
             textMesh = GameObjectFactory.CreateTextMeshGO(
-                "text", Text, TextColor, TextHeight, horzAlign );
+                "text", Text, TextColor, TextHeight, horzAlign, SceneGraphConfig.TextLabelZOffset );
 
             Vector2f toPos = BoxModel.GetBoxPosition(this, horzAlign);
             BoxModel.Translate(textMesh, Vector2f.Zero, toPos);
