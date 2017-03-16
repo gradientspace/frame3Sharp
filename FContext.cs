@@ -42,6 +42,10 @@ namespace f3 {
                                                 // (there can be only one!)
 
 
+        ActionSet nextFrameActions;             // actions that will be run in the next frame, before
+                                                // UI event handling, prerender(), etc
+
+
         public TransformManager TransformManager {
             get { return this.transformManager; }
         }
@@ -128,6 +132,8 @@ namespace f3 {
 
             InputExtension.Get.Start();
 
+            nextFrameActions = new ActionSet();
+
             // intialize camera stuff
             camTracker = new CameraTracking();
             camTracker.Initialize(this);
@@ -207,6 +213,11 @@ namespace f3 {
                 Cursor.lockState = CursorLockMode.None;
                 GlobalControl.Quit();
             }
+
+            // run per-frame actions
+            nextFrameActions.Run();
+            nextFrameActions.Clear();
+
 
             // can either use spacecontrols or mouse, but not both at same time
             // [TODO] ask spatial input controller instead, it knows better (?)
@@ -776,11 +787,26 @@ namespace f3 {
 
 
 
+        /// <summary>
+        /// Add an Action that will be run once, in the next frame, and then discarded
+        /// </summary>
+        public void RegisterNextFrameAction(Action F) {
+            nextFrameActions.RegisterAction(F);
+        }
+
+        /// <summary>
+        /// Add an Action that will be run once, in the next frame, and then discarded
+        /// </summary>
+        public void RegisterNextFrameAction(Action<object> F, object data) {
+            nextFrameActions.RegisterAction(F, data);
+        }
+
+
 
 
 
        public bool RequestTextEntry(ITextEntryTarget target)
-        {
+       {
             if ( activeTextTarget != null ) {
                 activeTextTarget.OnEndTextEntry();
                 activeTextTarget = null;
