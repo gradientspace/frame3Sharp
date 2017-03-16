@@ -215,8 +215,9 @@ namespace f3 {
             }
 
             // run per-frame actions
-            nextFrameActions.Run();
+            Action execActions = nextFrameActions.GetRunnable();
             nextFrameActions.Clear();
+            execActions();
 
 
             // can either use spacecontrols or mouse, but not both at same time

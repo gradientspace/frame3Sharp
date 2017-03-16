@@ -74,17 +74,49 @@ namespace f3
         }
 
 
+
+        /// <summary>
+        /// This method returns an Action that can be executed to run the
+        /// current set of actions. The reason for this function is that if
+        /// you are using ActionSet in a context where you might Clear() it,
+        /// ie to do single-shot actions, if you call Run() and then Clear(),
+        /// then if any registered Actions are registering other Actions, they
+        /// would be immediately discarded. This prevents useful idioms like
+        /// chaining a sequence of Actions.
+        /// So usage would be:
+        ///   Action saveF = set.GetRunnable();    set.Clear();    saveF();
+        /// </summary>
+        public Action GetRunnable()
+        {
+            Action[] copyActions = Actions.ToArray();
+            ActionWithData[] copyDataActions = DataActions.ToArray();
+            Action[] copyNamedActions = new Action[NamedActions.Count];
+            NamedActions.Values.CopyTo(copyNamedActions, 0);
+            ActionWithData[] copyNamedDataActions = new ActionWithData[NamedDataActions.Count];
+            NamedDataActions.Values.CopyTo(copyNamedDataActions, 0);
+
+            Action runnable = () => {
+                for (int i = 0; i < copyActions.Length; ++i)
+                    copyActions[i]();
+                for (int i = 0; i < copyDataActions.Length; ++i)
+                    copyDataActions[i].F(copyDataActions[i].D);
+                for (int i = 0; i < copyNamedActions.Length; ++i)
+                    copyNamedActions[i]();
+                for (int i = 0; i < copyNamedDataActions.Length; ++i)
+                    copyNamedDataActions[i].F(copyNamedDataActions[i].D);
+            };
+            return runnable;
+        }
+
+
+
+
         public virtual void Run()
         {
-            foreach (Action a in Actions)
-                a();
-            foreach ( var a in DataActions)
-                a.F(a.D);
-
-            foreach (Action a in NamedActions.Values)
-                a();
-            foreach ( var a in NamedDataActions)
-                a.Value.F(a.Value.D);
+            // We have to make copies in case an Action adds other Actions
+            // (this would break the iterators). Also minmizes ordering effects.
+            Action F = GetRunnable();
+            F();
         }
 
 
