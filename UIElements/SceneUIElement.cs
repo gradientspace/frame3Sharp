@@ -70,6 +70,7 @@ namespace f3
 	{
 		GameObject RootGameObject{ get; }
 
+        string Name { get; set; }
 		SceneUIParent Parent { get; set; }
 
 		void Disconnect();

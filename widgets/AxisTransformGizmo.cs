@@ -104,6 +104,12 @@ namespace f3
             set { parent = value; }
         }
 
+        public virtual string Name
+        {
+            get { return RootGameObject.GetName(); }
+            set { RootGameObject.SetName(value); }
+        }
+
 		public virtual void Disconnect() {
 
             // we could get this while we are in an active capture, if selection

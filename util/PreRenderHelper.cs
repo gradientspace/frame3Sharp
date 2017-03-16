@@ -34,6 +34,16 @@ namespace f3
 
         public GameObject RootGameObject { get { return dummyGO; } }
 
+        public virtual string Name
+        {
+            get {
+                return RootGameObject.GetName();
+            }
+            set {
+                RootGameObject.SetName(value);
+            }
+        }
+
 		public virtual SceneUIParent Parent
         {
             get { return parent; }

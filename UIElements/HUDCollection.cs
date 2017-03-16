@@ -77,16 +77,6 @@ namespace f3
          *  SceneUIElement impl
          */
 
-        public bool EnableHover
-        {
-            get {
-                foreach (var ui in Children)
-                    if (ui.EnableHover)
-                        return true;
-                return false;
-            }
-        }
-
         public GameObject RootGameObject
         {
             get {
@@ -94,11 +84,22 @@ namespace f3
             }
         }
 
-		public virtual  SceneUIParent Parent
+		public virtual SceneUIParent Parent
         {
             get { return parent; }
             set { parent = value; }
         }
+
+        public virtual string Name
+        {
+            get {
+                return RootGameObject.GetName();
+            }
+            set {
+                RootGameObject.SetName(value);
+            }
+        }
+
 
         public void Disconnect()
         {
@@ -155,6 +156,19 @@ namespace f3
             throw new InvalidOperationException("HUDCollection.EndCapture: how is this being called?");
         }
 
+
+
+
+
+        public bool EnableHover
+        {
+            get {
+                foreach (var ui in Children)
+                    if (ui.EnableHover)
+                        return true;
+                return false;
+            }
+        }
 
 
         public bool FindHoverRayIntersection(Ray ray, out UIRayHit hit)
