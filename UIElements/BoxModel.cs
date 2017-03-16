@@ -46,11 +46,19 @@ namespace f3
             }
         }
 
-        public static Vector2f GetBoxOffset(IBoxModelElement element, BoxPosition pos)
+        public static Vector2f GetBoxOffset(IBoxModelElement element, BoxPosition boxPos)
         {
-            return GetBoxPosition(element, pos) - element.Bounds2D.Center;
+            return GetBoxPosition(element, boxPos) - element.Bounds2D.Center;
         }
 
+
+        /// <summary>
+        /// returns offset of vPosition from center of element
+        /// </summary>
+        public static Vector2f GetRelativeOffset(IBoxModelElement element, Vector2f vPosition)
+        {
+            return vPosition - element.Bounds2D.Center;
+        }
 
 
         // This returns Bounds2D-Padding. Note that Bounds2D includes local translation 
@@ -90,6 +98,20 @@ namespace f3
             return bounds;
         }
 
+
+        // kind of feeling like this should maybe go somewhere else...
+        public static void SetObjectPosition( IBoxModelElement element, Vector2f vObjectPoint, 
+                                              Vector2f vTargetPoint, float z = 0)
+        {
+            // [RMS] this is true for now...need to rethink though
+            HUDStandardItem item = element as HUDStandardItem;
+
+            Vector2f vOffset = GetRelativeOffset(element, vObjectPoint);
+            Vector2f vNewPos = vTargetPoint - vOffset;
+
+            Frame3f f = new Frame3f(new Vector3f(vNewPos.x, vNewPos.y, z));
+            item.SetObjectFrame(f);
+        }
 
 
         // kind of feeling like this should maybe go somewhere else...

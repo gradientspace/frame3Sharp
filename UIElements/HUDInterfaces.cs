@@ -6,6 +6,10 @@ using g3;
 
 namespace f3
 {
+
+    public delegate void BoundsModifiedEventHandler(object sender);
+
+
     // provides 2D interface we can use for 2D layout
     public interface IBoxModelElement
     {

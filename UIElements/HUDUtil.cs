@@ -238,6 +238,7 @@ namespace f3
 
 
     // create an icon-style 3D mesh
+    // [TODO] not used? perhaps in VRCAD....?
     public class IconMeshGenerator : IGameObjectGenerator
     {
         public string Path { get; set; }
@@ -277,6 +278,8 @@ namespace f3
 
 
     // create text mesh
+    // [TODO] only used by HUDRadialMenu, can get rid of when
+    //   we replace that with fText...
     public class TextLabelGenerator : IGameObjectGenerator
     {
         public string Text { get; set; }

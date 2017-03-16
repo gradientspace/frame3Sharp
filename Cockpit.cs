@@ -85,6 +85,7 @@ namespace f3
             UnityEngine.Object.Destroy(RootGameObject);
         }
 
+
         public string Name
         {
             get { return RootGameObject.GetName(); }
