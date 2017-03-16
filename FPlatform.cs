@@ -36,6 +36,26 @@ namespace f3
         }
 
 
+        // argh unity does not have a window resize event built-in ?!??
+        static private int window_width = -1, window_height = -1;
+        static public bool IsWindowResized()
+        {
+            if ( window_width == -1 || window_height == -1 ) {
+                window_height = Screen.height;
+                window_width = Screen.width;
+                return false;
+            }
+            if ( window_height != Screen.height || window_width != Screen.width ) {
+                window_height = Screen.height;
+                window_width = Screen.width;
+                return true;
+            }
+            return false;
+        }
+
+
+
+
         static private bool _in_unity_editor = Application.isEditor;
         static public bool InUnityEditor()
         {

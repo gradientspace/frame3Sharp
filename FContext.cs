@@ -6,10 +6,20 @@ using g3;
 
 namespace f3 {
 
+    public delegate void ContextWindowResizeEvent();
+
+
+    /// <summary>
+    /// The universe
+    /// </summary>
     public class FContext {
 
         // [TODO] would like to get rid of this...but in a few places it was clunky to keep a reference
         public static FContext ActiveContext_HACK;
+
+
+        // global events
+        public event ContextWindowResizeEvent OnWindowResized;
 
 
         SceneOptions options;
@@ -200,6 +210,9 @@ namespace f3 {
         public void Update() {
 
             FPlatform.IncrementFrameCounter();
+
+            if (FPlatform.IsWindowResized())
+                FUtil.SafeSendAnyEvent(OnWindowResized);
 
             // update our wrappers around various different Input modes
             InputExtension.Get.Update();
