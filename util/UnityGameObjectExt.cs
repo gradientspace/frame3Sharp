@@ -42,6 +42,17 @@ namespace f3
             go.transform.SetParent(null);
         }
 
+        public static bool IsSameOrChild(this GameObject go, GameObject testGO)
+        {
+            if (go == testGO)
+                return true;
+            foreach ( GameObject childGO in go.Children() ) { 
+                if (childGO.IsSameOrChild(testGO))
+                    return true;
+            }
+            return false;
+        }
+
 
         public static Mesh GetMesh(this GameObject go)
         {

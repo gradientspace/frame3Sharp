@@ -90,6 +90,17 @@ namespace f3
             child.go.transform.SetParent(go.transform, bKeepWorldPosition);
         }
 
+        public virtual bool IsSameOrChild(fGameObject testGO)
+        {
+            if (this == testGO)
+                return true;
+            foreach ( GameObject childGO in go.Children() ) { 
+                if (childGO.IsSameOrChild(testGO))
+                    return true;
+            }
+            return false;
+        }
+
 
         public virtual Mesh GetMesh()
         {
