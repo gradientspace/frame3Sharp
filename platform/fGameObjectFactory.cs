@@ -91,10 +91,14 @@ namespace f3
         // disc with radius=1, lying in plane, centered at (0,0)
         public static fDiscGameObject CreateDiscGO(string sName, float fRadius, Colorf color, bool bCollider)
         {
+            return CreateDiscGO(sName, fRadius, MaterialUtil.CreateFlatMaterialF(color), false, bCollider);
+        }
+        public static fDiscGameObject CreateDiscGO(string sName, float fRadius, fMaterial material, bool bShareMaterial, bool bCollider)
+        {
             GameObject go = new GameObject(sName);
             Mesh discMesh = PrimitiveCache.GetPrimitiveMesh(fPrimitiveType.Disc);
             initialize_meshgo(go, new fMesh(discMesh), bCollider, true);
-            go.SetMaterial(MaterialUtil.CreateFlatMaterialF(color));
+            go.SetMaterial(material, bShareMaterial);
             return new fDiscGameObject(go, new fMesh(go.GetSharedMesh()),  fRadius);
         }
 

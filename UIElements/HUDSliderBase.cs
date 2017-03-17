@@ -45,12 +45,13 @@ namespace f3
 
             fMaterial useMaterial = MaterialUtil.CreateFlatMaterialF(bgColor);
             backgroundGO = GameObjectFactory.CreateRectangleGO("background",
-                width, height, useMaterial, true, true);
+                SliderWidth, SliderHeight, useMaterial, true, true);
             MaterialUtil.DisableShadows(backgroundGO);
             backgroundGO.RotateD(Vector3f.AxisX, -90.0f); // ??
             AppendNewGO(backgroundGO, rootGO, false);
 
-            handleGO = create_handle_go();
+            handleMaterial = MaterialUtil.CreateFlatMaterialF(handleColor);
+            handleGO = create_handle_go(handleMaterial);
             if (handleGO != null) {
                 handleGO.Translate(0.001f * Vector3f.AxisY);
                 AppendNewGO(handleGO, rootGO, false);
@@ -66,23 +67,56 @@ namespace f3
 
 
 
-        protected float width = 10;
-        protected float height = 1;
+        protected float SliderWidth = 10;
+        protected float SliderHeight = 1;
         protected Colorf bgColor = Colorf.White;
+
         protected Colorf handleColor = Colorf.Black;
+        protected fMaterial handleMaterial;
 
 
         
 
-        // override this to change handle shape
-        public virtual fGameObject create_handle_go()
+        /// <summary>
+        /// Create the GO that acts as the "handle", ie identifies selected position on timelin
+        /// Default is a kind of ugly large triangle underneath midline...
+        /// Override to provide your own visuals. Return null for no handle.
+        /// </summary>
+        public virtual fGameObject create_handle_go(fMaterial handleMaterial)
         {
             fTriangleGameObject handle = GameObjectFactory.CreateTriangleGO(
-                "handle", Height, Height, handleColor, true);
+                "handle", Height, Height, handleMaterial.color, true);
             MaterialUtil.DisableShadows(handle);
             handle.RotateD(Vector3f.AxisX, -90.0f); // ??
             return handle;
         }
+
+        /// <summary>
+        /// Update handle sizing. Width and Height here are full slider width/height
+        /// </summary>
+        public virtual void update_handle_go(fGameObject handleGO, float width, float height)
+        {
+            if ( handleGO is fTriangleGameObject == false )
+                DebugUtil.Error("HUDSliderBase: handle is not standard type but get_handle_offset not overloaded!");
+
+            (handleGO as fTriangleGameObject).SetHeight(height * 0.5f);
+            (handleGO as fTriangleGameObject).SetWidth(height * 0.5f);
+        }
+
+
+        /// <summary>
+        /// Get up/down shift of handle relative to midline of slider.
+        /// </summary>
+        public virtual float get_handle_offset(fGameObject handleGO)
+        {
+            if ( handleGO is fTriangleGameObject == false )
+                DebugUtil.Error("HUDSliderBase: handle is not standard type but get_handle_offset not overloaded!");
+
+            float h = (handleGO as fTriangleGameObject).GetHeight();
+            float dz = -(SliderHeight / 2) - h / 2;
+            return dz;
+        }
+
 
 
         // override this to add extra UI stuff that 
@@ -105,19 +139,19 @@ namespace f3
 
 
         public virtual float Width {
-            get { return width; }
+            get { return SliderWidth; }
             set {
-                if (width != value) {
-                    width = value;
+                if (SliderWidth != value) {
+                    SliderWidth = value;
                     update_geometry();
                 }
             }
         }
         public virtual float Height {
-            get { return height; }
+            get { return SliderHeight; }
             set {
-                if (height != value) {
-                    height = value;
+                if (SliderHeight != value) {
+                    SliderHeight = value;
                     update_geometry();
                 }
             }
@@ -145,6 +179,16 @@ namespace f3
         }
 
 
+        public virtual Colorf TickColor
+        {
+            get { return tickColor; }
+            set {
+                tickColor = value;
+                // todo: handle dynamic updates
+            }
+        }
+
+
         public virtual double Value
         {
             get { return snapped_value; }
@@ -160,13 +204,11 @@ namespace f3
             if (rootGO == null)
                 return;
 
-            backgroundGO.SetWidth(width);
-            backgroundGO.SetHeight(height);
+            backgroundGO.SetWidth(SliderWidth);
+            backgroundGO.SetHeight(SliderHeight);
 
-            if (handleGO != null) {
-                (handleGO as fTriangleGameObject).SetHeight(height * 0.5f);
-                (handleGO as fTriangleGameObject).SetWidth(height * 0.5f);
-            }
+            if (handleGO != null)
+                update_handle_go(handleGO, SliderWidth, SliderHeight);
 
             update_handle_position();
 
@@ -181,9 +223,8 @@ namespace f3
 
             float t = (float)(snapped_value - 0.5);
             Frame3f handleF = handleStart;
-            handleF.Translate(width * t * handleF.X);
-            float h = (handleGO as fTriangleGameObject).GetHeight();
-            float dz = -(height/2) - h/2;
+            handleF.Translate(SliderWidth * t * handleF.X);
+            float dz = get_handle_offset(handleGO);
             handleF.Translate(dz * handleF.Z);
             handleGO.SetLocalFrame(handleF);
         }
@@ -191,9 +232,35 @@ namespace f3
 
 
 
+        /// <summary>
+        /// Create GO / geometry for a single tick, centered at origin
+        /// </summary>
+        protected virtual fGameObject create_tick_go(Vector2f tickSize, fMaterial baseMaterial)
+        {
+            fRectangleGameObject go = GameObjectFactory.CreateRectangleGO("tick", tickSize.x, tickSize.y,
+                baseMaterial, true, false);
+            MaterialUtil.DisableShadows(go);
+            go.RotateD(Vector3f.AxisX, -90.0f);
+            return go;
+        }
+
+        /// <summary>
+        /// Update GO for a single tick created by CreateTickGO(). 
+        /// This does not require positioning the tick, that happens automatically.
+        /// fT is in range [0,1], can be used for styling/etc
+        /// </summary>
+        protected virtual void update_tick_go(fGameObject go, Vector2f tickSize, float fT )
+        {
+            fRectangleGameObject rectGO = go as fRectangleGameObject;
+            rectGO.SetWidth(tickSize.x);
+            rectGO.SetHeight(tickSize.y);
+        }
+
+
+
 
         struct TickGO {
-            public fRectangleGameObject go;
+            public fGameObject go;
         }
         List<TickGO> ticks = new List<TickGO>();
 
@@ -209,9 +276,7 @@ namespace f3
             if ( tick_count > tick_count_cache ) {
                 while (ticks.Count < tick_count) {
                     TickGO tick = new TickGO();
-                    tick.go = GameObjectFactory.CreateRectangleGO("tick", tickSize.x, tickSize.y, 
-                        tickMaterial, true, false);
-                    tick.go.RotateD(Vector3f.AxisX, -90.0f);
+                    tick.go = create_tick_go(tickSize, tickMaterial);
                     AppendNewGO(tick.go, rootGO, false);
                     BoxModel.Translate(tick.go, Vector2f.Zero, this.Bounds2D.CenterLeft, -Height*0.01f);
                     ticks.Add(tick);
@@ -221,11 +286,10 @@ namespace f3
 
             // align and show/hide ticks
             for ( int i = 0; i < ticks.Count; ++i ) {
-                fRectangleGameObject go = ticks[i].go;
+                fGameObject go = ticks[i].go;
                 if (i < tick_count) {
                     float t = (float)i / (float)(tick_count-1);
-                    ticks[i].go.SetWidth(tickSize.x);
-                    ticks[i].go.SetHeight(tickSize.y);
+                    update_tick_go(go, tickSize, t);
                     BoxModel.MoveTo(go, this.Bounds2D.CenterLeft, -Height * 0.01f);
                     BoxModel.Translate(go, new Vector2f(t * Width, 0));
                     go.SetVisible(true);
@@ -269,7 +333,7 @@ namespace f3
         {
             // assume slider is centered at origin of root node
             Vector3f posL = rootGO.PointToLocal(posW);
-            float tx = (posL.x - (-width/2) ) / width;
+            float tx = (posL.x - (-SliderWidth/2) ) / SliderWidth;
             tx = MathUtil.Clamp(tx, 0, 1);
             return tx;            
         }
@@ -335,12 +399,12 @@ namespace f3
             GameObjectRayHit hit;
             if (! FindGORayIntersection(e.ray, out hit) )
                 return false;       // this should not be possible...
-            if ( hit.hitGO == handleGO ) {
+            if ( handleGO.IsSameOrChild(hit.hitGO) ) {
                 onHandlePress(e, hit.hitPos);
                 eInterMode = InteractionMode.InHandleDrag;
                 vStartHitW = hit.hitPos;
                 vHandleStartW = handleGO.GetWorldFrame();
-            } else if ( hit.hitGO == backgroundGO ) {
+            } else if ( backgroundGO.IsSameOrChild(hit.hitGO) ) {
                 onSliderbarPress(e, hit.hitPos);
                 eInterMode = InteractionMode.InPressDrag;
                 vStartHitW = hit.hitPos;
