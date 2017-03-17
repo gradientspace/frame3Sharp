@@ -6,9 +6,10 @@ using g3;
 
 namespace f3
 {
-    public class GroupSO : TransformableSO, IParentSO
+    public class GroupSO : TransformableSO, SOCollection, SOParent
     {
         GameObject gameObject;
+        SOParent parent;
         protected string uuid;
         List<TransformableSO> vChildren;
 
@@ -112,6 +113,16 @@ namespace f3
         public GameObject RootGameObject
         {
             get { return gameObject; }
+        }
+
+        virtual public SOParent Parent
+        {
+            get {
+                return parent;
+            }
+            set {
+                parent = value;
+            }
         }
 
         public virtual string Name
@@ -239,11 +250,11 @@ namespace f3
         {
             get { return true; }
         }
-        virtual public Vector3 GetLocalScale()
+        virtual public Vector3f GetLocalScale()
         {
             return RootGameObject.transform.localScale;
         }
-        virtual public void SetLocalScale(Vector3 scale)
+        virtual public void SetLocalScale(Vector3f scale)
         {
             if (SupportsScaling) {
                 RootGameObject.transform.localScale = scale;

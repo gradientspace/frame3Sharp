@@ -17,7 +17,7 @@ namespace f3
     public delegate void TimeChangedHandler(object sender, EventArgs e);
 
 
-	public class FScene : SceneUIParent
+	public class FScene : SceneUIParent, SOParent
 	{
         ChangeHistory history;
         public ChangeHistory History { get { return history; } }
@@ -225,6 +225,7 @@ namespace f3
             vObjects.Add(so);
             so.SetScene(this);
             so.RootGameObject.transform.SetParent(scene_objects.transform, bUseExistingWorldPos);
+            so.Parent = this;
             so.SetCurrentTime(currentTime);
 
             OnSceneChanged(so, SceneChangeType.Added);
@@ -235,13 +236,17 @@ namespace f3
         {
             so.RootGameObject.transform.SetParent(null);
             so.RootGameObject.transform.SetParent(scene_objects.transform, bKeepPosition);
+            so.Parent = this;
         }
 
         // grouping support. currently does not properly handle undo!
         public void AddSceneObjectToParentSO(SceneObject so, SceneObject parent)
         {
+            if (parent is SOParent == false)
+                DebugUtil.Error("FSCene.AddSceneObjectToParentSO: parent does not implement SOParent interface!");
             vObjects.Remove(so);
             parent.RootGameObject.AddChild(so.RootGameObject, true);
+            so.Parent = parent as SOParent;
         }
         public void RemoveSceneObjectFromParentSO(SceneObject so)
         {
@@ -249,6 +254,7 @@ namespace f3
                 vObjects.Add(so);
             so.RootGameObject.transform.SetParent(null);
             so.RootGameObject.transform.SetParent(scene_objects.transform, true);
+            so.Parent = this;
         }
 
 
@@ -490,6 +496,17 @@ namespace f3
 
 
 
+        // SOParent interface
+		public virtual Frame3f GetLocalFrame(CoordSpace eSpace)
+        {
+            return SceneFrame;
+        }
+        public virtual Vector3f GetLocalScale()
+        {
+            return new Vector3f(GetSceneScale());
+        }
+
+
 
         // Scene RootGameObject is a top-level GO, so World and Object coords are the same!
         public Frame3f SceneFrame {
@@ -501,10 +518,10 @@ namespace f3
         // this is for supporting global scaling of scene. Causes lots of complications, though...
 
         public float GetSceneScale() {
-            return RootGameObject.transform.localScale[0];
+            return RootGameObject.GetLocalScale()[0];
         }
         public void SetSceneScale(float f) {
-            RootGameObject.transform.localScale = f * Vector3.one;
+            RootGameObject.SetLocalScale(f * Vector3f.One);
         }
 
         public float ToWorldDimension(float fScene) {

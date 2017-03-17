@@ -5,10 +5,11 @@ using g3;
 
 namespace f3
 {
-    public class TransientXFormSO : TransformableSO, IParentSO
+    public class TransientXFormSO : TransformableSO, SOCollection
     {
         GameObject gameObject;
         TransformableSO target;
+        protected SOParent parent;
         //TransformableSceneObject source;
 
         FScene parentScene;
@@ -49,9 +50,19 @@ namespace f3
         // SceneObject impl
         //
 
-        public GameObject RootGameObject
+        virtual public GameObject RootGameObject
         {
             get { return gameObject; }
+        }
+
+        virtual public SOParent Parent
+        {
+            get {
+                return parent;
+            }
+            set {
+                parent = value;
+            }
         }
 
         virtual public string Name
@@ -159,11 +170,11 @@ namespace f3
         {
             get { return true; }
         }
-        virtual public Vector3 GetLocalScale()
+        virtual public Vector3f GetLocalScale()
         {
             return RootGameObject.transform.localScale;
         }
-        virtual public void SetLocalScale(Vector3 scale)
+        virtual public void SetLocalScale(Vector3f scale)
         {
             if (SupportsScaling) {
                 RootGameObject.transform.localScale = scale;

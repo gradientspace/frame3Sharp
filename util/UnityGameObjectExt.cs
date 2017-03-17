@@ -117,9 +117,18 @@ namespace f3
         {
             return go.transform.localScale;
         }
+        public static void SetLocalScale(this GameObject go, Vector3f scale)
+        {
+            go.transform.localScale = scale;
+        }
+
         public static Vector3f GetLocalPosition(this GameObject go)
         {
             return go.transform.localPosition;
+        }
+        public static void SetLocalPosition(this GameObject go, Vector3f position)
+        {
+            go.transform.localPosition = position;
         }
 
 

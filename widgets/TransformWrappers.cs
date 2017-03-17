@@ -20,9 +20,9 @@ namespace f3
     {
         abstract public bool SupportsScaling { get; }
         abstract public Frame3f GetLocalFrame(CoordSpace eSpace);
-        abstract public Vector3 GetLocalScale();
+        abstract public Vector3f GetLocalScale();
         abstract public void SetLocalFrame(Frame3f newFrame, CoordSpace eSpace);
-        abstract public void SetLocalScale(Vector3 scale);
+        abstract public void SetLocalScale(Vector3f scale);
 
         protected TransformableSO target;
         virtual public TransformableSO Target { get { return target; } }
@@ -95,11 +95,11 @@ namespace f3
         {
             get { return target.SupportsScaling; }
         }
-        override public Vector3 GetLocalScale()
+        override public Vector3f GetLocalScale()
         {
             return target.GetLocalScale();
         }
-        override public void SetLocalScale(Vector3 scale)
+        override public void SetLocalScale(Vector3f scale)
         {
             target.SetLocalScale(scale);
         }
@@ -168,11 +168,11 @@ namespace f3
         {
             get { return target.SupportsScaling; }
         }
-        override public Vector3 GetLocalScale()
+        override public Vector3f GetLocalScale()
         {
             return target.GetLocalScale();
         }
-        override public void SetLocalScale(Vector3 scale)
+        override public void SetLocalScale(Vector3f scale)
         {
             target.SetLocalScale(scale);
         }

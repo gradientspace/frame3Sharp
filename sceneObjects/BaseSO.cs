@@ -9,6 +9,7 @@ namespace f3
     public abstract class BaseSO : GameObjectSet, TransformableSO
     {
         protected FScene parentScene;
+        protected SOParent parent;
         protected string uuid;
 
         SOMaterial sceneMaterial;
@@ -46,6 +47,17 @@ namespace f3
 
         virtual public int Timestamp{
             get { return _timestamp; }
+        }
+
+
+        virtual public SOParent Parent
+        {
+            get {
+                return parent;
+            }
+            set {
+                parent = value;
+            }
         }
 
 
@@ -172,11 +184,11 @@ namespace f3
         virtual public bool SupportsScaling {
             get { return true; }
         }
-        virtual public Vector3 GetLocalScale()
+        virtual public Vector3f GetLocalScale()
         {
             return RootGameObject.transform.localScale;
         }
-        virtual public void SetLocalScale(Vector3 scale)
+        virtual public void SetLocalScale(Vector3f scale)
         {
             if (SupportsScaling) {
                 RootGameObject.transform.localScale = scale;

@@ -58,9 +58,9 @@ namespace f3
         // descends parent/child SO hierarchy and finds the set of topmost non-temporary SOs
         public static void FindAllPersistentTransformableChildren(SceneObject vParent, List<TransformableSO> children)
         {
-            if ( (vParent is IParentSO) == false )
+            if ( (vParent is SOCollection) == false )
                 return;
-            foreach ( SceneObject so in (vParent as IParentSO).GetChildren() ) {
+            foreach ( SceneObject so in (vParent as SOCollection).GetChildren() ) {
                 if ((so is TransformableSO) == false)
                     continue;
                 if (so.IsTemporary)
