@@ -161,9 +161,14 @@ namespace f3
 
 
 
-        public static void AnimatedShow(HUDStandardItem hudItem, float fDuration = 0.25f)
+        public static void AnimatedShow(HUDStandardItem hudItem, float fDuration = 0.25f, Action OnCompleted = null)
         {
             AnimatedDisplayHUDItem anim = hudItem.RootGameObject.AddComponent<AnimatedDisplayHUDItem>();
+            if (OnCompleted != null) {
+                anim.CompleteCallback += () => {
+                    OnCompleted();
+                };
+            }
             anim.Play(hudItem, fDuration);
         }
 
@@ -175,6 +180,17 @@ namespace f3
                 cockpit.RemoveUIElement(anim.HUDItem, true);
             };
             anim.Play(hudItem, fDuration);
+        }
+
+
+        public static void AnimatedShowHide_Cockpit(HUDStandardItem hudItem, Cockpit cockpit, float fShowDuration = 3.0f, float fFadeDuration = 0.25f)
+        {
+            AnimatedShowHideHUDItem anim = hudItem.RootGameObject.AddComponent<AnimatedShowHideHUDItem>();
+            anim.CompleteCallback += () => {
+                anim.HUDItem.ClearGameObjects(false);
+                cockpit.RemoveUIElement(anim.HUDItem, true);
+            };
+            anim.Play(hudItem, fShowDuration, fFadeDuration);
         }
 
         public static void AnimatedDimiss_Scene(HUDStandardItem hudItem, FScene scene, float fDuration = 0.25f)
