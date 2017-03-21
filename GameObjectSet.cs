@@ -124,11 +124,12 @@ namespace f3
             }
 		}
 
-        // [RMS] assumes all shaders have parameter _AlphaScale available (!)
+
+        // use for fading, etc
         public virtual void SetAllGOAlphaMultiply(float fT)
         {
-            foreach (var go in vObjects) 
-                go.GetComponent<Renderer>().material.SetFloat("_AlphaScale", fT);
+            foreach (var go in vObjects)
+                go.SetAlphaMultiply(fT);
         }
 
 

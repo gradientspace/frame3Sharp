@@ -5,6 +5,13 @@ using g3;
 
 namespace f3
 {
+    public class CustomAlphaMultiply : MonoBehaviour
+    {
+        public virtual void SetAlphaMultiply(float fT) { }
+    }
+
+
+
     public static class UnityExtensions
     {
         public static void SetName(this GameObject go, string name) {
@@ -90,6 +97,24 @@ namespace f3
             return (r != null) ? new fMaterial(r.material) : null;
         }
 
+        public static void SetColor(this GameObject go, Colorf color)
+        {
+            Renderer r = go.GetComponent<Renderer>();
+            if (r != null)
+                r.material.color = color;
+        }
+
+        // [RMS] assumes all shaders have parameter _AlphaScale available (!)
+        public static void SetAlphaMultiply(this GameObject go, float fScale)
+        {
+            Renderer r = go.GetComponent<Renderer>();
+            if (r != null) {
+                r.material.SetFloat("_AlphaScale", fScale);
+            }
+            CustomAlphaMultiply c = go.GetComponent<CustomAlphaMultiply>();
+            if (c != null)
+                c.SetAlphaMultiply(fScale);
+        }
 
 
         public static void Hide(this GameObject go)

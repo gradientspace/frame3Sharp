@@ -90,6 +90,19 @@ namespace f3
 
 
 
+    public class TextMeshProAlphaMultiply : CustomAlphaMultiply
+    {
+        public float start_alpha = float.MaxValue;
+        public override void SetAlphaMultiply(float fT)
+        {
+            TextMeshPro tm = this.gameObject.GetComponent<TextMeshPro>();
+            if (start_alpha == float.MaxValue)
+                start_alpha = tm.alpha;
+            tm.alpha = fT; // * start_alpha;
+        }
+    }
+
+
 
     public static class TextMeshProUtil
     {
@@ -116,6 +129,7 @@ namespace f3
             tm.color = textColor;
             // ignore material changes when we add to GameObjectSet
             textGO.AddComponent<IgnoreMaterialChanges>();
+            textGO.AddComponent<TextMeshProAlphaMultiply>();
             // use our textmesh material instead
             //MaterialUtil.SetTextMeshDefaultMaterial(tm);
 
