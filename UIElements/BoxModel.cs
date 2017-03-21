@@ -61,6 +61,14 @@ namespace f3
         }
 
 
+        public static AxisAlignedBox2f LocalBounds(IBoxModelElement element)
+        {
+            AxisAlignedBox2f bounds = element.Bounds2D;
+            bounds.Translate(-bounds.Center);
+            return bounds;
+        }
+
+
         // This returns Bounds2D-Padding. Note that Bounds2D includes local translation 
         //  (ie relative to parent)
         public static AxisAlignedBox2f PaddedBounds(IBoxModelElement element, float fPadding)

@@ -269,8 +269,8 @@ namespace f3
         void update_ticks()
         {
             tickMaterial.color = tickColor;
-
             Vector2f tickSize = TickDimensions;
+            AxisAlignedBox2f localBounds = BoxModel.LocalBounds(this);
 
             // create extra ticks if we need them
             if ( tick_count > tick_count_cache ) {
@@ -278,7 +278,7 @@ namespace f3
                     TickGO tick = new TickGO();
                     tick.go = create_tick_go(tickSize, tickMaterial);
                     AppendNewGO(tick.go, rootGO, false);
-                    BoxModel.Translate(tick.go, Vector2f.Zero, this.Bounds2D.CenterLeft, -Height*0.01f);
+                    BoxModel.Translate(tick.go, Vector2f.Zero, localBounds.CenterLeft, -Height*0.01f);
                     ticks.Add(tick);
                 }
                 tick_count_cache = tick_count;
@@ -290,7 +290,7 @@ namespace f3
                 if (i < tick_count) {
                     float t = (float)i / (float)(tick_count-1);
                     update_tick_go(go, tickSize, t);
-                    BoxModel.MoveTo(go, this.Bounds2D.CenterLeft, -Height * 0.01f);
+                    BoxModel.MoveTo(go, localBounds.CenterLeft, -Height * 0.01f);
                     BoxModel.Translate(go, new Vector2f(t * Width, 0));
                     go.SetVisible(true);
                 } else {
@@ -382,7 +382,7 @@ namespace f3
 
         enum InteractionMode
         {
-            InHandleDrag, InPressDrag
+            InHandleDrag, InPressDrag, InCustom
         }
         InteractionMode eInterMode;
 
@@ -394,12 +394,28 @@ namespace f3
         Vector3f vStartHitW;
         Frame3f vHandleStartW;
 
+
+        // subclass can implement these to add custom behaviors
+        virtual public bool custom_begin_capture(InputEvent e, GameObjectRayHit hit)
+        {
+            return false;
+        }
+        virtual public void custom_update_capture(InputEvent e)
+        {
+        }
+        virtual public void custom_end_capture(InputEvent e)
+        {
+        }
+
+
         override public bool BeginCapture (InputEvent e)
 		{
             GameObjectRayHit hit;
             if (! FindGORayIntersection(e.ray, out hit) )
                 return false;       // this should not be possible...
-            if ( handleGO.IsSameOrChild(hit.hitGO) ) {
+            if ( custom_begin_capture(e, hit) ) {
+                eInterMode = InteractionMode.InCustom;
+            } else if ( handleGO.IsSameOrChild(hit.hitGO) ) {
                 onHandlePress(e, hit.hitPos);
                 eInterMode = InteractionMode.InHandleDrag;
                 vStartHitW = hit.hitPos;
@@ -415,7 +431,10 @@ namespace f3
 
 		override public bool UpdateCapture (InputEvent e)
 		{
-            if ( eInterMode == InteractionMode.InPressDrag ) {
+            if ( eInterMode == InteractionMode.InCustom ) {
+                custom_update_capture(e);
+
+            } else if ( eInterMode == InteractionMode.InPressDrag ) {
                 Vector3f hitPos = vHandleStartW.RayPlaneIntersection(e.ray.Origin, e.ray.Direction, 1);
                 onSliderBarPressDrag(e, hitPos);
 
@@ -431,7 +450,10 @@ namespace f3
 
 		override public bool EndCapture (InputEvent e)
 		{
-            if ( eInterMode == InteractionMode.InHandleDrag || eInterMode == InteractionMode.InPressDrag ) {
+            if ( eInterMode == InteractionMode.InCustom ) {
+                custom_end_capture(e);
+
+            } else if ( eInterMode == InteractionMode.InHandleDrag || eInterMode == InteractionMode.InPressDrag ) {
                 FUtil.SafeSendEvent(OnValueChangeEnd, this, snapped_value);
             }
 			return true;
@@ -451,7 +473,10 @@ namespace f3
         }
 
         public AxisAlignedBox2f Bounds2D { 
-            get { return new AxisAlignedBox2f(Vector2f.Zero, Width/2, Height/2); }
+            get {
+                Vector2f origin2 = RootGameObject.GetLocalPosition().xy;
+                return new AxisAlignedBox2f(origin2, Width/2, Height/2);
+            }
         }
 
         #endregion
