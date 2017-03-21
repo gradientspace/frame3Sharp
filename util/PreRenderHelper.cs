@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using g3;
 
 namespace f3
 {
@@ -64,14 +65,14 @@ namespace f3
             PreRenderF();
         }
 
-        public bool FindRayIntersection(Ray ray, out UIRayHit hit) { hit = null; return false; }
-        public bool FindHoverRayIntersection(Ray ray, out UIRayHit hit) { hit = null; return false; }
+        public bool FindRayIntersection(Ray3f ray, out UIRayHit hit) { hit = null; return false; }
+        public bool FindHoverRayIntersection(Ray3f ray, out UIRayHit hit) { hit = null; return false; }
         public bool WantsCapture(InputEvent e) { return false; }
         public bool BeginCapture(InputEvent e) { return false; }
         public bool UpdateCapture(InputEvent e) { return false; }
         public bool EndCapture(InputEvent e) { return false; }
         public bool EnableHover { get { return false; } }
-        public void UpdateHover(Ray ray, UIRayHit hit) { }
-        public void EndHover(Ray ray) { }
+        public void UpdateHover(Ray3f ray, UIRayHit hit) { }
+        public void EndHover(Ray3f ray) { }
     }
 }

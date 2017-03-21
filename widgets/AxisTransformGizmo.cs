@@ -354,7 +354,7 @@ namespace f3
 
 
 
-		public bool FindRayIntersection (Ray ray, out UIRayHit hit)
+		public bool FindRayIntersection(Ray3f ray, out UIRayHit hit)
 		{
 			hit = null;
 			GameObjectRayHit hitg = null;
@@ -366,7 +366,7 @@ namespace f3
 			}
 			return false;
 		}
-        public bool FindHoverRayIntersection(Ray ray, out UIRayHit hit)
+        public bool FindHoverRayIntersection(Ray3f ray, out UIRayHit hit)
         {
             return FindRayIntersection(ray, out hit);
         }
@@ -433,7 +433,7 @@ namespace f3
         {
             get { return true; }
         }
-        public virtual void UpdateHover(Ray ray, UIRayHit hit)
+        public virtual void UpdateHover(Ray3f ray, UIRayHit hit)
         {
             if (hoverWidget != null)
                 EndHover(ray);
@@ -442,7 +442,7 @@ namespace f3
                 MaterialUtil.SetMaterial(hoverWidget.RootGameObject, hoverWidget.HoverMaterial);
             }
         }
-        public virtual void EndHover(Ray ray)
+        public virtual void EndHover(Ray3f ray)
         {
             if (hoverWidget != null) {
                 MaterialUtil.SetMaterial(hoverWidget.RootGameObject, hoverWidget.StandardMaterial);

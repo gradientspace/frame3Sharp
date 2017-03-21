@@ -156,7 +156,7 @@ namespace f3
         }
 
 
-        override public bool FindRayIntersection(Ray ray, out UIRayHit hit)
+        override public bool FindRayIntersection(Ray3f ray, out UIRayHit hit)
         {
             return HUDUtil.FindNearestRayIntersection(Children, ray, out hit);
         }
@@ -180,7 +180,7 @@ namespace f3
 
 
 
-        public override bool FindHoverRayIntersection(Ray ray, out UIRayHit hit)
+        public override bool FindHoverRayIntersection(Ray3f ray, out UIRayHit hit)
         {
             return HUDUtil.FindNearestHoverRayIntersection(Children, ray, out hit);
         }
@@ -199,12 +199,12 @@ namespace f3
             }
         }
 
-        public override void UpdateHover(Ray ray, UIRayHit hit)
+        public override void UpdateHover(Ray3f ray, UIRayHit hit)
         {
             throw new InvalidOperationException("HUDPanel.UpdateHover: how is this being called?");
         }
 
-        public override void EndHover(Ray ray)
+        public override void EndHover(Ray3f ray)
         {
             throw new InvalidOperationException("HUDPanel.EndHover: how is this being called?");
         }

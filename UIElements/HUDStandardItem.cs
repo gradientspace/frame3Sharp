@@ -109,7 +109,7 @@ namespace f3
                 UpdateActions.Run();
         }
 
-        public virtual bool FindRayIntersection (UnityEngine.Ray ray, out UIRayHit hit)
+        public virtual bool FindRayIntersection(Ray3f ray, out UIRayHit hit)
 		{
             hit = null;
             if (Enabled == false)
@@ -126,7 +126,7 @@ namespace f3
 		}
 
         // override and return true to get hover events
-        public virtual bool FindHoverRayIntersection(UnityEngine.Ray ray, out UIRayHit hit)
+        public virtual bool FindHoverRayIntersection(Ray3f ray, out UIRayHit hit)
         {
             hit = null;
             if (Enabled == false)
@@ -169,10 +169,10 @@ namespace f3
         virtual public bool EnableHover {
             get { return false; }
         }
-        virtual public void UpdateHover(Ray ray, UIRayHit hit)
+        virtual public void UpdateHover(Ray3f ray, UIRayHit hit)
         {
         }
-        virtual public void EndHover(Ray ray)
+        virtual public void EndHover(Ray3f ray)
         {
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using g3;
 
 namespace f3
 {
@@ -134,7 +135,7 @@ namespace f3
         }
 
 
-        public bool FindRayIntersection(Ray ray, out UIRayHit hit)
+        public bool FindRayIntersection(Ray3f ray, out UIRayHit hit)
         {
             return HUDUtil.FindNearestRayIntersection(Children, ray, out hit);
         }
@@ -171,7 +172,7 @@ namespace f3
         }
 
 
-        public bool FindHoverRayIntersection(Ray ray, out UIRayHit hit)
+        public bool FindHoverRayIntersection(Ray3f ray, out UIRayHit hit)
         {
             return HUDUtil.FindNearestHoverRayIntersection(Children, ray, out hit);
         }
@@ -180,12 +181,12 @@ namespace f3
         // [RMS] I don't think we ever actually call these functions, do we?? 
         //   hover is sent directly to child that is ray-hit via above, right?
 
-        public void UpdateHover(Ray ray, UIRayHit hit)
+        public void UpdateHover(Ray3f ray, UIRayHit hit)
         {
             throw new InvalidOperationException("HUDCollection.UpdateHover: how is this being called?");
         }
 
-        public void EndHover(Ray ray)
+        public void EndHover(Ray3f ray)
         {
             throw new InvalidOperationException("HUDCollection.EndHover: how is this being called?");
         }

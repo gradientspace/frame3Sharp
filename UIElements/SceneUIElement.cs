@@ -81,8 +81,8 @@ namespace f3
         // called on per-frame Update()
         void PreRender();
 
-        bool FindRayIntersection(Ray ray, out UIRayHit hit);
-        bool FindHoverRayIntersection(Ray ray, out UIRayHit hit);
+        bool FindRayIntersection(Ray3f ray, out UIRayHit hit);
+        bool FindHoverRayIntersection(Ray3f ray, out UIRayHit hit);
 
         // temporary?
         bool WantsCapture(InputEvent e);
@@ -92,8 +92,8 @@ namespace f3
 
         // we only get a hover event if we returned true from FindHoverRayIntersection
         bool EnableHover { get; }
-        void UpdateHover(Ray ray, UIRayHit hit);
-        void EndHover(Ray ray);
+        void UpdateHover(Ray3f ray, UIRayHit hit);
+        void EndHover(Ray3f ray);
     }
 
 
