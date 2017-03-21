@@ -37,10 +37,25 @@ namespace f3
 
         public fGameObject(GameObject go)
         {
+            Initialize(go);
+        }
+
+        /// <summary>
+        /// If you use parameterless constructor, you really should call Initialize() ASAP!
+        /// </summary>
+        public fGameObject()
+        {
+            this.go = null;
+        }
+
+
+        public virtual void Initialize(GameObject go)
+        {
             this.go = go;
             PreRenderBehavior pb = go.AddComponent<PreRenderBehavior>();
             pb.ParentFGO = this;
         }
+
 
 
         public virtual void Destroy() {
@@ -90,9 +105,20 @@ namespace f3
             child.go.transform.SetParent(go.transform, bKeepWorldPosition);
         }
 
+
         public virtual bool IsSameOrChild(fGameObject testGO)
         {
             if (this == testGO)
+                return true;
+            foreach ( GameObject childGO in go.Children() ) { 
+                if (childGO.IsSameOrChild(testGO))
+                    return true;
+            }
+            return false;
+        }
+        public virtual bool IsSameOrChild(GameObject testGO)
+        {
+            if (this.go == testGO)
                 return true;
             foreach ( GameObject childGO in go.Children() ) { 
                 if (childGO.IsSameOrChild(testGO))
@@ -544,10 +570,22 @@ namespace f3
     {
         public fMesh Mesh;
 
+
+        public fMeshGameObject() : base()
+        {
+
+        }
         public fMeshGameObject(GameObject go, fMesh mesh) : base (go)
         {
             Mesh = mesh;
         }
+
+        public virtual void Initialize(GameObject go, fMesh mesh)
+        {
+            base.Initialize(go);
+            Mesh = mesh;
+        }
+
 
         public void UpdateMesh(fMesh m, bool bShared, bool bUpdateCollider)
         {
@@ -572,12 +610,26 @@ namespace f3
         float endAngleDeg = 360;
         bool bDiscValid;
 
+        public fDiscGameObject() : base()
+        {
+            bDiscValid = false;
+        }
         public fDiscGameObject(GameObject go, fMesh mesh, float radiusIn = 1) : base(go, mesh)
         {
             radius = radiusIn;
             bDiscValid = false;
             SetLocalScale(new Vector3f(radius, 1, radius));
         }
+
+
+        public virtual void Initialize(GameObject go, fMesh mesh, float radiusIn = 1)
+        {
+            base.Initialize(go, mesh);
+            radius = radiusIn;
+            bDiscValid = false;
+            SetLocalScale(new Vector3f(radius, 1, radius));
+        }
+
 
         public void SetRadius(float fRadius) {
             if ( radius != fRadius ) {

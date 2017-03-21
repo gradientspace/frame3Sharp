@@ -102,6 +102,22 @@ namespace f3
             return new fDiscGameObject(go, new fMesh(go.GetSharedMesh()),  fRadius);
         }
 
+        // create a subclass of fDiscGameObject
+        public static T CreateDiscTypeGO<T>(string sName, float fRadius, fMaterial material, bool bShareMaterial, bool bCollider)
+            where T : fDiscGameObject, new()
+        {
+            GameObject go = new GameObject(sName);
+            Mesh discMesh = PrimitiveCache.GetPrimitiveMesh(fPrimitiveType.Disc);
+            initialize_meshgo(go, new fMesh(discMesh), bCollider, true);
+            go.SetMaterial(material, bShareMaterial);
+            T fgo = new T();
+            fgo.Initialize(go, new fMesh(go.GetSharedMesh()), fRadius);
+            return fgo;
+            // this lets us do it w/o new()/Initialize, however currently it means that subclass 
+            // must implement the constructor that takes GameObject...
+            //return (T)Activator.CreateInstance(typeof(T), go, new fMesh(go.GetSharedMesh()), fRadius);
+        }
+
 
         public static fLineGameObject CreateLineGO(string sName, Colorf color, float fLineWidth)
         {
