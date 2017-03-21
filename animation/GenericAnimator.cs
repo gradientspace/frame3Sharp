@@ -68,4 +68,45 @@ namespace f3
         }
 
     }
+
+
+
+    /// <summary>
+    /// GenericAnimatable is just an IAnimatable that can be registered
+    /// with a GenericAnimator, that calls UpdateF each frame (which you provide).
+    /// When you return true, the object is removed from the animation loop
+    /// in the next frame.
+    /// The point here is you can construct one of these inline, w/o having to subclass...
+    /// </summary>
+    public class GenericAnimatable : IAnimatable
+    {
+        bool deregister = false;
+
+        /// <summary>
+        /// You must replace this function, or this object is useless
+        /// </summary>
+        public Func<bool> UpdateF = () => { return true; };
+
+
+        public GenericAnimatable() { }
+        public GenericAnimatable(Func<bool> f)
+        {
+            UpdateF = f;
+        }
+
+
+        public void Update()
+        {
+            if (UpdateF())
+                deregister = true;
+        }
+
+
+        // if you return true, this animation is removed
+        public bool DeregisterNextFrame {
+            get { return deregister; }
+        }
+    }
+
+
 }
