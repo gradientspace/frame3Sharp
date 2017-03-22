@@ -250,6 +250,16 @@ namespace f3
         }
 
 
+
+
+        public static void WriteDebugMesh(IMesh mesh, string sPath)
+        {
+            WriteOptions options = WriteOptions.Defaults;
+            options.bWriteGroups = true;
+            StandardMeshWriter.WriteFile(sPath, new List<WriteMesh>() { new WriteMesh(mesh) }, options);
+        }
+
+
     }
 }
 
