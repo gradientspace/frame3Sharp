@@ -88,6 +88,18 @@ namespace f3
         }
 
         /// <summary>
+        /// Input sceneF is a point in Scene, apply all intermediate inverse 
+        /// transforms to get it into local point of a SO
+        /// </summary>
+        public static Vector3f SceneToObject(TransformableSO so, Vector3f scenePt)
+        {
+            Frame3f f = new Frame3f(scenePt);
+            SceneToObject(so, f);
+            return f.Origin;
+        }
+
+
+        /// <summary>
         /// input objectF is in Object (local) coords of so, apply all intermediate 
         /// transforms to get it to Scene coords
         /// </summary>
@@ -108,6 +120,18 @@ namespace f3
             if (curSO == null)
                 DebugUtil.Error("SceneTransforms.TransformTo: found null parent SO!");
             return sceneF;
+        }
+
+
+        /// <summary>
+        /// input objectF is in Object (local) coords of so, apply all intermediate 
+        /// transforms to get it to Scene coords
+        /// </summary>
+        public static Vector3f ObjectToScene(TransformableSO so, Vector3f objectPt)
+        {
+            Frame3f f = new Frame3f(objectPt);
+            ObjectToScene(so, f);
+            return f.Origin;
         }
 
     }
