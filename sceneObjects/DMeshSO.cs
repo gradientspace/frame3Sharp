@@ -68,10 +68,14 @@ namespace f3
 
 
 
-        public void NotifyMeshEdited()
+        public void NotifyMeshEdited(bool bVertexDeformation = false)
         {
-            on_mesh_changed();
-            validate_decomp();
+            if (bVertexDeformation) {
+                fast_mesh_update();
+            } else {
+                on_mesh_changed();
+                validate_decomp();
+            }
         }
 
 
@@ -223,6 +227,10 @@ namespace f3
         // [RMS] this is not working right now...
         override public bool FindRayIntersection(Ray3f ray, out SORayHit hit)
         {
+            hit = null;
+            if (enable_spatial == false)
+                return false;
+
             if (spatial == null) {
                 spatial = new DMeshAABBTree3(mesh);
                 spatial.Build();
@@ -236,7 +244,6 @@ namespace f3
             local_ray.Direction = xform.InverseTransformDirection(ray.Direction);
             local_ray.Direction.Normalize();
 
-            hit = null;
             int hit_tid = spatial.FindNearestHitTriangle(local_ray);
             if (hit_tid != DMesh3.InvalidID) {
                 IntrRay3Triangle3 intr = MeshQueries.TriangleIntersection(mesh, hit_tid, local_ray);
