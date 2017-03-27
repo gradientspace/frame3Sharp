@@ -5,10 +5,10 @@ using System.Text;
 
 namespace f3
 {
-    class MouseMultiSelectBehavior : StandardInputBehavior
+    public class MouseMultiSelectBehavior : StandardInputBehavior
     {
-        FContext scene;
-        SceneObject selectSO;
+        protected FContext scene;
+        protected SceneObject selectSO;
 
         public MouseMultiSelectBehavior(FContext scene)
         {

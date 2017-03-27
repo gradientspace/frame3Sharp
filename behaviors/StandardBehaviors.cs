@@ -8,7 +8,7 @@ namespace f3
 {
 
     // abstract basic Mouse / Touch input
-    abstract class Any2DInputBehavior : StandardInputBehavior
+    public abstract class Any2DInputBehavior : StandardInputBehavior
     {
 
         override public InputDevice SupportedDevices {

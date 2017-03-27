@@ -4,7 +4,7 @@ using g3;
 
 namespace f3
 {
-    class SpatialDeviceMultiSelectBehavior : StandardInputBehavior
+    public class SpatialDeviceMultiSelectBehavior : StandardInputBehavior
     {
         FContext scene;
 

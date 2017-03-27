@@ -5,7 +5,7 @@ using System.Text;
 
 namespace f3
 {
-    class GamepadMultiSelectBehavior : StandardInputBehavior
+    public class GamepadMultiSelectBehavior : StandardInputBehavior
     {
         FContext scene;
         SceneObject selectSO;

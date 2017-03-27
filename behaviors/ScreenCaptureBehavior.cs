@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace f3
 {
-    class ScreenCaptureBehavior : StandardInputBehavior
+    public class ScreenCaptureBehavior : StandardInputBehavior
     {
         public string ScreenshotPath = "C:\\";
         public string ScreenshotPrefix = "Screenshot_";
