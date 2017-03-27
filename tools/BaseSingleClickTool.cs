@@ -32,6 +32,7 @@ namespace f3
                 new BaseSingleClickTool_2DBehavior(scene.Context, ObjectFilter) { Priority = 5 });
         }
 
+        public virtual bool AllowSelectionChanges { get { return false; } }
 
         // override this to limit SOs that can be clicked
         virtual public bool ObjectFilter(SceneObject so)

@@ -25,6 +25,9 @@ namespace f3
         bool CanApply { get; }
         void Apply();
 
+        // if false, cannot change selection while tool is active
+        bool AllowSelectionChanges { get; }
+
         void Shutdown();
     }
 

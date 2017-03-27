@@ -326,7 +326,17 @@ namespace f3
 			return (found != null);
 		}
 
-		public bool Select(SceneObject s, bool bReplace) {
+
+
+		public bool Select(SceneObject s, bool bReplace)
+        {
+            // [RMS] prevent selection changes if tool manager requests. Perhaps should
+            //   make this just a flag on Scene, and have ToolManager set it??
+            if (Context.ToolManager.ActiveToolsAllowSelectionChange == false) {
+                DebugUtil.Log(2, "FScene.Select: active tools prevent selection change");
+                return false;
+            }
+
 			if (!IsSelected (s)) {
                 if (bReplace)
                     ClearSelection();
@@ -341,13 +351,29 @@ namespace f3
 			return false;
 		}
 
-		public void Deselect(SceneObject s) {
+		public void Deselect(SceneObject s)
+        {
+            // [RMS] prevent selection changes if tool manager requests. Perhaps should
+            //   make this just a flag on Scene, and have ToolManager set it??
+            if (Context.ToolManager.ActiveToolsAllowSelectionChange == false) {
+                DebugUtil.Log(2, "FScene.Select: active tools prevent selection change");
+                return;
+            }
+
             s.PopOverrideMaterial();        // assume we only pushed once!
 			vSelected.Remove (s);
 			OnSelectionChanged (EventArgs.Empty);
 		}
 
-		public void ClearSelection() {
+		public void ClearSelection()
+        {
+            // [RMS] prevent selection changes if tool manager requests. Perhaps should
+            //   make this just a flag on Scene, and have ToolManager set it??
+            if (Context.ToolManager.ActiveToolsAllowSelectionChange == false) {
+                DebugUtil.Log(2, "FScene.Select: active tools prevent selection change");
+                return;
+            }
+
             foreach (var v in vSelected)
                 v.PopOverrideMaterial();
 			vSelected = new List<SceneObject> ();

@@ -74,6 +74,21 @@ namespace f3
             return activeTool[nSide] != null;
         }
 
+
+        /// <summary>
+        /// Do either of the active Tools prevent selection changes?
+        /// </summary>
+        public bool ActiveToolsAllowSelectionChange {
+            get {
+                if (activeTool[0] != null && activeTool[0].AllowSelectionChanges == false)
+                    return false;
+                if (activeTool[1] != null && activeTool[1].AllowSelectionChanges == false)
+                    return false;
+                return true;
+            }
+        }
+
+
         public void SetActiveToolType(string sType, int nSide) {
             SetActiveToolType(sType, (nSide == 0) ? ToolSide.Left : ToolSide.Right);
         }

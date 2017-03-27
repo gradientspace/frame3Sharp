@@ -46,6 +46,8 @@ namespace f3
             set { behaviors = value; }
         }
 
+        public virtual bool AllowSelectionChanges { get { return true; } }
+
 
         public DrawPrimitivesTool(FScene scene)
         {
