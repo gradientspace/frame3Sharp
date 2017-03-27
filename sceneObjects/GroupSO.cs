@@ -21,7 +21,17 @@ namespace f3
         protected void increment_timestamp() { _timestamp++; }
 
 
-        public bool EnableSelection = true;
+        // enable/disable selection of group, or alternately allow selection
+        // of child objects. *however* child object selection is not really
+        // supported properly in other places, this is mainly meant for
+        // special situations, like selection forwarding, etc
+        public enum SelectionModes
+        {
+            NoSelection, 
+            SelectGroup,
+            SelectChildren
+        }
+        public SelectionModes SelectionMode = SelectionModes.SelectGroup;
 
 
         public GroupSO()
@@ -219,11 +229,11 @@ namespace f3
         public bool FindRayIntersection(Ray3f ray, out SORayHit hit)
         {
             hit = null;
-            if (EnableSelection == false)
+            if (SelectionMode == SelectionModes.NoSelection)
                 return false;
 
             bool bHit = SceneUtil.FindNearestRayIntersection(vChildren, ray, out hit);
-            if (bHit)
+            if (bHit && SelectionMode == SelectionModes.SelectGroup )
                 hit.hitSO = this;
             return bHit;
         }
