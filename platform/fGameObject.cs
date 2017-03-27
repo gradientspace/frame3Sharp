@@ -677,6 +677,88 @@ namespace f3
 
 
 
+
+
+
+
+
+    public class fBoxGameObject : fMeshGameObject
+    {
+        float width = 1;
+        float height = 1;
+        float depth = 1;
+        bool bBoxValid;
+
+        public fBoxGameObject() : base()
+        {
+            bBoxValid = false;
+        }
+        public fBoxGameObject(GameObject go, fMesh mesh, float widthIn = 1, float heightIn = 1, float depthIn = 1) : base(go, mesh)
+        {
+            width = widthIn;
+            height = heightIn;
+            depth = depthIn;
+            bBoxValid = false;
+            SetLocalScale(new Vector3f(width, height, depth));
+        }
+
+
+        public virtual void Initialize(GameObject go, fMesh mesh, float widthIn = 1, float heightIn = 1, float depthIn = 1)
+        {
+            base.Initialize(go, mesh);
+            width = widthIn;
+            height = heightIn;
+            depth = depthIn;
+            bBoxValid = false;
+            SetLocalScale(new Vector3f(width, height, depth));
+        }
+
+
+        public void SetWidth(float fWidth) {
+            if ( width != fWidth ) {
+                width = fWidth;
+                SetLocalScale(new Vector3f(width, height, depth));
+            }
+        }
+        public float GetWidth() { return width; }
+
+        public void SetHeight(float fHeight) {
+            if ( height != fHeight ) {
+                height = fHeight;
+                SetLocalScale(new Vector3f(width, height, depth));
+            }
+        }
+        public float GetHeight() { return height; }
+
+        public void SetDepth(float fDepth) {
+            if ( depth != fDepth ) {
+                depth = fDepth;
+                SetLocalScale(new Vector3f(width, height, depth));
+            }
+        }
+        public float GetDepth() { return depth; }
+
+
+        public override void PreRender()
+        {
+            if (bBoxValid)
+                return;
+
+            fMesh newMesh = PrimitiveCache.GetPrimitiveMesh(fPrimitiveType.Box);
+            UpdateMesh(newMesh, true, true);
+            bBoxValid = true;
+        }
+
+    }
+
+
+
+
+
+
+
+
+
     public class PreRenderBehavior : MonoBehaviour
     {
         public fGameObject ParentFGO = null;

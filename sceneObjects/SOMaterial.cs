@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
+using UnityEngine;      // required from Texture2D
 using g3;
 
 namespace f3
@@ -49,6 +49,12 @@ namespace f3
         }
 
 
+        public fMaterial ToFMaterial()
+        {
+            return MaterialUtil.ToMaterialf(this);
+        }
+
+
         public static SOMaterial CreateStandard(string sName, Colorf color) {
             return new SOMaterial() { Name = sName, Type = MaterialType.StandardRGBColor, RGBColor = color };
         }
@@ -62,5 +68,6 @@ namespace f3
             copy.RGBColor = new Colorf(copy.RGBColor, fAlpha);
             return copy;
         }
+
     }
 }

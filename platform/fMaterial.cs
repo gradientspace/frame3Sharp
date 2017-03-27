@@ -33,5 +33,9 @@ namespace f3
         {
             return mat.unitymaterial;
         }
+        public static implicit operator fMaterial(UnityEngine.Material mat)
+        {
+            return (mat != null) ? new fMaterial(mat) : null;
+        }
     }
 }

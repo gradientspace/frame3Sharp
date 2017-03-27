@@ -9,7 +9,8 @@ namespace f3
 
     public enum fPrimitiveType
     {
-        Disc
+        Disc,
+        Box
     }
 
     public static class PrimitiveCache
@@ -22,6 +23,9 @@ namespace f3
                 switch (eType) {
                     case fPrimitiveType.Disc:
                         Cache[eType] = MakeDisc();
+                        break;
+                    case fPrimitiveType.Box:
+                        Cache[eType] = MakeBox();
                         break;
                     default:
                         throw new Exception("PrimitiveCache.GetPrimitiveMesh: type " + eType.ToString() + " is not implemented!");
@@ -41,6 +45,15 @@ namespace f3
             return new fMesh(gen.MakeUnityMesh());
         }
 
+        static fMesh MakeBox()
+        {
+            TrivialBox3Generator gen = new TrivialBox3Generator() {
+                Clockwise = false,
+                NoSharedVertices = true
+            };
+            gen.Generate();
+            return new fMesh(gen.MakeUnityMesh());
+        }
 
     }
 }

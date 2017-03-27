@@ -161,6 +161,11 @@ namespace f3
                 ren.receiveShadows = false;
         }
 
+        public static void SetIgnoreMaterialChanges(fGameObject go)
+        {
+            ((GameObject)go).AddComponent<IgnoreMaterialChanges>();
+        }
+
 
         // [RMS] code to change Material mode setting at runtime 
         //   (ie the "Rendering Mode" drop-down in Material properties panel)
@@ -270,6 +275,12 @@ namespace f3
             }
         }
 
+
+
+        public static fMaterial ToMaterialf(SOMaterial m)
+        {
+            return new fMaterial(ToUnityMaterial(m));
+        }
 
     }
 }

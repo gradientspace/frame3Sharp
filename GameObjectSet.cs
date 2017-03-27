@@ -90,7 +90,7 @@ namespace f3
 		}
 
 
-		public virtual GameObject AppendUnityPrimitiveGO(string name, PrimitiveType eType, Material setMaterial, GameObject parent, bool bCollider = true) {
+		public virtual fGameObject AppendUnityPrimitiveGO(string name, PrimitiveType eType, Material setMaterial, GameObject parent, bool bCollider = true) {
 			var gameObj = GameObject.CreatePrimitive (eType);
             if (bCollider) {
                 gameObj.AddComponent(typeof(MeshCollider));
@@ -106,7 +106,7 @@ namespace f3
                 gameObj.SetLayer(parent.GetLayer());
             }
 
-			return gameObj;
+			return new fGameObject(gameObj);
 		}
 
 

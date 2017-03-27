@@ -96,8 +96,8 @@ namespace f3
         public static fDiscGameObject CreateDiscGO(string sName, float fRadius, fMaterial material, bool bShareMaterial, bool bCollider)
         {
             GameObject go = new GameObject(sName);
-            Mesh discMesh = PrimitiveCache.GetPrimitiveMesh(fPrimitiveType.Disc);
-            initialize_meshgo(go, new fMesh(discMesh), bCollider, true);
+            fMesh discMesh = PrimitiveCache.GetPrimitiveMesh(fPrimitiveType.Disc);
+            initialize_meshgo(go, discMesh, bCollider, true);
             go.SetMaterial(material, bShareMaterial);
             return new fDiscGameObject(go, new fMesh(go.GetSharedMesh()),  fRadius);
         }
@@ -107,8 +107,8 @@ namespace f3
             where T : fDiscGameObject, new()
         {
             GameObject go = new GameObject(sName);
-            Mesh discMesh = PrimitiveCache.GetPrimitiveMesh(fPrimitiveType.Disc);
-            initialize_meshgo(go, new fMesh(discMesh), bCollider, true);
+            fMesh discMesh = PrimitiveCache.GetPrimitiveMesh(fPrimitiveType.Disc);
+            initialize_meshgo(go, discMesh, bCollider, true);
             go.SetMaterial(material, bShareMaterial);
             T fgo = new T();
             fgo.Initialize(go, new fMesh(go.GetSharedMesh()), fRadius);
@@ -158,6 +158,17 @@ namespace f3
             fgo.SetVertices(vVertices);
             return fgo;
         }
+
+
+
+        public static fBoxGameObject CreateBoxGO(string sName, float fWidth, float fHeight, float fDepth, fMaterial material, bool bShareMaterial, bool bCollider)
+        {
+            GameObject go = new GameObject(sName);
+            initialize_meshgo(go, null, bCollider, true);
+            go.SetMaterial(material, bShareMaterial);
+            return new fBoxGameObject(go, null, fWidth, fHeight, fDepth);
+        }
+
 
 
         public static fTextGameObject CreateTextMeshGO(
