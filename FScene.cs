@@ -115,6 +115,10 @@ namespace f3
                 Name = "PivotSO",
                 Type = SOMaterial.MaterialType.TransparentRGBColor, RGBColor = ColorUtil.PivotYellow.SetAlpha(0.75f)
             };
+            FrameSOMaterial = new SOMaterial() {
+                Name = "PivotFrame",
+                Type = SOMaterial.MaterialType.StandardRGBColor, RGBColor = ColorUtil.DarkGrey
+            };
 
             SelectedMaterial = MaterialUtil.CreateStandardMaterial( ColorUtil.SelectionGold );
             FrameMaterial = MaterialUtil.CreateStandardMaterial(ColorUtil.DarkGrey);

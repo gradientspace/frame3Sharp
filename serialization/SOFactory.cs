@@ -124,7 +124,7 @@ namespace f3
         public virtual SceneObject BuildPivot(FScene scene, TypedAttribSet attributes)
         {
             PivotSO so = new PivotSO();
-            so.Create(scene.PivotSOMaterial, scene.FrameMaterial);
+            so.Create(scene.PivotSOMaterial, scene.FrameSOMaterial);
             safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
             RestoreTransform(so, attributes);
             RestoreMaterial(so, attributes);
