@@ -30,6 +30,7 @@ namespace f3
         public SOMaterial TransparentNewSOMaterial { get; set; }
         public SOMaterial DefaultMeshSOMaterial { get; set; }
         public SOMaterial PivotSOMaterial { get; set; }
+        public SOMaterial FrameSOMaterial { get; set; }
 
         public Material SelectedMaterial { get; set; }
         public Material FrameMaterial { get; set; }
