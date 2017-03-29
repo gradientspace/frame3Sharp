@@ -13,8 +13,9 @@ namespace f3
         public static Vector3f TransformTo(Vector3f pointIn, TransformableSO fromSO, CoordSpace eFrom, CoordSpace eTo)
         {
             // this is not the most efficient but we can optimize later!
-            Frame3f tmp = new Frame3f(pointIn);
-            return TransformTo(tmp, fromSO, eFrom, eTo).Origin;
+            Frame3f f = new Frame3f(pointIn);
+            Frame3f fTo = TransformTo(f, fromSO, eFrom, eTo);
+            return fTo.Origin;
         }
 
 
@@ -94,8 +95,8 @@ namespace f3
         public static Vector3f SceneToObject(TransformableSO so, Vector3f scenePt)
         {
             Frame3f f = new Frame3f(scenePt);
-            SceneToObject(so, f);
-            return f.Origin;
+            Frame3f fO = SceneToObject(so, f);
+            return fO.Origin;
         }
 
 
@@ -130,8 +131,8 @@ namespace f3
         public static Vector3f ObjectToScene(TransformableSO so, Vector3f objectPt)
         {
             Frame3f f = new Frame3f(objectPt);
-            ObjectToScene(so, f);
-            return f.Origin;
+            Frame3f fS = ObjectToScene(so, f);
+            return fS.Origin;
         }
 
     }
