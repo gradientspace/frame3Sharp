@@ -21,9 +21,17 @@ namespace f3
         static public int CursorLayer { get { return GetLayerID(SceneGraphConfig.CursorLayerName); } }
 
 
+        private static float _last_realtime = 0;
+        /// <summary> Return clock time since start of program. Can only be called from main thread !! </summary>
         static public float RealTime()
         {
-            return Time.realtimeSinceStartup;
+            _last_realtime = Time.realtimeSinceStartup;
+            return _last_realtime;
+        }
+        /// <summary> Return last requested RealTime() - can be called from any thread, but may be out-of-date</summary>
+        static public float SafeRealTime()
+        {
+            return _last_realtime;
         }
 
         static private int frame_counter = 0;

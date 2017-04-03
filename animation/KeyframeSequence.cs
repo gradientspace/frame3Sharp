@@ -22,9 +22,15 @@ namespace f3
         {
             Time = interpTime;
 
-            double a = (parent1.Time == parent2.Time) ? 0.5 :
-                            (this.Time - parent1.Time) / (parent2.Time - parent1.Time);
-            this.Frame = Frame3f.Interpolate(parent1.Frame, parent2.Frame, (float)a);
+            if (interpTime <= 0) {
+                this.Frame = parent1.Frame;
+            } else if (interpTime >= 1) {
+                this.Frame = parent2.Frame;
+            } else {
+                double a = (parent1.Time == parent2.Time) ? 0.5 :
+                                (this.Time - parent1.Time) / (parent2.Time - parent1.Time);
+                this.Frame = Frame3f.Interpolate(parent1.Frame, parent2.Frame, (float)a);
+            }
         }
 
         public Keyframe(Keyframe copy)
