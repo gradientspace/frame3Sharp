@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
+using System.IO;
 
 using UnityEngine;
 
@@ -92,15 +93,28 @@ namespace f3
 
 
 
+
+        static public bool ShowingExternalPopup = false;
+
+
+
         //! Show an open-file dialog and with the provided file types. 
         //! Returns path to selected file, or null if Cancel is clicked.
         //! Uses system file dialog if available, otherwise Mono cross-platform dialog
         static public string GetOpenFileName(string sDialogTitle, string sInitialPathAndFile, 
                 string[] filterPatterns, string sPatternDesc)
         {
+            ShowingExternalPopup = true;
+            // tinyfd changes CWD (?), and this makes Unity unhappy
+            string curDirectory = Directory.GetCurrentDirectory();
+
 #if UNITY_STANDALONE_WIN
             IntPtr p = tinyfd_openFileDialog(sDialogTitle, sInitialPathAndFile, 
                 filterPatterns.Length, filterPatterns, sPatternDesc, 0);
+
+            ShowingExternalPopup = false;
+            Directory.SetCurrentDirectory(curDirectory);
+
             if (p == IntPtr.Zero)
                 return null;
             else
@@ -120,9 +134,17 @@ namespace f3
         static public string GetSaveFileName(string sDialogTitle, string sInitialPathAndFile, 
                 string[] filterPatterns, string sPatternDesc)
         {
+            ShowingExternalPopup = true;
+            // tinyfd changes CWD (?), and this makes Unity unhappy
+            string curDirectory = Directory.GetCurrentDirectory();
+
 #if UNITY_STANDALONE_WIN
             IntPtr p = tinyfd_saveFileDialog(sDialogTitle, sInitialPathAndFile, 
                 filterPatterns.Length, filterPatterns, sPatternDesc);
+
+            ShowingExternalPopup = false;
+            Directory.SetCurrentDirectory(curDirectory);
+
             if (p == IntPtr.Zero)
                 return null;
             else

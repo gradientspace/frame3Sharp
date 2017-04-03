@@ -590,6 +590,12 @@ namespace f3 {
         {
             if (bFocused == false) {
                 TerminateHovers(lastInputState);
+
+                if ( captureMouse != null || captureTouch != null || captureLeft != null || captureRight != null ) {
+                    if ( FPlatform.ShowingExternalPopup ) {
+                        throw new Exception("TerminateCapture: Need to complete capture bhefore showing external popup dialog. Use Context.RegisterNextFrameAction()");
+                    }
+                }
                 TerminateCaptures(lastInputState);
 
                 if (bInCameraControl) {
