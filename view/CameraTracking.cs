@@ -216,6 +216,14 @@ namespace f3 {
 
             // add camera manipulator to camera
             mainCamera.gameObject.AddComponent<CameraManipulator>();
+
+
+            // initialize FPlatform
+            FPlatform.MainCamera = mainCamera;
+            FPlatform.WidgetCamera = widgetCamera;
+            FPlatform.HUDCamera = hudCamera;
+            FPlatform.OrthoUICamera = uiCamera;
+            FPlatform.CursorCamera = cursorCamera;
         }
 		
 

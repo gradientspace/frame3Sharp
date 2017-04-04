@@ -21,6 +21,15 @@ namespace f3
         static public int CursorLayer { get { return GetLayerID(SceneGraphConfig.CursorLayerName); } }
 
 
+        // these should probably be accessors? Initialized by CameraTracking right now...
+        static public fCamera MainCamera;
+        static public fCamera WidgetCamera;
+        static public fCamera HUDCamera;
+        static public fCamera OrthoUICamera;
+        static public fCamera CursorCamera;
+
+
+
         private static float _last_realtime = 0;
         /// <summary> Return clock time since start of program. Can only be called from main thread !! </summary>
         static public float RealTime()
@@ -70,6 +79,14 @@ namespace f3
         {
             return _in_unity_editor;
         }
+
+        // pixel-scaled UI elements will (should) be scaled by this amount when
+        // running inside editor. Mainly via Cockpit.GetPixelScale()
+        static public float EditorUIScaleFactor = 0.5f;
+        // this is used when *not* in editor. Can globally scale UI with it,
+        // at least any UI that uses it...
+        static public float UIScaleFactor = 1.0f;
+
 
         static public bool IsUsingVR()
         {

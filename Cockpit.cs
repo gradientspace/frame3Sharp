@@ -163,7 +163,12 @@ namespace f3
         {
             AxisAlignedBox2f uiBounds = GetOrthoViewBounds();
             AxisAlignedBox2f pixelBounds = GetPixelViewBounds();
-            return uiBounds.MaxDim / pixelBounds.MaxDim;
+            float fScale = uiBounds.MaxDim / pixelBounds.MaxDim;
+            if (FPlatform.InUnityEditor())
+                fScale *= FPlatform.EditorUIScaleFactor;
+            else
+                fScale *= FPlatform.UIScaleFactor;
+            return fScale;
         }
 
 
