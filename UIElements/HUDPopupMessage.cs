@@ -2,53 +2,174 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
+using g3;
 
 namespace f3
 {
-    public class HUDPopupMessage : HUDStandardItem
+    /// <summary>
+    /// Basic popup message box. 
+    /// Note that most fields must be configured before calling Create()
+    /// </summary>
+    public class HUDPopupMessage : HUDStandardItem, IBoxModelElement
     {
-        GameObject popup, popupMesh;
+        fGameObject entry;
+        fGameObject bgMesh;
+        fTextGameObject titleTextMesh;
+        fTextAreaGameObject textMesh;
+        fTextGameObject footerTextMesh;
 
-        public HUDShape Shape { get; set; }
+        public float Width { get; set; }
+        public float Height { get; set; }
+        public float TitleTextHeight { get; set; }
+        public float TextHeight { get; set; }
+
+        Colorf bg_color;
+        public Colorf BackgroundColor {
+            get { return bg_color; }
+            set { bg_color = value;  UpdateText(); }
+        }
+
+        Colorf text_color;
+        public Colorf TextColor {
+            get { return text_color; }
+            set { text_color = value; UpdateText(); }
+        }
+
+        Colorf title_text_color;
+        public Colorf TitleTextColor {
+            get { return title_text_color; }
+            set { title_text_color = value; UpdateText(); }
+        }
+
+        public HorizontalAlignment Alignment { get; set; }
+        public HorizontalAlignment TitleAlignment { get; set; }
+
+        public float Padding = 0;
+
+
+        string titleText;
+        public string TitleText
+        {
+            get { return titleText; }
+            set { titleText = value; UpdateText(); }
+        }
+
+        string text;
+        public string Text
+        {
+            get { return text; }
+            set { text = value; UpdateText(); }
+        }
+
+
+        public bool EnableClickToDismiss = true;
+        public string DismissText = "(click to dismiss)";
+        public Colorf DismissTextColor = Colorf.DimGrey;
+
 
         public HUDPopupMessage()
         {
-            Shape = new HUDShape() { Type = HUDShapeType.Disc, Radius = 0.1f };
+            Width = 10;
+            Height = 5;
+            TitleTextHeight = 1.0f;
+            TextHeight = 0.8f;
+            BackgroundColor = Colorf.VideoWhite;
+            TextColor = Colorf.VideoBlack;
+            TitleTextColor = Colorf.VideoBlack;
+            Alignment = HorizontalAlignment.Left;
+            titleText = "";
+            text = "This is a popup message!";
         }
 
 
-        Mesh make_mesh()
+        fMesh make_background_mesh()
         {
-            if (Shape.Type == HUDShapeType.Disc) {
-                return MeshGenerators.CreateTrivialDisc(Shape.Radius, Shape.Slices);
-            } else if (Shape.Type == HUDShapeType.Rectangle) {
-                return MeshGenerators.CreateTrivialRect(Shape.Width, Shape.Height,
-                    Shape.UseUVSubRegion == true ?
-                        MeshGenerators.UVRegionType.CenteredUVRectangle : MeshGenerators.UVRegionType.FullUVSquare);
-            } else {
-                throw new Exception("[HUDPopupMessage::make_mesh] unknown shape type!");
+            return new fMesh(
+                MeshGenerators.CreateTrivialRect(Width, Height, MeshGenerators.UVRegionType.FullUVSquare));
+        }
+
+        
+        // actually create GO elements, etc
+        public void Create()
+        {
+            entry = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDPopupMessage"));
+
+            bgMesh = new fGameObject(AppendMeshGO("background", make_background_mesh(),
+                MaterialUtil.CreateFlatMaterialF(BackgroundColor),
+                entry));
+            bgMesh.RotateD(Vector3f.AxisX, -90.0f);
+
+
+            IBoxModelElement contentArea = BoxModel.PaddedBounds(this, Padding);
+
+            BoxPosition titleBoxPos = BoxModel.ToPosition(TitleAlignment, VerticalAlignment.Top);
+            titleTextMesh = (titleText == "") ? null : GameObjectFactory.CreateTextMeshGO(
+                    "title", TitleText, TextColor, TitleTextHeight, titleBoxPos, SceneGraphConfig.TextLabelZOffset );
+            Vector2f titleToPos = BoxModel.GetBoxPosition(contentArea, titleBoxPos);
+            BoxModel.Translate(titleTextMesh, Vector2f.Zero, titleToPos);
+            AppendNewGO(titleTextMesh, entry, false);
+
+
+            IBoxModelElement messageArea = BoxModel.PaddedBounds(contentArea, 0, 0, 0, Padding+TitleTextHeight);
+            Vector2f textDims = messageArea.Size2D;
+
+            BoxPosition textBoxPos = BoxModel.ToPosition(Alignment, VerticalAlignment.Top);
+            textMesh = GameObjectFactory.CreateTextAreaGO(
+                    "message", Text, TextColor, TextHeight, textDims, Alignment, textBoxPos, SceneGraphConfig.TextLabelZOffset );
+            Vector2f textToPos = BoxModel.GetBoxPosition(messageArea, textBoxPos);
+            BoxModel.Translate(textMesh, Vector2f.Zero, textToPos);
+            AppendNewGO(textMesh, entry, false);
+
+
+
+            if ( EnableClickToDismiss ) {
+                footerTextMesh = GameObjectFactory.CreateTextMeshGO(
+                        "footer", DismissText, DismissTextColor, TextHeight*0.5f, 
+                        BoxPosition.CenterBottom, SceneGraphConfig.TextLabelZOffset );
+                BoxModel.Translate(footerTextMesh, Vector2f.Zero,  BoxModel.GetBoxPosition(contentArea, BoxPosition.CenterBottom) );
+                AppendNewGO(footerTextMesh, entry, false);
+            }
+
+        }
+
+
+
+        void UpdateText()
+        {
+            if ( bgMesh != null ) {
+                bgMesh.SetColor(BackgroundColor);
+            }
+            if (textMesh != null) {
+                textMesh.SetColor( TextColor );
+                textMesh.SetText(Text);
+            }
+            if (titleTextMesh != null) {
+                titleTextMesh.SetColor( TitleTextColor );
+                titleTextMesh.SetText(TitleText);
             }
         }
 
-        // creates a popup in the desired geometry shape
-        public void Create(Material defaultMaterial)
-        {
-            popup = new GameObject(UniqueNames.GetNext("HUDPopup"));
-            popupMesh = AppendMeshGO("popup", make_mesh(),
-                defaultMaterial, popup);
 
-            popupMesh.transform.Rotate(Vector3.right, -90.0f); // ??
-        }
-   
 
+        // events for clicked and dismissed.
+        public event EventHandler OnClicked;
         public event EventHandler OnDismissed;
+
+
+
+        protected override void OnEnabledChanged()
+        {
+            base.OnEnabledChanged();
+            UpdateText();
+        }       
+
+
 
         #region SceneUIElement implementation
 
         override public UnityEngine.GameObject RootGameObject
         {
-            get { return popup; }
+            get { return entry; }
         }
 
         override public bool WantsCapture(InputEvent e)
@@ -68,13 +189,41 @@ namespace f3
 
         override public bool EndCapture(InputEvent e)
         {
-            if (IsGOHit(e.ray, popupMesh))
-                FUtil.SafeSendEvent(OnDismissed, this, new EventArgs());
+            if (FindHitGO(e.ray)) {
+                if (EnableClickToDismiss) {
+                    FUtil.SafeSendEvent(OnDismissed, this, new EventArgs());
+                } else {
+                    // send single-click and reset timer
+                    FUtil.SafeSendEvent(OnClicked, this, new EventArgs());
+                }
+            }
             return true;
         }
 
+
         #endregion
+
+
+
+
+       #region IBoxModelElement implementation
+
+
+        public Vector2f Size2D {
+            get { return new Vector2f(Width, Height); }
+        }
+
+        public AxisAlignedBox2f Bounds2D { 
+            get {
+                Vector2f origin2 = RootGameObject.GetLocalPosition().xy;
+                return new AxisAlignedBox2f(origin2, Width/2, Height/2);
+            }
+        }
+
+
+        #endregion
+
+
     }
 
 }
-

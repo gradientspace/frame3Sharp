@@ -110,21 +110,13 @@ namespace f3
 
 
 
-
-
-        public static void ShowCenteredStaticPopupMessage(string sImagePath, Cockpit cockpit)
+        public static void ShowCenteredStaticPopupMessage(string sText, Cockpit cockpit)
         {
-            Material mat = MaterialUtil.CreateTransparentImageMaterial(sImagePath);
-            float fAspect = (float)mat.mainTexture.width / (float)mat.mainTexture.height;
-            float fScale = 0.5f;        // should this be a parameter??
-
             HUDPopupMessage message = new HUDPopupMessage() {
-                Shape = new HUDShape() {
-                    Type = HUDShapeType.Rectangle, Width = fScale*1.0f, Height = fScale * 1.0f / fAspect,
-                    UseUVSubRegion = false
-                }
+                Width = 1.0f, Height = 1.0f,
+                Text = sText
             };
-            message.Create(mat);
+            message.Create();
             HUDUtil.PlaceInSphere(message, 0.5f, 0, 0);
             message.Name = "popup";
             cockpit.AddUIElement(message, true);
@@ -135,19 +127,13 @@ namespace f3
         }
 
 
-        public static void ShowToastStaticPopupMessage(string sImagePath, Cockpit cockpit)
+        public static void ShowToastStaticPopupMessage(string sText, Cockpit cockpit)
         {
-            Material mat = MaterialUtil.CreateTransparentImageMaterial(sImagePath);
-            float fAspect = (float)mat.mainTexture.width / (float)mat.mainTexture.height;
-            float fScale = 2.0f;        // should this be a parameter??
-
             HUDPopupMessage message = new HUDPopupMessage() {
-                Shape = new HUDShape() {
-                    Type = HUDShapeType.Rectangle, Width = fScale * 1.0f, Height = fScale * 1.0f / fAspect,
-                    UseUVSubRegion = false
-                }
+                Width = 1.0f, Height = 1.0f,
+                Text = sText
             };
-            message.Create(mat);
+            message.Create();
             HUDUtil.PlaceInSphere(message, 3.0f, 30, -10);
             UnityUtil.TranslateInFrame(message.RootGameObject, 0.75f, -0.5f, 0.0f, CoordSpace.WorldCoords);
             message.Name = "popup";
