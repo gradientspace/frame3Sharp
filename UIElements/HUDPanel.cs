@@ -49,7 +49,7 @@ namespace f3
             get { if (gameObject == null)
                     return new AxisAlignedBox2f(ContentSize.x, ContentSize.y);
                 else
-                    return BoxModel.PaddedBounds(this, Padding);
+                    return BoxModel.PaddedBounds(this, Padding).Box;
             }
         }
 

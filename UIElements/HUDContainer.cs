@@ -83,7 +83,6 @@ namespace f3
 
         private void Context_OnWindowResized()
         {
-            DebugUtil.Log(2, "WINDOW RESIZE EVENT");
             FUtil.SafeSendAnyEvent(OnContainerBoundsModified, this);
         }
 

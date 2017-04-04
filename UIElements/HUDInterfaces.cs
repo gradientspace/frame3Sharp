@@ -7,6 +7,17 @@ using g3;
 namespace f3
 {
 
+    public enum HorizontalAlignment {
+        Left = 0,
+        Center = 1,
+        Right = 2
+    }
+    public enum VerticalAlignment {
+        Bottom = 0,
+        Center = 1,
+        Top = 2
+    }
+
     public delegate void BoundsModifiedEventHandler(object sender);
 
 

@@ -22,8 +22,19 @@ namespace f3
     }
 
 
+
+
     public class BoxModel
     {
+        public static Vector2f Center(IBoxModelElement element)         { return element.Bounds2D.Center; }
+        public static Vector2f TopLeft(IBoxModelElement element)        { return element.Bounds2D.TopLeft; }
+        public static Vector2f TopRight(IBoxModelElement element)       { return element.Bounds2D.TopRight; }
+        public static Vector2f BottomLeft(IBoxModelElement element)     { return element.Bounds2D.BottomLeft; }
+        public static Vector2f BottomRight(IBoxModelElement element)    { return element.Bounds2D.BottomRight; }
+        public static Vector2f CenterLeft(IBoxModelElement element)     { return element.Bounds2D.CenterLeft; }
+        public static Vector2f CenterRight(IBoxModelElement element)    { return element.Bounds2D.CenterRight; }
+        public static Vector2f CenterTop(IBoxModelElement element)      { return element.Bounds2D.CenterTop; }
+        public static Vector2f CenterBottom(IBoxModelElement element)   { return element.Bounds2D.CenterBottom; }
 
 
         public static Vector2f GetBoxPosition(IBoxModelElement element, BoxPosition pos)
@@ -45,6 +56,9 @@ namespace f3
                 default: return bounds.Center;
             }
         }
+
+
+
 
         public static Vector2f GetBoxOffset(IBoxModelElement element, BoxPosition boxPos)
         {
@@ -71,12 +85,23 @@ namespace f3
 
         // This returns Bounds2D-Padding. Note that Bounds2D includes local translation 
         //  (ie relative to parent)
-        public static AxisAlignedBox2f PaddedBounds(IBoxModelElement element, float fPadding)
+        public static FixedBoxModelElement PaddedBounds(IBoxModelElement element, float fPadding)
         {
             AxisAlignedBox2f bounds = element.Bounds2D;
             bounds.Contract(fPadding);
-            return bounds;
+            return new FixedBoxModelElement(bounds);
         }
+
+        // This returns Bounds2D-Padding. Note that Bounds2D includes local translation 
+        //  (ie relative to parent)
+        public static FixedBoxModelElement PaddedBounds(IBoxModelElement element, float fPadLeft, float fPadRight, float fPadBottom, float fPadTop)
+        {
+            AxisAlignedBox2f bounds = element.Bounds2D;
+            bounds.Pad(-fPadLeft, -fPadRight, -fPadBottom, -fPadTop);
+            return new FixedBoxModelElement(bounds);
+        }
+
+
 
         // This returns Size-Padding
         public static Vector2f PaddedSize(IBoxModelElement element, float fPadding)
@@ -89,21 +114,21 @@ namespace f3
 
         // This returns element.Bounds2D re-centered at origin, ie without the local
         // translation of element. Child elements should be laid out relative to this box.
-        public static AxisAlignedBox2f ContentBounds(IBoxModelElement element, float fPadding)
+        public static FixedBoxModelElement ContentBounds(IBoxModelElement element, float fPadding)
         {
             AxisAlignedBox2f bounds = element.Bounds2D;
             bounds.Translate(-bounds.Center);
-            return bounds;
+            return new FixedBoxModelElement(bounds);
         }
 
 
         // This returns ContentBounds with a padding offset
-        public static AxisAlignedBox2f PaddedContentBounds(IBoxModelElement element, float fPadding)
+        public static FixedBoxModelElement PaddedContentBounds(IBoxModelElement element, float fPadding)
         {
             AxisAlignedBox2f bounds = element.Bounds2D;
             bounds.Translate(-bounds.Center);
             bounds.Contract(fPadding);
-            return bounds;
+            return new FixedBoxModelElement(bounds);
         }
 
 
@@ -164,5 +189,65 @@ namespace f3
             go.SetLocalPosition(new Vector3f(to.x, to.y, z));
         }
 
+
+
+
+        public static BoxPosition ToPosition(HorizontalAlignment h, VerticalAlignment v)
+        {
+            switch (h) {
+                case HorizontalAlignment.Left:
+                    switch (v) {
+                        case VerticalAlignment.Bottom:  return BoxPosition.BottomLeft;
+                        case VerticalAlignment.Center: return BoxPosition.CenterLeft;
+                        case VerticalAlignment.Top: return BoxPosition.TopLeft;
+                    }
+                    return BoxPosition.Center;
+
+                case HorizontalAlignment.Center:
+                    switch (v) {
+                        case VerticalAlignment.Bottom:  return BoxPosition.CenterBottom;
+                        case VerticalAlignment.Center: return BoxPosition.Center;
+                        case VerticalAlignment.Top: return BoxPosition.CenterTop;
+                    }
+                    return BoxPosition.Center;
+
+                case HorizontalAlignment.Right:
+                    switch (v) {
+                        case VerticalAlignment.Bottom:  return BoxPosition.BottomRight;
+                        case VerticalAlignment.Center: return BoxPosition.CenterRight;
+                        case VerticalAlignment.Top: return BoxPosition.TopRight;
+                    }
+                    return BoxPosition.Center;
+            }
+            // shouldn't be able to get here...
+            throw new Exception("BoxModel.ToPosition: unknown combination??");
+        }
+
+
     }
+
+
+
+    /// <summary>
+    /// just wraps a box as an IBoxModelElement
+    /// </summary>
+    public struct FixedBoxModelElement : IBoxModelElement
+    {
+        public AxisAlignedBox2f Box;
+        public FixedBoxModelElement(AxisAlignedBox2f b) {
+            Box = b;
+        }
+
+        public Vector2f Size2D
+        {
+            get { return Box.Diagonal; }
+        }
+
+        public AxisAlignedBox2f Bounds2D
+        {
+            get { return Box; }
+        }
+    }
+
+
 }

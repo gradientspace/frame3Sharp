@@ -90,14 +90,15 @@ namespace f3
 
         void update_layout()
         {
-            AxisAlignedBox2f contentBounds = BoxModel.PaddedContentBounds(this, Padding);
-            Vector2f insertPos = contentBounds.TopLeft;
+            FixedBoxModelElement contentBounds = BoxModel.PaddedContentBounds(this, Padding);
+            Vector2f topLeft = BoxModel.GetBoxPosition(contentBounds, BoxPosition.TopLeft);
+            Vector2f insertPos = topLeft;
 
             int N = ListItems.Count;
             for ( int i = 0; i < N; ++i ) {
                 IBoxModelElement boxelem = ListItems[i] as IBoxModelElement;
                 if (ListItems[i].IsVisible == false) {
-                    BoxModel.SetObjectPosition(boxelem, BoxPosition.TopLeft, contentBounds.TopLeft);
+                    BoxModel.SetObjectPosition(boxelem, BoxPosition.TopLeft, topLeft);
                     continue;
                 }
 
