@@ -47,6 +47,19 @@ namespace f3
             }
         }
 
+        public string GetText()
+        {
+            switch(eType) {
+                default:
+                case TextType.UnityTextMesh:
+                    return (text_component as TextMesh).text;
+                case TextType.TextMeshPro:
+#if G3_ENABLE_TEXT_MESH_PRO
+                    return (text_component as TextMeshPro).text;
+#endif
+            }
+        }
+
 
         public void SetColor(Colorf color)
         {
@@ -184,10 +197,125 @@ namespace f3
                 new Vector2f(fTextWidth, fTextHeight) );
         }
 
+
+
+
+
+
+        public static fTextAreaGameObject CreateTextAreaGO(
+            string sName, string sText, 
+            Colorf textColor, float fTextHeight, 
+            Vector2f areaDimensions,
+            HorizontalAlignment alignment = HorizontalAlignment.Left,
+            BoxPosition textOrigin = BoxPosition.Center,
+            float fOffsetZ = -0.01f)
+        {
+            GameObject textGO = new GameObject(sName);
+            TextMeshPro tm = textGO.AddComponent<TextMeshPro>();
+            //tm.isOrthographic = false;
+            switch ( alignment ) {
+                case HorizontalAlignment.Left:
+                    tm.alignment = TextAlignmentOptions.TopLeft; break;
+                case HorizontalAlignment.Center:
+                    tm.alignment = TextAlignmentOptions.Center; break;
+                case HorizontalAlignment.Right:
+                    tm.alignment = TextAlignmentOptions.TopRight; break;
+            }
+            tm.enableWordWrapping = true;
+            tm.autoSizeTextContainer = false;
+            tm.fontSize = 16;
+            tm.text = sText;
+            tm.color = textColor;
+            // ignore material changes when we add to GameObjectSet
+            textGO.AddComponent<IgnoreMaterialChanges>();
+            textGO.AddComponent<TextMeshProAlphaMultiply>();
+            // use our textmesh material instead
+            //MaterialUtil.SetTextMeshDefaultMaterial(tm);
+
+            TextContainer container = textGO.GetComponent<TextContainer>();
+            container.isAutoFitting = false;
+            container.anchorPosition = TextContainerAnchors.TopLeft;
+
+            if ( alignment != HorizontalAlignment.Left ) {
+                throw new NotSupportedException("CreateTextAreaGO: currently only Left-aligned text is supported");
+            }
+            //switch ( alignment ) {
+            //    case HorizontalAlignment.Left:
+            //        container.anchorPosition = TextContainerAnchors.TopLeft; break;
+            //    case HorizontalAlignment.Center:
+            //        container.anchorPosition = TextContainerAnchors.Middle; break;
+            //    case HorizontalAlignment.Right:
+            //        container.anchorPosition = TextContainerAnchors.TopRight; break;
+            //}
+
+            tm.ForceMeshUpdate();
+
+            // set container width and height to just contain text
+            AxisAlignedBox3f bounds = tm.bounds;
+            Vector2f size = new Vector2f(bounds.Width, bounds.Height);
+
+
+
+            // Now we want to scale text to hit our target height, but if we scale by size.y
+            // then the scaling will vary by text height (eg "m" will get same height as "My").
+            // However: 1) size.y varies with tm.fontSize, but it's not clear how. 
+            //          2) fontInfo.LineHeight tells us the height we want but doesn't change w/ tm.fontSize
+            // I tried a few values and the relationship is linear. It is in the ballpark
+            // of just being 10x...actually closer to 11x. No other values in fontInfo have a nice
+            // round-number relationship. But this value is probably font-dependent!!
+            float t = tm.fontSize / tm.font.fontInfo.LineHeight;
+            float magic_k = 10.929f;        // [RMS] solve-for-x given a few different fontSize values
+            float font_size_y = magic_k * t;
+            float fScaleH = fTextHeight / font_size_y;
+
+            tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
+            float fTextWidth = fScaleH * size.x;
+
+            // set container size now that we know text scaling factor
+            container.width = areaDimensions.x/fScaleH;
+            container.height = areaDimensions.y/fScaleH;
+
+
+            // by default text origin is top-left
+            if ( textOrigin == BoxPosition.Center )
+                tm.transform.Translate(-fTextWidth / 2.0f, fTextHeight / 2.0f, fOffsetZ);
+            else if ( textOrigin == BoxPosition.BottomLeft )
+                tm.transform.Translate(0, fTextHeight, fOffsetZ);
+            else if ( textOrigin == BoxPosition.TopRight )
+                tm.transform.Translate(-fTextWidth, 0, fOffsetZ);
+            else if ( textOrigin == BoxPosition.BottomRight )
+                tm.transform.Translate(-fTextWidth, fTextHeight, fOffsetZ);
+            else if ( textOrigin == BoxPosition.CenterLeft )
+                tm.transform.Translate(0, fTextHeight/2.0f, fOffsetZ);
+            else if ( textOrigin == BoxPosition.CenterRight )
+                tm.transform.Translate(-fTextWidth, fTextHeight/2.0f, fOffsetZ);
+            else if ( textOrigin == BoxPosition.CenterTop )
+                tm.transform.Translate(-fTextWidth / 2.0f, 0, fOffsetZ);
+            else if ( textOrigin == BoxPosition.CenterBottom )
+                tm.transform.Translate(-fTextWidth / 2.0f, fTextHeight, fOffsetZ);
+
+            textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
+
+            return new fTextAreaGameObject(textGO, new fText(tm, TextType.TextMeshPro), areaDimensions);
+                //new Vector2f(fTextWidth, fTextHeight) );
+        }
+
+
 #else
         public static bool HaveTextMeshPro { get { return false; } }
 
         public static fTextGameObject CreateTextMeshProGO(
+            string sName, string sText,
+            Colorf textColor, float fTextHeight,
+            Vector2f areaDimensions,
+            BoxPosition textOrigin = BoxPosition.Center,
+            float fOffsetZ = -0.01f)
+        {
+            throw new NotImplementedException("you need to #define G3_ENABLE_TEXT_MESH_PRO to use TextMeshPro (!)");
+        }
+
+
+        public static fTextAreaGameObject CreateTextAreaGO(
             string sName, string sText,
             Colorf textColor, float fTextHeight,
             BoxPosition textOrigin = BoxPosition.Center,

@@ -234,6 +234,78 @@ namespace f3
 
 
 
+        public static fTextAreaGameObject CreateTextAreaGO(
+            string sName, string sText, 
+            Colorf textColor, float fTextHeight, 
+            Vector2f areaDimensions,
+            HorizontalAlignment alignH,
+            BoxPosition textOrigin = BoxPosition.Center, 
+            float fOffsetZ = -0.1f )
+        {
+            return TextMeshProUtil.HaveTextMeshPro ?
+                  TextMeshProUtil.CreateTextAreaGO(sName, sText, textColor, fTextHeight, areaDimensions, alignH, textOrigin, fOffsetZ)
+                : CreateUnityTextAreaGO(sName, sText, textColor, fTextHeight, areaDimensions, alignH, textOrigin, fOffsetZ);
+        }
+
+
+
+        public static fTextAreaGameObject CreateUnityTextAreaGO(
+            string sName, string sText, 
+            Colorf textColor, float fTextHeight, 
+            Vector2f areaDimensions,
+            HorizontalAlignment alignH,
+            BoxPosition textOrigin = BoxPosition.Center, 
+            float fOffsetZ = -0.1f)
+        {
+            throw new Exception("fGameObjectFactory.CreateUnityTextAreaGO: haven't figured out wrapping yet...");
+            // TODO:
+            // http://answers.unity3d.com/questions/190800/wrapping-a-textmesh-text.html#answer-597981
+            // http://answers.unity3d.com/questions/223906/textmesh-wordwrap.html
+
+            //GameObject textGO = new GameObject(sName);
+            //TextMesh tm = textGO.AddComponent<TextMesh>();
+            //tm.text = sText;
+            //tm.color = textColor;
+            //tm.fontSize = 50;
+            //tm.offsetZ = fOffsetZ;
+            //tm.alignment = TextAlignment.Left;
+            //// ignore material changes when we add to GameObjectSet
+            //textGO.AddComponent<IgnoreMaterialChanges>();
+            //// use our textmesh material instead
+            //MaterialUtil.SetTextMeshDefaultMaterial(tm);
+
+            //Vector2f size = UnityUtil.EstimateTextMeshDimensions(tm);
+            //float fScaleH = fTextHeight / size.y;
+            //tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
+            //float fTextWidth = fScaleH * size.x;
+
+            //// by default text origin is top-left
+            //if ( textOrigin == BoxPosition.Center )
+            //    tm.transform.Translate(-fTextWidth / 2.0f, fTextHeight / 2.0f, 0);
+            //else if ( textOrigin == BoxPosition.BottomLeft )
+            //    tm.transform.Translate(0, fTextHeight, 0);
+            //else if ( textOrigin == BoxPosition.TopRight )
+            //    tm.transform.Translate(-fTextWidth, 0, 0);
+            //else if ( textOrigin == BoxPosition.BottomRight )
+            //    tm.transform.Translate(-fTextWidth, fTextHeight, 0);
+            //else if ( textOrigin == BoxPosition.CenterLeft )
+            //    tm.transform.Translate(0, fTextHeight/2.0f, 0);
+            //else if ( textOrigin == BoxPosition.CenterRight )
+            //    tm.transform.Translate(-fTextWidth, fTextHeight/2.0f, 0);
+            //else if ( textOrigin == BoxPosition.CenterTop )
+            //    tm.transform.Translate(-fTextWidth / 2.0f, 0, 0);
+            //else if ( textOrigin == BoxPosition.CenterBottom )
+            //    tm.transform.Translate(-fTextWidth / 2.0f, fTextHeight, 0);
+
+            //textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
+
+            //return new fTextGameObject(textGO, new fText(tm, TextType.UnityTextMesh),
+            //    new Vector2f(fTextWidth, fTextHeight) );
+        }
+
+
+
+
         public static fGameObject Duplicate(fGameObject go)
         {
             GameObject copy = GameObject.Instantiate<GameObject>(go);
