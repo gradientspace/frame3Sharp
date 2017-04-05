@@ -20,6 +20,18 @@ namespace f3
         public bool HoldOnHover = true;
 
 
+        /// <summary>
+        /// If enabled, then toast will be dismissed if clicked. Must be set
+        /// before calling Show()
+        /// </summary>
+        public bool ClickToDismiss = false;
+
+
+        /// <summary>
+        /// Called when Toast is dismissed
+        /// </summary>
+        public EventHandler OnDismissed;
+
 
         /// <summary>
         /// Show the Toast widget with an animated fade in. The widget will fade out 
@@ -41,7 +53,8 @@ namespace f3
             cockpit.HUDAnimator.Register(
                 new GenericAnimatable(() => {
                     if (dismiss) {
-                        HUDUtil.AnimatedDimiss_Cockpit(this, cockpit, (disappear) ? 0.001f : fFadeInOut );
+                        FUtil.SafeSendEvent(this.OnDismissed, this, EventArgs.Empty);
+                        HUDUtil.AnimatedDimiss_Cockpit(this, cockpit, true, (disappear) ? 0.001f : fFadeInOut );
                         dismiss_timer.Dispose();
                         return true;
                     }
@@ -73,6 +86,14 @@ namespace f3
                 };
                 dismiss_timer.Enabled = true;
             });
+
+
+            if ( ClickToDismiss ) {
+                this.OnClicked += (s, e) => {
+                    dismiss = true;
+                };
+            }
+
 
         }
 

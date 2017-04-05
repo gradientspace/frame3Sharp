@@ -121,7 +121,7 @@ namespace f3
             message.Name = "popup";
             cockpit.AddUIElement(message, true);
             message.OnDismissed += (s, e) => {
-                AnimatedDimiss_Cockpit(message, cockpit);
+                AnimatedDimiss_Cockpit(message, cockpit, true);
             };
             AnimatedShow(message);
         }
@@ -139,7 +139,7 @@ namespace f3
             message.Name = "popup";
             cockpit.AddUIElement(message, true);
             message.OnDismissed += (s, e) => {
-                AnimatedDimiss_Cockpit(message, cockpit);
+                AnimatedDimiss_Cockpit(message, cockpit, true);
             };
             AnimatedShow(message, 0.5f);
         }
@@ -158,12 +158,12 @@ namespace f3
             anim.Play(hudItem, fDuration);
         }
 
-        public static void AnimatedDimiss_Cockpit(HUDStandardItem hudItem, Cockpit cockpit, float fDuration = 0.25f)
+        public static void AnimatedDimiss_Cockpit(HUDStandardItem hudItem, Cockpit cockpit, bool bDestroy, float fDuration = 0.25f)
         {
             AnimatedDismissHUDItem anim = hudItem.RootGameObject.AddComponent<AnimatedDismissHUDItem>();
             anim.CompleteCallback += () => {
                 anim.HUDItem.ClearGameObjects(false);
-                cockpit.RemoveUIElement(anim.HUDItem, true);
+                cockpit.RemoveUIElement(anim.HUDItem, bDestroy);
             };
             anim.Play(hudItem, fDuration);
         }
@@ -179,12 +179,12 @@ namespace f3
             anim.Play(hudItem, fShowDuration, fFadeDuration);
         }
 
-        public static void AnimatedDimiss_Scene(HUDStandardItem hudItem, FScene scene, float fDuration = 0.25f)
+        public static void AnimatedDimiss_Scene(HUDStandardItem hudItem, FScene scene, bool bDestroy, float fDuration = 0.25f)
         {
             AnimatedDismissHUDItem anim = hudItem.RootGameObject.AddComponent<AnimatedDismissHUDItem>();
             anim.CompleteCallback += () => {
                 anim.HUDItem.ClearGameObjects(false);
-                scene.RemoveUIElement(anim.HUDItem, true);
+                scene.RemoveUIElement(anim.HUDItem, bDestroy);
             };
             anim.Play(hudItem, fDuration);
         }

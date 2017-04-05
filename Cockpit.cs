@@ -343,7 +343,7 @@ namespace f3
             Layouts.Remove(name);
 
             if ( bRemoveAllElements )
-                remove.RemoveAll();
+                remove.RemoveAll(true);
 
             if ( defaultLayout == remove )
                 defaultLayout = null;

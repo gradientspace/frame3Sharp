@@ -4,6 +4,20 @@ using g3;
 
 namespace f3
 {
+    [Flags]
+    public enum LayoutFlags
+    {
+        None = 0,
+
+        AnimatedShow = 1<<1,
+        AnimatedDismiss = 1<<2,
+
+
+        AnimatedTransitions = AnimatedShow | AnimatedDismiss
+    }
+
+
+
 
     /// <summary>
     /// ILayoutEngine implementations will use information you provide here to
@@ -12,13 +26,14 @@ namespace f3
     /// </summary>
     public class LayoutOptions
     {
+        public LayoutFlags Flags = LayoutFlags.None; 
 
         // layout constraint controls
         public Func<Vector2f> PinSourcePoint2D;
         public Func<Vector2f> PinTargetPoint2D;
 
         // distance UI element is shifted in/out of standard UI plane/surface
-        public float DepthShift;
+        public float DepthShift = 0;
     }
 
 
@@ -26,10 +41,10 @@ namespace f3
     public interface ILayoutEngine
     {
         void Add(SceneUIElement element, LayoutOptions options);
-        void Remove(SceneUIElement element);
+        void Remove(SceneUIElement element, bool bDestroy);
 
         // remove all UI elements
-        void RemoveAll();
+        void RemoveAll(bool bDestroy);
 
 
         /// <summary>

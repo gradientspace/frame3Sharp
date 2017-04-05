@@ -18,7 +18,13 @@ namespace f3
         public float StandardDepth;
 
 
-        List<SceneUIElement> elements;
+        struct LayoutItem
+        {
+            public SceneUIElement element;
+            public LayoutFlags flags;
+        }
+        List<LayoutItem> items;
+
 
         public LayoutEngine2D(Cockpit parent)
         {
@@ -26,7 +32,7 @@ namespace f3
             ScreenContainer = new HUDContainer(new Cockpit2DContainerProvider(parent));
             Layout = new HUDContainerLayout(ScreenContainer);
 
-            elements = new List<SceneUIElement>();
+            items = new List<LayoutItem>();
         }
 
 
@@ -41,37 +47,77 @@ namespace f3
         }
 
 
+        bool has_item(SceneUIElement e)
+        {
+            return items.FindIndex((x) => { return x.element == e; }) >= 0;
+        }
+        void remove_item(SceneUIElement e)
+        {
+            int idx = items.FindIndex((x) => { return x.element == e; });
+            if (idx >= 0)
+                items.RemoveAt(idx);
+        }
+        bool find_item(SceneUIElement e, out LayoutItem item)
+        {
+            item = new LayoutItem();
+            int idx = items.FindIndex((x) => { return x.element == e; });
+            if (idx >= 0) {
+                item = items[idx];
+                return true;
+            }
+            return false;
+        }
+
+
         public void Add(SceneUIElement element, LayoutOptions options)
         {
-            if ( elements.Contains(element) ) 
+            if ( has_item(element) ) 
                 throw new Exception("LayoutEngine2D.Add: element is already in layout");
             if ( element is HUDStandardItem == false )
                 throw new Exception("LayoutEngine2D.Add: element must be a HUDStandardItem");
             if ( element is IBoxModelElement == false ) 
                 throw new Exception("LayoutEngine2D.Add: element must implement IBoxModelElement");
 
-            elements.Add(element);
-            Add(element as HUDStandardItem, options);
+            LayoutItem newitem = new LayoutItem() { element = element, flags = options.Flags };
+            items.Add(newitem);
+            Add(newitem.element as HUDStandardItem, options);
+
+            // catch removals that did not go through Remove()
+            element.OnDisconnected += Element_OnDisconnected;
         }
 
-        public void RemoveAll()
+
+        // handle situations where someone else has removed the UIElement
+        private void Element_OnDisconnected(object sender, EventArgs e)
         {
-            foreach (var e in elements)
-                Remove(e);
+            SceneUIElement elem = sender as SceneUIElement;
+            remove_item(elem);
         }
 
 
-        public void Remove(SceneUIElement element)
+        public void RemoveAll(bool bDestroy)
         {
-            if ( elements.Contains(element) == false ) 
+            foreach (var item in items)
+                Remove(item.element, bDestroy);
+        }
+
+
+        public void Remove(SceneUIElement element, bool bDestroy)
+        {
+            LayoutItem item;
+            bool bFound = find_item(element, out item);
+            if ( bFound == false ) 
                 throw new Exception("LayoutEngine2D.Remove: element is not in layout");
             if ( element is HUDStandardItem == false )
                 throw new Exception("LayoutEngine2D.Add: element must be a HUDStandardItem");
 
-            elements.Remove(element);
+            remove_item(element);
 
             // this will remove from cockpit after transition
-            HUDUtil.AnimatedDimiss_Cockpit(element as HUDStandardItem, this.Cockpit);
+            if ((item.flags & LayoutFlags.AnimatedDismiss) != 0)
+                HUDUtil.AnimatedDimiss_Cockpit(element as HUDStandardItem, this.Cockpit, bDestroy);
+            else
+                this.Cockpit.RemoveUIElement(element, bDestroy);
         }
 
 
