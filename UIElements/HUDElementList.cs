@@ -32,11 +32,6 @@ namespace f3
         }
 
 
-        public override void Disconnect()
-        {
-            
-        }
-
 
         public virtual void AddListItem(SceneUIElement element)
         {

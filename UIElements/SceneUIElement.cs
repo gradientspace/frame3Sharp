@@ -66,6 +66,10 @@ namespace f3
     }
 
 
+    /// <summary>
+    /// SceneUIElement is the base class for all UI objects - ie things like buttons, 3D gizmos, etc.
+    /// These are different from SceneObjects in that they are not persistent, do not have change history, etc.
+    /// </summary>
     public interface SceneUIElement
 	{
 		GameObject RootGameObject{ get; }
@@ -73,7 +77,13 @@ namespace f3
         string Name { get; set; }
 		SceneUIParent Parent { get; set; }
 
+        /// <summary>
+        /// Disconnect is called to un-hook this object in preparation for removing it from Cockpit/Scene.
+        /// The event OnDisconnect() must be fired inside Disconnect() implementations.
+        /// Ideally it should be possible to re-add the UIElement later, however this is not required.
+        /// </summary>
 		void Disconnect();
+        event EventHandler OnDisconnected;
 
         bool IsVisible { get; set; }
         void SetLayer(int nLayer);
@@ -94,6 +104,7 @@ namespace f3
         bool EnableHover { get; }
         void UpdateHover(Ray3f ray, UIRayHit hit);
         void EndHover(Ray3f ray);
+
     }
 
 

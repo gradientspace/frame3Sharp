@@ -271,7 +271,8 @@ namespace f3
         }
 
 		public void RemoveUIElement(SceneUIElement e, bool bDestroy) {
-			vUIElements.Remove (e);
+            e.Disconnect();
+			vUIElements.Remove(e);
             e.Parent = null;
 			if ( e.RootGameObject != null && bDestroy) {
 				e.RootGameObject.transform.parent = null;

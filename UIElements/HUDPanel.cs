@@ -122,9 +122,9 @@ namespace f3
 
         public override void Disconnect()
         {
-            base.Disconnect();
             foreach (var ui in Children)
                 ui.Disconnect();
+            base.Disconnect();
         }
 
         override public bool IsVisible {

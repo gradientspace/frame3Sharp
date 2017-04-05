@@ -78,9 +78,12 @@ namespace f3
             set { parent = value; }
         }
 
+
 		public virtual void Disconnect() {
-			// standard is to do nothing
+            FUtil.SafeSendEvent(OnDisconnected, this, EventArgs.Empty);
 		}
+        public event EventHandler OnDisconnected;
+
 
         public virtual bool IsVisible {
             get {

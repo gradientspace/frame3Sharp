@@ -132,7 +132,11 @@ namespace f3
                 parentScene.RemoveSceneObject(internalXFormSO, true);
                 internalXFormSO = null;
             }
+
+            FUtil.SafeSendEvent(OnDisconnected, this, EventArgs.Empty);
         }
+        public event EventHandler OnDisconnected;
+
 
         public virtual bool IsVisible {
             get { return RootGameObject.IsVisible(); }
@@ -449,7 +453,6 @@ namespace f3
                 hoverWidget = null;
             }
         }
-
 
     }
 }

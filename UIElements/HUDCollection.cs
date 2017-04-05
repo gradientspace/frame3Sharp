@@ -106,7 +106,10 @@ namespace f3
         {
             foreach (var ui in Children)
                 ui.Disconnect();
+            FUtil.SafeSendEvent(OnDisconnected, this, EventArgs.Empty);
         }
+        public event EventHandler OnDisconnected;
+
 
         public virtual bool IsVisible {
             get {
@@ -190,8 +193,6 @@ namespace f3
         {
             throw new InvalidOperationException("HUDCollection.EndHover: how is this being called?");
         }
-
-
 
     }
 }

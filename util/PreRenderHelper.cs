@@ -54,7 +54,9 @@ namespace f3
         public void Disconnect() {
             if (bDestroyOnDisconnect)
                 GameObject.Destroy(dummyGO);
+            FUtil.SafeSendEvent(OnDisconnected, this, EventArgs.Empty);
         }
+        public event EventHandler OnDisconnected;
 
         public bool IsVisible { get { return true; } set { } }
         public void SetLayer(int nLayer) { }
