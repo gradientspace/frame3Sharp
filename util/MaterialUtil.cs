@@ -91,6 +91,13 @@ namespace f3
             return new fMaterial(CreateTransparentImageMaterial(sResourcePath));
         }
 
+
+        public static fMaterial CreateParticlesMaterial() {
+            Material m = SafeLoadMaterial(SceneGraphConfig.DefaultParticleMaterialPath);
+            return new fMaterial(m);
+        }
+
+
         public static Material CreateTextMeshMaterial()
         {
             Material m = SafeLoadMaterial("StandardMaterials/default_text_material");

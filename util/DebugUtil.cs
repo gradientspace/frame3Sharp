@@ -98,7 +98,7 @@ namespace f3
             line.transform.position = (bIsInWorldPos) ? start : Vector3f.Zero;
 			line.AddComponent<LineRenderer> ();
 			LineRenderer lr = line.GetComponent<LineRenderer> ();
-			lr.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
+			lr.material = MaterialUtil.CreateParticlesMaterial();
             lr.startColor = lr.endColor = color;
             lr.startWidth = lr.endWidth = diameter;
 			lr.SetPosition (0, start);
@@ -119,7 +119,7 @@ namespace f3
             line.transform.position =  (bIsInWorldPos) ? start : Vector3f.Zero;
             line.AddComponent<LineRenderer>();
             LineRenderer lr = line.GetComponent<LineRenderer>();
-            lr.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
+            lr.material = MaterialUtil.CreateParticlesMaterial();
             lr.startColor = startColor;
             lr.endColor = endColor;
             lr.startWidth = lr.endWidth = diameter;
@@ -142,7 +142,7 @@ namespace f3
 			line.SetName(name);
 			line.AddComponent<LineRenderer> ();
 			LineRenderer lr = line.GetComponent<LineRenderer> ();
-			lr.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
+			lr.material = MaterialUtil.CreateParticlesMaterial();
             lr.startColor = startColor;
             lr.endColor = endColor;
             lr.startWidth = lr.endWidth = diameter;

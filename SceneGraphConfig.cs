@@ -95,7 +95,10 @@ namespace f3
         {
             get { return "StandardMaterials/default_unlit_texture"; }
         }
-
+        public static string DefaultParticleMaterialPath
+        {
+            get { return "StandardMaterials/default_particle"; }
+        }
 
         public static string LastFileOpenPath
         {
