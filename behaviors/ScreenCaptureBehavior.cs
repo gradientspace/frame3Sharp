@@ -34,7 +34,7 @@ namespace f3
             if (input.bLeftMenuButtonReleased) {
 
                 string sDate =
-                    DateTime.Now.ToString("MMMdd_hhmmss") + DateTime.Now.ToString("tt").ToLower();
+                    DateTime.Now.ToString("yyyy-MM-dd hh.mm.ss"); // + DateTime.Now.ToString("tt").ToLower();
 
                 bool bDone = false;
                 int i = 0;
