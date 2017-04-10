@@ -64,7 +64,7 @@ namespace f3 {
             float fScaling = VRUtil.GetVRRadiusForVisualAngle(TargetPoint, gameObject.transform.position, 1.0f);
             targetGO.transform.localScale = new Vector3(fScaling, fScaling, fScaling);
 
-            if ( ShowTarget ) {
+            if ( ShowTarget && SceneGraphConfig.EnableVisibleCameraPivot ) {
                 Material setMaterial = hiddenMaterial;
 
                 // raycast into scene and if we hit ball before we hit anything else, render

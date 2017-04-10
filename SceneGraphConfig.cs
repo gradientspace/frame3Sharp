@@ -117,6 +117,9 @@ namespace f3
         public static float DefaultSceneCurveVisualDegrees = 1.0f;
 
 
+        public static bool EnableVisibleCameraPivot = true;
+
+
         // Default Z-offset for text relative to background rect, used in HUDLabel, HUDTextEntry, etc...
         // In 2D, this doesn't matter except that if it is too small there might be Z-fighting, and if
         // you have overlapping 2D elements it might make the text poke through.
