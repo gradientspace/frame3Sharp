@@ -159,13 +159,19 @@ namespace f3
         }
 
 
-        public static void DisableShadows(GameObject go, bool bCastOff = true, bool bReceiveOff = true)
+        public static void DisableShadows(GameObject go, bool bCastOff = true, bool bReceiveOff = true, bool bRecursive = true)
         {
             Renderer ren = go.GetComponent<Renderer>();
-            if (bCastOff)
-                ren.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            if (bReceiveOff)
-                ren.receiveShadows = false;
+            if (ren != null) {
+                if (bCastOff)
+                    ren.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                if (bReceiveOff)
+                    ren.receiveShadows = false;
+            }
+            if ( bRecursive ) {
+                foreach (var childgo in go.Children())
+                    DisableShadows(childgo, bCastOff, bRecursive, bRecursive);
+            }
         }
 
         public static void SetIgnoreMaterialChanges(fGameObject go)

@@ -26,6 +26,7 @@ namespace f3
         bool enable_spatial = true;
         DMeshAABBTree3 spatial;
 
+        bool enable_shadows = true;
 
         public DMeshSO()
         {
@@ -124,7 +125,8 @@ namespace f3
             displayComponents.Add(new DisplayMeshComponent() {
                 go = submesh_go, source_vertices = C.source_vertices
             });
-
+            if (enable_shadows == false)
+                MaterialUtil.DisableShadows(submesh_go, true, true);
             AppendNewGO(submesh_go, parentGO, false);
         }
 
@@ -219,7 +221,8 @@ namespace f3
 
 
         override public void DisableShadows() {
-            //MaterialUtil.DisableShadows(meshGO, true, false);
+            enable_shadows = false;
+            MaterialUtil.DisableShadows(parentGO, true, true);
         }
 
 
