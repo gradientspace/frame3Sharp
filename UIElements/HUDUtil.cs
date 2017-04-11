@@ -108,7 +108,9 @@ namespace f3
 
 
 
-
+        /// <summary>
+        /// Create a fMesh of the shape/dimensions specified by Shape
+        /// </summary>
         public static fMesh MakeBackgroundMesh(HUDShape Shape)
         {
             if (Shape.Type == HUDShapeType.Disc) {
@@ -124,6 +126,22 @@ namespace f3
             } else {
                 throw new Exception("HUDUtil.MakeBackgroundMesh: unknown shape type!");
             }
+        }
+
+
+        /// <summary>
+        /// Replace the material on the background GO of item.
+        /// Assumes that the background GO has the name "background"...
+        /// </summary>
+        public static void SetBackgroundMaterial(HUDStandardItem item, fMaterial material, bool bShared = false)
+        {
+            var go = item.FindGOByName("background");
+            if (go == null) {
+                DebugUtil.Log(2, "HUDUtil.SetBackgroundImage: item {0} does not have go named 'background'", item.Name);
+                return;
+            }
+
+            go.SetMaterial(material, bShared);
         }
 
 

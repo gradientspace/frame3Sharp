@@ -14,14 +14,14 @@ namespace f3
     }
 
 
-    //
-    // [RMS] this is a bit hacky utility class that allows us to 
-    //   create various standard GO types, ray-hit test them, etc.
-    //   Used by SceneObject, SceneUIElement, and so on
-    //
+    /// <summary>
+    ///  GameObjectSet is a utility class that provides a more useful interface
+    ///  to a set of GameObject children. Most implementations of core F3 classes
+    ///  like SceneObject, SceneUIElement, etc, are derived from GameObjectSet.
+    /// </summary>
 	public class GameObjectSet
 	{
-		public List<GameObject> vObjects;
+		protected List<GameObject> vObjects;
 
 		public GameObjectSet ()
 		{
@@ -45,6 +45,24 @@ namespace f3
 			GameObject found = vObjects.Find (x => x == go);
 			return found != null;
 		}
+
+        /// <summary>
+        /// Finds the first child GO named sName. Optionally searches nested children.
+        /// </summary>
+        public GameObject FindGOByName(string sName, bool bRecurse = true)
+        {
+            for (int i = 0; i < vObjects.Count; ++i) {
+                if (vObjects[i].GetName() == sName)
+                    return vObjects[i];
+                if ( bRecurse && vObjects[i].HasChildren() ) {
+                    GameObject found = vObjects[i].FindChildByName(sName, bRecurse);
+                    if (found != null)
+                        return found;
+                }
+            }
+            return null;
+        }
+
 
         public virtual void AppendExistingGO(GameObject go)
         {
@@ -185,6 +203,8 @@ namespace f3
             }
             return null;
         }
+
+
 
 	}
 }

@@ -172,6 +172,16 @@ namespace f3
         }
 
 
+
+        public static void Translate(IBoxModelElement element, Vector2f delta, float z = 0)
+        {
+            HUDStandardItem item = element as HUDStandardItem;
+            Frame3f f = item.GetObjectFrame();
+            f.Origin += new Vector3f(delta.x, delta.y, z);
+            item.SetObjectFrame(f);
+        }
+
+
         public static void Translate(fGameObject go, Vector2f from, Vector2f to, float z = 0)
         {
             Vector2f dv = to - from;

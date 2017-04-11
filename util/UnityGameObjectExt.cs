@@ -49,6 +49,20 @@ namespace f3
             go.transform.SetParent(null);
         }
 
+        public static GameObject FindChildByName(this GameObject go, string sName, bool bRecurse)
+        {
+            foreach (GameObject childGO in go.Children()) {
+                if (childGO.name == sName)
+                    return childGO;
+                if ( bRecurse && childGO.HasChildren() ) {
+                    GameObject found = childGO.FindChildByName(sName, bRecurse);
+                    if (found != null)
+                        return found;
+                }
+            }
+            return null;
+        }
+
         public static bool IsSameOrChild(this GameObject go, GameObject testGO)
         {
             if (go == testGO)
