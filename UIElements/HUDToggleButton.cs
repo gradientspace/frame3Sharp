@@ -27,7 +27,7 @@ namespace f3
 
         public HUDToggleButton()
 		{
-            Shape = new HUDShape() { Type = HUDShapeType.Disc, Radius = 0.1f };
+            Shape = new HUDShape(HUDShapeType.Disc, 0.1f);
             bChecked = true;
 
             TextHeight = 0.8f;
@@ -46,23 +46,11 @@ namespace f3
         }
 
 
-        fMesh make_button_body_mesh()
-        {
-            if (Shape.Type == HUDShapeType.Disc) {
-                return MeshGenerators.CreateTrivialDiscF(Shape.Radius, Shape.Slices);
-            } else if (Shape.Type == HUDShapeType.Rectangle) {
-                return MeshGenerators.CreateTrivialRectF(Shape.Width, Shape.Height,
-                    Shape.UseUVSubRegion == true ?
-                        MeshGenerators.UVRegionType.CenteredUVRectangle : MeshGenerators.UVRegionType.FullUVSquare);
-            } else {
-                throw new Exception("[HUDToggleButton::make_button_body_mesh] unknown shape type!");
-            }
-        }
 
 
         public void Create( fMaterial defaultMaterial ) {
 			button = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDToggleButton"));
-            buttonMesh = AppendMeshGO ("disc", make_button_body_mesh(), 
+            buttonMesh = AppendMeshGO ("shape", HUDUtil.MakeBackgroundMesh(this.Shape), 
 				defaultMaterial, button);
 
             buttonMesh.RotateD(Vector3f.AxisX, -90.0f); // ??

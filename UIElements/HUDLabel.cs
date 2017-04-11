@@ -14,8 +14,8 @@ namespace f3
         fGameObject bgMesh;
         fTextGameObject textMesh;
 
-        public float Width { get; set; }
-        public float Height { get; set; }
+        public HUDShape Shape { get; set; }
+
         public float TextHeight { get; set; }
 
         Colorf bg_color;
@@ -48,9 +48,9 @@ namespace f3
 
         public HUDLabel()
         {
-            Width = 10;
-            Height = 1;
+            Shape = new HUDShape(HUDShapeType.Rectangle, 10, 1);
             TextHeight = 0.8f;
+
             BackgroundColor = Colorf.VideoWhite;
             TextColor = Colorf.VideoBlack;
             DisabledTextColor = Colorf.DimGrey;
@@ -59,18 +59,12 @@ namespace f3
         }
 
 
-        fMesh make_background_mesh()
-        {
-            return new fMesh(
-                MeshGenerators.CreateTrivialRect(Width, Height, MeshGenerators.UVRegionType.FullUVSquare));
-        }
-
         // creates a button in the desired geometry shape
         public void Create()
         {
             entry = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDLabel"));
 
-            bgMesh = new fGameObject(AppendMeshGO("background", make_background_mesh(),
+            bgMesh = new fGameObject(AppendMeshGO("background", HUDUtil.MakeBackgroundMesh(Shape),
                 MaterialUtil.CreateFlatMaterialF(BackgroundColor),
                 entry));
             bgMesh.RotateD(Vector3f.AxisX, -90.0f);
@@ -183,13 +177,13 @@ namespace f3
 
 
         public Vector2f Size2D {
-            get { return new Vector2f(Width, Height); }
+            get { return new Vector2f(Shape.Width, Shape.Height); }
         }
 
         public AxisAlignedBox2f Bounds2D { 
             get {
                 Vector2f origin2 = RootGameObject.GetLocalPosition().xy;
-                return new AxisAlignedBox2f(origin2, Width/2, Height/2);
+                return new AxisAlignedBox2f(origin2, Shape.Width/2, Shape.Height/2);
             }
         }
 

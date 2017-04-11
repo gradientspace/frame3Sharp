@@ -109,6 +109,25 @@ namespace f3
 
 
 
+        public static fMesh MakeBackgroundMesh(HUDShape Shape)
+        {
+            if (Shape.Type == HUDShapeType.Disc) {
+                return MeshGenerators.CreateTrivialDisc(Shape.Radius, Shape.Slices);
+            } else if (Shape.Type == HUDShapeType.Rectangle) {
+                return MeshGenerators.CreateTrivialRect(Shape.Width, Shape.Height,
+                    Shape.UseUVSubRegion == true ? 
+                        MeshGenerators.UVRegionType.CenteredUVRectangle : MeshGenerators.UVRegionType.FullUVSquare);
+            } else if (Shape.Type == HUDShapeType.RoundRect) {
+                return MeshGenerators.CreateRoundRect(Shape.Width, Shape.Height, Shape.Radius,
+                    Shape.UseUVSubRegion == true ?
+                        MeshGenerators.UVRegionType.CenteredUVRectangle : MeshGenerators.UVRegionType.FullUVSquare);
+            } else {
+                throw new Exception("HUDUtil.MakeBackgroundMesh: unknown shape type!");
+            }
+        }
+
+
+
 
         public static void ShowCenteredStaticPopupMessage(string sText, Cockpit cockpit)
         {

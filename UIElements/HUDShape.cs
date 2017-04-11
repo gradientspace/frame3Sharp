@@ -9,23 +9,23 @@ namespace f3
     public enum HUDShapeType
     {
         Disc,
-        Rectangle
+        Rectangle,
+        RoundRect
     }
 
-    public class HUDShape
+
+    public struct HUDShape
     {
-        public HUDShapeType Type{ get; set; }
+        public HUDShapeType Type;
 
-        // for disc
-        public float Radius { get; set; }
-        public int Slices { get; set; }
+        // for disc, roundrect
+        public float Radius;
+        public int Slices;
 
-        // for rectangle
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public bool UseUVSubRegion { get; set; }
-
-
+        // for rectangle, roundrect
+        public float Width;
+        public float Height;
+        public bool UseUVSubRegion;
 
         public Vector2f Size {
             get {
@@ -45,15 +45,46 @@ namespace f3
         }
 
 
+        //[System.Obsolete("HUDShape() is deprecated, will change to struct in future, use explicit constructor.")]
+        //public HUDShape()
+        //{
+        //    Type = HUDShapeType.Disc;
+        //    Radius = 0.1f;
+        //    Slices = 32;
+        //    Width = 01f;
+        //    Height = 0.1f;
+        //    UseUVSubRegion = true;
+        //}
 
-        public HUDShape()
+
+        public HUDShape(HUDShapeType type, float radius)
         {
-            Type = HUDShapeType.Disc;
-            Radius = 0.1f;
+            Type = type;
+            Radius = radius;
             Slices = 32;
-
-            Width = Height = 0.1f;
+            Width = Height = 2*radius;
             UseUVSubRegion = true;
         }
+
+        public HUDShape(HUDShapeType type, float width, float height)
+        {
+            Type = type;
+            Radius = width * 0.1f;
+            Slices = 4;
+            Width = width; Height = height;
+            UseUVSubRegion = true;
+        }
+        public HUDShape(HUDShapeType type, float width, float height, float radius, int slices, bool useUVSubRegion)
+        {
+            Type = type;
+            Radius = radius;
+            Slices = slices;
+            Width = width;
+            Height = height;
+            UseUVSubRegion = useUVSubRegion;
+        }
+
+        // for struct conversion
+        public static readonly HUDShape Default = new HUDShape(HUDShapeType.Disc, 1.0f, 1.0f, 0.1f, 32, true);
     }
 }

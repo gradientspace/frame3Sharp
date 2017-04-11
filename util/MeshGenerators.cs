@@ -76,43 +76,36 @@ namespace f3 {
 
 
         // create a triangle fan
-        public static Mesh CreateTrivialDisc(float radius, int nSteps, float fStartAngleDeg = 0.0f, float fEndAngleDeg = 360.0f) {
+        public static fMesh CreateTrivialDisc(float radius, int nSteps, float fStartAngleDeg = 0.0f, float fEndAngleDeg = 360.0f)
+        {
             TrivialDiscGenerator gen = new TrivialDiscGenerator() 
                 { Slices = nSteps, Clockwise = false, Radius = radius, StartAngleDeg = fStartAngleDeg, EndAngleDeg = fEndAngleDeg };
             gen.Generate();
-            return gen.MakeUnityMesh(false, false);
-        }
-        public static fMesh CreateTrivialDiscF(float radius, int nSteps, float fStartAngleDeg = 0.0f, float fEndAngleDeg = 360.0f)
-        {
-            return new fMesh(CreateTrivialDisc(radius, nSteps, fStartAngleDeg, fEndAngleDeg));
+            return new fMesh(gen.MakeUnityMesh(false, false));
         }
 
-        public static Mesh CreatePuncturedDisc(float innerRadius, float outerRadius, int nSteps, float fStartAngleDeg = 0.0f, float fEndAngleDeg = 360.0f)
-        {
+        public static fMesh CreatePuncturedDisc(float innerRadius, float outerRadius, int nSteps, float fStartAngleDeg = 0.0f, float fEndAngleDeg = 360.0f) {
             PuncturedDiscGenerator gen = new PuncturedDiscGenerator() 
             { Slices = nSteps, Clockwise = false, InnerRadius = innerRadius, OuterRadius = outerRadius,
                 StartAngleDeg = fStartAngleDeg, EndAngleDeg = fEndAngleDeg };
             gen.Generate();
-            return gen.MakeUnityMesh(false, false);
-        }
-        public static fMesh CreatePuncturedDiscF(float innerRadius, float outerRadius, int nSteps, float fStartAngleDeg = 0.0f, float fEndAngleDeg = 360.0f) {
-            return new fMesh(CreatePuncturedDisc(innerRadius, outerRadius, nSteps, fStartAngleDeg, fEndAngleDeg));
+            return new fMesh(gen.MakeUnityMesh(false, false));
         }
 
 
-        public static Mesh CreateCylinder(float radius, float height, int nSlices, float fStartAngleDeg = 0.0f, float fEndAngleDeg = 360.0f)
+        public static fMesh CreateCylinder(float radius, float height, int nSlices, float fStartAngleDeg = 0.0f, float fEndAngleDeg = 360.0f)
         {
             CappedCylinderGenerator gen = new CappedCylinderGenerator() {
                 BaseRadius = radius, TopRadius = radius, Height = height, Slices = nSlices,
                 Clockwise = true, StartAngleDeg = fStartAngleDeg, EndAngleDeg = fEndAngleDeg
             };
             gen.Generate();
-            return gen.MakeUnityMesh(false);
+            return new fMesh(gen.MakeUnityMesh(false));
         }
 
 
 
-        public static Mesh Create3DArrow(float Length, int nSlices)
+        public static fMesh Create3DArrow(float Length, int nSlices)
         {
             Radial3DArrowGenerator gen = new Radial3DArrowGenerator() {
                 Clockwise = true, Slices = nSlices
@@ -122,9 +115,9 @@ namespace f3 {
             gen.StickLength = Length - gen.HeadLength;
             gen.StickRadius = 0.5f * gen.HeadBaseRadius;
             gen.Generate();
-            return gen.MakeUnityMesh(true);
+            return new fMesh(gen.MakeUnityMesh(true));
         }
-        public static Mesh Create3DArrow(float Length, float Width, int nSlices)
+        public static fMesh Create3DArrow(float Length, float Width, int nSlices)
         {
             Radial3DArrowGenerator gen = new Radial3DArrowGenerator() {
                 Clockwise = true, Slices = nSlices
@@ -134,9 +127,9 @@ namespace f3 {
             gen.StickLength = Length - gen.HeadLength;
             gen.StickRadius = 0.5f * gen.HeadBaseRadius;
             gen.Generate();
-            return gen.MakeUnityMesh(true);
+            return new fMesh(gen.MakeUnityMesh(true));
         }
-        public static Mesh Create3DArrow(float HeadLength, float HeadWidth, float StickLength, float StickWidth, int nSlices)
+        public static fMesh Create3DArrow(float HeadLength, float HeadWidth, float StickLength, float StickWidth, int nSlices)
         {
             Radial3DArrowGenerator gen = new Radial3DArrowGenerator() {
                 Clockwise = true, Slices = nSlices, 
@@ -144,7 +137,7 @@ namespace f3 {
                 StickLength = StickLength, StickRadius = StickWidth*0.5f
             };
             gen.Generate();
-            return gen.MakeUnityMesh(true);
+            return new fMesh(gen.MakeUnityMesh(true));
         }
 
 
@@ -156,7 +149,7 @@ namespace f3 {
             CenteredUVRectangle,
             BottomCornerUVRectangle
         }
-        public static Mesh CreateTrivialRect(float width, float height, UVRegionType eUVType)
+        public static fMesh CreateTrivialRect(float width, float height, UVRegionType eUVType)
         {
             TrivialRectGenerator gen = new TrivialRectGenerator() 
                 { Width = width, Height = height, Clockwise = false };
@@ -165,12 +158,24 @@ namespace f3 {
             else if (eUVType == UVRegionType.BottomCornerUVRectangle)
                 gen.UVMode = TrivialRectGenerator.UVModes.BottomCornerUVRectangle;
             gen.Generate();
-            return gen.MakeUnityMesh(false, false);
+            return new fMesh(gen.MakeUnityMesh(false, false));
         }
-        public static fMesh CreateTrivialRectF(float width, float height, UVRegionType eUVType)
+
+
+        public static fMesh CreateRoundRect(float width, float height, float radius, UVRegionType eUVType)
         {
-            return new fMesh(CreateTrivialRect(width, height, eUVType));
+            RoundRectGenerator gen = new RoundRectGenerator() 
+                { Width = width, Height = height, Radius = radius, CornerSteps = 4, Clockwise = false };
+            if (eUVType == UVRegionType.CenteredUVRectangle)
+                gen.UVMode = RoundRectGenerator.UVModes.CenteredUVRectangle;
+            else if (eUVType == UVRegionType.BottomCornerUVRectangle)
+                gen.UVMode = RoundRectGenerator.UVModes.BottomCornerUVRectangle;
+            gen.Generate();
+            return new fMesh(gen.MakeUnityMesh(false, false));
         }
+
+
+
 
 
 

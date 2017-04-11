@@ -29,27 +29,14 @@ namespace f3
 
         public HUDButton ()
 		{
-            Shape = new HUDShape() { Type = HUDShapeType.Disc, Radius = 0.1f };
+            Shape = new HUDShape(HUDShapeType.Disc, 0.1f );
 		}
 
-
-        Mesh make_button_body_mesh()
-        {
-            if (Shape.Type == HUDShapeType.Disc) {
-                return MeshGenerators.CreateTrivialDisc(Shape.Radius, Shape.Slices);
-            } else if (Shape.Type == HUDShapeType.Rectangle) {
-                return MeshGenerators.CreateTrivialRect(Shape.Width, Shape.Height,
-                    Shape.UseUVSubRegion == true ? 
-                        MeshGenerators.UVRegionType.CenteredUVRectangle : MeshGenerators.UVRegionType.FullUVSquare);
-            } else {
-                throw new Exception("[HUDButton::make_button_body_mesh] unknown shape type!");
-            }
-        }
 
         // creates a button in the desired geometry shape
 		public void Create( Material defaultMaterial, Material disabledMaterial = null ) {
             button = new GameObject(UniqueNames.GetNext("HUDButton"));
-			buttonMesh = AppendMeshGO ("disc", make_button_body_mesh(),
+			buttonMesh = AppendMeshGO ("shape", HUDUtil.MakeBackgroundMesh(this.Shape),
                 defaultMaterial, button);
 
 			buttonMesh.transform.Rotate (Vector3.right, -90.0f); // ??
@@ -63,7 +50,7 @@ namespace f3
         // creates a button with a floating primitive in front of the button shape
         public void Create( PrimitiveType eType, Material bgMaterial, Material primMaterial, float fPrimScale = 0.7f  ) {
 			button = new GameObject(UniqueNames.GetNext("HUDButton"));
-            buttonMesh = AppendMeshGO ("disc", make_button_body_mesh(), bgMaterial, button);
+            buttonMesh = AppendMeshGO ("shape", HUDUtil.MakeBackgroundMesh(this.Shape), bgMaterial, button);
 			buttonMesh.transform.Rotate (Vector3.right, -90.0f); // ??
             MaterialUtil.DisableShadows(buttonMesh);
 
@@ -110,7 +97,7 @@ namespace f3
         {
             button = new GameObject(UniqueNames.GetNext("HUDButton"));
 
-            buttonMesh = AppendMeshGO("disc", make_button_body_mesh(), bgMaterial, button);
+            buttonMesh = AppendMeshGO("shape", HUDUtil.MakeBackgroundMesh(this.Shape), bgMaterial, button);
             buttonMesh.transform.Rotate(Vector3.right, -90.0f); // ??
             MaterialUtil.DisableShadows(buttonMesh);
 

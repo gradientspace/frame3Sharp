@@ -28,7 +28,7 @@ namespace f3
                                     string icon,
                                     IGameObjectGenerator addGeometry = null)
         {
-            HUDShape shape = new HUDShape() { Type = HUDShapeType.Disc, Radius = fButtonRadius };
+            HUDShape shape = new HUDShape(HUDShapeType.Disc, fButtonRadius);
             return CreateIconClickButton(shape, fHUDRadius, fAngleHorz, fAngleVert, icon, addGeometry);
         }
 
@@ -37,7 +37,7 @@ namespace f3
                                     string icon,
                                     IGameObjectGenerator addGeometry = null)
         {
-            HUDShape shape = new HUDShape() { Type = HUDShapeType.Rectangle, Width = fButtonWidth, Height = fButtonHeight };
+            HUDShape shape = new HUDShape(HUDShapeType.Rectangle, fButtonWidth, fButtonHeight );
             return CreateIconClickButton(shape, fHUDRadius, fAngleHorz, fAngleVert, icon, addGeometry);
         }
 
@@ -107,7 +107,7 @@ namespace f3
                                             IGameObjectGenerator addGeometry = null)
         {
             return CreateToggleButton(
-                new HUDShape() { Type = HUDShapeType.Disc, Radius = fButtonRadius },
+                new HUDShape(HUDShapeType.Disc, fButtonRadius),
                 fHUDRadius, fAngleHorz, fAngleVert, enabledIcon, disabledIcon, addGeometry);
         }
         public static HUDToggleButton CreateToggleButton(HUDShape shape, float fHUDRadius,
