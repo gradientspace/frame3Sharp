@@ -242,6 +242,18 @@ namespace f3
 
 
 
+        // not sure where these should go...
+        public static void Show(SceneObject so)
+        {
+            so.RootGameObject.Show();
+        }
+        public static void Hide(SceneObject so)
+        {
+            so.RootGameObject.Hide();
+        }
+
+
+
         public static void DestroySO(SceneObject so)
         {
             so.RootGameObject.transform.parent = null;
