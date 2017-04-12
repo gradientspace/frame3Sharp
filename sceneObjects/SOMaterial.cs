@@ -58,6 +58,9 @@ namespace f3
         public static SOMaterial CreateStandard(string sName, Colorf color) {
             return new SOMaterial() { Name = sName, Type = MaterialType.StandardRGBColor, RGBColor = color };
         }
+        public static SOMaterial CreateTransparent(string sName, Colorf color) {
+            return new SOMaterial() { Name = sName, Type = MaterialType.TransparentRGBColor, RGBColor = color };
+        }
         public static SOMaterial CreateTransparentVariant(SOMaterial m, float fAlpha)
         {
             if (m.Type != MaterialType.StandardRGBColor)

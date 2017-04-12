@@ -245,10 +245,14 @@ namespace f3
             SOMaterial soMat = new SOMaterial();
             soMat.Name = unityMat.name;
             soMat.RGBColor = unityMat.color;
-            if ( unityMat.color.a == 1 ) {
-                soMat.Type = SOMaterial.MaterialType.StandardRGBColor;              
-            } else {
+
+            string tag = unityMat.GetTag("RenderType", true);
+            bool bTransparent = (unityMat.color.a < 1 || tag == "Transparent");
+
+            if ( bTransparent ) {
                 soMat.Type = SOMaterial.MaterialType.TransparentRGBColor;
+            } else {
+                soMat.Type = SOMaterial.MaterialType.StandardRGBColor;              
             }
 
             return soMat;
