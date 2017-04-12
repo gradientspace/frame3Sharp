@@ -676,6 +676,7 @@ namespace f3 {
             Scene.RemoveAllSceneObjects();
             Scene.RemoveAllUIElements();
             Scene.SetCurrentTime(0);
+            Scene.SelectionMask = null;
 
             UniqueNames.Reset();
 

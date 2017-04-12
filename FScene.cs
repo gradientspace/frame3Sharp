@@ -17,8 +17,8 @@ namespace f3
     public delegate void TimeChangedHandler(object sender, EventArgs e);
 
 
-	public class FScene : SceneUIParent, SOParent
-	{
+    public class FScene : SceneUIParent, SOParent
+    {
         ChangeHistory history;
         public ChangeHistory History { get { return history; } }
 
@@ -46,10 +46,14 @@ namespace f3
         GameObject scene_objects;
 
 
-		List<SceneObject> vObjects;
-		List<SceneObject> vSelected;
-		List<SceneUIElement> vUIElements;
-		List<GameObject> vBoundsObjects;
+        List<SceneObject> vObjects;
+        List<SceneObject> vSelected;
+        List<SceneUIElement> vUIElements;
+        List<GameObject> vBoundsObjects;
+
+
+        // Objects in Selection Mask will not be selectable, or ray-cast for hit tests
+        public HashSet<SceneObject> SelectionMask = null;
 
 
         // [RMS] deleted objects that are not destroyed are parented to this GO,
@@ -66,23 +70,23 @@ namespace f3
         // camera stuff
         public float[] turntable_angles = { 0.0f, 0.0f };
 
-		public FScene(FContext context)
-		{
+        public FScene(FContext context)
+        {
             this.context = context;
 
             history = new ChangeHistory();
             TypeRegistry = new SORegistry();
 
-            vObjects = new List<SceneObject> ();
-			vSelected = new List<SceneObject> ();
-			vUIElements = new List<SceneUIElement> ();
-			vBoundsObjects = new List<GameObject> ();
+            vObjects = new List<SceneObject>();
+            vSelected = new List<SceneObject>();
+            vUIElements = new List<SceneUIElement>();
+            vBoundsObjects = new List<GameObject>();
             ObjectAnimator = new GenericAnimator();
 
-			sceneRoot = new GameObject ("Scene");
+            sceneRoot = new GameObject("Scene");
             // for animation playbacks
-            sceneRoot.AddComponent<SceneAnimator>().Scene = this;        
-            sceneRoot.AddComponent<UnityPerFrameAnimationBehavior>().Animator = ObjectAnimator;                
+            sceneRoot.AddComponent<SceneAnimator>().Scene = this;
+            sceneRoot.AddComponent<UnityPerFrameAnimationBehavior>().Animator = ObjectAnimator;
 
             scene_objects = new GameObject("scene_objects");
             UnityUtil.AddChild(sceneRoot, scene_objects, false);
@@ -121,7 +125,7 @@ namespace f3
                 Type = SOMaterial.MaterialType.StandardRGBColor, RGBColor = ColorUtil.DarkGrey
             };
 
-            SelectedMaterial = MaterialUtil.CreateStandardMaterial( ColorUtil.SelectionGold );
+            SelectedMaterial = MaterialUtil.CreateStandardMaterial(ColorUtil.SelectionGold);
             FrameMaterial = MaterialUtil.CreateStandardMaterial(ColorUtil.DarkGrey);
             PivotMaterial = MaterialUtil.ToUnityMaterial(PivotSOMaterial);
 
@@ -136,8 +140,8 @@ namespace f3
         }
 
         public GameObject RootGameObject {
-			get { return sceneRoot; }
-		}
+            get { return sceneRoot; }
+        }
 
 
         public double CurrentTime
@@ -161,15 +165,15 @@ namespace f3
 
 
         public event TimeChangedHandler TimeChangedEvent;
-		public event SceneSelectionChangedHandler SelectionChangedEvent;
+        public event SceneSelectionChangedHandler SelectionChangedEvent;
         public event SceneModifiedHandler ChangedEvent;
 
-		protected virtual void OnSelectionChanged(EventArgs e) {
+        protected virtual void OnSelectionChanged(EventArgs e) {
             FUtil.SafeSendEvent(SelectionChangedEvent, this, e);
-		}
-		protected virtual void OnSceneChanged(SceneObject so, SceneChangeType type) {
+        }
+        protected virtual void OnSceneChanged(SceneObject so, SceneChangeType type) {
             FUtil.SafeSendAnyEvent(ChangedEvent, this, so, type);
-		}
+        }
 
 
 
@@ -178,7 +182,7 @@ namespace f3
             get { return defaultPrimitiveType; }
             set { if (value.hasTag(SOType.TagPrimitive) == false)
                     throw new InvalidOperationException("Scene.DefaultPrimitiveType: tried to set to type " + value.identifier + " which is not a Primitive type!");
-                  defaultPrimitiveType = value;
+                defaultPrimitiveType = value;
             }
         }
 
@@ -188,7 +192,7 @@ namespace f3
         {
             AxisAlignedBox3f b = UnityUtil.InvalidBounds;
 
-            foreach ( SceneObject so in SceneObjects ) {
+            foreach (SceneObject so in SceneObjects) {
                 b.Contain(so.GetTransformedBoundingBox());
             }
             if (b == UnityUtil.InvalidBounds || bIncludeBoundsObjects)
@@ -207,10 +211,10 @@ namespace f3
             get { return vBoundsObjects; }
         }
         public void AddWorldBoundsObject(GameObject obj)
-		{
-			vBoundsObjects.Add (obj);
-			obj.transform.SetParent (scene_objects.transform, false);
-		}
+        {
+            vBoundsObjects.Add(obj);
+            obj.transform.SetParent(scene_objects.transform, false);
+        }
         public void RemoveWorldBoundsObject(GameObject obj)
         {
             obj.transform.SetParent(null);
@@ -218,13 +222,13 @@ namespace f3
         }
 
 
-        public List<SceneObject> SceneObjects { 
-			get { return vObjects; }
-		}
+        public List<SceneObject> SceneObjects {
+            get { return vObjects; }
+        }
 
         // add new SO to scene
         public void AddSceneObject(SceneObject so, bool bUseExistingWorldPos = false)
-		{
+        {
             DebugUtil.Log(1, "[Scene.AddSceneObject] adding {0}", so.Name);
 
             vObjects.Add(so);
@@ -255,7 +259,7 @@ namespace f3
         }
         public void RemoveSceneObjectFromParentSO(SceneObject so)
         {
-            if ( vObjects.Contains(so) == false )
+            if (vObjects.Contains(so) == false)
                 vObjects.Add(so);
             so.RootGameObject.transform.SetParent(null);
             so.RootGameObject.transform.SetParent(scene_objects.transform, true);
@@ -318,15 +322,18 @@ namespace f3
 
 
         public ReadOnlyCollection<SceneObject> Selected {
-			get { return vSelected.AsReadOnly(); }
-		}
+            get { return vSelected.AsReadOnly(); }
+        }
 
-		public bool IsSelected(SceneObject s) {
-			var found = vSelected.Find (x => x == s);
-			return (found != null);
-		}
+        public bool IsSelected(SceneObject s) {
+            var found = vSelected.Find(x => x == s);
+            return (found != null);
+        }
 
 
+        bool is_selectable(SceneObject s) {
+            return (SelectionMask == null || SelectionMask.Contains(s) == false );
+        }
 
 		public bool Select(SceneObject s, bool bReplace)
         {
@@ -336,6 +343,8 @@ namespace f3
                 DebugUtil.Log(2, "FScene.Select: active tools prevent selection change");
                 return false;
             }
+            if (!is_selectable(s))
+                return false;
 
 			if (!IsSelected (s)) {
                 if (bReplace)
@@ -431,6 +440,17 @@ namespace f3
 
 
 
+        Func<SceneObject, bool> mask_filter(Func<SceneObject,bool> filterIn)
+        {
+            return (so) => {
+                if (filterIn != null && filterIn(so) == false)
+                    return false;
+                if (SelectionMask.Contains(so))
+                    return false;
+                return true;
+            };
+        }
+
 
 		public bool FindUIRayIntersection(Ray ray, out UIRayHit hit) {
             return HUDUtil.FindNearestRayIntersection(vUIElements, ray, out hit);
@@ -441,7 +461,8 @@ namespace f3
         }
 
         public bool FindSORayIntersection(Ray ray, out SORayHit hit, Func<SceneObject, bool> filter = null) {
-            return HUDUtil.FindNearestRayIntersection(SceneObjects, ray, out hit, filter);
+            return HUDUtil.FindNearestRayIntersection(SceneObjects, ray, out hit,
+                (SelectionMask == null) ? filter : mask_filter(filter));
         }
 
         public bool FindSORayIntersection_PivotPriority(Ray ray, out SORayHit hit, Func<SceneObject, bool> filter = null)
@@ -449,7 +470,8 @@ namespace f3
             bool bHitPivot = HUDUtil.FindNearestRayIntersection(SceneObjects, ray, out hit, (s) => { return s is PivotSO; });
             if (bHitPivot)
                 return true;
-            return HUDUtil.FindNearestRayIntersection(SceneObjects, ray, out hit, filter);
+            return HUDUtil.FindNearestRayIntersection(SceneObjects, ray, out hit,
+                                (SelectionMask == null) ? filter : mask_filter(filter));
         }
 
 
@@ -469,6 +491,8 @@ namespace f3
 				}
 			}
 			foreach (var so in vObjects) {
+                if (!is_selectable(so))
+                    continue;
 				SORayHit objHit;
 				if (so.FindRayIntersection (ray, out objHit)) {
 					if (bestSOHit == null || objHit.fHitDist < bestSOHit.fHitDist)
