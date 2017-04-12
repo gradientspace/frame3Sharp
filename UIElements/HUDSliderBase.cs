@@ -27,12 +27,21 @@ namespace f3
         fMaterial tickMaterial;
         Colorf tickColor = Colorf.VideoBlack;
 
-        bool snap_to_ticks = false;
-        public virtual bool EnableSnapToTicks
+
+        public enum TickSnapModes
         {
-            get { return snap_to_ticks; }
-            set { snap_to_ticks = value; update_value(current_value, false); }
+            NoSnapping,
+            AlwaysSnapToNearest,
+            SnapWithinThreshold
         }
+        TickSnapModes snap_mode;
+        public virtual TickSnapModes TickSnapMode
+        {
+            get { return snap_mode; }
+            set { snap_mode = value; update_value(current_value, false); }
+        }
+
+        public float TickSnapThreshold = 0.05f;
 
         public virtual Vector2f TickDimensions {
             get { return new Vector2f(Height * 0.1f, Height * 1.0f); }
@@ -312,14 +321,17 @@ namespace f3
 
             snapped_value = current_value;
 
-            if (EnableSnapToTicks && TickCount > 0) {
-                double fTickSpan = 1.0 / (TickCount-1);
-                double fSnapped = Snapping.SnapToIncrement(snapped_value, fTickSpan);
-                fSnapped = MathUtil.Clamp(fSnapped, 0, 1);
-                // [RMS] only snap when close enough to tick?
-                //double fSnapT = fTickSpan * 0.25;
-                //if (Math.Abs(fSnapped - snapped_value) < fSnapT)
-                    snapped_value = fSnapped;
+            if (TickSnapMode != TickSnapModes.NoSnapping && TickCount > 0) {
+                if (TickSnapMode == TickSnapModes.AlwaysSnapToNearest) {
+                    double fTickSpan = 1.0 / (TickCount-1);
+                    double fSnapped = Snapping.SnapToIncrement(snapped_value, fTickSpan);
+                    fSnapped = MathUtil.Clamp(fSnapped, 0, 1);
+                } else {
+                    double fTickSpan = 1.0 / (TickCount-1);
+                    double fSnapped = Snapping.SnapToIncrement(snapped_value, fTickSpan);
+                    if (Math.Abs(fSnapped - snapped_value) < TickSnapThreshold)
+                        snapped_value = fSnapped;
+                }
             }
 
             update_handle_position();
