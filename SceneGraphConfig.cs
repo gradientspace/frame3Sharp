@@ -99,6 +99,10 @@ namespace f3
         {
             get { return "StandardMaterials/default_particle"; }
         }
+        public static string DefaultDropShadowMaterialPath
+        {
+            get { return "StandardMaterials/drop_shadow_mat"; }
+        }
 
         public static string LastFileOpenPath
         {

@@ -146,6 +146,34 @@ namespace f3
 
 
 
+        /// <summary>
+        /// This is very hacky.
+        /// </summary>
+        public static void AddDropShadow(HUDStandardItem item, Colorf color, float falloffWidth, Vector2f offset, float fZShift)
+        {
+            if (item is IBoxModelElement == false)
+                throw new Exception("HUDUtil.AddDropShadow: can only add drop shadow to IBoxModelElement");
+
+            // [TODO] need interface that provides a HUDShape?
+            var shape = item as IBoxModelElement;
+            float w = shape.Size2D.x + falloffWidth;
+            float h = shape.Size2D.y + falloffWidth;
+
+            fRectangleGameObject meshGO = GameObjectFactory.CreateRectangleGO("shadow", w, h, color, false);
+            meshGO.RotateD(Vector3f.AxisX, -90.0f);
+            fMaterial dropMat = MaterialUtil.CreateDropShadowMaterial(color, w, h, falloffWidth);
+            meshGO.SetMaterial(dropMat);
+
+            item.AppendNewGO(meshGO, item.RootGameObject, false);
+            BoxModel.Translate(meshGO, offset, fZShift);
+
+            Vector3 posW = item.RootGameObject.transform.TransformPoint(meshGO.GetLocalPosition());
+            ((Material)dropMat).SetVector("_Center", new Vector4(posW.x, posW.y, posW.z, 0));
+
+        }
+
+
+
 
         public static void ShowCenteredStaticPopupMessage(string sText, Cockpit cockpit)
         {

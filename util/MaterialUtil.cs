@@ -98,6 +98,17 @@ namespace f3
         }
 
 
+        public static fMaterial CreateDropShadowMaterial(Colorf c, float w, float h, float falloff)
+        {
+            Material m = SafeLoadMaterial(SceneGraphConfig.DefaultDropShadowMaterialPath);
+            m.SetFloat("_FalloffWidth", falloff);
+            m.SetVector("_Center", new Vector4(0, 0, 0, 0));
+            m.SetVector("_Extents", new Vector4(w/2, h/2, 0, 0));
+            m.color = c;
+            return new fMaterial(m);
+        }
+
+
         public static Material CreateTextMeshMaterial()
         {
             Material m = SafeLoadMaterial("StandardMaterials/default_text_material");
