@@ -130,10 +130,11 @@ namespace f3
                 string[] filterPatterns, string sPatternDesc)
         {
             ShowingExternalPopup = true;
+
+#if UNITY_STANDALONE_WIN
             // tinyfd changes CWD (?), and this makes Unity unhappy
             string curDirectory = Directory.GetCurrentDirectory();
 
-#if UNITY_STANDALONE_WIN
             IntPtr p = tinyfd_openFileDialog(sDialogTitle, sInitialPathAndFile, 
                 filterPatterns.Length, filterPatterns, sPatternDesc, 0);
 
@@ -160,10 +161,11 @@ namespace f3
                 string[] filterPatterns, string sPatternDesc)
         {
             ShowingExternalPopup = true;
+
+#if UNITY_STANDALONE_WIN
             // tinyfd changes CWD (?), and this makes Unity unhappy
             string curDirectory = Directory.GetCurrentDirectory();
 
-#if UNITY_STANDALONE_WIN
             IntPtr p = tinyfd_saveFileDialog(sDialogTitle, sInitialPathAndFile, 
                 filterPatterns.Length, filterPatterns, sPatternDesc);
 
