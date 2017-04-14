@@ -326,6 +326,7 @@ namespace f3
                     double fTickSpan = 1.0 / (TickCount-1);
                     double fSnapped = Snapping.SnapToIncrement(snapped_value, fTickSpan);
                     fSnapped = MathUtil.Clamp(fSnapped, 0, 1);
+                    snapped_value = fSnapped;
                 } else {
                     double fTickSpan = 1.0 / (TickCount-1);
                     double fSnapped = Snapping.SnapToIncrement(snapped_value, fTickSpan);
