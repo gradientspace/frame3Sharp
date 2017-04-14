@@ -40,6 +40,7 @@ namespace f3
 
     public interface ILayoutEngine
     {
+        bool Contains(SceneUIElement element);
         void Add(SceneUIElement element, LayoutOptions options);
         void Remove(SceneUIElement element, bool bDestroy);
 

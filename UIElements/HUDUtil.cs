@@ -227,8 +227,11 @@ namespace f3
         {
             AnimatedDismissHUDItem anim = hudItem.RootGameObject.AddComponent<AnimatedDismissHUDItem>();
             anim.CompleteCallback += () => {
-                anim.HUDItem.ClearGameObjects(false);
+                if ( bDestroy )
+                    anim.HUDItem.ClearGameObjects(false);       // what is this line for??
                 cockpit.RemoveUIElement(anim.HUDItem, bDestroy);
+                if (bDestroy == false)
+                    anim.HUDItem.IsVisible = false;
             };
             anim.Play(hudItem, fDuration);
         }

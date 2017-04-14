@@ -69,6 +69,11 @@ namespace f3
         }
 
 
+        public bool Contains(SceneUIElement element)
+        {
+            return has_item(element);
+        }
+
         public void Add(SceneUIElement element, LayoutOptions options)
         {
             if ( has_item(element) ) 
@@ -80,7 +85,7 @@ namespace f3
 
             LayoutItem newitem = new LayoutItem() { element = element, flags = options.Flags };
             items.Add(newitem);
-            Add(newitem.element as HUDStandardItem, options);
+            add(newitem.element as HUDStandardItem, options);
 
             // catch removals that did not go through Remove()
             element.OnDisconnected += Element_OnDisconnected;
@@ -112,6 +117,7 @@ namespace f3
                 throw new Exception("LayoutEngine2D.Add: element must be a HUDStandardItem");
 
             remove_item(element);
+            Layout.RemoveLayoutItem(element);
 
             // this will remove from cockpit after transition
             if ((item.flags & LayoutFlags.AnimatedDismiss) != 0)
@@ -123,14 +129,18 @@ namespace f3
 
 
 
-        public void Add(HUDStandardItem element, LayoutOptions options)
+        void add(HUDStandardItem element, LayoutOptions options)
         {
+            if (element.IsVisible == false)
+                element.IsVisible = true;
+
             IBoxModelElement elemBoxModel = element as IBoxModelElement;
 
             Frame3f viewFrame = Cockpit.GetViewFrame2D();
             //AxisAlignedBox2f uiBounds = Cockpit.GetOrthoViewBounds();
             //float pixelScale = Cockpit.GetPixelScale();
 
+            element.SetObjectFrame(Frame3f.Identity);
             HUDUtil.PlaceInViewPlane(element, viewFrame);
             Cockpit.AddUIElement(element);
 
@@ -145,7 +155,8 @@ namespace f3
             Layout.AddLayoutItem(element, pinSourceF, pinTargetF, this.StandardDepth + options.DepthShift);
 
             // auto-show
-            HUDUtil.AnimatedShow(element);
+            if ( (options.Flags & LayoutFlags.AnimatedShow) != 0 )
+                HUDUtil.AnimatedShow(element);
         }
 
 
