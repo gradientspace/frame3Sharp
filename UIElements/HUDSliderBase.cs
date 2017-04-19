@@ -18,6 +18,16 @@ namespace f3
         Frame3f handleStart;
 
 
+        protected float SliderWidth = 10;
+        protected float SliderHeight = 1;
+        protected Colorf bgColor = Colorf.White;
+
+
+        protected Colorf handleColor = Colorf.Black;
+        protected fMaterial handleMaterial;
+
+
+
         int tick_count = 0;
         public virtual int TickCount
         {
@@ -27,6 +37,7 @@ namespace f3
         fMaterial tickMaterial;
         Colorf tickColor = Colorf.VideoBlack;
 
+        public bool TicksAreVisible { get; set; }
 
         public enum TickSnapModes
         {
@@ -45,6 +56,36 @@ namespace f3
 
         public virtual Vector2f TickDimensions {
             get { return new Vector2f(Height * 0.1f, Height * 1.0f); }
+        }
+
+
+        public enum LabelPositionType
+        {
+            CenteredBelow,
+            CenteredAbove,
+            BelowLeftAligned,
+            BelowRightAligned
+        }
+        class PositionLabel {
+            public string text;
+            public Colorf color;
+            public LabelPositionType position;
+            public Vector2f offset;
+            public fTextGameObject go;
+        };
+        Dictionary<double, PositionLabel> Labels = new Dictionary<double, PositionLabel>();
+
+        public float LabelTextHeight { get; set; }
+        public bool LabelsAreVisible { get; set; }
+
+
+
+
+        public HUDSliderBase()
+        {
+            TicksAreVisible = true;
+            LabelsAreVisible = true;
+            LabelTextHeight = SliderHeight * 0.5f;
         }
 
 
@@ -76,12 +117,6 @@ namespace f3
 
 
 
-        protected float SliderWidth = 10;
-        protected float SliderHeight = 1;
-        protected Colorf bgColor = Colorf.White;
-
-        protected Colorf handleColor = Colorf.Black;
-        protected fMaterial handleMaterial;
 
 
         
@@ -91,7 +126,7 @@ namespace f3
         /// Default is a kind of ugly large triangle underneath midline...
         /// Override to provide your own visuals. Return null for no handle.
         /// </summary>
-        public virtual fGameObject create_handle_go(fMaterial handleMaterial)
+        protected virtual fGameObject create_handle_go(fMaterial handleMaterial)
         {
             fTriangleGameObject handle = GameObjectFactory.CreateTriangleGO(
                 "handle", Height, Height, handleMaterial.color, true);
@@ -103,7 +138,7 @@ namespace f3
         /// <summary>
         /// Update handle sizing. Width and Height here are full slider width/height
         /// </summary>
-        public virtual void update_handle_go(fGameObject handleGO, float width, float height)
+        protected virtual void update_handle_go(fGameObject handleGO, float width, float height)
         {
             if ( handleGO is fTriangleGameObject == false )
                 DebugUtil.Error("HUDSliderBase: handle is not standard type but get_handle_offset not overloaded!");
@@ -116,7 +151,7 @@ namespace f3
         /// <summary>
         /// Get up/down shift of handle relative to midline of slider.
         /// </summary>
-        public virtual float get_handle_offset(fGameObject handleGO)
+        protected virtual float get_handle_offset(fGameObject handleGO)
         {
             if ( handleGO is fTriangleGameObject == false )
                 DebugUtil.Error("HUDSliderBase: handle is not standard type but get_handle_offset not overloaded!");
@@ -129,7 +164,7 @@ namespace f3
 
 
         // override this to add extra UI stuff that 
-        public virtual void create_visuals_geometry()
+        protected virtual void create_visuals_geometry()
         {
         }
 
@@ -208,6 +243,30 @@ namespace f3
         }
 
 
+
+        public void AddLabel(double atValue, string text, Colorf color, LabelPositionType position, Vector2f offset )
+        {
+            PositionLabel label = new PositionLabel();
+            label.text = text;
+            label.color = color;
+            label.position = position;
+            label.offset = offset;
+            Labels[atValue] = label;
+        }
+
+        public void ClearLabels()
+        {
+            foreach ( var labelinfo in Labels.Values ) {
+                if (labelinfo.go != null) {
+                    RemoveGO(labelinfo.go);
+                    labelinfo.go.Destroy();
+                }
+            }
+            Labels.Clear();
+        }
+
+
+
         protected virtual void update_geometry()
         {
             if (rootGO == null)
@@ -220,12 +279,12 @@ namespace f3
                 update_handle_go(handleGO, SliderWidth, SliderHeight);
 
             update_handle_position();
-
             update_ticks();
+            update_labels();
         }
 
 
-        void update_handle_position()
+        protected void update_handle_position()
         {
             if (handleGO == null)
                 return;
@@ -236,6 +295,44 @@ namespace f3
             float dz = get_handle_offset(handleGO);
             handleF.Translate(dz * handleF.Z);
             handleGO.SetLocalFrame(handleF);
+        }
+
+
+
+
+        protected void update_labels()
+        {
+            AxisAlignedBox2f localBounds = BoxModel.LocalBounds(this);
+
+            foreach ( var pair in Labels ) {
+                float t = (float)(pair.Key);
+                PositionLabel labelinfo = pair.Value;
+
+                if ( labelinfo.go == null ) {
+                    BoxPosition boxPos = BoxPosition.CenterTop;
+                    if (labelinfo.position == LabelPositionType.CenteredAbove)
+                        boxPos = BoxPosition.CenterBottom;
+                    else if (labelinfo.position == LabelPositionType.BelowLeftAligned)
+                        boxPos = BoxPosition.TopLeft;
+                    else if (labelinfo.position == LabelPositionType.BelowRightAligned)
+                        boxPos = BoxPosition.TopRight;
+
+                    labelinfo.go = GameObjectFactory.CreateTextMeshGO("slider_label", labelinfo.text,
+                        labelinfo.color, LabelTextHeight, boxPos);
+                    AppendNewGO(labelinfo.go, rootGO, false);
+                }
+
+                if (labelinfo.position == LabelPositionType.CenteredBelow ||
+                    labelinfo.position == LabelPositionType.BelowLeftAligned ||
+                    labelinfo.position == LabelPositionType.BelowRightAligned) {
+                    BoxModel.MoveTo(labelinfo.go, localBounds.BottomLeft, -Height * 0.01f);
+                } else if (labelinfo.position == LabelPositionType.CenteredAbove) {
+                    BoxModel.MoveTo(labelinfo.go, localBounds.TopLeft, -Height * 0.01f);
+                } else
+                    throw new NotSupportedException("HUDSliderBase.update_labels : unhandled LabelPositionType");
+
+                BoxModel.Translate(labelinfo.go, new Vector2f(t * Width, 0) + labelinfo.offset );
+            }
         }
 
 
@@ -275,8 +372,15 @@ namespace f3
 
 
         int tick_count_cache = -1;
-        void update_ticks()
+        protected void update_ticks()
         {
+            if ( TicksAreVisible == false ) {
+                foreach (var tick in ticks)
+                    tick.go.SetVisible(false);
+                return;
+            }
+
+
             tickMaterial.color = tickColor;
             Vector2f tickSize = TickDimensions;
             AxisAlignedBox2f localBounds = BoxModel.LocalBounds(this);
@@ -342,7 +446,7 @@ namespace f3
         }
 
 
-        double get_slider_tx(Vector3f posW)
+        protected double get_slider_tx(Vector3f posW)
         {
             // assume slider is centered at origin of root node
             Vector3f posL = rootGO.PointToLocal(posW);
@@ -352,25 +456,25 @@ namespace f3
         }
 
 
-        void onHandlePress(InputEvent e, Vector3f hitPosW)
+        protected void onHandlePress(InputEvent e, Vector3f hitPosW)
         {
             FUtil.SafeSendEvent(OnValueChangeBegin, this, snapped_value);
         }
 
-        void onHandlePressDrag(InputEvent e, Vector3f hitPosW)
+        protected void onHandlePressDrag(InputEvent e, Vector3f hitPosW)
         {
             double t = get_slider_tx(hitPosW);
             update_value(t, true);
         }
 
-        void onSliderbarPress(InputEvent e, Vector3f hitPosW)
+        protected void onSliderbarPress(InputEvent e, Vector3f hitPosW)
         {
             double t = get_slider_tx(hitPosW);
             FUtil.SafeSendEvent(OnValueChangeBegin, this, snapped_value);
             update_value(t, true);
         }
 
-        void onSliderBarPressDrag(InputEvent e, Vector3f hitPosW)
+        protected void onSliderBarPressDrag(InputEvent e, Vector3f hitPosW)
         {
             double t = get_slider_tx(hitPosW);
             update_value(t, true);
@@ -378,7 +482,7 @@ namespace f3
 
 
 
-        void onSliderbarClick(InputEvent e, Vector3f hitPosW)
+        protected void onSliderbarClick(InputEvent e, Vector3f hitPosW)
         {
             FUtil.SafeSendEvent(OnClicked, this, e);
         }
