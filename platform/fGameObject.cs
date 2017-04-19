@@ -145,13 +145,13 @@ namespace f3
             go.GetComponent<MeshFilter>().sharedMesh = m;
         }
 
-        public virtual void SetMaterial(fMaterial mat)
+        public virtual void SetMaterial(fMaterial mat, bool bShared = false)
         {
-            go.GetComponent<Renderer>().material = mat;
+            go.SetMaterial(mat, bShared);
         }
         public virtual fMaterial GetMaterial()
         {
-            return new fMaterial(go.GetComponent<Renderer>().material);
+            return new fMaterial(go.GetMaterial());
         }
 
         public virtual void SetColor(Colorf color)
@@ -727,6 +727,91 @@ namespace f3
 
 
 
+
+
+
+
+    public class fRingGameObject : fMeshGameObject
+    {
+        float outerRadius = 1;
+        float innerRadius = 1;
+        float startAngleDeg = 0;
+        float endAngleDeg = 360;
+        bool bDiscValid;
+
+        public fRingGameObject() : base()
+        {
+            bDiscValid = false;
+        }
+        public fRingGameObject(GameObject go, fMesh mesh, float outerRad = 1, float innerRad = 0.5f) : base(go, mesh)
+        {
+            outerRadius = outerRad;
+            innerRadius = innerRad;
+            bDiscValid = false;
+            SetLocalScale(Vector3f.One);
+        }
+
+
+        public virtual void Initialize(GameObject go, fMesh mesh, float outerRad = 1, float innerRad = 0.5f)
+        {
+            base.Initialize(go, mesh);
+            outerRadius = outerRad;
+            innerRadius = innerRad;
+            bDiscValid = false;
+            SetLocalScale(Vector3f.One);
+        }
+
+
+        public void SetOuterRadius(float fRadius) {
+            if ( outerRadius != fRadius ) {
+                outerRadius = fRadius;
+                bDiscValid = false;
+            }
+        }
+        public float GetOuterRadius() { return outerRadius; }
+
+        public void SetInnerRadius(float fRadius) {
+            if ( innerRadius != fRadius ) {
+                innerRadius = fRadius;
+                bDiscValid = false;
+            }
+        }
+        public float GetInnerRadius() { return innerRadius; }
+
+        public void SetStartAngleDeg(float fAngle) {
+            if ( startAngleDeg != fAngle ) {
+                startAngleDeg = fAngle;
+                bDiscValid = false;
+            }
+        }
+        public float GetStartAngleDeg() { return startAngleDeg; }
+
+        public void SetEndAngleDeg(float fAngle) {
+            if ( endAngleDeg != fAngle ) {
+                endAngleDeg = fAngle;
+                bDiscValid = false;
+            }
+        }
+        public float GetEndAngleDeg() { return endAngleDeg; }
+
+
+        public override void PreRender()
+        {
+            if (bDiscValid)
+                return;
+
+            PuncturedDiscGenerator discGen = new PuncturedDiscGenerator() {
+                OuterRadius = outerRadius, InnerRadius = innerRadius,
+                StartAngleDeg = startAngleDeg, EndAngleDeg = endAngleDeg, Clockwise = false
+            };
+            discGen.Generate();
+            fMesh newMesh = new fMesh(discGen.MakeUnityMesh());
+            UpdateMesh(newMesh, true, true);
+
+            bDiscValid = true;
+        }
+
+    }
 
 
 

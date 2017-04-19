@@ -119,6 +119,24 @@ namespace f3
         }
 
 
+
+        // disc with radius=1, lying in plane, centered at (0,0)
+        public static fRingGameObject CreateRingGO(string sName, float fInnerRadius, float fOuterRadius, Colorf color, bool bCollider)
+        {
+            return CreateRingGO(sName, fInnerRadius, fOuterRadius, MaterialUtil.CreateFlatMaterialF(color), false, bCollider);
+        }
+        public static fRingGameObject CreateRingGO(string sName, float fInnerRadius, float fOuterRadius, fMaterial material, bool bShareMaterial, bool bCollider)
+        {
+            GameObject go = new GameObject(sName);
+            fMesh ringMesh = MeshGenerators.CreatePuncturedDisc(fInnerRadius, fOuterRadius, 32);
+            initialize_meshgo(go, ringMesh, bCollider, true);
+            go.SetMaterial(material, bShareMaterial);
+            return new fRingGameObject( go, new fMesh(go.GetSharedMesh()), fOuterRadius, fInnerRadius);
+        }
+
+
+
+
         public static fLineGameObject CreateLineGO(string sName, Colorf color, float fLineWidth)
         {
             GameObject go = new GameObject(sName);
@@ -129,7 +147,6 @@ namespace f3
             lgo.SetLineWidth(fLineWidth);
             return lgo;
         }
-
 
 
         public static fCircleGameObject CreateCircleGO(string sName, float fRadius, Colorf color, float fLineWidth)
