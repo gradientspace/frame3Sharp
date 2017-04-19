@@ -154,6 +154,7 @@ namespace f3
         public Vector2f vTouchPosDelta2D;
         public Vector2f vTouchPosition2D;
         public Ray3f vTouchWorldRay;
+        public Ray3f vTouchOrthoWorldRay;
 
         public bool bSecondTouchPressed;
         public bool bSecondTouchDown;
@@ -322,7 +323,10 @@ namespace f3
             get_touch(t, ref bTouchPressed, ref bTouchDown, ref bTouchReleased,
                 ref vTouchPosition2D, ref vTouchPosDelta2D);
             vTouchWorldRay = s.MouseController.CurrentCursorWorldRay();
+            if (s.Use2DCockpit)
+                vTouchOrthoWorldRay = s.MouseController.CurrentCursorOrthoRay();            
 
+            DebugUtil.Log(2, "TOUCH pos2d {0}    rayorigin {1}", vTouchPosition2D, vTouchWorldRay.Origin);
 
             if (nTouchCount > 1) {
                 Touch t2 = Input.touches[1];
@@ -356,6 +360,7 @@ namespace f3
         {
             InputState s2 = this;
             s2.vMouseWorldRay = s2.vMouseOrthoWorldRay;
+            s2.vTouchWorldRay = s2.vTouchOrthoWorldRay;
             return s2;
         }
 

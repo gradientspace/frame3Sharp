@@ -13,9 +13,9 @@ namespace f3
 
         FContext context;
 
-        float TouchRotateSpeed = 0.1f;
-        float TouchZoomSpeed = 0.00025f;
-        float TouchPanSpeed = 0.00025f;
+        public float TouchRotateSpeed = 0.1f;
+        public float TouchZoomSpeed = 0.00025f;
+        public float TouchPanSpeed = 0.00025f;
 
         Vector2f downPos;
         Vector2f downPos2;
