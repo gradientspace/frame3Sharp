@@ -56,6 +56,8 @@ namespace f3
                 case TextType.TextMeshPro:
 #if G3_ENABLE_TEXT_MESH_PRO
                     return (text_component as TextMeshPro).text;
+#else
+                    return null;
 #endif
             }
         }
@@ -108,10 +110,14 @@ namespace f3
         public float start_alpha = float.MaxValue;
         public override void SetAlphaMultiply(float fT)
         {
+#if G3_ENABLE_TEXT_MESH_PRO            
             TextMeshPro tm = this.gameObject.GetComponent<TextMeshPro>();
             if (start_alpha == float.MaxValue)
                 start_alpha = tm.alpha;
             tm.alpha = fT; // * start_alpha;
+#else
+            throw new NotImplementedException();
+#endif
         }
     }
 
@@ -305,10 +311,9 @@ namespace f3
         public static bool HaveTextMeshPro { get { return false; } }
 
         public static fTextGameObject CreateTextMeshProGO(
-            string sName, string sText,
-            Colorf textColor, float fTextHeight,
-            Vector2f areaDimensions,
-            BoxPosition textOrigin = BoxPosition.Center,
+            string sName, string sText, 
+            Colorf textColor, float fTextHeight, 
+            BoxPosition textOrigin = BoxPosition.Center, 
             float fOffsetZ = -0.01f)
         {
             throw new NotImplementedException("you need to #define G3_ENABLE_TEXT_MESH_PRO to use TextMeshPro (!)");
@@ -316,8 +321,10 @@ namespace f3
 
 
         public static fTextAreaGameObject CreateTextAreaGO(
-            string sName, string sText,
-            Colorf textColor, float fTextHeight,
+            string sName, string sText, 
+            Colorf textColor, float fTextHeight, 
+            Vector2f areaDimensions,
+            HorizontalAlignment alignment = HorizontalAlignment.Left,
             BoxPosition textOrigin = BoxPosition.Center,
             float fOffsetZ = -0.01f)
         {
