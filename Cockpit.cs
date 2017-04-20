@@ -183,7 +183,7 @@ namespace f3
         }
 
 
-        // these should be called by parent Unity functions
+        // called by FContext.PushCockpit()
         public void Start( ICockpitInitializer setup )
 		{
 			// create invisible plane for cockpit

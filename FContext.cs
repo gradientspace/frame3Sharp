@@ -621,6 +621,7 @@ namespace f3 {
             }
 
             Cockpit c = new Cockpit(this);
+            activeCockpit = c;
             if ( Use2DCockpit )
                 c.UIElementLayer = FPlatform.UILayer;
             c.Start(initializer);
@@ -628,7 +629,6 @@ namespace f3 {
                 c.InitializeTracking(trackingInitializer);
             inputBehaviors.Add(c.InputBehaviors);
             overrideBehaviors.Add(c.OverrideBehaviors);
-            activeCockpit = c;
 
             mouseCursor.ResetCursorToCenter();
         }

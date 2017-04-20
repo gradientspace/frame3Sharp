@@ -163,7 +163,8 @@ namespace f3
 
 
 
-        // override this to add extra UI stuff that 
+        // override this to add extra UI stuff 
+        // [TODO] remove this? what for? 
         protected virtual void create_visuals_geometry()
         {
         }
@@ -244,17 +245,23 @@ namespace f3
 
 
 
-        public void AddLabel(double atValue, string text, Colorf color, LabelPositionType position, Vector2f offset )
+        public virtual void AddLabel(double atValue, string text, Colorf color, LabelPositionType position, Vector2f offset )
         {
             PositionLabel label = new PositionLabel();
             label.text = text;
             label.color = color;
             label.position = position;
             label.offset = offset;
+
+            if ( Labels.ContainsKey(atValue) ) {
+                RemoveGO(Labels[atValue].go);
+                Labels[atValue].go.Destroy();
+            }
+
             Labels[atValue] = label;
         }
 
-        public void ClearLabels()
+        public virtual void ClearLabels()
         {
             foreach ( var labelinfo in Labels.Values ) {
                 if (labelinfo.go != null) {
@@ -284,7 +291,7 @@ namespace f3
         }
 
 
-        protected void update_handle_position()
+        protected virtual void update_handle_position()
         {
             if (handleGO == null)
                 return;
@@ -372,7 +379,7 @@ namespace f3
 
 
         int tick_count_cache = -1;
-        protected void update_ticks()
+        protected virtual void update_ticks()
         {
             if ( TicksAreVisible == false ) {
                 foreach (var tick in ticks)
@@ -446,7 +453,7 @@ namespace f3
         }
 
 
-        protected double get_slider_tx(Vector3f posW)
+        protected virtual double get_slider_tx(Vector3f posW)
         {
             // assume slider is centered at origin of root node
             Vector3f posL = rootGO.PointToLocal(posW);
@@ -456,25 +463,25 @@ namespace f3
         }
 
 
-        protected void onHandlePress(InputEvent e, Vector3f hitPosW)
+        protected virtual void onHandlePress(InputEvent e, Vector3f hitPosW)
         {
             FUtil.SafeSendEvent(OnValueChangeBegin, this, snapped_value);
         }
 
-        protected void onHandlePressDrag(InputEvent e, Vector3f hitPosW)
+        protected virtual void onHandlePressDrag(InputEvent e, Vector3f hitPosW)
         {
             double t = get_slider_tx(hitPosW);
             update_value(t, true);
         }
 
-        protected void onSliderbarPress(InputEvent e, Vector3f hitPosW)
+        protected virtual void onSliderbarPress(InputEvent e, Vector3f hitPosW)
         {
             double t = get_slider_tx(hitPosW);
             FUtil.SafeSendEvent(OnValueChangeBegin, this, snapped_value);
             update_value(t, true);
         }
 
-        protected void onSliderBarPressDrag(InputEvent e, Vector3f hitPosW)
+        protected virtual void onSliderBarPressDrag(InputEvent e, Vector3f hitPosW)
         {
             double t = get_slider_tx(hitPosW);
             update_value(t, true);
@@ -482,7 +489,7 @@ namespace f3
 
 
 
-        protected void onSliderbarClick(InputEvent e, Vector3f hitPosW)
+        protected virtual void onSliderbarClick(InputEvent e, Vector3f hitPosW)
         {
             FUtil.SafeSendEvent(OnClicked, this, e);
         }

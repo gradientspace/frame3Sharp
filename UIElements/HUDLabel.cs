@@ -12,6 +12,7 @@ namespace f3
     {
         fGameObject entry;
         fGameObject bgMesh;
+        fGameObject border;
         fTextGameObject textMesh;
 
         public HUDShape Shape { get; set; }
@@ -35,6 +36,14 @@ namespace f3
             get { return disabled_text_color; }
             set { disabled_text_color = value; UpdateText(); }
         }
+
+
+        // [TODO] expose these properly
+        public bool EnableBorder = false;
+        public float BorderWidth = 1.0f;
+        public Colorf BorderColor = Colorf.DarkSlateGrey;
+
+
 
         public enum HorizontalAlignment { Left, Center, Right }
         public HorizontalAlignment AlignmentHorz { get; set; }
@@ -68,6 +77,18 @@ namespace f3
                 MaterialUtil.CreateFlatMaterialF(BackgroundColor),
                 entry));
             bgMesh.RotateD(Vector3f.AxisX, -90.0f);
+
+
+            if ( EnableBorder ) {
+                HUDShape borderShape = Shape;
+                borderShape.Radius += BorderWidth;
+                borderShape.Height += 2 * BorderWidth;
+                borderShape.Width += 2 * BorderWidth;
+                border = new fGameObject(AppendMeshGO("background", HUDUtil.MakeBackgroundMesh(borderShape),
+                    MaterialUtil.CreateFlatMaterialF(BorderColor), entry));
+                border.RotateD(Vector3f.AxisX, -90.0f);
+                border.Translate(-0.001f * Vector3f.AxisY);
+            }
 
             BoxPosition horzAlign = BoxPosition.CenterLeft;
             if (AlignmentHorz == HorizontalAlignment.Center)
