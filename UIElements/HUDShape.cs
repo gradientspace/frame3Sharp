@@ -27,6 +27,9 @@ namespace f3
         public float Height;
         public bool UseUVSubRegion;
 
+        // can override roundrect corners with this
+        public int RoundRectSharpCorners;
+
         public Vector2f Size {
             get {
                 if (Type == HUDShapeType.Disc)
@@ -64,6 +67,7 @@ namespace f3
             Slices = 32;
             Width = Height = 2*radius;
             UseUVSubRegion = true;
+            RoundRectSharpCorners = 0;
         }
 
         public HUDShape(HUDShapeType type, float width, float height)
@@ -73,6 +77,7 @@ namespace f3
             Slices = 4;
             Width = width; Height = height;
             UseUVSubRegion = true;
+            RoundRectSharpCorners = 0;
         }
         public HUDShape(HUDShapeType type, float width, float height, float radius, int slices, bool useUVSubRegion)
         {
@@ -82,9 +87,12 @@ namespace f3
             Width = width;
             Height = height;
             UseUVSubRegion = useUVSubRegion;
+            RoundRectSharpCorners = 0;
         }
 
         // for struct conversion
         public static readonly HUDShape Default = new HUDShape(HUDShapeType.Disc, 1.0f, 1.0f, 0.1f, 32, true);
     }
+
+
 }

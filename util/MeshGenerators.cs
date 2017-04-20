@@ -162,19 +162,22 @@ namespace f3 {
         }
 
 
-        public static fMesh CreateRoundRect(float width, float height, float radius, UVRegionType eUVType)
+        /// <summary>
+        /// Create a rounded rect. If you want some corners to be sharp, use SharpCorners
+        /// field, with bitwise-or of RoundRectGenerator.Corner values
+        /// </summary>
+        public static fMesh CreateRoundRect(float width, float height, float radius, int cornerSteps, UVRegionType eUVType, int SharpCorners = 0)
         {
             RoundRectGenerator gen = new RoundRectGenerator() 
-                { Width = width, Height = height, Radius = radius, CornerSteps = 4, Clockwise = false };
+                { Width = width, Height = height, Radius = radius, CornerSteps = cornerSteps, Clockwise = false };
             if (eUVType == UVRegionType.CenteredUVRectangle)
                 gen.UVMode = RoundRectGenerator.UVModes.CenteredUVRectangle;
             else if (eUVType == UVRegionType.BottomCornerUVRectangle)
                 gen.UVMode = RoundRectGenerator.UVModes.BottomCornerUVRectangle;
+            gen.SharpCorners = (RoundRectGenerator.Corner)SharpCorners;
             gen.Generate();
             return new fMesh(gen.MakeUnityMesh(false, false));
         }
-
-
 
 
 

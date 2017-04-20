@@ -120,13 +120,15 @@ namespace f3
                     Shape.UseUVSubRegion == true ? 
                         MeshGenerators.UVRegionType.CenteredUVRectangle : MeshGenerators.UVRegionType.FullUVSquare);
             } else if (Shape.Type == HUDShapeType.RoundRect) {
-                return MeshGenerators.CreateRoundRect(Shape.Width, Shape.Height, Shape.Radius,
+                return MeshGenerators.CreateRoundRect(Shape.Width, Shape.Height, Shape.Radius, Shape.Slices,
                     Shape.UseUVSubRegion == true ?
-                        MeshGenerators.UVRegionType.CenteredUVRectangle : MeshGenerators.UVRegionType.FullUVSquare);
+                        MeshGenerators.UVRegionType.CenteredUVRectangle : MeshGenerators.UVRegionType.FullUVSquare,
+                    Shape.RoundRectSharpCorners );
             } else {
                 throw new Exception("HUDUtil.MakeBackgroundMesh: unknown shape type!");
             }
         }
+
 
 
         /// <summary>
