@@ -17,8 +17,12 @@ namespace f3
         }
         public ListDirection Direction { get; set; }
 
+        // HorzAligin only has effect when using Vertical direction, and vice-versa
+        public HorizontalAlignment HorzAlign { get; set; }
+        public VerticalAlignment VertAlign { get; set; }
 
         List<SceneUIElement> ListItems = new List<SceneUIElement>();
+        List<Vector3f> ItemNudge = new List<Vector3f>();
 
         bool is_layout_valid;
 
@@ -28,12 +32,18 @@ namespace f3
             Height = 100;
             Spacing = 10;
             Direction = ListDirection.Vertical;
+            HorzAlign = HorizontalAlignment.Left;
+            VertAlign = VerticalAlignment.Top;
+
             is_layout_valid = false;
         }
 
 
-
         public virtual void AddListItem(SceneUIElement element)
+        {
+            AddListItem(element, Vector3f.Zero);
+        }
+        public virtual void AddListItem(SceneUIElement element, Vector3f nudge)
         {
             if ( RootGameObject != null )
                 throw new Exception("HUDElementList.AddElement: currently cannot add elements after calling Create");
@@ -41,6 +51,7 @@ namespace f3
                 throw new Exception("HUDElementList.AddElement: cannot add element " + element.RootGameObject.name + ", does not implement IBoxModelElement!");
 
             ListItems.Add(element);
+            ItemNudge.Add(nudge);
             is_layout_valid = false;
         }
 
@@ -89,6 +100,26 @@ namespace f3
             Vector2f topLeft = BoxModel.GetBoxPosition(contentBounds, BoxPosition.TopLeft);
             Vector2f insertPos = topLeft;
 
+            BoxPosition sourcePos = BoxPosition.TopLeft;
+            if (Direction == ListDirection.Horizontal) {
+                if (VertAlign == VerticalAlignment.Center) {
+                    sourcePos = BoxPosition.CenterLeft;
+                    insertPos = BoxModel.GetBoxPosition(contentBounds, BoxPosition.CenterLeft);
+                } else if (VertAlign == VerticalAlignment.Bottom) {
+                    sourcePos = BoxPosition.BottomLeft;
+                    insertPos = BoxModel.GetBoxPosition(contentBounds, BoxPosition.BottomLeft);
+                }
+            } else {
+                if (HorzAlign == HorizontalAlignment.Center) {
+                    sourcePos = BoxPosition.CenterTop;
+                    insertPos = BoxModel.GetBoxPosition(contentBounds, BoxPosition.CenterTop);
+                } else if (HorzAlign == HorizontalAlignment.Right) {
+                    sourcePos = BoxPosition.TopRight;
+                    insertPos = BoxModel.GetBoxPosition(contentBounds, BoxPosition.TopRight);
+                }
+            }
+                        
+
             int N = ListItems.Count;
             for ( int i = 0; i < N; ++i ) {
                 IBoxModelElement boxelem = ListItems[i] as IBoxModelElement;
@@ -97,7 +128,8 @@ namespace f3
                     continue;
                 }
 
-                BoxModel.SetObjectPosition(boxelem, BoxPosition.TopLeft, insertPos);
+                Vector2f usePos = insertPos + ItemNudge[i].xy;
+                BoxModel.SetObjectPosition(boxelem, sourcePos, usePos, ItemNudge[i].z);
 
                 if ( Direction == ListDirection.Vertical )
                     insertPos.y -= boxelem.Size2D.y + Spacing;
