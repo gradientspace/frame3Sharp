@@ -106,6 +106,16 @@ namespace f3
 
 
 
+        public void SceneOrbitAround(FScene scene, Vector3f position, float deltaAzimuth, float deltaAltitude)
+        {
+            Vector3 targetPos = getCamera().GetTarget();
+            getCamera().SetTarget(position);
+            SceneOrbit(scene, getCamera(), deltaAzimuth, deltaAltitude);
+            getCamera().SetTarget(targetPos);
+        }
+
+
+
         public void ResetScenePosition(FScene scene)
         {
             scene.RootGameObject.transform.position = Vector3.zero;

@@ -7,6 +7,9 @@ namespace f3
     {
         Cockpit cockpit;
 
+        public float RotationSpeed = 1.0f;
+        public float TranslationSpeed = 1.0f;
+
 
         public SpatialDeviceGrabBehavior(Cockpit cockpit)
         {
@@ -26,6 +29,9 @@ namespace f3
             public Frame3f startObjRelF;
             public Frame3f startHandF;
             public Vector2f stickDelta;
+
+            public float RotationSpeed = 1.0f;
+            public float TranslationSpeed = 1.0f;
 
             public TransformGizmoChange change;        // [TODO] shouldn't be using gizmo change for this?
             public GrabInfo(Cockpit cockpit, TransformableSO so, Frame3f handF)
@@ -55,15 +61,21 @@ namespace f3
                 //  Not clear how this should work, there are lots of options...
 
                 // [1] scaled relative motion of hand inherited by object  (lags ray though)
-                //Vector3 dt = startHandF.ToFrameP(handF.Origin);
+                //Vector3f dt = startHandF.ToFrameP(handF.Origin);
                 //dt *= 10.0f;
-                //Frame3 fNew = new Frame3(startObjFW);
+                //Frame3f fNew = new Frame3f(startObjFW);
                 //fNew.Origin += dt;
 
                 // [2] object stays on ray, inherits a bit of xform
                 //   - resulting orientation is weird. works well for rotate in-place around ray,
                 //     but up/down/left/right tilts are impossible w/o moving object
                 Frame3f fNew = handF.FromFrame(this.startObjRelF);
+                if (RotationSpeed != 1.0f) {
+                    fNew.Rotation = Quaternionf.Slerp(startObjFW.Rotation, fNew.Rotation, RotationSpeed);
+                }
+                if (TranslationSpeed != 1.0f) {
+                    fNew.Origin = Vector3f.Lerp(startObjFW.Origin, fNew.Origin, TranslationSpeed);
+                }
 
                 // [3] object stays on ray but no rotation
                 //   - weird if you rotate left/right, because distance stays same but it
@@ -120,7 +132,8 @@ namespace f3
                 var tso = rayHit.hitSO as TransformableSO;
                 if (tso != null) {
                     Frame3f handF = (eSide == CaptureSide.Left) ? input.LeftHandFrame : input.RightHandFrame;
-                    return Capture.Begin(this, eSide, new GrabInfo(cockpit, tso, handF));
+                    return Capture.Begin(this, eSide,
+                        new GrabInfo(cockpit, tso, handF) { RotationSpeed = this.RotationSpeed, TranslationSpeed = this.TranslationSpeed } );
                 }
             }
             return Capture.Ignore;
