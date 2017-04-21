@@ -175,7 +175,11 @@ namespace f3
             if ( Screen.dpi > 100.0f )
                 fScale /= 2.0f;
 #endif
-            if (FPlatform.InUnityEditor())
+#if UNITY_IOS || UNITY_ANDROID
+            if (FPlatform.GetDeviceType() != FPlatform.fDeviceType.IPad )
+                fScale *= 0.8f;
+#endif
+            if (false && FPlatform.InUnityEditor())
                 fScale *= FPlatform.EditorUIScaleFactor;
             else
                 fScale *= FPlatform.UIScaleFactor;

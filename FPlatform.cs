@@ -80,6 +80,54 @@ namespace f3
             return _in_unity_editor;
         }
 
+
+        [Flags]
+        public enum fDeviceType {
+            WindowsDesktop = 1,
+            WindowsVR = 2,
+            OSXDesktop = 4,
+            IPhone = 8,
+            IPad = 16,
+            AndroidPhone = 32
+        }
+
+        static public fDeviceType GetDeviceType()
+        {
+            #if UNITY_IOS 
+                switch( UnityEngine.iOS.Device.generation ) {
+                    case UnityEngine.iOS.DeviceGeneration.iPad1Gen:
+                    case UnityEngine.iOS.DeviceGeneration.iPad2Gen:
+                    case UnityEngine.iOS.DeviceGeneration.iPad3Gen:
+                    case UnityEngine.iOS.DeviceGeneration.iPad4Gen:
+                    //case UnityEngine.iOS.DeviceGeneration.iPad5Gen:  // same as iPadAir1 ?
+                    case UnityEngine.iOS.DeviceGeneration.iPadAir1:
+                    case UnityEngine.iOS.DeviceGeneration.iPadAir2:
+                    case UnityEngine.iOS.DeviceGeneration.iPadMini1Gen:
+                    case UnityEngine.iOS.DeviceGeneration.iPadMini2Gen:
+                    case UnityEngine.iOS.DeviceGeneration.iPadMini3Gen:
+                    case UnityEngine.iOS.DeviceGeneration.iPadMini4Gen:
+                    case UnityEngine.iOS.DeviceGeneration.iPadPro1Gen:
+                    case UnityEngine.iOS.DeviceGeneration.iPadPro10Inch1Gen:
+                    case UnityEngine.iOS.DeviceGeneration.iPadUnknown:
+                        return fDeviceType.IPad;
+                    default:
+                        return fDeviceType.IPhone;
+                }
+            #elif UNITY_ANDROID
+                return fDeviceType.AndroidPhone;
+            #elif UNITY_STANDALONE_WIN
+                return IsUsingVR() ? fDeviceType.WindowsVR : fDeviceType.WindowsDesktop;
+            #elif UNITY_STANDALONE_OSX
+                return fDeviceType.OSXDesktop;
+            #else
+              throw new NotSupportedException("FPlatform.GetDeviceType: unknown device type");
+            #endif
+        }
+        public static bool IsMobile() {
+            return (GetDeviceType() & (fDeviceType.IPad | fDeviceType.IPhone | fDeviceType.AndroidPhone)) != 0 ;
+        }
+
+
         // pixel-scaled UI elements will (should) be scaled by this amount when
         // running inside editor. Mainly via Cockpit.GetPixelScale()
         static public float EditorUIScaleFactor = 0.5f;

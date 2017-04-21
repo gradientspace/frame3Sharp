@@ -326,8 +326,6 @@ namespace f3
             if (s.Use2DCockpit)
                 vTouchOrthoWorldRay = s.MouseController.CurrentCursorOrthoRay();            
 
-            DebugUtil.Log(2, "TOUCH pos2d {0}    rayorigin {1}", vTouchPosition2D, vTouchWorldRay.Origin);
-
             if (nTouchCount > 1) {
                 Touch t2 = Input.touches[1];
                 get_touch(t2, ref bSecondTouchPressed, ref bSecondTouchDown, ref bSecondTouchReleased,
