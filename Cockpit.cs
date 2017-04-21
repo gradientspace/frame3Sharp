@@ -179,7 +179,7 @@ namespace f3
             if (FPlatform.GetDeviceType() != FPlatform.fDeviceType.IPad )
                 fScale *= 0.8f;
 #endif
-            if (false && FPlatform.InUnityEditor())
+            if (FPlatform.InUnityEditor())
                 fScale *= FPlatform.EditorUIScaleFactor;
             else
                 fScale *= FPlatform.UIScaleFactor;
