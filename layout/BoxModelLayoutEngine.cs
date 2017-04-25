@@ -1,20 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using g3;
 
 namespace f3
 {
     /// <summary>
-    /// 3D layout engine... ?
+    /// Basic 2.5D cockpit UI layout engine, built on top of HUDContainerLayout
+    /// Quirks:
     ///   - automatically uses fade in/out transitions on Add/Remove
     /// </summary>
-    public class LayoutEngineSpherical : ILayoutEngine
+    public class BoxModelLayoutEngine : ILayoutEngine
     {
         public Cockpit Cockpit;
-        public BoxContainer ScreenContainer;
         public BoxContainerLayout Layout;
 
         public float StandardDepth;
+
 
         struct LayoutItem
         {
@@ -24,24 +27,32 @@ namespace f3
         List<LayoutItem> items;
 
 
-        public LayoutEngineSpherical(Cockpit parent, SphereBoxRegion region)
+        public BoxModelLayoutEngine(Cockpit parent, BoxContainerLayout containerLayout)
         {
             this.Cockpit = parent;
-            // TODO: who should own cylinder?
-            ScreenContainer = new BoxContainer(new CockpitSphereContainerProvider(parent, region));
-            Layout = new BoxModel3DRegionLayout(ScreenContainer, region);
+            Layout = containerLayout;
 
             items = new List<LayoutItem>();
         }
 
-        public float UIScaleFactor
+        public virtual BoxContainer Container
         {
-            get { return 1.0f; }
+            get { return Layout.Container; }
         }
-        public IBoxModelElement BoxModelContainer
+
+
+
+        // in VR layouts we were returning 1 here...??
+        virtual public float UIScaleFactor
         {
-            get { return this.ScreenContainer; }
+            get { return Cockpit.GetPixelScale(); }
         }
+
+        virtual public IBoxModelElement BoxElement
+        {
+            get { return Layout.Container; }
+        }
+
 
 
         bool has_item(SceneUIElement e)
@@ -74,11 +85,11 @@ namespace f3
         public void Add(SceneUIElement element, LayoutOptions options)
         {
             if ( has_item(element) ) 
-                throw new Exception("LayoutEngineSpherical.Add: element is already in layout");
+                throw new Exception("BoxModelLayoutEngine.Add: element is already in layout");
             if ( element is HUDStandardItem == false )
-                throw new Exception("LayoutEngineSpherical.Add: element must be a HUDStandardItem");
+                throw new Exception("BoxModelLayoutEngine.Add: element must be a HUDStandardItem");
             if ( element is IBoxModelElement == false ) 
-                throw new Exception("LayoutEngineSpherical.Add: element must implement IBoxModelElement");
+                throw new Exception("BoxModelLayoutEngine.Add: element must implement IBoxModelElement");
 
             LayoutItem newitem = new LayoutItem() { element = element, flags = options.Flags };
             items.Add(newitem);
@@ -109,9 +120,9 @@ namespace f3
             LayoutItem item;
             bool bFound = find_item(element, out item);
             if ( bFound == false ) 
-                throw new Exception("LayoutEngineSpherical.Remove: element is not in layout");
+                throw new Exception("BoxModelLayoutEngine.Remove: element is not in layout");
             if ( element is HUDStandardItem == false )
-                throw new Exception("LayoutEngineSpherical.Add: element must be a HUDStandardItem");
+                throw new Exception("BoxModelLayoutEngine.Add: element must be a HUDStandardItem");
 
             remove_item(element);
             Layout.RemoveLayoutItem(element);
@@ -133,7 +144,11 @@ namespace f3
 
             IBoxModelElement elemBoxModel = element as IBoxModelElement;
 
-            Frame3f viewFrame = Frame3f.Identity;
+            // for 2D view (but doesn't matter if we are doing a layout anyway!)
+            Frame3f viewFrame = Cockpit.GetViewFrame2D();
+
+            // with 3D view we should use this...
+            //Frame3f viewFrame = Frame3f.Identity;
 
             element.SetObjectFrame(Frame3f.Identity);
             HUDUtil.PlaceInViewPlane(element, viewFrame);
@@ -145,7 +160,7 @@ namespace f3
 
             Func<Vector2f> pinTargetF = options.PinTargetPoint2D;
             if (pinTargetF == null)
-                pinTargetF = LayoutUtil.BoxPointF(ScreenContainer, BoxPosition.Center);
+                pinTargetF = LayoutUtil.BoxPointF(Layout.Container, BoxPosition.Center);
 
             Layout.AddLayoutItem(element, pinSourceF, pinTargetF, this.StandardDepth + options.DepthShift);
 
@@ -155,12 +170,9 @@ namespace f3
         }
 
 
+
+
+
+
     }
-
-
-
-
-
-
-
 }

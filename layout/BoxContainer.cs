@@ -65,7 +65,9 @@ namespace f3
 
 
 
-
+    /// <summary>
+    /// Provides 2D window dimensions as box container. Notifies when window is resized.
+    /// </summary>
     public class Cockpit2DContainerProvider : ContainerBoundsProvider, IDisposable
     {
         Cockpit cockpit;
@@ -81,13 +83,13 @@ namespace f3
         }
 
 
-        private void Context_OnWindowResized()
+        protected virtual void Context_OnWindowResized()
         {
             FUtil.SafeSendAnyEvent(OnContainerBoundsModified, this);
         }
 
 
-        public AxisAlignedBox2f ContainerBounds
+        public virtual AxisAlignedBox2f ContainerBounds
         {
             get { return cockpit.GetOrthoViewBounds();  }
         }
@@ -99,55 +101,18 @@ namespace f3
 
 
 
-
-
-
-    public class CockpitCylinderContainerProvider : ContainerBoundsProvider, IDisposable
+    /// <summary>
+    /// Provides fixed BoxModelRegion as bounds, which could be a subregion of a 3D surface.
+    /// Does *not* automatically notify of changes to Region, you can call NotifyParametersChanged() explicitly.
+    /// </summary>
+    public class BoxRegionContainerProvider : ContainerBoundsProvider, IDisposable
     {
-        Cockpit cockpit;
+        public Cockpit Cockpit;
+        public IBoxModelRegion3D Region;
 
-        // should this go in container instead??
-        public CylinderBoxRegion Cylinder;
-
-        public CockpitCylinderContainerProvider(Cockpit c, CylinderBoxRegion cylinder)
+        public BoxRegionContainerProvider(Cockpit c, IBoxModelRegion3D region)
         {
-            cockpit = c;
-            Cylinder = cylinder;
-        }
-        public virtual void Dispose()
-        {
-        }
-
-        // [RMS] if you change parameters above after construction, you can call
-        // this method and it will cause re-layout...
-        public void NotifyParametersChanged()
-        {
-            FUtil.SafeSendAnyEvent(OnContainerBoundsModified, this);
-        }
-
-        public AxisAlignedBox2f ContainerBounds
-        {
-            get {
-                return Cylinder.Bounds2D;
-            }
-        }
-
-
-        public event BoundsModifiedEventHandler OnContainerBoundsModified;
-    }
-
-
-
-    public class CockpitSphereContainerProvider : ContainerBoundsProvider, IDisposable
-    {
-        Cockpit cockpit;
-
-        // should this go in container instead??
-        public SphereBoxRegion Region;
-
-        public CockpitSphereContainerProvider(Cockpit c, SphereBoxRegion region)
-        {
-            cockpit = c;
+            Cockpit = c;
             Region = region;
         }
         public virtual void Dispose()
@@ -156,12 +121,12 @@ namespace f3
 
         // [RMS] if you change parameters above after construction, you can call
         // this method and it will cause re-layout...
-        public void NotifyParametersChanged()
+        public virtual void NotifyParametersChanged()
         {
             FUtil.SafeSendAnyEvent(OnContainerBoundsModified, this);
         }
 
-        public AxisAlignedBox2f ContainerBounds
+        public virtual AxisAlignedBox2f ContainerBounds
         {
             get {
                 return Region.Bounds2D;
@@ -172,6 +137,9 @@ namespace f3
         public event BoundsModifiedEventHandler OnContainerBoundsModified;
     }
 
+
+
+    
 
 
 }

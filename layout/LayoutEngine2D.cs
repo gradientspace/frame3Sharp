@@ -41,7 +41,7 @@ namespace f3
         {
             get { return Cockpit.GetPixelScale(); }
         }
-        public IBoxModelElement BoxModelContainer
+        public IBoxModelElement BoxElement
         {
             get { return this.ScreenContainer; }
         }

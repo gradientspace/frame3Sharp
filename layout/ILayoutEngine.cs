@@ -60,7 +60,7 @@ namespace f3
         /// If this layout has a "frame" that other things can be aligned relative to,
         /// you can access that frame via this property. May be null.
         /// </summary>
-        IBoxModelElement BoxModelContainer { get; }
+        IBoxModelElement BoxElement { get; }
 
     }
 }
