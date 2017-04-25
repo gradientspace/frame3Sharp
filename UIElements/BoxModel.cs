@@ -136,8 +136,7 @@ namespace f3
         public static void SetObjectPosition( IBoxModelElement element, Vector2f vObjectPoint, 
                                               Vector2f vTargetPoint, float z = 0)
         {
-            // [RMS] this is true for now...need to rethink though
-            HUDStandardItem item = element as HUDStandardItem;
+            IElementFrame item = element as IElementFrame;
 
             Vector2f vOffset = GetRelativeOffset(element, vObjectPoint);
             Vector2f vNewPos = vTargetPoint - vOffset;
@@ -151,8 +150,7 @@ namespace f3
         public static void SetObjectPosition( IBoxModelElement element, BoxPosition objectPos, 
                                               Vector2f pos, float z = 0)
         {
-            // [RMS] this is true for now...need to rethink though
-            HUDStandardItem item = element as HUDStandardItem;
+            IElementFrame item = element as IElementFrame;
 
             Vector2f corner_offset = GetBoxOffset(element, objectPos);
             Vector2f new_pos = pos - corner_offset;
@@ -175,7 +173,7 @@ namespace f3
 
         public static void Translate(IBoxModelElement element, Vector2f delta, float z = 0)
         {
-            HUDStandardItem item = element as HUDStandardItem;
+            IElementFrame item = element as IElementFrame;
             Frame3f f = item.GetObjectFrame();
             f.Origin += new Vector3f(delta.x, delta.y, z);
             item.SetObjectFrame(f);

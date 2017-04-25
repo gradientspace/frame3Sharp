@@ -5,24 +5,34 @@ using g3;
 namespace f3
 {
     /// <summary>
-    /// 2.5D Layout relative to a Container.
+    /// abstract 2.5D Layout relative to a Container.
     /// Positions of Elements are fixed via Constraints. 
     /// Currently only supports Point-to-Point constraints.
     /// No understanding of dependencies !! 
     /// 
     /// HUDLayoutUtil can be used to easily construct point Func's for BoxModel elements
     /// 
+    /// Need to implement layout_item in subclasses to specify
+    /// actual layout behavior
+    /// 
     /// </summary>
-    public class HUDContainerLayout : HUDLayout, IDisposable
+    public abstract class HUDContainerLayout : HUDLayout, IDisposable
     {
-        HUDContainer container;
+        // must implement these
+        protected abstract void layout_item(SceneUIElement e);
 
-        struct Pin {
+
+        HUDContainer container;
+        public HUDContainer Container {
+            get { return container; }
+        }
+
+        protected struct Pin {
             public Func<Vector2f> FromF;
             public Func<Vector2f> ToF;
             public float fZ;
         };
-        Dictionary<SceneUIElement, Pin> PinConstraints = new Dictionary<SceneUIElement, Pin>();
+        protected Dictionary<SceneUIElement, Pin> PinConstraints = new Dictionary<SceneUIElement, Pin>();
 
 
         /// <summary>
@@ -47,12 +57,6 @@ namespace f3
         {
             // should we be deferring this until next frame, something like that??
             RecomputeLayout();
-        }
-
-
-        public HUDContainer Container
-        {
-            get { return container; }
         }
 
 
@@ -93,7 +97,7 @@ namespace f3
 
         public override void RecomputeLayout()
         {
-            AxisAlignedBox2f box = container.Bounds2D;
+            AxisAlignedBox2f box = Container.Bounds2D;
 
             foreach (SceneUIElement e in LayoutItems) {
                 layout_item(e);
@@ -102,28 +106,44 @@ namespace f3
         }
 
 
+    }
 
-        void layout_item(SceneUIElement e)
+
+
+
+    /// <summary>
+    /// 2.5D box model layout
+    /// </summary>
+    public class HUDBoxModel2DLayout : HUDContainerLayout
+    {
+        public HUDBoxModel2DLayout(HUDContainer container) : base(container)
         {
-            AxisAlignedBox2f box = container.Bounds2D;
+        }
+
+        protected override void layout_item(SceneUIElement e)
+        {
+            AxisAlignedBox2f box = Container.Bounds2D;
 
             IBoxModelElement boxElem = e as IBoxModelElement;
-            if ( PinConstraints.ContainsKey(e)) {
+            if (PinConstraints.ContainsKey(e)) {
                 Pin pin = PinConstraints[e];
 
                 Vector2f SourcePos = pin.FromF();
                 Vector2f PinToPos = pin.ToF();
                 BoxModel.SetObjectPosition(boxElem, SourcePos, PinToPos, pin.fZ);
 
-            } else if ( boxElem != null ) {
+            } else if (boxElem != null) {
                 BoxModel.SetObjectPosition(boxElem, BoxPosition.Center, box.Center, 0);
 
             } else {
                 // do nothing?
             }
         }
-
-
-
     }
+
+
+
+
+
+
 }

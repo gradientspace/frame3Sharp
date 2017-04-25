@@ -1,0 +1,178 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using g3;
+
+namespace f3
+{
+
+    public interface IBoxModelRegion3D
+    {
+        AxisAlignedBox2f Bounds2D { get; }
+        Vector2f To2DCoords(Vector3f pos);
+        Frame3f From2DCoords(Vector2f pos, float fNormalOffset);
+    }
+
+
+
+    public class CylinderRegion : IBoxModelRegion3D
+    {
+        public float Radius;
+        public Vector3f Origin;
+        public float HorzDegreeLeft;      
+        public float HorzDegreeRight;
+        public float MinHeight;
+        public float MaxHeight;
+        public CylinderRegion(bool init)
+        {
+            Radius = 1.0f;
+            Origin = Vector3f.Zero;
+            HorzDegreeLeft = 30.0f;      
+            HorzDegreeRight = 30.0f;
+            MinHeight = -1.0f;
+            MaxHeight = 1.0f;
+        }
+
+        public virtual AxisAlignedBox2f Bounds2D
+        {
+            get {
+                float circ = 2 * MathUtil.PIf * Radius;
+                float left = -(HorzDegreeLeft / 360.0f) * circ;
+                float right = (HorzDegreeRight / 360.0f) * circ;
+                float cx = (left + right) * 0.5f;
+                float cy = (MinHeight + MaxHeight) * 0.5f;
+                return new AxisAlignedBox2f(new Vector2f(cx, cy), (right - left) / 2, (MaxHeight - MinHeight) / 2);
+            }
+        }
+
+        virtual public Vector2f To2DCoords(Vector3f pos)
+        {
+            Vector3f dv = pos - Origin;
+            float h = dv.y;
+            dv.Normalize();
+            float fAngleX = MathUtil.PlaneAngleSignedD(Vector3f.AxisZ, dv, 1);
+            float circ = 2 * MathUtil.PIf * Radius;
+            return new Vector2f((fAngleX / 360.0f) * circ, h);
+        }
+
+        virtual public Frame3f From2DCoords(Vector2f pos, float fNormalOffset)
+        {
+            // todo simplify this, use radians only
+            float circ = 2 * MathUtil.PIf * Radius;
+            float fAngleX = (pos.x / circ) * 360.0f;
+            fAngleX *= MathUtil.Deg2Radf;
+            float x = (float)Math.Sin(fAngleX);
+            float z = (float)Math.Cos(fAngleX);
+            Vector3f normal = new Vector3f(x, 0, z);
+            x *= (Radius + fNormalOffset);
+            z *= (Radius + fNormalOffset);
+            Vector3f pos3 = new Vector3f(x, pos.y, z) + Origin;
+            return new Frame3f(pos3, normal);
+        }
+
+
+        //public Vector3f From2DCoords(Vector2f pos, float fZShift = 0)
+        //{
+        //    // todo simplify this, use radians only
+        //    float circ = 2 * MathUtil.PIf * Radius;
+        //    float fAngleX = (pos.x / circ) * 360.0f;
+        //    fAngleX *= MathUtil.Deg2Radf;
+        //    float x = (Radius+fZShift) * (float)Math.Sin(fAngleX);
+        //    float z = (Radius+fZShift) * (float)Math.Cos(fAngleX);
+        //    return new Vector3f(x, pos.y, z) + Origin;
+        //}
+
+        //public Vector3f NormalFrom2DCoords(Vector2f pos)
+        //{
+        //    // todo simplify this, use radians only
+        //    float circ = 2 * MathUtil.PIf * Radius;
+        //    float fAngleX = (pos.x / circ) * 360.0f;
+        //    fAngleX *= MathUtil.Deg2Radf;
+        //    float x = (float)Math.Sin(fAngleX);
+        //    float z = (float)Math.Cos(fAngleX);
+        //    return new Vector3f(x, 0, z).Normalized;
+        //}
+    }
+
+
+
+
+
+    public class SphereRegion
+    {
+        public float Radius;
+        public Vector3f Origin;
+        public float HorzDegreeLeft;      
+        public float HorzDegreeRight;
+        public float VertDegreeBottom;
+        public float VertDegreeTop;
+        public SphereRegion(bool init)
+        {
+            Radius = 1.0f;
+            Origin = Vector3f.Zero;
+            HorzDegreeLeft = 45.0f;      
+            HorzDegreeRight = 45.0f;
+            VertDegreeBottom = 45.0f;
+            VertDegreeTop = 45.0f;
+        }
+
+        virtual public AxisAlignedBox2f Bounds2D
+        {
+            get {
+                float circ = 2 * MathUtil.PIf * Radius;
+                float left = -(HorzDegreeLeft / 360.0f) * circ;
+                float right = (HorzDegreeRight / 360.0f) * circ;
+                float bottom = -(VertDegreeBottom / 360.0f) * circ;
+                float top = (VertDegreeTop / 360.0f) * circ;
+                float cx = (left + right) * 0.5f;
+                float cy = (bottom + top) * 0.5f;
+                return new AxisAlignedBox2f(new Vector2f(cx, cy), (right - left) / 2, (top - bottom) / 2);
+            }
+        }
+
+        virtual public Vector2f To2DCoords(Vector3f pos)
+        {
+            float circ = 2 * MathUtil.PIf * Radius;
+            Vector3f dv = pos - Origin;
+            dv.Normalize();
+            float fAngleX = MathUtil.PlaneAngleSignedD(Vector3f.AxisZ, dv, 1);
+            float fAngleY = MathUtil.PlaneAngleSignedD(Vector3f.AxisZ, dv, 0);
+            return new Vector2f((fAngleX / 360.0f) * circ, (fAngleY / 360.0f) * circ);
+        }
+
+
+        virtual public Frame3f From2DCoords(Vector2f pos, float fNormalOffset)
+        {
+            // todo simplify this, use radians only
+            float circ = 2 * MathUtil.PIf * Radius;
+            float fAngleX = (pos.x / circ) * 360.0f;
+            float fAngleY = (pos.y / circ) * 360.0f;
+            Vector3f normal = VRUtil.DirectionFromSphereCenter(fAngleX, fAngleY);
+            Vector3f pos3 = (Radius * fNormalOffset) * normal + Origin;
+            return new Frame3f(pos3, normal);
+        }
+
+
+        //public Vector3f From2DCoords(Vector2f pos, float fZShift = 0)
+        //{
+        //    // todo simplify this, use radians only
+        //    float circ = 2 * MathUtil.PIf * Radius;
+        //    float fAngleX = (pos.x / circ) * 360.0f;
+        //    float fAngleY = (pos.y / circ) * 360.0f;
+        //    Vector3f d = VRUtil.DirectionFromSphereCenter(fAngleX, fAngleY);
+        //    return (Radius * fZShift) * d + Origin;
+        //}
+
+        //public Vector3f NormalFrom2DCoords(Vector2f pos)
+        //{
+        //    float circ = 2 * MathUtil.PIf * Radius;
+        //    float fAngleX = (pos.x / circ) * 360.0f;
+        //    float fAngleY = (pos.y / circ) * 360.0f;
+        //    return VRUtil.DirectionFromSphereCenter(fAngleX, fAngleY);
+        //}
+    }
+
+
+
+}

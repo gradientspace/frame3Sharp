@@ -63,15 +63,19 @@ namespace f3
 
 		// horz angle is [-180,180] where negative is to the left
 		// vert angle is [-90,90] where negative is down
-		public static Ray3f MakeRayFromSphereCenter(float fAngleHorzDeg, float fAngleVertDeg) 
-		{
+        public static Vector3f DirectionFromSphereCenter(float fAngleHorzDeg, float fAngleVertDeg)
+        {
 			float fTheta = (MathUtil.Deg2Radf * fAngleHorzDeg);
 			float fPhi = (MathUtil.PIf/2.0f) - (MathUtil.Deg2Radf * fAngleVertDeg);
 			float z = (float)( Math.Cos (fTheta) * Math.Sin (fPhi) );
 			float x = (float)( Math.Sin (fTheta) * Math.Sin (fPhi) );
 			float y = (float)Math.Cos (fPhi);
-			Vector3f d = new Vector3f (x, y, z);
-			return new Ray3f (Vector3f.Zero, d.Normalized);
+            return new Vector3f(x, y, z).Normalized;
+        }
+
+		public static Ray3f MakeRayFromSphereCenter(float fAngleHorzDeg, float fAngleVertDeg) 
+		{
+            return new Ray3f(Vector3f.Zero, DirectionFromSphereCenter(fAngleHorzDeg, fAngleVertDeg));
 		}
 
 

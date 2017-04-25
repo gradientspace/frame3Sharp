@@ -31,4 +31,12 @@ namespace f3
         AxisAlignedBox2f Bounds2D { get; }
     }
 
+
+    // provide access to object-space frame
+    public interface IElementFrame
+    {
+        Frame3f GetObjectFrame();
+        void SetObjectFrame(Frame3f value);
+    }
+
 }

@@ -39,6 +39,30 @@ namespace f3
         }
 
 
+
+        public Frame3f SceneGetFrame(FScene scene)
+        {
+            return new Frame3f(scene.RootGameObject.transform.position,
+                scene.RootGameObject.transform.rotation);
+        }
+        public void SceneSetFrame(FScene scene, Frame3f frame)
+        {
+            scene.RootGameObject.transform.position = frame.Origin;
+            scene.RootGameObject.transform.rotation = frame.Rotation;
+        }
+
+
+        public void SceneRotateAround(FScene scene, Quaternionf rotation, Vector3f position)
+        {
+            Frame3f curF = new Frame3f(scene.RootGameObject.transform.position, scene.RootGameObject.transform.rotation);
+
+            curF.RotateAround(position, rotation);
+
+            scene.RootGameObject.transform.position = curF.Origin;
+            scene.RootGameObject.transform.rotation = curF.Rotation;
+        }
+
+
         public void SceneTumble(FScene scene, Camera cam, float dx, float dy)
         {
             Vector3 up = cam.gameObject.transform.up;
@@ -49,6 +73,15 @@ namespace f3
 
             scene.RootGameObject.transform.RotateAround(curOrigin, up, dx);
             scene.RootGameObject.transform.RotateAround(curOrigin, right, dy);
+        }
+
+
+        public void SceneTumbleAround(FScene scene, Vector3f position, float dx, float dy)
+        {
+            Vector3 targetPos = getCamera().GetTarget();
+            getCamera().SetTarget(position);
+            SceneTumble(scene, getCamera(), dx, dy);
+            getCamera().SetTarget(targetPos);
         }
 
 

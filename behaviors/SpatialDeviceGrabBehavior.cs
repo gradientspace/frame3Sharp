@@ -10,6 +10,9 @@ namespace f3
         public float RotationSpeed = 1.0f;
         public float TranslationSpeed = 1.0f;
 
+        public delegate void GrabEventHandler(object sender, TransformableSO target);
+        public event GrabEventHandler OnBeginGrab;
+        public event GrabEventHandler OnEndGrab;
 
         public SpatialDeviceGrabBehavior(Cockpit cockpit)
         {
@@ -132,6 +135,8 @@ namespace f3
                 var tso = rayHit.hitSO as TransformableSO;
                 if (tso != null) {
                     Frame3f handF = (eSide == CaptureSide.Left) ? input.LeftHandFrame : input.RightHandFrame;
+                    if ( OnBeginGrab != null )
+                        OnBeginGrab(this, tso);
                     return Capture.Begin(this, eSide,
                         new GrabInfo(cockpit, tso, handF) { RotationSpeed = this.RotationSpeed, TranslationSpeed = this.TranslationSpeed } );
                 }
@@ -156,12 +161,19 @@ namespace f3
         {
             GrabInfo gi = data.custom_data as GrabInfo;
 
+
+            bool bFinished = false;
             if (data.which == CaptureSide.Left && (input.bLeftShoulderReleased || input.bLeftTriggerReleased)) {
-                gi.complete();
-                return end_transform(data);
+                bFinished = true;
             } else if (data.which == CaptureSide.Right && (input.bRightShoulderReleased || input.bRightTriggerReleased)) {
+                bFinished = true;
+            }
+            if ( bFinished ) {
                 gi.complete();
-                return end_transform(data);
+                Capture result = end_transform(data);
+                if ( OnEndGrab != null )
+                    OnEndGrab(this, gi.so);
+                return result;
             }
 
             Frame3f handF = (data.which == CaptureSide.Left) ? input.LeftHandFrame : input.RightHandFrame;

@@ -5,7 +5,7 @@ using g3;
 
 namespace f3
 {
-	public abstract class HUDStandardItem : GameObjectSet, SceneUIElement
+	public abstract class HUDStandardItem : GameObjectSet, IElementFrame, SceneUIElement
 	{
         float _alphaFade = 1.0f;
         SceneUIParent parent;
@@ -33,10 +33,10 @@ namespace f3
 
 		// utility functions
 
-		public Frame3f GetObjectFrame() {
+		public virtual Frame3f GetObjectFrame() {
 			return UnityUtil.GetGameObjectFrame (RootGameObject, CoordSpace.ObjectCoords);
 		}
-		public void SetObjectFrame(Frame3f value) {
+		public virtual void SetObjectFrame(Frame3f value) {
             UnityUtil.SetGameObjectFrame (RootGameObject, value, CoordSpace.ObjectCoords);
 		}
 

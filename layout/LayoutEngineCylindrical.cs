@@ -5,18 +5,16 @@ using g3;
 namespace f3
 {
     /// <summary>
-    /// Basic 2.5D cockpit UI layout engine, built on top of HUDContainerLayout
-    /// Quirks:
+    /// 3D layout engine... ?
     ///   - automatically uses fade in/out transitions on Add/Remove
     /// </summary>
-    public class LayoutEngine2D : ILayoutEngine
+    public class LayoutEngineCylindrical : ILayoutEngine
     {
         public Cockpit Cockpit;
         public HUDContainer ScreenContainer;
         public HUDContainerLayout Layout;
 
         public float StandardDepth;
-
 
         struct LayoutItem
         {
@@ -26,20 +24,19 @@ namespace f3
         List<LayoutItem> items;
 
 
-        public LayoutEngine2D(Cockpit parent)
+        public LayoutEngineCylindrical(Cockpit parent, CylinderRegion cylinder)
         {
             this.Cockpit = parent;
-            ScreenContainer = new HUDContainer(new Cockpit2DContainerProvider(parent));
-            Layout = new HUDBoxModel2DLayout(ScreenContainer);
+            // TODO: who should own cylinder?
+            ScreenContainer = new HUDContainer(new CockpitCylinderContainerProvider(parent, cylinder));
+            Layout = new HUD3DCylinderLayout(ScreenContainer, cylinder);
 
             items = new List<LayoutItem>();
         }
 
-
-
         public float UIScaleFactor
         {
-            get { return Cockpit.GetPixelScale(); }
+            get { return 1.0f; }
         }
         public IBoxModelElement BoxModelContainer
         {
@@ -77,11 +74,11 @@ namespace f3
         public void Add(SceneUIElement element, LayoutOptions options)
         {
             if ( has_item(element) ) 
-                throw new Exception("LayoutEngine2D.Add: element is already in layout");
+                throw new Exception("LayoutEngineCylindrical.Add: element is already in layout");
             if ( element is HUDStandardItem == false )
-                throw new Exception("LayoutEngine2D.Add: element must be a HUDStandardItem");
+                throw new Exception("LayoutEngineCylindrical.Add: element must be a HUDStandardItem");
             if ( element is IBoxModelElement == false ) 
-                throw new Exception("LayoutEngine2D.Add: element must implement IBoxModelElement");
+                throw new Exception("LayoutEngineCylindrical.Add: element must implement IBoxModelElement");
 
             LayoutItem newitem = new LayoutItem() { element = element, flags = options.Flags };
             items.Add(newitem);
@@ -112,9 +109,9 @@ namespace f3
             LayoutItem item;
             bool bFound = find_item(element, out item);
             if ( bFound == false ) 
-                throw new Exception("LayoutEngine2D.Remove: element is not in layout");
+                throw new Exception("LayoutEngineCylindrical.Remove: element is not in layout");
             if ( element is HUDStandardItem == false )
-                throw new Exception("LayoutEngine2D.Add: element must be a HUDStandardItem");
+                throw new Exception("LayoutEngineCylindrical.Add: element must be a HUDStandardItem");
 
             remove_item(element);
             Layout.RemoveLayoutItem(element);
@@ -136,7 +133,9 @@ namespace f3
 
             IBoxModelElement elemBoxModel = element as IBoxModelElement;
 
-            Frame3f viewFrame = Cockpit.GetViewFrame2D();
+            //Frame3f viewFrame = Cockpit.GetLevelViewFrame(CoordSpace.WorldCoords);
+            //viewFrame.Origin = Vector3f.Zero;
+            Frame3f viewFrame = Frame3f.Identity;
             //AxisAlignedBox2f uiBounds = Cockpit.GetOrthoViewBounds();
             //float pixelScale = Cockpit.GetPixelScale();
 
@@ -160,9 +159,59 @@ namespace f3
         }
 
 
-
-
-
-
     }
+
+
+
+
+
+
+    /// <summary>
+    /// 2.5D box-model-ish layout for cylinder
+    /// </summary>
+    public class HUD3DCylinderLayout : HUDContainerLayout
+    {
+
+        public CylinderRegion Cylinder;
+
+
+        public HUD3DCylinderLayout(HUDContainer container, CylinderRegion cylinder) : base(container)
+        {
+            Cylinder = cylinder;
+        }
+
+        protected override void layout_item(SceneUIElement e)
+        {
+            AxisAlignedBox2f box = Container.Bounds2D;
+
+            IBoxModelElement boxElem = e as IBoxModelElement;
+            IElementFrame eFramed = e as IElementFrame;
+
+            if (PinConstraints.ContainsKey(e)) {
+                Pin pin = PinConstraints[e];
+
+                Vector2f SourcePos = pin.FromF();
+                Vector2f PinToPos = pin.ToF();
+
+                Frame3f objF = eFramed.GetObjectFrame();
+                Vector2f center2 = Cylinder.To2DCoords(objF.Origin);
+
+                Vector2f vOffset = SourcePos - center2;
+                Vector2f vNewPos = PinToPos - vOffset;
+
+                Frame3f frame = Cylinder.From2DCoords(vNewPos, pin.fZ);
+                eFramed.SetObjectFrame(frame);
+
+            } else if (boxElem != null) {
+
+                Frame3f frame = Cylinder.From2DCoords(Vector2f.Zero, 0);
+                eFramed.SetObjectFrame(frame);
+
+            } else {
+                // do nothing?
+            }
+        }
+    }
+
+
 }

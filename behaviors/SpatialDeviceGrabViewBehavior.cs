@@ -45,6 +45,7 @@ namespace f3
         {
             public Frame3f leftStartF, rightStartF;
             public CameraState camState;
+            public Frame3f startCamF;
         }
 
 
@@ -54,6 +55,7 @@ namespace f3
             hi.leftStartF = input.LeftHandFrame;
             hi.rightStartF = input.RightHandFrame;
             hi.camState = cockpit.ActiveCamera.Manipulator().GetCurrentState(cockpit.Scene);
+            hi.startCamF = cockpit.ActiveCamera.Manipulator().SceneGetFrame(cockpit.Scene);
 
             return Capture.Begin(this, eSide, hi);
         }
@@ -106,11 +108,21 @@ namespace f3
             Frame3f XAlignedCurF = CurF; XAlignedCurF.AlignAxis(0, Vector3f.AxisX);
             float fAngleY = (float)MathUtil.PlaneAngleSignedD(XAlignedStartF.Y, XAlignedCurF.Y, Vector3f.AxisX);
 
+            Frame3f relStartF = StartF.ToFrame(hi.startCamF);
+            Frame3f curF = CurF.FromFrame(relStartF);
+
             // apply camera xforms
-            cockpit.ActiveCamera.Manipulator().SetCurrentSceneState(cockpit.Scene, hi.camState);
-            cockpit.ActiveCamera.Manipulator().SceneOrbitAround(cockpit.Scene,
-                CurF.Origin, -RotationSpeed * fAngleX, RotationSpeed * fAngleY);
-            cockpit.ActiveCamera.Manipulator().SceneTranslate(cockpit.Scene, TranslationSpeed * translation);
+            //cockpit.ActiveCamera.Manipulator().SetCurrentSceneState(cockpit.Scene, hi.camState);
+
+            //cockpit.ActiveCamera.Manipulator().SceneOrbitAround(cockpit.Scene,
+            //    CurF.Origin, -RotationSpeed * fAngleX, RotationSpeed * fAngleY);
+            //cockpit.ActiveCamera.Manipulator().SceneTumbleAround(cockpit.Scene,
+            //    CurF.Origin, RotationSpeed * fAngleX, RotationSpeed * fAngleY);
+            //cockpit.ActiveCamera.Manipulator().SceneRotateAround(cockpit.Scene, relF.Rotation, CurF.Origin);
+
+            cockpit.ActiveCamera.Manipulator().SceneSetFrame(cockpit.Scene, curF);
+
+            //cockpit.ActiveCamera.Manipulator().SceneTranslate(cockpit.Scene, TranslationSpeed * translation);
 
             return Capture.Continue;
         }

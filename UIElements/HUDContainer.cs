@@ -97,4 +97,81 @@ namespace f3
     }
 
 
+
+
+
+
+
+    public class CockpitCylinderContainerProvider : HUDContainerProvider, IDisposable
+    {
+        Cockpit cockpit;
+
+        // should this go in container instead??
+        public CylinderRegion Cylinder;
+
+        public CockpitCylinderContainerProvider(Cockpit c, CylinderRegion cylinder)
+        {
+            cockpit = c;
+            Cylinder = cylinder;
+        }
+        public virtual void Dispose()
+        {
+        }
+
+        // [RMS] if you change parameters above after construction, you can call
+        // this method and it will cause re-layout...
+        public void NotifyParametersChanged()
+        {
+            FUtil.SafeSendAnyEvent(OnContainerBoundsModified, this);
+        }
+
+        public AxisAlignedBox2f ContainerBounds
+        {
+            get {
+                return Cylinder.Bounds2D;
+            }
+        }
+
+
+        public event BoundsModifiedEventHandler OnContainerBoundsModified;
+    }
+
+
+
+    public class CockpitSphereContainerProvider : HUDContainerProvider, IDisposable
+    {
+        Cockpit cockpit;
+
+        // should this go in container instead??
+        public SphereRegion Region;
+
+        public CockpitSphereContainerProvider(Cockpit c, SphereRegion region)
+        {
+            cockpit = c;
+            Region = region;
+        }
+        public virtual void Dispose()
+        {
+        }
+
+        // [RMS] if you change parameters above after construction, you can call
+        // this method and it will cause re-layout...
+        public void NotifyParametersChanged()
+        {
+            FUtil.SafeSendAnyEvent(OnContainerBoundsModified, this);
+        }
+
+        public AxisAlignedBox2f ContainerBounds
+        {
+            get {
+                return Region.Bounds2D;
+            }
+        }
+
+
+        public event BoundsModifiedEventHandler OnContainerBoundsModified;
+    }
+
+
+
 }
