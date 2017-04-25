@@ -6,7 +6,12 @@ using g3;
 
 namespace f3
 {
-
+    /// <summary>
+    /// This is an interface to a 2D sub-region of a 3D surface.
+    /// Using these functions we can project 3D points into the 2D
+    /// boxmodel space, and back to the 3D surface. This is useful
+    /// for doing boxmodel-style 2D layout on a 3D surface.
+    /// </summary>
     public interface IBoxModelRegion3D
     {
         AxisAlignedBox2f Bounds2D { get; }
@@ -16,7 +21,7 @@ namespace f3
 
 
 
-    public class CylinderRegion : IBoxModelRegion3D
+    public class CylinderBoxRegion : IBoxModelRegion3D
     {
         public float Radius;
         public Vector3f Origin;
@@ -24,7 +29,7 @@ namespace f3
         public float HorzDegreeRight;
         public float MinHeight;
         public float MaxHeight;
-        public CylinderRegion(bool init)
+        public CylinderBoxRegion()
         {
             Radius = 1.0f;
             Origin = Vector3f.Zero;
@@ -70,36 +75,13 @@ namespace f3
             Vector3f pos3 = new Vector3f(x, pos.y, z) + Origin;
             return new Frame3f(pos3, normal);
         }
-
-
-        //public Vector3f From2DCoords(Vector2f pos, float fZShift = 0)
-        //{
-        //    // todo simplify this, use radians only
-        //    float circ = 2 * MathUtil.PIf * Radius;
-        //    float fAngleX = (pos.x / circ) * 360.0f;
-        //    fAngleX *= MathUtil.Deg2Radf;
-        //    float x = (Radius+fZShift) * (float)Math.Sin(fAngleX);
-        //    float z = (Radius+fZShift) * (float)Math.Cos(fAngleX);
-        //    return new Vector3f(x, pos.y, z) + Origin;
-        //}
-
-        //public Vector3f NormalFrom2DCoords(Vector2f pos)
-        //{
-        //    // todo simplify this, use radians only
-        //    float circ = 2 * MathUtil.PIf * Radius;
-        //    float fAngleX = (pos.x / circ) * 360.0f;
-        //    fAngleX *= MathUtil.Deg2Radf;
-        //    float x = (float)Math.Sin(fAngleX);
-        //    float z = (float)Math.Cos(fAngleX);
-        //    return new Vector3f(x, 0, z).Normalized;
-        //}
     }
 
 
 
 
 
-    public class SphereRegion
+    public class SphereBoxRegion : IBoxModelRegion3D
     {
         public float Radius;
         public Vector3f Origin;
@@ -107,7 +89,7 @@ namespace f3
         public float HorzDegreeRight;
         public float VertDegreeBottom;
         public float VertDegreeTop;
-        public SphereRegion(bool init)
+        public SphereBoxRegion()
         {
             Radius = 1.0f;
             Origin = Vector3f.Zero;
@@ -153,24 +135,6 @@ namespace f3
             return new Frame3f(pos3, normal);
         }
 
-
-        //public Vector3f From2DCoords(Vector2f pos, float fZShift = 0)
-        //{
-        //    // todo simplify this, use radians only
-        //    float circ = 2 * MathUtil.PIf * Radius;
-        //    float fAngleX = (pos.x / circ) * 360.0f;
-        //    float fAngleY = (pos.y / circ) * 360.0f;
-        //    Vector3f d = VRUtil.DirectionFromSphereCenter(fAngleX, fAngleY);
-        //    return (Radius * fZShift) * d + Origin;
-        //}
-
-        //public Vector3f NormalFrom2DCoords(Vector2f pos)
-        //{
-        //    float circ = 2 * MathUtil.PIf * Radius;
-        //    float fAngleX = (pos.x / circ) * 360.0f;
-        //    float fAngleY = (pos.y / circ) * 360.0f;
-        //    return VRUtil.DirectionFromSphereCenter(fAngleX, fAngleY);
-        //}
     }
 
 

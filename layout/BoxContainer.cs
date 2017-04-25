@@ -7,9 +7,9 @@ using g3;
 namespace f3
 {
     /// <summary>
-    /// provides bounds to a HUDContainer
+    /// provides bounds to a BoxContainer
     /// </summary>
-    public interface HUDContainerProvider
+    public interface ContainerBoundsProvider
     {
         AxisAlignedBox2f ContainerBounds { get; }
         event BoundsModifiedEventHandler OnContainerBoundsModified;
@@ -17,17 +17,17 @@ namespace f3
 
 
     /// <summary>
-    /// a HUDContainer is a domain that UI elements can exist inside of. 
-    /// So the top-level window bounds would be a HUDContainer
+    /// a BoxContainer is a domain that UI elements can exist inside of. 
+    /// So the top-level window bounds would be a BoxContainer
     /// </summary>
-    public class HUDContainer : IBoxModelElement, IDisposable
+    public class BoxContainer : IBoxModelElement, IDisposable
     {
-        HUDContainerProvider Provider;
+        ContainerBoundsProvider Provider;
         AxisAlignedBox2f bounds;
 
         public event BoundsModifiedEventHandler OnContainerBoundsModified;
 
-        public HUDContainer(HUDContainerProvider provider)
+        public BoxContainer(ContainerBoundsProvider provider)
         {
             Provider = provider;
             Provider.OnContainerBoundsModified += OnProviderBoundsModified;
@@ -66,7 +66,7 @@ namespace f3
 
 
 
-    public class Cockpit2DContainerProvider : HUDContainerProvider, IDisposable
+    public class Cockpit2DContainerProvider : ContainerBoundsProvider, IDisposable
     {
         Cockpit cockpit;
 
@@ -102,14 +102,14 @@ namespace f3
 
 
 
-    public class CockpitCylinderContainerProvider : HUDContainerProvider, IDisposable
+    public class CockpitCylinderContainerProvider : ContainerBoundsProvider, IDisposable
     {
         Cockpit cockpit;
 
         // should this go in container instead??
-        public CylinderRegion Cylinder;
+        public CylinderBoxRegion Cylinder;
 
-        public CockpitCylinderContainerProvider(Cockpit c, CylinderRegion cylinder)
+        public CockpitCylinderContainerProvider(Cockpit c, CylinderBoxRegion cylinder)
         {
             cockpit = c;
             Cylinder = cylinder;
@@ -138,14 +138,14 @@ namespace f3
 
 
 
-    public class CockpitSphereContainerProvider : HUDContainerProvider, IDisposable
+    public class CockpitSphereContainerProvider : ContainerBoundsProvider, IDisposable
     {
         Cockpit cockpit;
 
         // should this go in container instead??
-        public SphereRegion Region;
+        public SphereBoxRegion Region;
 
-        public CockpitSphereContainerProvider(Cockpit c, SphereRegion region)
+        public CockpitSphereContainerProvider(Cockpit c, SphereBoxRegion region)
         {
             cockpit = c;
             Region = region;

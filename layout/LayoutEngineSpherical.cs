@@ -11,8 +11,8 @@ namespace f3
     public class LayoutEngineSpherical : ILayoutEngine
     {
         public Cockpit Cockpit;
-        public HUDContainer ScreenContainer;
-        public HUDContainerLayout Layout;
+        public BoxContainer ScreenContainer;
+        public BoxContainerLayout Layout;
 
         public float StandardDepth;
 
@@ -24,12 +24,12 @@ namespace f3
         List<LayoutItem> items;
 
 
-        public LayoutEngineSpherical(Cockpit parent, SphereRegion region)
+        public LayoutEngineSpherical(Cockpit parent, SphereBoxRegion region)
         {
             this.Cockpit = parent;
             // TODO: who should own cylinder?
-            ScreenContainer = new HUDContainer(new CockpitSphereContainerProvider(parent, region));
-            Layout = new HUD3DSphereLayout(ScreenContainer, region);
+            ScreenContainer = new BoxContainer(new CockpitSphereContainerProvider(parent, region));
+            Layout = new BoxModel3DRegionLayout(ScreenContainer, region);
 
             items = new List<LayoutItem>();
         }
@@ -141,11 +141,11 @@ namespace f3
 
             Func<Vector2f> pinSourceF = options.PinSourcePoint2D;
             if (pinSourceF == null)
-                pinSourceF = HUDLayoutUtil.BoxPointF(elemBoxModel, BoxPosition.Center);
+                pinSourceF = LayoutUtil.BoxPointF(elemBoxModel, BoxPosition.Center);
 
             Func<Vector2f> pinTargetF = options.PinTargetPoint2D;
             if (pinTargetF == null)
-                pinTargetF = HUDLayoutUtil.BoxPointF(ScreenContainer, BoxPosition.Center);
+                pinTargetF = LayoutUtil.BoxPointF(ScreenContainer, BoxPosition.Center);
 
             Layout.AddLayoutItem(element, pinSourceF, pinTargetF, this.StandardDepth + options.DepthShift);
 
@@ -161,54 +161,6 @@ namespace f3
 
 
 
-
-    /// <summary>
-    /// 2.5D box-model-ish layout for cylinder
-    /// </summary>
-    public class HUD3DSphereLayout : HUDContainerLayout
-    {
-
-        public SphereRegion Region;
-
-
-        public HUD3DSphereLayout(HUDContainer container, SphereRegion sphere) : base(container)
-        {
-            Region = sphere;
-        }
-
-        protected override void layout_item(SceneUIElement e)
-        {
-            AxisAlignedBox2f box = Container.Bounds2D;
-
-            IBoxModelElement boxElem = e as IBoxModelElement;
-            IElementFrame eFramed = e as IElementFrame;
-
-            if (PinConstraints.ContainsKey(e)) {
-                Pin pin = PinConstraints[e];
-
-                Vector2f SourcePos = pin.FromF();
-                Vector2f PinToPos = pin.ToF();
-
-                Frame3f objF = eFramed.GetObjectFrame();
-                Vector2f center2 = Region.To2DCoords(objF.Origin);
-
-                Vector2f vOffset = SourcePos - center2;
-                Vector2f vNewPos = PinToPos - vOffset;
-
-                Frame3f frame = Region.From2DCoords(vNewPos, pin.fZ);
-                eFramed.SetObjectFrame(frame);
-
-            } else if (boxElem != null) {
-
-                Frame3f frame = Region.From2DCoords(Vector2f.Zero, 0);
-                eFramed.SetObjectFrame(frame);
-
-
-            } else {
-                // do nothing?
-            }
-        }
-    }
 
 
 }

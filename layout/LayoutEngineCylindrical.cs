@@ -11,8 +11,8 @@ namespace f3
     public class LayoutEngineCylindrical : ILayoutEngine
     {
         public Cockpit Cockpit;
-        public HUDContainer ScreenContainer;
-        public HUDContainerLayout Layout;
+        public BoxContainer ScreenContainer;
+        public BoxContainerLayout Layout;
 
         public float StandardDepth;
 
@@ -24,12 +24,12 @@ namespace f3
         List<LayoutItem> items;
 
 
-        public LayoutEngineCylindrical(Cockpit parent, CylinderRegion cylinder)
+        public LayoutEngineCylindrical(Cockpit parent, CylinderBoxRegion region)
         {
             this.Cockpit = parent;
             // TODO: who should own cylinder?
-            ScreenContainer = new HUDContainer(new CockpitCylinderContainerProvider(parent, cylinder));
-            Layout = new HUD3DCylinderLayout(ScreenContainer, cylinder);
+            ScreenContainer = new BoxContainer(new CockpitCylinderContainerProvider(parent, region));
+            Layout = new BoxModel3DRegionLayout(ScreenContainer, region);
 
             items = new List<LayoutItem>();
         }
@@ -145,11 +145,11 @@ namespace f3
 
             Func<Vector2f> pinSourceF = options.PinSourcePoint2D;
             if (pinSourceF == null)
-                pinSourceF = HUDLayoutUtil.BoxPointF(elemBoxModel, BoxPosition.Center);
+                pinSourceF = LayoutUtil.BoxPointF(elemBoxModel, BoxPosition.Center);
 
             Func<Vector2f> pinTargetF = options.PinTargetPoint2D;
             if (pinTargetF == null)
-                pinTargetF = HUDLayoutUtil.BoxPointF(ScreenContainer, BoxPosition.Center);
+                pinTargetF = LayoutUtil.BoxPointF(ScreenContainer, BoxPosition.Center);
 
             Layout.AddLayoutItem(element, pinSourceF, pinTargetF, this.StandardDepth + options.DepthShift);
 
@@ -162,56 +162,6 @@ namespace f3
     }
 
 
-
-
-
-
-    /// <summary>
-    /// 2.5D box-model-ish layout for cylinder
-    /// </summary>
-    public class HUD3DCylinderLayout : HUDContainerLayout
-    {
-
-        public CylinderRegion Cylinder;
-
-
-        public HUD3DCylinderLayout(HUDContainer container, CylinderRegion cylinder) : base(container)
-        {
-            Cylinder = cylinder;
-        }
-
-        protected override void layout_item(SceneUIElement e)
-        {
-            AxisAlignedBox2f box = Container.Bounds2D;
-
-            IBoxModelElement boxElem = e as IBoxModelElement;
-            IElementFrame eFramed = e as IElementFrame;
-
-            if (PinConstraints.ContainsKey(e)) {
-                Pin pin = PinConstraints[e];
-
-                Vector2f SourcePos = pin.FromF();
-                Vector2f PinToPos = pin.ToF();
-
-                Frame3f objF = eFramed.GetObjectFrame();
-                Vector2f center2 = Cylinder.To2DCoords(objF.Origin);
-
-                Vector2f vOffset = SourcePos - center2;
-                Vector2f vNewPos = PinToPos - vOffset;
-
-                Frame3f frame = Cylinder.From2DCoords(vNewPos, pin.fZ);
-                eFramed.SetObjectFrame(frame);
-
-            } else if (boxElem != null) {
-
-                Frame3f frame = Cylinder.From2DCoords(Vector2f.Zero, 0);
-                eFramed.SetObjectFrame(frame);
-
-            } else {
-                // do nothing?
-            }
-        }
-    }
 
 
 }

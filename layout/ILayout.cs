@@ -21,9 +21,9 @@ namespace f3
 
 
     /// <summary>
-    /// Standard base class for 2D layouts. Stores a set of SceneUIElement objects.
+    /// Standard base class for layouts. Stores a set of SceneUIElement objects.
     /// </summary>
-    public abstract class HUDLayout : ILayout
+    public abstract class BaseLayout : ILayout
     {
         // force immediate layout recomputation
         public abstract void RecomputeLayout();

@@ -4,7 +4,7 @@ using g3;
 
 namespace f3
 {
-    public static class HUDLayoutUtil
+    public static class LayoutUtil
     {
 
         /// <summary>

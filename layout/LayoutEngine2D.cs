@@ -12,8 +12,8 @@ namespace f3
     public class LayoutEngine2D : ILayoutEngine
     {
         public Cockpit Cockpit;
-        public HUDContainer ScreenContainer;
-        public HUDContainerLayout Layout;
+        public BoxContainer ScreenContainer;
+        public BoxContainerLayout Layout;
 
         public float StandardDepth;
 
@@ -29,8 +29,8 @@ namespace f3
         public LayoutEngine2D(Cockpit parent)
         {
             this.Cockpit = parent;
-            ScreenContainer = new HUDContainer(new Cockpit2DContainerProvider(parent));
-            Layout = new HUDBoxModel2DLayout(ScreenContainer);
+            ScreenContainer = new BoxContainer(new Cockpit2DContainerProvider(parent));
+            Layout = new BoxModel2DLayout(ScreenContainer);
 
             items = new List<LayoutItem>();
         }
@@ -146,11 +146,11 @@ namespace f3
 
             Func<Vector2f> pinSourceF = options.PinSourcePoint2D;
             if (pinSourceF == null)
-                pinSourceF = HUDLayoutUtil.BoxPointF(elemBoxModel, BoxPosition.Center);
+                pinSourceF = LayoutUtil.BoxPointF(elemBoxModel, BoxPosition.Center);
 
             Func<Vector2f> pinTargetF = options.PinTargetPoint2D;
             if (pinTargetF == null)
-                pinTargetF = HUDLayoutUtil.BoxPointF(ScreenContainer, BoxPosition.Center);
+                pinTargetF = LayoutUtil.BoxPointF(ScreenContainer, BoxPosition.Center);
 
             Layout.AddLayoutItem(element, pinSourceF, pinTargetF, this.StandardDepth + options.DepthShift);
 

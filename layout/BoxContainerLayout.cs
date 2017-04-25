@@ -7,23 +7,23 @@ namespace f3
     /// <summary>
     /// abstract 2.5D Layout relative to a Container.
     /// Positions of Elements are fixed via Constraints. 
-    /// Currently only supports Point-to-Point constraints.
+    /// Currently only supports Point-to-Point Pin constraints.
     /// No understanding of dependencies !! 
     /// 
-    /// HUDLayoutUtil can be used to easily construct point Func's for BoxModel elements
+    /// LayoutUtil can be used to easily construct point Func's for BoxModel elements
     /// 
     /// Need to implement layout_item in subclasses to specify
     /// actual layout behavior
     /// 
     /// </summary>
-    public abstract class HUDContainerLayout : HUDLayout, IDisposable
+    public abstract class BoxContainerLayout : BaseLayout, IDisposable
     {
         // must implement these
         protected abstract void layout_item(SceneUIElement e);
 
 
-        HUDContainer container;
-        public HUDContainer Container {
+        BoxContainer container;
+        public BoxContainer Container {
             get { return container; }
         }
 
@@ -42,7 +42,7 @@ namespace f3
         public bool LayoutItemOnAdd = true;
 
 
-        public HUDContainerLayout(HUDContainer container)
+        public BoxContainerLayout(BoxContainer container)
         {
             this.container = container;
             this.container.OnContainerBoundsModified += Container_OnContainerBoundsModified;
@@ -67,13 +67,13 @@ namespace f3
         /// 
         /// Example that will keep widget bottom-right at container bottom-right:
         ///    AddLayoutItem(hudWidget, 
-        ///       HUDLayoutUtil.BoxPointF(hudWidget, BoxPosition.BottomRight),
-        ///       HUDLayoutUtil.BoxPointF(Container, BoxPosition.BottomRight) );
+        ///       LayoutUtil.BoxPointF(hudWidget, BoxPosition.BottomRight),
+        ///       LayoutUtil.BoxPointF(Container, BoxPosition.BottomRight) );
         /// </summary>
         public void AddLayoutItem(SceneUIElement Element, Func<Vector2f> ElementPoint, Func<Vector2f> PinTo, float fZ = 0)
         {
             if (Element is IBoxModelElement == false)
-                throw new Exception("HUDContainerLayout.AddLayoutItem : Element must implement IBoxModelElement!");
+                throw new Exception("BoxContainerLayout.AddLayoutItem : Element must implement IBoxModelElement!");
 
             base.AddLayoutItem(Element);
             PinConstraints.Add(Element, new Pin() { FromF = ElementPoint, ToF = PinTo, fZ = fZ });
@@ -108,38 +108,6 @@ namespace f3
 
     }
 
-
-
-
-    /// <summary>
-    /// 2.5D box model layout
-    /// </summary>
-    public class HUDBoxModel2DLayout : HUDContainerLayout
-    {
-        public HUDBoxModel2DLayout(HUDContainer container) : base(container)
-        {
-        }
-
-        protected override void layout_item(SceneUIElement e)
-        {
-            AxisAlignedBox2f box = Container.Bounds2D;
-
-            IBoxModelElement boxElem = e as IBoxModelElement;
-            if (PinConstraints.ContainsKey(e)) {
-                Pin pin = PinConstraints[e];
-
-                Vector2f SourcePos = pin.FromF();
-                Vector2f PinToPos = pin.ToF();
-                BoxModel.SetObjectPosition(boxElem, SourcePos, PinToPos, pin.fZ);
-
-            } else if (boxElem != null) {
-                BoxModel.SetObjectPosition(boxElem, BoxPosition.Center, box.Center, 0);
-
-            } else {
-                // do nothing?
-            }
-        }
-    }
 
 
 
