@@ -9,7 +9,7 @@ namespace f3
     /// <summary>
     /// provides bounds to a BoxContainer
     /// </summary>
-    public interface ContainerBoundsProvider
+    public interface IContainerBoundsProvider
     {
         AxisAlignedBox2f ContainerBounds { get; }
         event BoundsModifiedEventHandler OnContainerBoundsModified;
@@ -19,15 +19,17 @@ namespace f3
     /// <summary>
     /// a BoxContainer is a domain that UI elements can exist inside of. 
     /// So the top-level window bounds would be a BoxContainer
+    /// 
+    /// [TODO] why do we have this class??? Couldn't we merge w/ IContainerBoundsProvider implementations?
     /// </summary>
     public class BoxContainer : IBoxModelElement, IDisposable
     {
-        ContainerBoundsProvider Provider;
+        IContainerBoundsProvider Provider;
         AxisAlignedBox2f bounds;
 
         public event BoundsModifiedEventHandler OnContainerBoundsModified;
 
-        public BoxContainer(ContainerBoundsProvider provider)
+        public BoxContainer(IContainerBoundsProvider provider)
         {
             Provider = provider;
             Provider.OnContainerBoundsModified += OnProviderBoundsModified;
@@ -68,7 +70,7 @@ namespace f3
     /// <summary>
     /// Provides 2D window dimensions as box container. Notifies when window is resized.
     /// </summary>
-    public class Cockpit2DContainerProvider : ContainerBoundsProvider, IDisposable
+    public class Cockpit2DContainerProvider : IContainerBoundsProvider, IDisposable
     {
         Cockpit cockpit;
 
@@ -105,12 +107,12 @@ namespace f3
     /// Provides fixed BoxModelRegion as bounds, which could be a subregion of a 3D surface.
     /// Does *not* automatically notify of changes to Region, you can call NotifyParametersChanged() explicitly.
     /// </summary>
-    public class BoxRegionContainerProvider : ContainerBoundsProvider, IDisposable
+    public class BoxRegionContainerProvider : IContainerBoundsProvider, IDisposable
     {
         public Cockpit Cockpit;
-        public IBoxModelRegion3D Region;
+        public ISurfaceBoxRegion Region;
 
-        public BoxRegionContainerProvider(Cockpit c, IBoxModelRegion3D region)
+        public BoxRegionContainerProvider(Cockpit c, ISurfaceBoxRegion region)
         {
             Cockpit = c;
             Region = region;

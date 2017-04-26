@@ -31,8 +31,8 @@ namespace f3
         List<IShortcutKeyHandler> vKeyHandlers;
 
 
-        Dictionary<string, ILayoutEngine> Layouts;
-        ILayoutEngine defaultLayout;
+        Dictionary<string, ILayout> Layouts;
+        ILayout defaultLayout;
 
 
         public enum MovementMode
@@ -72,7 +72,7 @@ namespace f3
 			vUIElements = new List<SceneUIElement> ();
             UIElementLayer = FPlatform.HUDLayer;
 
-            Layouts = new Dictionary<string, ILayoutEngine>();
+            Layouts = new Dictionary<string, ILayout>();
             defaultLayout = null;
 
             vKeyHandlers = new List<IShortcutKeyHandler>();
@@ -311,12 +311,12 @@ namespace f3
 
 
         /// <summary>
-        /// Register a layout engine
+        /// Register a layout
         /// </summary>
-        public void AddLayoutEngine(ILayoutEngine e, string name, bool bSetAsDefault = false)
+        public void AddLayout(ILayout e, string name, bool bSetAsDefault = false)
         {
             if (Layouts.ContainsKey(name))
-                throw new Exception("Cockpit.AddLayoutEngine: tried to register duplicate name " + name);
+                throw new Exception("Cockpit.AddLayout: tried to register duplicate name " + name);
 
             // always set first layout as default, until another default comes along
             if (Layouts.Count == 0)
@@ -328,25 +328,25 @@ namespace f3
         }
 
 
-        public void SetDefaultLayoutEngine(string name)
+        public void SetDefaultLayout(string name)
         {
-            ILayoutEngine setdefault = null;
+            ILayout setdefault = null;
             if (Layouts.TryGetValue(name, out setdefault) == false)
-                throw new Exception("Cockpit.SetDefaultLayoutEngine: could not find layout named " + name);
+                throw new Exception("Cockpit.SetDefaultLayout: could not find layout named " + name);
             defaultLayout = setdefault;
         }
 
         /// <summary>
-        /// Remove named layout engine. 
+        /// Remove named layout. 
         /// If bRemoveAllElements, then layout.RemoveAll() is called to clean up contents
         /// (otherwise you must do yourself).
-        /// Note: if default layout is removed, we set default to null. You need to call SetDefaultLayoutEngine in this case.
+        /// Note: if default layout is removed, we set default to null. You need to call SetDefaultLayout in this case.
         /// </summary>
-        public void RemoveLayoutEngine(string name, bool bRemoveAllElements = true)
+        public void RemoveLayout(string name, bool bRemoveAllElements = true)
         {
-            ILayoutEngine remove = null;
+            ILayout remove = null;
             if (Layouts.TryGetValue(name, out remove) == false)
-                throw new Exception("Cockpit.RemoveLayoutEngine: could not find layout named " + name);
+                throw new Exception("Cockpit.RemoveLayout: could not find layout named " + name);
 
             Layouts.Remove(name);
 
@@ -361,20 +361,20 @@ namespace f3
 
 
         /// <summary>
-        /// get default LayoutEngine
+        /// get default Layout
         /// </summary>
-        public ILayoutEngine DefaultLayout
+        public ILayout DefaultLayout
         {
             get { return defaultLayout; }
         }
 
         /// <summary>
-        /// Find LayoutEngine with given name, or default layout if no argument
+        /// Find Layout with given name, or default layout if no argument
         /// </summary>
-        public ILayoutEngine Layout(string name = "") {
+        public ILayout Layout(string name = "") {
             if (name == "")
                 return defaultLayout;
-            ILayoutEngine r = null;
+            ILayout r = null;
             if (Layouts.TryGetValue(name, out r) == false)
                 throw new Exception("Cockpit.Layout: could not find layout named " + name);
             return r;

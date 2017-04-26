@@ -1,62 +1,65 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using g3;
 
 namespace f3
 {
+    [Flags]
+    public enum LayoutFlags
+    {
+        None = 0,
+
+        AnimatedShow = 1<<1,
+        AnimatedDismiss = 1<<2,
+
+
+        AnimatedTransitions = AnimatedShow | AnimatedDismiss
+    }
+
+
+
 
     /// <summary>
-    /// Base interface for anything that can compute a Layout
-    /// (maybe this is useless??)
+    /// ILayoutEngine implementations will use information you provide here to
+    /// construct layouts. You can subclass this to provide additional information
+    /// to custom layout implementations
     /// </summary>
+    public class LayoutOptions
+    {
+        public LayoutFlags Flags = LayoutFlags.None; 
+
+        // layout constraint controls
+        public Func<Vector2f> PinSourcePoint2D;
+        public Func<Vector2f> PinTargetPoint2D;
+
+        // distance UI element is shifted in/out of standard UI plane/surface
+        public float DepthShift = 0;
+    }
+
+
     public interface ILayout
     {
-        void RecomputeLayout();
+        bool Contains(SceneUIElement element);
+        void Add(SceneUIElement element, LayoutOptions options);
+        void Remove(SceneUIElement element, bool bDestroy);
 
-        void AddLayoutItem(SceneUIElement element);
-        bool RemoveLayoutItem(SceneUIElement element);
-    }
-
-
-
-    /// <summary>
-    /// Standard base class for layouts. Stores a set of SceneUIElement objects.
-    /// </summary>
-    public abstract class BaseLayout : ILayout
-    {
-        // force immediate layout recomputation
-        public abstract void RecomputeLayout();
+        // remove all UI elements
+        void RemoveAll(bool bDestroy);
 
 
-        protected List<SceneUIElement> LayoutItems = new List<SceneUIElement>();
-        public ReadOnlyCollection<SceneUIElement> Items
-        {
-            get { return LayoutItems.AsReadOnly(); }
-        }
+        /// <summary>
+        /// Generally we want to set up a UI in some abstract coordinates, and then
+        /// map to eg pixel coordinates. However currently we cannot handle that
+        /// transparently, so client must do it themselves by multiplying by UIScaleFactor
+        /// </summary>
+        float UIScaleFactor { get; }
 
 
-        public virtual void AddLayoutItem(SceneUIElement element)
-        {
-            if (LayoutItems.Contains(element))
-                throw new Exception("HUDLayout.AddLayoutItem: element " + element.Name + " already in layout");
-
-            LayoutItems.Add(element);
-        }
-
-        public virtual bool RemoveLayoutItem(SceneUIElement element)
-        {
-            if ( LayoutItems.Contains(element) ) {
-                LayoutItems.Remove(element);
-                return true;
-            }
-            return false;
-        }
-
+        /// <summary>
+        /// If this layout has a "frame" that other things can be aligned relative to,
+        /// you can access that frame via this property. May be null.
+        /// </summary>
+        IBoxModelElement BoxElement { get; }
 
     }
-
-
-
-
 }

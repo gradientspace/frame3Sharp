@@ -12,7 +12,7 @@ namespace f3
     /// boxmodel space, and back to the 3D surface. This is useful
     /// for doing boxmodel-style 2D layout on a 3D surface.
     /// </summary>
-    public interface IBoxModelRegion3D
+    public interface ISurfaceBoxRegion
     {
         AxisAlignedBox2f Bounds2D { get; }
         Vector2f To2DCoords(Vector3f pos);
@@ -21,7 +21,7 @@ namespace f3
 
 
 
-    public class CylinderBoxRegion : IBoxModelRegion3D
+    public class CylinderBoxRegion : ISurfaceBoxRegion
     {
         public float Radius;
         public Vector3f Origin;
@@ -81,7 +81,7 @@ namespace f3
 
 
 
-    public class SphereBoxRegion : IBoxModelRegion3D
+    public class SphereBoxRegion : ISurfaceBoxRegion
     {
         public float Radius;
         public Vector3f Origin;

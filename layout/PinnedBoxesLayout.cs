@@ -7,14 +7,14 @@ using g3;
 namespace f3
 {
     /// <summary>
-    /// Basic 2.5D cockpit UI layout engine, built on top of HUDContainerLayout
+    /// Basic 2.5D cockpit UI layout engine, built on top of PinnedBoxesLayoutSolver
     /// Quirks:
     ///   - automatically uses fade in/out transitions on Add/Remove
     /// </summary>
-    public class BoxModelLayoutEngine : ILayoutEngine
+    public class PinnedBoxesLayout : ILayout
     {
         public Cockpit Cockpit;
-        public BoxContainerLayout Layout;
+        public PinnedBoxesLayoutSolver Solver;
 
         public float StandardDepth;
 
@@ -27,17 +27,14 @@ namespace f3
         List<LayoutItem> items;
 
 
-        public BoxModelLayoutEngine(Cockpit parent, BoxContainerLayout containerLayout)
+        public PinnedBoxesLayout(Cockpit parent, PinnedBoxesLayoutSolver solver)
         {
+            this.StandardDepth = 1.0f;
+
             this.Cockpit = parent;
-            Layout = containerLayout;
+            Solver = solver;
 
             items = new List<LayoutItem>();
-        }
-
-        public virtual BoxContainer Container
-        {
-            get { return Layout.Container; }
         }
 
 
@@ -50,7 +47,7 @@ namespace f3
 
         virtual public IBoxModelElement BoxElement
         {
-            get { return Layout.Container; }
+            get { return Solver.Container; }
         }
 
 
@@ -125,7 +122,7 @@ namespace f3
                 throw new Exception("BoxModelLayoutEngine.Add: element must be a HUDStandardItem");
 
             remove_item(element);
-            Layout.RemoveLayoutItem(element);
+            Solver.RemoveLayoutItem(element);
 
             // this will remove from cockpit after transition
             if ((item.flags & LayoutFlags.AnimatedDismiss) != 0)
@@ -160,9 +157,9 @@ namespace f3
 
             Func<Vector2f> pinTargetF = options.PinTargetPoint2D;
             if (pinTargetF == null)
-                pinTargetF = LayoutUtil.BoxPointF(Layout.Container, BoxPosition.Center);
+                pinTargetF = LayoutUtil.BoxPointF(Solver.Container, BoxPosition.Center);
 
-            Layout.AddLayoutItem(element, pinSourceF, pinTargetF, this.StandardDepth + options.DepthShift);
+            Solver.AddLayoutItem(element, pinSourceF, pinTargetF, this.StandardDepth + options.DepthShift);
 
             // auto-show
             if ( (options.Flags & LayoutFlags.AnimatedShow) != 0 )
