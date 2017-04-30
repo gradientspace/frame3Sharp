@@ -80,7 +80,7 @@ namespace f3
         // SceneObject impl
         //
 
-        override public UnityEngine.GameObject RootGameObject
+        override public fGameObject RootGameObject
         {
             get { return pivotGO; }
         }

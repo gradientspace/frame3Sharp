@@ -186,7 +186,7 @@ namespace f3
 
 
         public static readonly AxisAlignedBox3f InvalidBounds = AxisAlignedBox3f.Infinite;
-            //new Bounds(Vector3.zero, new Vector3(-1.31337f, -1.31337f, -1.31337f));
+                //new Bounds(Vector3.zero, new Vector3(-1.31337f, -1.31337f, -1.31337f));
 
         public static AxisAlignedBox3f GetBoundingBox(GameObject go)
         {
@@ -208,7 +208,7 @@ namespace f3
         }
 
 
-        public static AxisAlignedBox3f GetBoundingBox(List<GameObject> objects) {
+        public static AxisAlignedBox3f GetBoundingBox(List<fGameObject> objects) {
             if (objects.Count == 0)
                 return InvalidBounds;
             AxisAlignedBox3f b = GetBoundingBox(objects[0]);

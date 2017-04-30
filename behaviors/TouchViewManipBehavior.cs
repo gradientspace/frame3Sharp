@@ -135,9 +135,9 @@ namespace f3
                 Vector2f center_cur = 0.5f * (input.vTouchPosition2D + input.vSecondTouchPosition2D);
                 Vector2f dt = TouchPanSpeed * (center_cur - center_initial);
 
-                context.ActiveCamera.GetManipulator().SetCurrentSceneState(context.Scene, startCamState);
-                context.ActiveCamera.GetManipulator().SceneZoom(context.Scene, context.ActiveCamera, dz);
-                context.ActiveCamera.GetManipulator().ScenePan(context.Scene, context.ActiveCamera, dt.x, dt.y);
+                context.ActiveCamera.Manipulator().SetCurrentSceneState(context.Scene, startCamState);
+                context.ActiveCamera.Manipulator().SceneZoom(context.Scene, context.ActiveCamera, dz);
+                context.ActiveCamera.Manipulator().ScenePan(context.Scene, context.ActiveCamera, dt.x, dt.y);
 
             }
 

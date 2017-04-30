@@ -34,7 +34,7 @@ namespace f3
             Frame3f sourceW = source.GetLocalFrame(CoordSpace.WorldCoords);
             this.SetLocalFrame(sourceW, CoordSpace.WorldCoords);
 
-            target.RootGameObject.transform.SetParent(gameObject.transform, true);
+            target.RootGameObject.SetParent(gameObject, true);
 
             increment_timestamp();
         }
@@ -50,7 +50,7 @@ namespace f3
         // SceneObject impl
         //
 
-        virtual public GameObject RootGameObject
+        virtual public fGameObject RootGameObject
         {
             get { return gameObject; }
         }
@@ -119,14 +119,14 @@ namespace f3
         {
             throw new InvalidOperationException("TransientXFormSO doesn't have its own assigned material");
         }
-        public void PushOverrideMaterial(Material m)
+        public void PushOverrideMaterial(fMaterial m)
         {
         }
         public void PopOverrideMaterial()
         {
         }
 
-        virtual public Material GetActiveMaterial() {
+        virtual public fMaterial GetActiveMaterial() {
             throw new InvalidOperationException("GroupSO doesn't have its own active material");
         }
 
@@ -172,12 +172,12 @@ namespace f3
         }
         virtual public Vector3f GetLocalScale()
         {
-            return RootGameObject.transform.localScale;
+            return RootGameObject.GetLocalScale();
         }
         virtual public void SetLocalScale(Vector3f scale)
         {
             if (SupportsScaling) {
-                RootGameObject.transform.localScale = scale;
+                RootGameObject.SetLocalScale(scale);
                 increment_timestamp();
                 if (OnTransformModified != null)
                     OnTransformModified(this);

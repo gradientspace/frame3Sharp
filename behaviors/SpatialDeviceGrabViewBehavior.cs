@@ -67,18 +67,18 @@ namespace f3
                  (data.which == CaptureSide.Left && input.bRightShoulderPressed) ||
                  (data.which == CaptureSide.Right && input.bLeftShoulderPressed)  ) 
             {
-                cockpit.ActiveCamera.gameObject.GetComponent<CameraTarget>().ShowTarget = false;
+                cockpit.ActiveCamera.SetTargetVisible(false);
                 return Capture.End;
             }
 
             // [RMS] this is a hack to release input for shoulder+trigger gestures
             if ( (data.which == CaptureSide.Left && input.bLeftTriggerPressed) ||
                  (data.which == CaptureSide.Right && input.bRightTriggerPressed) ) {
-                cockpit.ActiveCamera.gameObject.GetComponent<CameraTarget>().ShowTarget = false;
+                cockpit.ActiveCamera.SetTargetVisible(false);
                 return Capture.End;
             }
 
-            cockpit.ActiveCamera.gameObject.GetComponent<CameraTarget>().ShowTarget = false;
+            cockpit.ActiveCamera.SetTargetVisible(false);
 
             GrabHandInfo hi = (GrabHandInfo)data.custom_data;
 
@@ -93,6 +93,7 @@ namespace f3
                 CurF = input.RightHandFrame;
             }
 
+/*          orbit-style variant, does not work yet
             // translation is just controller world-movement
             Vector3f translation = CurF.Origin - StartF.Origin;
 
@@ -107,6 +108,7 @@ namespace f3
             Frame3f XAlignedStartF = StartF; XAlignedStartF.AlignAxis(0, Vector3f.AxisX);
             Frame3f XAlignedCurF = CurF; XAlignedCurF.AlignAxis(0, Vector3f.AxisX);
             float fAngleY = (float)MathUtil.PlaneAngleSignedD(XAlignedStartF.Y, XAlignedCurF.Y, Vector3f.AxisX);
+*/
 
             Frame3f relStartF = StartF.ToFrame(hi.startCamF);
             Frame3f curF = CurF.FromFrame(relStartF);
@@ -130,7 +132,7 @@ namespace f3
 
         public override Capture ForceEndCapture(InputState input, CaptureData data)
         {
-            cockpit.ActiveCamera.gameObject.GetComponent<CameraTarget>().ShowTarget = false;
+            cockpit.ActiveCamera.SetTargetVisible(false);
             return Capture.End;
         }
 

@@ -22,15 +22,15 @@ namespace f3
 
         public virtual void update_curve(Vector3f[] Vertices)
         {
-            if (r.numPositions != Vertices.Length)
-                r.numPositions = Vertices.Length;
+            if (r.positionCount != Vertices.Length)
+                r.positionCount = Vertices.Length;
             for (int i = 0; i < Vertices.Length; ++i)
                 r.SetPosition(i, Vertices[i]);
         }
         public virtual void update_num_points(int N)
         {
-            if (r.numPositions != N)
-                r.numPositions = N;
+            if (r.positionCount != N)
+                r.positionCount = N;
         }
         public virtual void update_position(int i, Vector3f v)
         {

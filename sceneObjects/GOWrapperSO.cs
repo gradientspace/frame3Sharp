@@ -48,7 +48,7 @@ namespace f3
         //
         // SceneObject impl
         //
-        override public GameObject RootGameObject
+        override public fGameObject RootGameObject
         {
             get { return parentGO; }
         }
@@ -91,7 +91,7 @@ namespace f3
             return base.GetAssignedSOMaterial();
         }
 
-        override public void PushOverrideMaterial(Material m) {
+        override public void PushOverrideMaterial(fMaterial m) {
             if (AllowMaterialChanges)
                 base.PushOverrideMaterial(m);
         }

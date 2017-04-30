@@ -189,6 +189,11 @@ namespace f3
         }
 
 
+        public void SetActive(bool bActive)
+        {
+            go.SetActive(bActive);
+        }
+
 
 
 
@@ -202,6 +207,16 @@ namespace f3
             return go.transform.position;
         }
 
+        public virtual void SetRotation(Quaternionf rotation)
+        {
+            go.transform.rotation = rotation;
+        }
+        public virtual Quaternionf GetRotation()
+        {
+            return go.transform.rotation;
+        }
+
+
         public virtual void SetLocalPosition(Vector3f vPosition)
         {
             go.transform.localPosition = vPosition;
@@ -210,6 +225,16 @@ namespace f3
         {
             return go.transform.localPosition;
         }
+
+        public virtual void SetLocalRotation(Quaternionf rotation)
+        {
+            go.transform.localRotation = rotation;
+        }
+        public virtual Quaternionf GetLocalRotation()
+        {
+            return go.transform.localRotation;
+        }
+
 
         public virtual void SetLocalScale(Vector3f vScale)
         {
@@ -252,9 +277,26 @@ namespace f3
         {
             go.transform.Rotate(axis, fAngleDeg);
         }
+        public virtual void RotateAroundD(Vector3f point, Vector3f axis, float fAngleDeg)
+        {
+            go.transform.RotateAround(point, axis, fAngleDeg);
+        }
         public virtual void Translate(Vector3f translation)
         {
             go.transform.Translate(translation);
+        }
+
+
+
+        // what to do about this??
+        public virtual T AddComponent<T>() where T : MonoBehaviour
+        {
+            T comp = go.AddComponent<T>();
+            return comp;
+        }
+        public virtual T GetComponent<T>() where T : MonoBehaviour
+        {
+            return go.GetComponent<T>();
         }
 
 
@@ -442,7 +484,7 @@ namespace f3
             : base(go, curveRenderer)
         {
             LineRenderer r = go.GetComponent<LineRenderer>();
-            r.numPositions = 2;
+            r.positionCount = 2;
         }
 
 

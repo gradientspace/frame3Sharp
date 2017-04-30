@@ -61,7 +61,7 @@ namespace f3
 
 		#region SceneUIElement implementation
 
-		override public GameObject RootGameObject {
+		override public fGameObject RootGameObject {
 			get { return rootGO; }
 		}
 

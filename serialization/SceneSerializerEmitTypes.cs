@@ -133,7 +133,7 @@ namespace f3
             Frame3f f = so.GetLocalFrame(CoordSpace.ObjectCoords);
             o.AddAttribute(IOStrings.APosition, f.Origin );
             o.AddAttribute(IOStrings.AOrientation, f.Rotation );
-            o.AddAttribute(IOStrings.AScale, so.RootGameObject.transform.localScale);
+            o.AddAttribute(IOStrings.AScale, so.RootGameObject.GetLocalScale());
             o.EndStruct();
         }
 

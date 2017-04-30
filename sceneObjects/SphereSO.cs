@@ -110,7 +110,7 @@ namespace f3
         //
         // SceneObject impl
         //
-        override public GameObject RootGameObject
+        override public fGameObject RootGameObject
         {
             get { return sphere; }
         }
@@ -147,7 +147,7 @@ namespace f3
                     hit = new SORayHit(hitg, this);
 
                     // compute analytic normal
-                    hit.hitNormal = (hit.hitPos - this.RootGameObject.transform.position).normalized;
+                    hit.hitNormal = (hit.hitPos - this.RootGameObject.GetPosition()).Normalized;
 
                     return true;
                 }

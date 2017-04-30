@@ -26,12 +26,12 @@ namespace f3
         // stored frames from target used during click-drag interaction
         Frame3f scaleFrameW;     // world-space frame of target
         Frame3f cameraFrameW;    // camera-aligned frame, but centered at scaleFrameW.origin
-        Vector3 startScale;     // scale value at begin capture
+        Vector3f startScale;     // scale value at begin capture
 
         // computed values during interaction
-        Vector3 vInitialHitPos;     // initial hit position in frame
+        Vector3f vInitialHitPos;     // initial hit position in frame
 
-        public override bool BeginCapture(ITransformable target, Ray worldRay, UIRayHit hit)
+        public override bool BeginCapture(ITransformable target, Ray3f worldRay, UIRayHit hit)
         {
             if (target.SupportsScaling == false)
                 return false;
@@ -42,21 +42,21 @@ namespace f3
             startScale = target.GetLocalScale();
 
             // save initial hitpos in plane
-            vInitialHitPos = cameraFrameW.RayPlaneIntersection(worldRay.origin, worldRay.direction, 2);
+            vInitialHitPos = cameraFrameW.RayPlaneIntersection(worldRay.Origin, worldRay.Direction, 2);
 
             return true;
         }
 
-        public override bool UpdateCapture(ITransformable target, Ray worldRay)
+        public override bool UpdateCapture(ITransformable target, Ray3f worldRay)
         {
             // ray-hit with world-space translation plane
-            Vector3 planeHit = cameraFrameW.RayPlaneIntersection(worldRay.origin, worldRay.direction, 2);
+            Vector3f planeHit = cameraFrameW.RayPlaneIntersection(worldRay.Origin, worldRay.Direction, 2);
 
             // construct delta in world space and project into frame coordinates
-            Vector3 delta = (planeHit - vInitialHitPos);
+            Vector3f delta = (planeHit - vInitialHitPos);
             delta *= ScaleMultiplierF();
-            //float dx = Vector3.Dot(delta, cameraFrameW.GetAxis(0));
-            float dy = Vector3.Dot(delta, cameraFrameW.GetAxis(1));
+            //float dx = Vector3f.Dot(delta, cameraFrameW.GetAxis(0));
+            float dy = Vector3f.Dot(delta, cameraFrameW.GetAxis(1));
             float scaleDelta = 1.0f + dy;
             float scaleFactor = Mathf.Clamp(scaleDelta, 0.1f, 1000.0f);
 

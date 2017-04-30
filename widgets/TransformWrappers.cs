@@ -145,9 +145,9 @@ namespace f3
         {
             Frame3f targetFrame = target.GetLocalFrame(eSpace);
             if (eSpace == CoordSpace.WorldCoords) {
-                return new Frame3f(targetFrame.Origin, parentScene.RootGameObject.transform.rotation);
+                return new Frame3f(targetFrame.Origin, parentScene.RootGameObject.GetRotation());
             } else if (eSpace == CoordSpace.SceneCoords) {
-                return new Frame3f(targetFrame.Origin, parentScene.RootGameObject.transform.localRotation);
+                return new Frame3f(targetFrame.Origin, parentScene.RootGameObject.GetLocalRotation());
             } else {
                 return new Frame3f(targetFrame.Origin, curRotation * Quaternionf.Identity);
             }

@@ -149,7 +149,7 @@ namespace f3
             Vector3[] verts = new Vector3[curve.Length];
             for (int i = 0; i < curve.Length; ++i)
                 verts[i] = (Vector3)curve[i];
-            lr.numPositions = curve.Length;
+            lr.positionCount = curve.Length;
             lr.SetPositions(verts);
             lr.useWorldSpace = (parent == null && bIsInWorldPos);
 

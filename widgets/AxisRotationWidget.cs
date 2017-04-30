@@ -19,13 +19,13 @@ namespace f3
 		// stored frames from target used during click-drag interaction
 		Frame3f rotateFrameL;		// local-space frame 
 		Frame3f rotateFrameW;		// world-space frame
-		Vector3 rotateAxisW;		// world-space axis we are rotating around (redundant...)
+		Vector3f rotateAxisW;		// world-space axis we are rotating around (redundant...)
 
 		// computed values during interaction
 		Frame3f raycastFrame;		// camera-facing plane containing translateAxisW
 		float fRotateStartAngle;
 
-		public override bool BeginCapture(ITransformable target, Ray worldRay, UIRayHit hit)
+		public override bool BeginCapture(ITransformable target, Ray3f worldRay, UIRayHit hit)
 		{
 			// save local and world frames
 			rotateFrameL = target.GetLocalFrame (CoordSpace.ObjectCoords);
@@ -47,10 +47,10 @@ namespace f3
 			return true;
 		}
 
-		public override bool UpdateCapture(ITransformable target, Ray worldRay)
+		public override bool UpdateCapture(ITransformable target, Ray3f worldRay)
 		{
 			// ray-hit with plane perpendicular to rotateAxisW
-			Vector3f planeHit = raycastFrame.RayPlaneIntersection (worldRay.origin, worldRay.direction, 2);
+			Vector3f planeHit = raycastFrame.RayPlaneIntersection (worldRay.Origin, worldRay.Direction, 2);
 
 			// find angle of hitpos in 2D plane perp to rotateAxis, and compute delta-angle
 			Vector3f dv = planeHit - rotateFrameW.Origin;

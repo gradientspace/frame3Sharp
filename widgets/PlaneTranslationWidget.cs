@@ -27,32 +27,32 @@ namespace f3
 		Frame3f translateFrameW;		// world-space frame
 
 		// computed values during interaction
-		Vector3 vInitialHitPos;		// initial hit position in frame
+		Vector3f vInitialHitPos;		// initial hit position in frame
 
-		public override bool BeginCapture(ITransformable target, Ray worldRay, UIRayHit hit)
+		public override bool BeginCapture(ITransformable target, Ray3f worldRay, UIRayHit hit)
 		{
 			// save local and world frames
 			translateFrameL = target.GetLocalFrame (CoordSpace.ObjectCoords);
 			translateFrameW = target.GetLocalFrame (CoordSpace.WorldCoords);
 
 			// save initial hitpos in translation plane
-			vInitialHitPos = translateFrameW.RayPlaneIntersection(worldRay.origin, worldRay.direction, nTranslationPlaneNormal);
+			vInitialHitPos = translateFrameW.RayPlaneIntersection(worldRay.Origin, worldRay.Direction, nTranslationPlaneNormal);
 
 			return true;
 		}
 
-		public override bool UpdateCapture(ITransformable target, Ray worldRay)
+		public override bool UpdateCapture(ITransformable target, Ray3f worldRay)
 		{
 			// ray-hit with world-space translation plane
-			Vector3 planeHit = translateFrameW.RayPlaneIntersection(worldRay.origin, worldRay.direction, nTranslationPlaneNormal);
+			Vector3f planeHit = translateFrameW.RayPlaneIntersection(worldRay.Origin, worldRay.Direction, nTranslationPlaneNormal);
 			int e0 = (nTranslationPlaneNormal + 1) % 3;
 			int e1 = (nTranslationPlaneNormal + 2) % 3;
 
 			// construct delta in world space and project into frame coordinates
-			Vector3 delta = (planeHit - vInitialHitPos);
+			Vector3f delta = (planeHit - vInitialHitPos);
             delta *= TranslationScaleF();
-			float dx = Vector3.Dot (delta, translateFrameW.GetAxis (e0));
-			float dy = Vector3.Dot (delta, translateFrameW.GetAxis (e1));
+			float dx = Vector3f.Dot (delta, translateFrameW.GetAxis (e0));
+			float dy = Vector3f.Dot (delta, translateFrameW.GetAxis (e1));
 
             // construct new local frame translated along plane axes
             Frame3f newFrame = translateFrameL;

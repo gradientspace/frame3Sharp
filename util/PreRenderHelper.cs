@@ -20,7 +20,7 @@ namespace f3
     {
         public Action PreRenderF = () => { };
 
-        GameObject dummyGO;
+        fGameObject dummyGO;
         SceneUIParent parent;
 
         // set this to true if you want this class to destroy the dummy GO on Disconnect().
@@ -33,7 +33,7 @@ namespace f3
             dummyGO = new GameObject(sName);
         }
 
-        public GameObject RootGameObject { get { return dummyGO; } }
+        public fGameObject RootGameObject { get { return dummyGO; } }
 
         public virtual string Name
         {

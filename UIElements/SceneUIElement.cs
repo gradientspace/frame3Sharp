@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 using g3;
 
 namespace f3
@@ -72,7 +71,7 @@ namespace f3
     /// </summary>
     public interface SceneUIElement
 	{
-		GameObject RootGameObject{ get; }
+		fGameObject RootGameObject{ get; }
 
         string Name { get; set; }
 		SceneUIParent Parent { get; set; }

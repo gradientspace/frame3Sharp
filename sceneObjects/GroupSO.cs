@@ -99,19 +99,19 @@ namespace f3
                 return;
 
             if ( vChildren.Count == 0 ) {
-                RootGameObject.transform.position = Vector3.zero;
+                RootGameObject.SetPosition(Vector3f.Zero);
                 return;
             }
 
             Vector3f origin = Vector3f.Zero;
             foreach (TransformableSO so in vChildren) {
                 origin += so.GetLocalFrame(CoordSpace.WorldCoords).Origin;
-                so.RootGameObject.transform.SetParent(null);
+                so.RootGameObject.SetParent(null);
             }
             origin *= 1.0f / (float)vChildren.Count;
-            RootGameObject.transform.position = origin;
+            RootGameObject.SetPosition(origin);
             foreach (TransformableSO so in vChildren) {
-                so.RootGameObject.transform.SetParent(gameObject.transform, true);
+                so.RootGameObject.SetParent(gameObject, true);
             }
         }
 
@@ -120,7 +120,7 @@ namespace f3
         // SceneObject impl
         //
 
-        public GameObject RootGameObject
+        public fGameObject RootGameObject
         {
             get { return gameObject; }
         }
@@ -196,7 +196,7 @@ namespace f3
             throw new InvalidOperationException("GroupSO doesn't have its own SOMaterial...?");
         }
 
-        virtual public void PushOverrideMaterial(Material m)
+        virtual public void PushOverrideMaterial(fMaterial m)
         {
             foreach (var so in vChildren)
                 so.PushOverrideMaterial(m);
@@ -208,7 +208,7 @@ namespace f3
                 so.PopOverrideMaterial();
             increment_timestamp();
         }
-        virtual public Material GetActiveMaterial() {
+        virtual public fMaterial GetActiveMaterial() {
             throw new InvalidOperationException("GroupSO doesn't have its own active material");
         }
 
@@ -262,12 +262,12 @@ namespace f3
         }
         virtual public Vector3f GetLocalScale()
         {
-            return RootGameObject.transform.localScale;
+            return RootGameObject.GetLocalScale();
         }
         virtual public void SetLocalScale(Vector3f scale)
         {
             if (SupportsScaling) {
-                RootGameObject.transform.localScale = scale;
+                RootGameObject.SetLocalScale( scale );
                 increment_timestamp();
                 if (OnTransformModified != null)
                     OnTransformModified(this);

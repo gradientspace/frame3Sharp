@@ -58,7 +58,6 @@ namespace f3
                 camera.transform.SetParent(((GameObject)parentGO).transform, bKeepWorldPosition);
         }
 
-
         public void SetPosition(Vector3f vPosition)
         {
             camera.transform.position = vPosition;
@@ -66,6 +65,15 @@ namespace f3
         public Vector3f GetPosition()
         {
             return camera.transform.position;
+        }
+
+        public virtual void SetRotation(Quaternionf rotation)
+        {
+            camera.transform.rotation = rotation;
+        }
+        public virtual Quaternionf GetRotation()
+        {
+            return camera.transform.rotation;
         }
 
         public void SetLocalPosition(Vector3f vPosition)
@@ -116,11 +124,13 @@ namespace f3
         }
 
 
-
-        public CameraManipulator GetManipulator()
+        //https://docs.unity3d.com/ScriptReference/Camera-orthographicSize.html
+        // Unity maintains fixed height of ortho camera, width changes
+        public float OrthoHeight
         {
-            return camera.gameObject.GetComponent<CameraManipulator>();
+            get { return camera.orthographicSize * 2; }
         }
+
 
 
         public Vector3f GetTarget()
@@ -140,12 +150,14 @@ namespace f3
         }
 
 
-        // we attach this below
         public CameraManipulator Manipulator()
         {
             return camera.gameObject.GetComponent<CameraManipulator>();
         }
-
+        public CameraAnimator Animator()
+        {
+            return camera.gameObject.GetComponent<CameraAnimator>();
+        }
 
 
         public static implicit operator UnityEngine.Camera(fCamera cam)

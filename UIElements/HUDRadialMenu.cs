@@ -260,7 +260,7 @@ namespace f3
 
         #region SceneUIElement implementation
 
-        override public UnityEngine.GameObject RootGameObject
+        override public fGameObject RootGameObject
         {
             get { return menuContainer; }
         }
@@ -320,7 +320,7 @@ namespace f3
 
                 GameObjectRayHit hit;
                 if (FindGORayIntersection(e.ray, out hit)) {
-                    float fDist = (hit.hitPos - RootGameObject.transform.position).magnitude;
+                    float fDist = (hit.hitPos - RootGameObject.GetPosition()).Length;
                     if (fDist < Radius * DeadZoneRadiusFactor)
                         return true;
                 } else

@@ -688,7 +688,7 @@ namespace f3 {
             Scene.SetSceneScale(1.0f);
             ActiveCamera.Manipulator().ResetSceneOrbit(Scene, true, true, true);
             // [RMS] above should already do this, but sometimes it gets confused..
-            Scene.RootGameObject.transform.rotation = Quaternion.identity;
+            Scene.RootGameObject.SetRotation(Quaternion.identity);
             ActiveCamera.Manipulator().ResetScenePosition(scene);
             ActiveCamera.Manipulator().SceneTranslate(Scene, SceneGraphConfig.InitialSceneTranslate);
         }
@@ -699,7 +699,7 @@ namespace f3 {
             //Vector3f localTarget = Scene.WorldFrame.ToFrameP(camTarget);
             Vector3f vDeltaOrig = Scene.SceneFrame.ToFrameP(vCenterW);
 
-            ActiveCamera.GetManipulator().ResetSceneOrbit(
+            ActiveCamera.Manipulator().ResetSceneOrbit(
                 Scene, false, true, true);
 
             float fCurScale = Scene.GetSceneScale();

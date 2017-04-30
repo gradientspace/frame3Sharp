@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using g3;
 
 namespace f3
@@ -58,7 +57,7 @@ namespace f3
 
 	public interface SceneObject
 	{
-		GameObject RootGameObject { get; }
+		fGameObject RootGameObject { get; }
         SOParent Parent { get; set; }
 
         string UUID { get; }
@@ -81,9 +80,9 @@ namespace f3
 		void AssignSOMaterial(SOMaterial m);
         SOMaterial GetAssignedSOMaterial();
 
-        void PushOverrideMaterial(Material m);
+        void PushOverrideMaterial(fMaterial m);
         void PopOverrideMaterial();
-        Material GetActiveMaterial();
+        fMaterial GetActiveMaterial();
 
         // called on per-frame Update()
         void PreRender();

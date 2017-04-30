@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Diagnostics;
 using g3;
 
 namespace f3
@@ -8,14 +8,14 @@ namespace f3
 
     public interface ICockpitViewTracker
     {
-        void UpdateTracking(Cockpit cockpit, Camera camera);
+        void UpdateTracking(Cockpit cockpit, fCamera camera);
     }
 
 
 	public class Cockpit : SceneUIParent
 	{
 		FContext context;
-		GameObject gameobject;
+		fGameObject gameobject;
 
         // additional UI behavior attached to this cockpit
         public InputBehaviorSet InputBehaviors { get; set; }
@@ -88,7 +88,7 @@ namespace f3
         {
             while (vUIElements.Count > 0)
                 RemoveUIElement(vUIElements[0], true);
-            RootGameObject.transform.parent = null;
+            RootGameObject.SetParent(null);
             UnityEngine.Object.Destroy(RootGameObject);
         }
 
@@ -99,16 +99,16 @@ namespace f3
             set { RootGameObject.SetName(value); }
         }
 
-		public FContext Context {
+        public FContext Context {
 			get { return context; }
 		}
         public FScene Scene {
             get { return Context.Scene; }
         }
-        public Camera ActiveCamera {
+        public fCamera ActiveCamera {
             get { return Context.ActiveCamera; }
         }
-        public GameObject RootGameObject {
+        public fGameObject RootGameObject {
 			get { return gameobject; }
 		}
         public bool IsActive {
@@ -135,15 +135,15 @@ namespace f3
         {
             // otherwise we can't just set y to 0...
             Debug.Assert(eSpace == CoordSpace.WorldCoords);
-            Frame3f viewF = UnityUtil.GetGameObjectFrame(ActiveCamera.gameObject, eSpace);
-            float fAngle = VRUtil.PlaneAngleSigned(Vector3.forward, viewF.Z, 1);
-            return new Frame3f(viewF.Origin, Quaternion.AngleAxis(fAngle, Vector3.up));
+            Frame3f viewF = UnityUtil.GetGameObjectFrame(ActiveCamera.GameObject(), eSpace);
+            float fAngle = VRUtil.PlaneAngleSigned(Vector3f.AxisZ, viewF.Z, 1);
+            return new Frame3f(viewF.Origin, Quaternionf.AxisAngleD(Vector3f.AxisY, fAngle));
         }
 
         // frame centered at cockpit location and aligned with camera direction
         public virtual Frame3f GetViewFrame2D()
         {
-            return new Frame3f(Vector3f.Zero, ActiveCamera.transform.rotation);
+            return new Frame3f(Vector3f.Zero, ActiveCamera.GetRotation());
         }
 
 
@@ -154,8 +154,8 @@ namespace f3
         {
             if (context.OrthoUICamera == null)
                 return AxisAlignedBox2f.Empty;
-            float verticalSize = ((Camera)context.OrthoUICamera).orthographicSize * 2.0f;
-            float horizontalSize = verticalSize * (float)Screen.width / (float)Screen.height;
+            float verticalSize = context.OrthoUICamera.OrthoHeight;
+            float horizontalSize = verticalSize * (float)FPlatform.ScreenWidth / (float)FPlatform.ScreenHeight;
             return new AxisAlignedBox2f(-horizontalSize / 2, -verticalSize / 2, horizontalSize / 2, verticalSize / 2);
         }
 
@@ -163,7 +163,7 @@ namespace f3
         {
             if (context.OrthoUICamera == null)
                 return AxisAlignedBox2f.Empty;
-            return new AxisAlignedBox2f(0, 0, Screen.width, Screen.height);
+            return new AxisAlignedBox2f(0, 0, FPlatform.ScreenWidth, FPlatform.ScreenHeight);
         }
 
         public float GetPixelScale()
@@ -190,12 +190,14 @@ namespace f3
         // called by FContext.PushCockpit()
         public void Start( ICockpitInitializer setup )
 		{
-			// create invisible plane for cockpit
-			gameobject = GameObject.CreatePrimitive (PrimitiveType.Plane);
-			gameobject.SetName("cockpit");
-			MeshRenderer ren = gameobject.GetComponent<MeshRenderer> ();
-			ren.enabled = false;
-			gameobject.GetComponent<MeshCollider> ().enabled = false;
+            // create invisible plane for cockpit
+            gameobject = GameObjectFactory.CreateParentGO("cockpit");
+            // [RMS] probably can delete this code now?
+            //gameobject = GameObject.CreatePrimitive (PrimitiveType.Plane);
+			//gameobject.SetName("cockpit");
+			//MeshRenderer ren = gameobject.GetComponent<MeshRenderer> ();
+			//ren.enabled = false;
+			//gameobject.GetComponent<MeshCollider> ().enabled = false;
 
             // add hud animation controller
             gameobject.AddComponent<UnityPerFrameAnimationBehavior>().Animator = HUDAnimator;                
@@ -228,8 +230,10 @@ namespace f3
 
         public void InitializeTracking(Cockpit fromExisting)
         {
-            RootGameObject.transform.position = fromExisting.RootGameObject.transform.position;
-            RootGameObject.transform.rotation = fromExisting.RootGameObject.transform.rotation;
+            RootGameObject.SetPosition(fromExisting.RootGameObject.GetPosition());
+            RootGameObject.SetRotation(fromExisting.RootGameObject.GetRotation());
+            //RootGameObject.transform.position = fromExisting.RootGameObject.transform.position;
+            //RootGameObject.transform.rotation = fromExisting.RootGameObject.transform.rotation;
         }
 
         void UpdateTracking(bool bSetInitial)
@@ -237,26 +241,27 @@ namespace f3
             if (bSetInitial || PositionMode == MovementMode.Static) {
                 // [TODO] should damp out jitter while allowing larger moves
                 if (bStaticUpdated == false) {
-                    RootGameObject.transform.position = ActiveCamera.transform.position;
+                    RootGameObject.SetPosition(ActiveCamera.GetPosition());
                     bStaticUpdated = true;
                 }
 
             } else if (PositionMode == MovementMode.TrackOrientation) {
-                RootGameObject.transform.position = ActiveCamera.transform.position;
-                RootGameObject.transform.rotation = ActiveCamera.transform.rotation;
+                RootGameObject.SetPosition(ActiveCamera.GetPosition());
+                RootGameObject.SetRotation(ActiveCamera.GetRotation());
 
             } else if (PositionMode == MovementMode.CustomTracking && CustomTracker != null ) {
                 CustomTracker.UpdateTracking(this, ActiveCamera);
 
             } else {
                 // MovemementMode.TrackPosition
-                RootGameObject.transform.position = ActiveCamera.transform.position;
+                RootGameObject.SetPosition(ActiveCamera.GetPosition());
             }
 
             // apply post-rotations
-            Quaternion rotateLR = Quaternion.AngleAxis(ShiftAngle, RootGameObject.transform.up);
-            Quaternion rotateUp = Quaternion.AngleAxis(TiltAngle, rotateLR * RootGameObject.transform.right);
-            RootGameObject.transform.rotation = rotateLR * rotateUp * RootGameObject.transform.rotation;
+            Frame3f frame = RootGameObject.GetWorldFrame();
+            Quaternionf rotateLR = Quaternionf.AxisAngleD(frame.Y, ShiftAngle);
+            Quaternionf rotateUp = Quaternionf.AxisAngleD(rotateLR * frame.X, TiltAngle);
+            RootGameObject.SetRotation(rotateLR * rotateUp * RootGameObject.GetRotation());
 
         }
 
@@ -272,7 +277,7 @@ namespace f3
             e.Parent = this;
 			if (e.RootGameObject != null) {
 				// assume element transform is set to a local transform, so we want to apply current scene transform?
-				e.RootGameObject.transform.SetParent (RootGameObject.transform, (bIsInLocalFrame == false) );
+				e.RootGameObject.SetParent(RootGameObject, (bIsInLocalFrame == false) );
 			}
 
             e.SetLayer(UIElementLayer);
@@ -283,21 +288,21 @@ namespace f3
 			vUIElements.Remove(e);
             e.Parent = null;
 			if ( e.RootGameObject != null && bDestroy) {
-				e.RootGameObject.transform.parent = null;
+                e.RootGameObject.SetParent(null);
 				UnityEngine.Object.Destroy (e.RootGameObject);
 			}
 		}
 
 
-		public bool FindUIRayIntersection(Ray ray, out UIRayHit hit) {
+		public bool FindUIRayIntersection(Ray3f ray, out UIRayHit hit) {
             return HUDUtil.FindNearestRayIntersection(vUIElements, ray, out hit);
 		}
-        public bool FindUIHoverRayIntersection(Ray ray, out UIRayHit hit) {
+        public bool FindUIHoverRayIntersection(Ray3f ray, out UIRayHit hit) {
             return HUDUtil.FindNearestHoverRayIntersection(vUIElements, ray, out hit);
         }
 
 
-        public bool FindAnyRayIntersection(Ray ray, out AnyRayHit hit) {
+        public bool FindAnyRayIntersection(Ray3f ray, out AnyRayHit hit) {
 			hit = null;
 			UIRayHit bestUIHit = null;
 			if (FindUIRayIntersection (ray, out bestUIHit)) {

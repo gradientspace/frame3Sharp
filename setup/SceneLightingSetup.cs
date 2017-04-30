@@ -47,7 +47,7 @@ namespace f3 {
             }
 
             // parent lights to Scene so they move with it
-			this.gameObject.transform.SetParent (Context.GetScene ().RootGameObject.transform);
+            Context.GetScene().RootGameObject.AddChild(this.gameObject);
 		}
 
         int cur_shadow_dist = -1;

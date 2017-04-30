@@ -54,6 +54,14 @@ namespace f3
         }
 
 
+        static public int ScreenWidth {
+            get { return Screen.width; }
+        }
+        static public int ScreenHeight {
+            get { return Screen.height; }
+        }
+
+
         // argh unity does not have a window resize event built-in ?!??
         static private int window_width = -1, window_height = -1;
         static public bool IsWindowResized()

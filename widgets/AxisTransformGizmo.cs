@@ -22,11 +22,11 @@ namespace f3
 
     public class AxisTransformGizmo : GameObjectSet, ITransformGizmo
     {
-		GameObject gizmo;
-		GameObject x, y, z;
-		GameObject rotate_x, rotate_y, rotate_z;
-		GameObject translate_xy, translate_xz, translate_yz;
-        GameObject uniform_scale;
+		fGameObject gizmo;
+		fGameObject x, y, z;
+		fGameObject rotate_x, rotate_y, rotate_z;
+		fGameObject translate_xy, translate_xz, translate_yz;
+        fGameObject uniform_scale;
         Bounds gizmoGeomBounds;
 
         TransientGroupSO internalGroupSO;
@@ -86,7 +86,7 @@ namespace f3
 
 
 
-		public GameObject RootGameObject {
+		public fGameObject RootGameObject {
 			get { return gizmo; }
 		}
         public List<TransformableSO> Targets
@@ -155,13 +155,13 @@ namespace f3
             gizmo.Show();
 
             float fScaling = VRUtil.GetVRRadiusForVisualAngle(
-               gizmo.transform.position,
+               gizmo.GetPosition(),
                parentScene.ActiveCamera.GetPosition(),
                SceneGraphConfig.DefaultAxisGizmoVisualDegrees);
             fScaling /= parentScene.GetSceneScale();
             float fGeomDim = gizmoGeomBounds.size.magnitude;
             fScaling /= fGeomDim;
-            gizmo.transform.localScale = new Vector3(fScaling, fScaling, fScaling);
+            gizmo.SetLocalScale( new Vector3f(fScaling) );
         }
 
         public void Create(FScene parentScene, List<TransformableSO> targets) {
@@ -348,8 +348,8 @@ namespace f3
         {
             // keep widget synced with object frame of target
             Frame3f widgetFrame = targetWrapper.GetLocalFrame(CoordSpace.ObjectCoords);
-            gizmo.transform.localPosition = widgetFrame.Origin;
-            gizmo.transform.localRotation = widgetFrame.Rotation;
+            gizmo.SetLocalPosition( widgetFrame.Origin );
+            gizmo.SetLocalRotation( widgetFrame.Rotation );
         }
 
 

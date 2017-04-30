@@ -1,12 +1,12 @@
 ﻿using System;
-using UnityEngine;
+using g3;
 
 namespace f3
 {
 	public interface Widget
 	{
-		bool BeginCapture(ITransformable target, Ray worldRay, UIRayHit hit);
-		bool UpdateCapture(ITransformable target, Ray worldRay);
+		bool BeginCapture(ITransformable target, Ray3f worldRay, UIRayHit hit);
+		bool UpdateCapture(ITransformable target, Ray3f worldRay);
         bool EndCapture(ITransformable target);
 	}
 
@@ -14,17 +14,17 @@ namespace f3
     // convenience impl
     public abstract class Standard3DWidget : Widget
     {
-        public Material StandardMaterial { get; set; }
-        public Material HoverMaterial { get; set; }
-        public GameObject RootGameObject { get; set; }
+        public fMaterial StandardMaterial { get; set; }
+        public fMaterial HoverMaterial { get; set; }
+        public fGameObject RootGameObject { get; set; }
 
         public Standard3DWidget()
         {
 
         }
 
-        public abstract bool BeginCapture(ITransformable target, Ray worldRay, UIRayHit hit);
-        public abstract bool UpdateCapture(ITransformable target, Ray worldRay);
+        public abstract bool BeginCapture(ITransformable target, Ray3f worldRay, UIRayHit hit);
+        public abstract bool UpdateCapture(ITransformable target, Ray3f worldRay);
         public abstract bool EndCapture(ITransformable target);
     }
 }

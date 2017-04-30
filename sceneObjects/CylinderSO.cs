@@ -156,7 +156,7 @@ namespace f3
         //
         // SceneObject impl
         //
-        override public GameObject RootGameObject
+        override public fGameObject RootGameObject
         {
             get { return cylinder; }
         }
@@ -198,8 +198,8 @@ namespace f3
 
                     // compute analytic normal on cylinder body
                     if ( hitg.hitGO == body ) {
-                        Vector3 up = this.RootGameObject.transform.rotation * Vector3.up;
-                        Vector3 l = hitg.hitPos - this.RootGameObject.transform.position;
+                        Vector3 up = this.RootGameObject.GetRotation() * Vector3.up;
+                        Vector3 l = hitg.hitPos - this.RootGameObject.GetPosition();
                         l -= Vector3.Dot(l, up) * up;
                         l.Normalize();
                         hit.hitNormal = l;

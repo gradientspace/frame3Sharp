@@ -17,7 +17,7 @@ namespace f3
     {
         public List<SceneUIElement> Children { get; set; }
 
-        GameObject gameObject;
+        fGameObject gameObject;
         SceneUIParent parent;
         //SceneUIElement pCapturing;
         //SceneUIElement pHovering;
@@ -29,7 +29,7 @@ namespace f3
 
         public virtual void Create()
         {
-            gameObject = new GameObject(UniqueNames.GetNext("HUDCollection"));
+            gameObject = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDCollection"));
         }
 
         public virtual void AddChild(SceneUIElement ui)
@@ -37,7 +37,7 @@ namespace f3
             if (!Children.Contains(ui)) {
                 Children.Add(ui);
                 ui.Parent = this;
-                ui.RootGameObject.transform.SetParent(gameObject.transform, true);
+                ui.RootGameObject.SetParent(gameObject, true);
             }
         }
         public virtual void AddChildren(IEnumerable<SceneUIElement> v)
@@ -51,7 +51,7 @@ namespace f3
             if (Children.Contains(ui)) {
                 Children.Remove(ui);
                 ui.Parent = null;
-                ui.RootGameObject.transform.SetParent(null);
+                ui.RootGameObject.SetParent(null);
 
                 // [RMS] should re-parent to cockpit/scene we are part of? currently no reference to do that...
                 //so.RootGameObject.transform.SetParent(parentScene.RootGameObject.transform, true);
@@ -78,7 +78,7 @@ namespace f3
          *  SceneUIElement impl
          */
 
-        public GameObject RootGameObject
+        public fGameObject RootGameObject
         {
             get {
                 return gameObject;

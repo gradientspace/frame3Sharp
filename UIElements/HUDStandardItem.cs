@@ -70,7 +70,7 @@ namespace f3
         // abstract impl of SceneUIElement
         //
 
-        public abstract GameObject RootGameObject { get; }
+        public abstract fGameObject RootGameObject { get; }
 
 		public virtual SceneUIParent Parent
         {

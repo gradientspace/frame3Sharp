@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using UnityEngine;
 using g3;
 
 namespace f3
@@ -32,9 +31,9 @@ namespace f3
         public SOMaterial PivotSOMaterial { get; set; }
         public SOMaterial FrameSOMaterial { get; set; }
 
-        public Material SelectedMaterial { get; set; }
-        public Material FrameMaterial { get; set; }
-        public Material PivotMaterial { get; set; }
+        public fMaterial SelectedMaterial { get; set; }
+        public fMaterial FrameMaterial { get; set; }
+        public fMaterial PivotMaterial { get; set; }
 
         public SOType defaultPrimitiveType;
 
@@ -42,14 +41,14 @@ namespace f3
 
         FContext context;
 
-        GameObject sceneRoot;
-        GameObject scene_objects;
+        fGameObject sceneRoot;
+        fGameObject scene_objects;
 
 
         List<SceneObject> vObjects;
         List<SceneObject> vSelected;
         List<SceneUIElement> vUIElements;
-        List<GameObject> vBoundsObjects;
+        List<fGameObject> vBoundsObjects;
 
 
         // Objects in Selection Mask will not be selectable, or ray-cast for hit tests
@@ -59,7 +58,7 @@ namespace f3
         // [RMS] deleted objects that are not destroyed are parented to this GO,
         //   which remains under sceneo. Assumption is these will not be visible.
         //   This allows us to "save" SOs for undo/redo
-        GameObject deleted_objects;
+        fGameObject deleted_objects;
         List<SceneObject> vDeleted;
 
 
@@ -80,19 +79,19 @@ namespace f3
             vObjects = new List<SceneObject>();
             vSelected = new List<SceneObject>();
             vUIElements = new List<SceneUIElement>();
-            vBoundsObjects = new List<GameObject>();
+            vBoundsObjects = new List<fGameObject>();
             ObjectAnimator = new GenericAnimator();
 
-            sceneRoot = new GameObject("Scene");
+            sceneRoot = GameObjectFactory.CreateParentGO("Scene");
             // for animation playbacks
             sceneRoot.AddComponent<SceneAnimator>().Scene = this;
             sceneRoot.AddComponent<UnityPerFrameAnimationBehavior>().Animator = ObjectAnimator;
 
-            scene_objects = new GameObject("scene_objects");
-            UnityUtil.AddChild(sceneRoot, scene_objects, false);
+            scene_objects = GameObjectFactory.CreateParentGO("scene_objects");
+            sceneRoot.AddChild(scene_objects, false);
 
-            deleted_objects = new GameObject("deleted_objects");
-            UnityUtil.AddChild(sceneRoot, deleted_objects, false);
+            deleted_objects = GameObjectFactory.CreateParentGO("deleted_objects");
+            sceneRoot.AddChild(deleted_objects, false);
             vDeleted = new List<SceneObject>();
 
             // initialize materials
@@ -139,7 +138,7 @@ namespace f3
             get { return this.context.ActiveCamera; }
         }
 
-        public GameObject RootGameObject {
+        public fGameObject RootGameObject {
             get { return sceneRoot; }
         }
 
@@ -198,7 +197,7 @@ namespace f3
             if (b == UnityUtil.InvalidBounds || bIncludeBoundsObjects)
                 UnityUtil.Combine(b, UnityUtil.GetBoundingBox(BoundsObjects));
             if (b == UnityUtil.InvalidBounds) {
-                b.Contain(Vector3.zero);
+                b.Contain(Vector3f.Zero);
                 b.Expand(1.0f);
             }
             return b;
@@ -206,18 +205,18 @@ namespace f3
 
 
 
-        public List<GameObject> BoundsObjects
+        public List<fGameObject> BoundsObjects
         {
             get { return vBoundsObjects; }
         }
-        public void AddWorldBoundsObject(GameObject obj)
+        public void AddWorldBoundsObject(fGameObject obj)
         {
             vBoundsObjects.Add(obj);
-            obj.transform.SetParent(scene_objects.transform, false);
+            obj.SetParent(scene_objects, false);
         }
-        public void RemoveWorldBoundsObject(GameObject obj)
+        public void RemoveWorldBoundsObject(fGameObject obj)
         {
-            obj.transform.SetParent(null);
+            obj.SetParent(null);
             vBoundsObjects.Remove(obj);
         }
 
@@ -233,7 +232,7 @@ namespace f3
 
             vObjects.Add(so);
             so.SetScene(this);
-            so.RootGameObject.transform.SetParent(scene_objects.transform, bUseExistingWorldPos);
+            so.RootGameObject.SetParent(scene_objects, bUseExistingWorldPos);
             so.Parent = this;
             so.SetCurrentTime(currentTime);
 
@@ -243,8 +242,8 @@ namespace f3
         // this removes so from a SO/parent hierarchy and parents to Scene instead
         public void ReparentSceneObject(SceneObject so, bool bKeepPosition = true)
         {
-            so.RootGameObject.transform.SetParent(null);
-            so.RootGameObject.transform.SetParent(scene_objects.transform, bKeepPosition);
+            so.RootGameObject.SetParent(null);
+            so.RootGameObject.SetParent(scene_objects, bKeepPosition);
             so.Parent = this;
         }
 
@@ -261,8 +260,8 @@ namespace f3
         {
             if (vObjects.Contains(so) == false)
                 vObjects.Add(so);
-            so.RootGameObject.transform.SetParent(null);
-            so.RootGameObject.transform.SetParent(scene_objects.transform, true);
+            so.RootGameObject.SetParent(null);
+            so.RootGameObject.SetParent(scene_objects, true);
             so.Parent = this;
         }
 
@@ -286,7 +285,7 @@ namespace f3
                 } else {
                     // add to deleted set
                     vDeleted.Add(so);
-                    UnityUtil.AddChild(deleted_objects, so.RootGameObject, true);
+                    deleted_objects.AddChild(so.RootGameObject, true);
                     so.RootGameObject.SetVisible(false);
                 }
             }
@@ -308,7 +307,7 @@ namespace f3
             vDeleted.Remove(so);
             vObjects.Add(so);
             so.RootGameObject.SetVisible(true);
-            UnityUtil.AddChild(scene_objects, so.RootGameObject, true);
+            scene_objects.AddChild(so.RootGameObject, true);
             so.SetCurrentTime(currentTime);
         }
         public void CullDeletedSceneObject(SceneObject so)
@@ -316,8 +315,8 @@ namespace f3
             if (vDeleted.Find((x) => x == so) == null)
                 return;
             vDeleted.Remove(so);
-            so.RootGameObject.transform.parent = null;
-            UnityEngine.Object.Destroy(so.RootGameObject);
+            so.RootGameObject.SetParent(null);
+            so.RootGameObject.Destroy();
         }
 
 
@@ -408,7 +407,7 @@ namespace f3
             e.Parent = this;
 			if (e.RootGameObject != null) {
 				// assume gizmo transform is set to a local transform, so we want to apply current scene transform
-				e.RootGameObject.transform.SetParent (sceneRoot.transform, (bIsInLocalFrame == false));
+				e.RootGameObject.SetParent(sceneRoot, (bIsInLocalFrame == false));
 			}
 		}
 
@@ -417,8 +416,8 @@ namespace f3
             e.Parent = null;
 			vUIElements.Remove (e);
 			if ( e.RootGameObject != null && bDestroy) {
-				e.RootGameObject.transform.parent = null;
-				UnityEngine.Object.Destroy (e.RootGameObject);
+                e.RootGameObject.SetParent(null);
+                e.RootGameObject.Destroy();
 			}
 		}
 
@@ -452,20 +451,20 @@ namespace f3
         }
 
 
-		public bool FindUIRayIntersection(Ray ray, out UIRayHit hit) {
+		public bool FindUIRayIntersection(Ray3f ray, out UIRayHit hit) {
             return HUDUtil.FindNearestRayIntersection(vUIElements, ray, out hit);
         }
 
-        public bool FindUIHoverRayIntersection(Ray ray, out UIRayHit hit) {
+        public bool FindUIHoverRayIntersection(Ray3f ray, out UIRayHit hit) {
             return HUDUtil.FindNearestHoverRayIntersection(vUIElements, ray, out hit);
         }
 
-        public bool FindSORayIntersection(Ray ray, out SORayHit hit, Func<SceneObject, bool> filter = null) {
+        public bool FindSORayIntersection(Ray3f ray, out SORayHit hit, Func<SceneObject, bool> filter = null) {
             return HUDUtil.FindNearestRayIntersection(SceneObjects, ray, out hit,
                 (SelectionMask == null) ? filter : mask_filter(filter));
         }
 
-        public bool FindSORayIntersection_PivotPriority(Ray ray, out SORayHit hit, Func<SceneObject, bool> filter = null)
+        public bool FindSORayIntersection_PivotPriority(Ray3f ray, out SORayHit hit, Func<SceneObject, bool> filter = null)
         {
             bool bHitPivot = HUDUtil.FindNearestRayIntersection(SceneObjects, ray, out hit, (s) => { return s is PivotSO; });
             if (bHitPivot)
@@ -477,7 +476,7 @@ namespace f3
 
         // does not test bounds!
         // [TODO] this is going to be weird... need to test bounds, I think
-        public bool FindAnyRayIntersection(Ray ray, out AnyRayHit hit) {
+        public bool FindAnyRayIntersection(Ray3f ray, out AnyRayHit hit) {
 			hit = null;
 
 			UIRayHit bestUIHit = null;
@@ -513,7 +512,7 @@ namespace f3
 
 
 
-		public bool FindWorldBoundsHit(Ray ray, out GameObjectRayHit hit) {
+		public bool FindWorldBoundsHit(Ray3f ray, out GameObjectRayHit hit) {
 			hit = null;
 			foreach (var go in this.vBoundsObjects) {
 				GameObjectRayHit myHit = null;
@@ -527,7 +526,7 @@ namespace f3
 
 
         // tests SceneObjects and Bounds
-        public bool FindSceneRayIntersection(Ray ray, out AnyRayHit hit, Func<SceneObject, bool> sofilter = null)
+        public bool FindSceneRayIntersection(Ray3f ray, out AnyRayHit hit, Func<SceneObject, bool> sofilter = null)
         {
             hit = null;
 

@@ -167,7 +167,7 @@ namespace f3
 
         #region SceneUIElement implementation
 
-        override public UnityEngine.GameObject RootGameObject
+        override public fGameObject RootGameObject
         {
             get { return entry; }
         }

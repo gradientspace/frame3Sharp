@@ -305,7 +305,7 @@ namespace f3
 
             if (check_key_or_debug_print(transform, IOStrings.AOrientation)) {
                 Vector3f vScale = (Vector3f)transform[IOStrings.AScale];
-                so.RootGameObject.transform.localScale = vScale;
+                so.RootGameObject.SetLocalScale(vScale);
             }
         }
 

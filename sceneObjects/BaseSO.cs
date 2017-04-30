@@ -32,7 +32,7 @@ namespace f3
         //
         // SceneObject functions that subclass must implement
         //
-        abstract public GameObject RootGameObject { get; }
+        abstract public fGameObject RootGameObject { get; }
         abstract public string Name { get; set; }
         abstract public SOType Type { get; }
         abstract public SceneObject Duplicate();
@@ -107,7 +107,7 @@ namespace f3
             return sceneMaterial;
         }
 
-        virtual public void PushOverrideMaterial(Material m) {
+        virtual public void PushOverrideMaterial(fMaterial m) {
             vMaterialStack.Add(displayMaterial);
             displayMaterial = m;
             set_material_internal(displayMaterial);
@@ -124,11 +124,11 @@ namespace f3
             }
         }
 
-        virtual public Material GetActiveMaterial() {
+        virtual public fMaterial GetActiveMaterial() {
             return CurrentMaterial;
         }
 
-        virtual public Material CurrentMaterial {
+        virtual public fMaterial CurrentMaterial {
             get { return displayMaterial; }
         }
 
@@ -186,12 +186,12 @@ namespace f3
         }
         virtual public Vector3f GetLocalScale()
         {
-            return RootGameObject.transform.localScale;
+            return RootGameObject.GetLocalScale();
         }
         virtual public void SetLocalScale(Vector3f scale)
         {
             if (SupportsScaling) {
-                RootGameObject.transform.localScale = scale;
+                RootGameObject.SetLocalScale(scale);
                 increment_timestamp();
                 if (OnTransformModified != null)
                     OnTransformModified(this);
@@ -205,11 +205,11 @@ namespace f3
         //   [TODO] use f3 code to do this, rather than unity xform functions!
         //
         virtual public Vector3f ToWorldP(Vector3f ptLocal) {
-            Vector3f vW = this.RootGameObject.transform.TransformPoint(ptLocal);
+            Vector3f vW = this.RootGameObject.PointToWorld(ptLocal);
             return vW;
         }
         virtual public Vector3f ToLocalP(Vector3f ptWorld) {
-            Vector3f vL = this.RootGameObject.transform.InverseTransformPoint(ptWorld);
+            Vector3f vL = this.RootGameObject.PointToLocal(ptWorld);
             return vL;
         }
 

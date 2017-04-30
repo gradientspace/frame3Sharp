@@ -50,18 +50,18 @@ namespace f3
                  (data.which == CaptureSide.Left && input.bRightShoulderPressed) ||
                  (data.which == CaptureSide.Right && input.bLeftShoulderPressed)  ) 
             {
-                cockpit.ActiveCamera.gameObject.GetComponent<CameraTarget>().ShowTarget = false;
+                cockpit.ActiveCamera.SetTargetVisible(false);
                 return Capture.End;
             }
 
             // [RMS] this is a hack to release input for shoulder+trigger gestures
             if ( (data.which == CaptureSide.Left && input.bLeftTriggerPressed) ||
                  (data.which == CaptureSide.Right && input.bRightTriggerPressed) ) {
-                cockpit.ActiveCamera.gameObject.GetComponent<CameraTarget>().ShowTarget = false;
+                cockpit.ActiveCamera.SetTargetVisible(false);
                 return Capture.End;
             }
 
-            cockpit.ActiveCamera.gameObject.GetComponent<CameraTarget>().ShowTarget = false;
+            cockpit.ActiveCamera.SetTargetVisible(false);
 
             float dx = input.vLeftStickDelta2D[0], dy = input.vLeftStickDelta2D[1];
             float /*dx2 = input.vRightStickDelta2D[0], */dy2 = input.vRightStickDelta2D[1];
@@ -88,7 +88,7 @@ namespace f3
 
         public override Capture ForceEndCapture(InputState input, CaptureData data)
         {
-            cockpit.ActiveCamera.gameObject.GetComponent<CameraTarget>().ShowTarget = false;
+            cockpit.ActiveCamera.SetTargetVisible(false);
             return Capture.End;
         }
 

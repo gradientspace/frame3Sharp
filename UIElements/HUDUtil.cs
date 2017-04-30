@@ -169,7 +169,7 @@ namespace f3
             item.AppendNewGO(meshGO, item.RootGameObject, false);
             BoxModel.Translate(meshGO, offset, fZShift);
 
-            Vector3 posW = item.RootGameObject.transform.TransformPoint(meshGO.GetLocalPosition());
+            Vector3 posW = item.RootGameObject.PointToWorld(meshGO.GetLocalPosition());
             ((Material)dropMat).SetVector("_Center", new Vector4(posW.x, posW.y, posW.z, 0));
 
         }

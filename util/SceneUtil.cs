@@ -256,7 +256,7 @@ namespace f3
 
         public static void DestroySO(SceneObject so)
         {
-            so.RootGameObject.transform.parent = null;
+            so.RootGameObject.SetParent(null);
             so.SetScene(null);
             UnityEngine.Object.Destroy(so.RootGameObject);
         }
@@ -267,16 +267,16 @@ namespace f3
 
     public class RayHit 
 	{
-		public Vector3 hitPos;
-        public Vector3 hitNormal;
+		public Vector3f hitPos;
+        public Vector3f hitNormal;
 		public float fHitDist;
 
 		public RayHit() {
-			fHitDist = Mathf.Infinity;
+            fHitDist = float.PositiveInfinity;
 		}
 
 		public bool IsValid {
-			get { return fHitDist < Mathf.Infinity; }
+			get { return fHitDist < float.PositiveInfinity; }
 		}
 	}
 

@@ -183,7 +183,7 @@ namespace f3
         //
         // SceneObject impl
         //
-        override public GameObject RootGameObject
+        override public fGameObject RootGameObject
         {
             get { return parentGO; }
         }

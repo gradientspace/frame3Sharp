@@ -48,7 +48,7 @@ namespace f3
             if ( RootGameObject != null )
                 throw new Exception("HUDElementList.AddElement: currently cannot add elements after calling Create");
             if (element is IBoxModelElement == false)
-                throw new Exception("HUDElementList.AddElement: cannot add element " + element.RootGameObject.name + ", does not implement IBoxModelElement!");
+                throw new Exception("HUDElementList.AddElement: cannot add element " + element.RootGameObject.GetName() + ", does not implement IBoxModelElement!");
 
             ListItems.Add(element);
             ItemNudge.Add(nudge);

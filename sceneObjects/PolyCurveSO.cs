@@ -42,7 +42,7 @@ namespace f3
 
         override public SOType Type { get { return SOTypes.PolyCurve; } }
 
-        public override GameObject RootGameObject {
+        public override fGameObject RootGameObject {
             get { return root; }
         }
 
@@ -129,7 +129,7 @@ namespace f3
                     Vector3[] vec = new Vector3[N];
                     for ( int i = 0; i < N; ++i )
                         vec[i] = (Vector3)curve[ i % Nc ];
-                    ren.numPositions = N;
+                    ren.positionCount = N;
                     ren.SetPositions(vec);
                 }
 
