@@ -112,7 +112,7 @@ namespace f3
 
 
         // [RMS] this is what we use for VR scenes...should not be set to this value, probably!!
-        public static Vector3f InitialSceneTranslate = -4.0f * Vector3f.AxisY;
+        public static Vector3f InitialSceneTranslate = Vector3f.Zero;
 
 
         public static float DefaultPivotVisualDegrees = 2.0f;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using g3;
 
 
 namespace f3 {
@@ -143,34 +144,29 @@ namespace f3 {
 
             List<Camera> newCameras = new List<Camera>();
 
+            Vector3f mainPos = mainCamera.transform.position;
+            Quaternionf mainRot = mainCamera.transform.rotation;
+
             // create camera for 3D widgets layer
-            widgetCamera = Camera.Instantiate (mainCamera);
+            widgetCamera = Camera.Instantiate (mainCamera, mainPos, mainRot);
 			widgetCamera.SetName("WidgetCamera");
-            widgetCamera.transform.position = mainCamera.transform.position;
-            widgetCamera.transform.rotation = mainCamera.transform.rotation;
             newCameras.Add(widgetCamera);
 
             // create camera for HUD layer
-            hudCamera = Camera.Instantiate(mainCamera);
+            hudCamera = Camera.Instantiate(mainCamera, mainPos, mainRot);
             hudCamera.SetName("HUDCamera");
-            hudCamera.transform.position = mainCamera.transform.position;
-            hudCamera.transform.rotation = mainCamera.transform.rotation;
             newCameras.Add(hudCamera);
 
             // create camera for UI
-            uiCamera = Camera.Instantiate(mainCamera);
+            uiCamera = Camera.Instantiate(mainCamera, mainPos, mainRot);
             uiCamera.SetName("UICamera");
-            uiCamera.transform.position = mainCamera.transform.position;
-            uiCamera.transform.rotation = mainCamera.transform.rotation;
             uiCamera.orthographic = true;
             uiCamera.orthographicSize = 0.5f;
             newCameras.Add(uiCamera);
 
             // create camera for cursor
-            cursorCamera = Camera.Instantiate(mainCamera);
+            cursorCamera = Camera.Instantiate(mainCamera, mainPos, mainRot);
             cursorCamera.SetName("CursorCamera");
-            cursorCamera.transform.position = mainCamera.transform.position;
-            cursorCamera.transform.rotation = mainCamera.transform.rotation;
             newCameras.Add(cursorCamera);
 
             // configure these cameras
@@ -182,6 +178,8 @@ namespace f3 {
                     listener.enabled = false;
 
                 cam.clearFlags = CameraClearFlags.Depth;
+
+                cam.tag = "Untagged";
             }
 
 

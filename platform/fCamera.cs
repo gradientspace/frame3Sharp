@@ -49,6 +49,11 @@ namespace f3
             for (int k = 0; k < camera.transform.childCount; ++k)
                 yield return camera.transform.GetChild(k).gameObject;
         }
+        public virtual void AddChild(fGameObject child, bool bKeepWorldPosition = true)
+        {
+            camera.transform.SetParent( ((GameObject)child).transform, bKeepWorldPosition);
+        }
+
 
         public void SetParent(fGameObject parentGO, bool bKeepWorldPosition = false)
         {
