@@ -137,7 +137,7 @@ namespace f3
             if ( filters.Count == 0 )
                 throw new Exception("SceneUtil.ImportExistingUnityGO: no meshes!!");
 
-            DMesh3 CombineMesh = new DMesh3();
+            DMesh3 CombineMesh = new DMesh3(MeshComponents.VertexNormals | MeshComponents.VertexColors);
             MeshEditor editor = new MeshEditor(CombineMesh);
             int gid = 0;
             foreach ( MeshFilter mesh in filters ) {
