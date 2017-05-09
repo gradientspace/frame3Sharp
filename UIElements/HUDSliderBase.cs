@@ -103,7 +103,7 @@ namespace f3
             handleMaterial = MaterialUtil.CreateFlatMaterialF(handleColor);
             handleGO = create_handle_go(handleMaterial);
             if (handleGO != null) {
-                handleGO.Translate(0.001f * Vector3f.AxisY);
+                handleGO.Translate(0.001f * Vector3f.AxisY, true);
                 AppendNewGO(handleGO, rootGO, false);
                 handleStart = handleGO.GetLocalFrame();
             }

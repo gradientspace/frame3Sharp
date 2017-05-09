@@ -156,9 +156,9 @@ namespace f3
         }
 
 
-        public void SceneTranslate(FScene scene, Vector3f translate)
+        public void SceneTranslate(FScene scene, Vector3f translate, bool bFrameAxes )
         {
-            scene.RootGameObject.Translate( translate );
+            scene.RootGameObject.Translate( translate, bFrameAxes );
         }
 
         public void ScenePan(FScene scene, fCamera cam, float dx, float dy)
@@ -190,7 +190,7 @@ namespace f3
                 dz = fTargetDist - fMinTargetDist;
 
             Vector3f delta = dz * fScale * fw;
-            scene.RootGameObject.Translate(-delta);
+            scene.RootGameObject.Translate(-delta, false);
             cam.SetTarget(cam.GetTarget() - delta);
         }
 
@@ -206,7 +206,7 @@ namespace f3
                 Vector3f newPos = focusPoint - fDist * curDir;
                 Vector3f delta = curPos - newPos;
 
-                scene.RootGameObject.Translate(delta);
+                scene.RootGameObject.Translate(delta, false);
                 camera.SetTarget(focusPoint);
                            
             } else

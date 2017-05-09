@@ -87,7 +87,7 @@ namespace f3
                 border = new fGameObject(AppendMeshGO("background", HUDUtil.MakeBackgroundMesh(borderShape),
                     MaterialUtil.CreateFlatMaterialF(BorderColor), entry));
                 border.RotateD(Vector3f.AxisX, -90.0f);
-                border.Translate(-0.001f * Vector3f.AxisY);
+                border.Translate(-0.001f * Vector3f.AxisY, true);
             }
 
             BoxPosition horzAlign = BoxPosition.CenterLeft;

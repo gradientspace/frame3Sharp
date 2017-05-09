@@ -174,7 +174,7 @@ namespace f3 {
                 MouseCameraController = options.MouseCameraControls;
 
             // apply initial transformation to scene
-            ActiveCamera.Manipulator().SceneTranslate(Scene, SceneGraphConfig.InitialSceneTranslate);
+            ActiveCamera.Manipulator().SceneTranslate(Scene, SceneGraphConfig.InitialSceneTranslate, true);
 
             // create behavior sets
             inputBehaviors = new InputBehaviorSet();
@@ -690,7 +690,7 @@ namespace f3 {
             // [RMS] above should already do this, but sometimes it gets confused..
             Scene.RootGameObject.SetRotation(Quaternion.identity);
             ActiveCamera.Manipulator().ResetScenePosition(scene);
-            ActiveCamera.Manipulator().SceneTranslate(Scene, SceneGraphConfig.InitialSceneTranslate);
+            ActiveCamera.Manipulator().SceneTranslate(Scene, SceneGraphConfig.InitialSceneTranslate, true);
         }
 
         public void ScaleView(Vector3 vCenterW, float fRadiusW )

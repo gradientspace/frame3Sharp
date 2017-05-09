@@ -281,9 +281,13 @@ namespace f3
         {
             go.transform.RotateAround(point, axis, fAngleDeg);
         }
-        public virtual void Translate(Vector3f translation)
+
+        // 05/09/2017 [RMS] just discovered that transform.Translate() default behavior
+        // is to translate in current-orientation axes (!). Explains a lot of weirdness.
+        // Exposed this as parameter, forcing callers to specify it for now.
+        public virtual void Translate(Vector3f translation, bool bFrameAxes)
         {
-            go.transform.Translate(translation);
+            go.transform.Translate(translation, bFrameAxes ? Space.Self : Space.World  );
         }
 
 
