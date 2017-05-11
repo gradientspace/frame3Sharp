@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Threading;
 
 using UnityEngine;
 
@@ -159,6 +160,21 @@ namespace f3
 #endif
             return (Application.platform == RuntimePlatform.IPhonePlayer
                         || Application.platform == RuntimePlatform.Android );
+        }
+
+
+
+        static Thread _main_thread;
+        static public void InitializeMainThreadID()
+        {
+            _main_thread = Thread.CurrentThread;
+        }
+
+        static public bool InMainThread()
+        {
+            if (_main_thread == null)
+                throw new Exception("FPlatform.InMainThread: Must call InitializeMainThreadID() first!!");
+            return Thread.CurrentThread == _main_thread;
         }
 
 

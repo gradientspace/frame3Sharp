@@ -57,8 +57,12 @@ namespace f3
 
 
 
-
         static public GameObject EmitDebugSphere(string name, Vector3 position, float diameter, Color color, GameObject parent = null, bool bIsInWorldPos = true) {
+            if ( FPlatform.InMainThread() == false ) {
+                ThreadMailbox.PostToMainThread(() => { DebugUtil.EmitDebugSphere(name, position, diameter, color, parent, bIsInWorldPos); });
+                return null;
+            }
+
 			GameObject sphere = GameObject.CreatePrimitive (PrimitiveType.Sphere);
 			sphere.SetName(name);
 			sphere.transform.position = position;
@@ -74,6 +78,11 @@ namespace f3
 
 
         static public GameObject EmitDebugAABB(string name, Vector3 center, Vector3f dims, Color color, GameObject inCoords = null) {
+            if ( FPlatform.InMainThread() == false ) {
+                ThreadMailbox.PostToMainThread(() => { DebugUtil.EmitDebugAABB(name, center, dims, color, inCoords); });
+                return null;
+            }
+
 			if (inCoords != null) {
 				Transform curt = inCoords.transform;
 				while (curt != null) {
@@ -93,6 +102,12 @@ namespace f3
 
 		static public GameObject EmitDebugLine(string name, Vector3f start, Vector3f end, float diameter, Colorf color,
                                                GameObject parent = null, bool bIsInWorldPos = true) {
+
+            if ( FPlatform.InMainThread() == false ) {
+                ThreadMailbox.PostToMainThread(() => { DebugUtil.EmitDebugLine(name, start, end, diameter, color, parent, bIsInWorldPos); });
+                return null;
+            }
+
 			GameObject line = new GameObject ();
 			line.SetName(name);
             line.transform.position = (bIsInWorldPos) ? start : Vector3f.Zero;
@@ -114,6 +129,11 @@ namespace f3
         static public GameObject EmitDebugLine(string name, Vector3f start, Vector3f end, float diameter, Colorf startColor, Colorf endColor,
                                                GameObject parent = null, bool bIsInWorldPos = true)
         {
+            if (FPlatform.InMainThread() == false) {
+                ThreadMailbox.PostToMainThread(() => { DebugUtil.EmitDebugLine(name, start, end, diameter, startColor, endColor, parent, bIsInWorldPos); });
+                return null;
+            }
+
             GameObject line = new GameObject();
             line.SetName(name);
             line.transform.position =  (bIsInWorldPos) ? start : Vector3f.Zero;
@@ -138,6 +158,11 @@ namespace f3
 		static public GameObject EmitDebugCurve(string name, Vector3d[] curve, bool bClosed, 
                                                 float diameter, Colorf startColor, Colorf endColor, 
                                                 GameObject parent = null, bool bIsInWorldPos = true) {
+            if (FPlatform.InMainThread() == false) {
+                ThreadMailbox.PostToMainThread(() => { DebugUtil.EmitDebugCurve(name, curve, bClosed, diameter, startColor, endColor, parent, bIsInWorldPos); });
+                return null;
+            }
+
 			GameObject line = new GameObject ();
 			line.SetName(name);
 			line.AddComponent<LineRenderer> ();
@@ -162,6 +187,11 @@ namespace f3
 
 
         static public void EmitDebugFrame(string name, Frame3f f, float fAxisLength, float diameter = 0.05f) {
+            if (FPlatform.InMainThread() == false) {
+                ThreadMailbox.PostToMainThread(() => { DebugUtil.EmitDebugFrame(name, f, fAxisLength, diameter); });
+                return;
+            }
+
 			GameObject frame = new GameObject (name);
 			GameObject x = EmitDebugLine (name+"_x", f.Origin, f.Origin + fAxisLength * f.X, diameter, Color.red);
 			x.transform.parent = frame.transform;

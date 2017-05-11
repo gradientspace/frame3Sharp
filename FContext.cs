@@ -131,6 +131,7 @@ namespace f3 {
             this.options = options;
 
             DebugUtil.LogLevel = options.LogLevel;
+            FPlatform.InitializeMainThreadID();
 
             // initialize VR platform if VR is active
             if (gs.VRPlatform.VREnabled) {
@@ -208,6 +209,8 @@ namespace f3 {
 
         // Update is called once per frame
         public void Update() {
+
+            ThreadMailbox.ProcessMainThreadMail();   // is this the right spot to do this?
 
             FPlatform.IncrementFrameCounter();
 
