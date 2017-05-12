@@ -70,7 +70,7 @@ namespace f3
         }
         public virtual GameObject AppendExistingChildGO(GameObject parent, string childName)
         {
-            GameObject child = parent.transform.FindChild(childName).gameObject;
+            GameObject child = parent.transform.Find(childName).gameObject;
             vObjects.Add(child);
             child.SetLayer(parent.GetLayer());
             return child;
