@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using g3;
 
@@ -300,6 +301,18 @@ namespace f3
             foreach (DMesh3 m in meshes)
                 editor.AppendMesh(m, gid++);
             WriteDebugMesh(combined, sPath);
+        }
+
+
+
+
+
+        public static void LogHardcopy(string s)
+        {
+            using (StreamWriter writer = File.AppendText("c:\\scratch\\__FRAME3_LOG.txt")) {
+                writer.WriteLine(s);
+                writer.Flush();
+            }
         }
 
     }

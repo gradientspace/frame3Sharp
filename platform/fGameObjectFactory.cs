@@ -338,7 +338,7 @@ namespace f3
 
         public static void DestroyGO(fGameObject go) {
             go.SetParent(null);
-            UnityEngine.GameObject.Destroy(go);
+            go.Destroy();
         }
 
     }
