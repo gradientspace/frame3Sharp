@@ -15,7 +15,7 @@ namespace f3
 
         public override InputDevice SupportedDevices
         {
-            get { return InputDevice.OculusTouch; }
+            get { return InputDevice.AnySpatialDevice; }
         }
 
         public override CaptureRequest WantsCapture(InputState input)
