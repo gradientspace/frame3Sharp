@@ -100,6 +100,10 @@ namespace f3
 
 
 
+		static public GameObject EmitDebugLine(string name, Vector3d start, Vector3d end, double diameter, Colorf color,
+                                               GameObject parent = null, bool bIsInWorldPos = true) {
+            return EmitDebugLine(name, (Vector3f)start, (Vector3f)end, (float)diameter, color, parent, bIsInWorldPos);
+        }
 		static public GameObject EmitDebugLine(string name, Vector3f start, Vector3f end, float diameter, Colorf color,
                                                GameObject parent = null, bool bIsInWorldPos = true) {
 
@@ -288,7 +292,15 @@ namespace f3
             options.bWriteGroups = true;
             StandardMeshWriter.WriteFile(sPath, new List<WriteMesh>() { new WriteMesh(mesh) }, options);
         }
-
+        public static void WriteDebugMesh(IEnumerable<DMesh3> meshes, string sPath)
+        {
+            DMesh3 combined = new DMesh3(MeshComponents.FaceGroups);
+            MeshEditor editor = new MeshEditor(combined);
+            int gid = 1;
+            foreach (DMesh3 m in meshes)
+                editor.AppendMesh(m, gid++);
+            WriteDebugMesh(combined, sPath);
+        }
 
     }
 }
