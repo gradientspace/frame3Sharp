@@ -13,7 +13,11 @@ namespace f3
     }
 
 
-
+    public enum LineWidthType
+    {
+        World,
+        Pixel
+    }
 
 
     public enum FrameType

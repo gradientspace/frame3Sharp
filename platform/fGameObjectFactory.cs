@@ -137,10 +137,10 @@ namespace f3
 
 
 
-        public static fLineGameObject CreateLineGO(string sName, Colorf color, float fLineWidth)
+        public static fLineGameObject CreateLineGO(string sName, Colorf color, float fLineWidth, LineWidthType widthType)
         {
             GameObject go = new GameObject(sName);
-            CurveRendererImplementation curveRen = CurveRendererSource.Build();
+            CurveRendererImplementation curveRen = CurveRendererSource.Build(widthType);
             curveRen.initialize(go, new Colorf(Colorf.Black, 0.75f) );
             fLineGameObject lgo = new fLineGameObject(go, curveRen);
             lgo.SetColor(color);
@@ -149,10 +149,10 @@ namespace f3
         }
 
 
-        public static fCircleGameObject CreateCircleGO(string sName, float fRadius, Colorf color, float fLineWidth)
+        public static fCircleGameObject CreateCircleGO(string sName, float fRadius, Colorf color, float fLineWidth, LineWidthType widthType)
         {
             GameObject go = new GameObject(sName);
-            CurveRendererImplementation curveRen = CurveRendererSource.Build();
+            CurveRendererImplementation curveRen = CurveRendererSource.Build(widthType);
             curveRen.initialize(go, new Colorf(Colorf.Black, 0.75f) );
             fCircleGameObject fgo = new fCircleGameObject(go, curveRen);
             fgo.SetColor(color);
@@ -164,15 +164,16 @@ namespace f3
 
 
 
-        public static fPolylineGameObject CreatePolylineGO(string sName, List<Vector3f> vVertices, Colorf color, float fLineWidth)
+        public static fPolylineGameObject CreatePolylineGO(string sName, List<Vector3f> vVertices, Colorf color, float fLineWidth, LineWidthType widthType)
         {
             GameObject go = new GameObject(sName);
-            CurveRendererImplementation curveRen = CurveRendererSource.Build();
+            CurveRendererImplementation curveRen = CurveRendererSource.Build(widthType);
             curveRen.initialize(go, new Colorf(Colorf.Black, 0.75f) );
             fPolylineGameObject fgo = new fPolylineGameObject(go, curveRen);
             fgo.SetColor(color);
             fgo.SetLineWidth(fLineWidth);
-            fgo.SetVertices(vVertices);
+            if (vVertices != null)
+                fgo.SetVertices(vVertices);
             return fgo;
         }
 

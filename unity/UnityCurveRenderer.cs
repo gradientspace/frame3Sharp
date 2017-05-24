@@ -11,7 +11,7 @@ namespace f3
 
     public class UnityCurveRenderer : CurveRendererImplementation
     {
-        LineRenderer r;
+        protected LineRenderer r;
 
         public virtual void initialize(fGameObject go, Colorf color)
         {
@@ -22,6 +22,10 @@ namespace f3
 
         public virtual void update_curve(Vector3f[] Vertices)
         {
+            if ( Vertices == null ) {
+                r.positionCount = 0;
+                return;
+            }
             if (r.positionCount != Vertices.Length)
                 r.positionCount = Vertices.Length;
             for (int i = 0; i < Vertices.Length; ++i)
@@ -44,16 +48,62 @@ namespace f3
         {
             r.startColor = r.endColor = color;
         }
+
+        public virtual bool is_pixel_width() {
+            return false;
+        }
     }
+
+
+
+
+   public class UnityPixelCurveRenderer : UnityCurveRenderer
+    {
+        fGameObject lineGO;
+        Vector3f center;
+
+        public override void initialize(fGameObject go, Colorf color)
+        {
+            lineGO = go;
+            base.initialize(go, color);
+        }
+
+        public override void update_curve(Vector3f[] Vertices)
+        {
+            base.update_curve(Vertices);
+            if (Vertices == null)
+                center = Vector3f.Zero;
+            else
+                center = BoundsUtil.Bounds(Vertices, (x) => { return x; }).Center;
+        }
+
+        public override void update_width(float width)
+        {
+            // how to convert this width to pixels?
+            //float near_plane_w = Camera.main.nearClipPlane * (float)Math.Tan(Camera.main.fieldOfView);
+            //float near_pixel_w = Camera.main.pixelWidth / near_plane_w;
+            float near_plane_pixel_deg = Camera.main.fieldOfView / Camera.main.pixelWidth;
+            float fWidth = VRUtil.GetVRRadiusForVisualAngle(center, Camera.main.transform.position, near_plane_pixel_deg);
+            r.startWidth = r.endWidth = width * fWidth;
+        }
+
+        public override bool is_pixel_width() {
+            return true;
+        }
+    }
+
 
 
 
 
     public class UnityCurveRendererFactory : CurveRendererFactory
     {
-        public CurveRendererImplementation Build()
+        public CurveRendererImplementation Build(LineWidthType widthType)
         {
-            return new UnityCurveRenderer();
+            if (widthType == LineWidthType.World)
+                return new UnityCurveRenderer();
+            else
+                return new UnityPixelCurveRenderer();
         }
     }
 
