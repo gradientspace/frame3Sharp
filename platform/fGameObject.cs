@@ -164,7 +164,7 @@ namespace f3
         public void SetParent(fGameObject parentGO, bool bKeepWorldPosition = false)
         {
             if (parentGO == null)
-                go.transform.parent = null;
+                go.transform.SetParent(null, bKeepWorldPosition);
             else
                 go.transform.SetParent(((GameObject)parentGO).transform, bKeepWorldPosition);
         }
