@@ -254,7 +254,7 @@ namespace f3
             label.offset = offset;
 
             if ( Labels.ContainsKey(atValue) ) {
-                RemoveGO(Labels[atValue].go);
+                RemoveGO((fGameObject)Labels[atValue].go);
                 Labels[atValue].go.Destroy();
             }
 
@@ -265,7 +265,7 @@ namespace f3
         {
             foreach ( var labelinfo in Labels.Values ) {
                 if (labelinfo.go != null) {
-                    RemoveGO(labelinfo.go);
+                    RemoveGO((fGameObject)labelinfo.go);
                     labelinfo.go.Destroy();
                 }
             }

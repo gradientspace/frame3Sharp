@@ -62,7 +62,7 @@ namespace f3
 
 
         public static HUDButton CreateMeshClickButton(
-            Mesh mesh, Color color, float fMeshScale, Quaternion meshRotation,
+            fMesh mesh, Color color, float fMeshScale, Quaternion meshRotation,
             float fHUDRadius, float fAngleHorz, float fAngleVert,
             IGameObjectGenerator addGeometry = null)
         {
@@ -82,7 +82,7 @@ namespace f3
 
 
         public static HUDButton CreateMeshClickButton(
-            Mesh mesh, Color color, float fMeshScale, Quaternion meshRotation,
+            fMesh mesh, Color color, float fMeshScale, Quaternion meshRotation,
             HUDSurface hudSurf, float dx, float dy,
             IGameObjectGenerator addGeometry = null)
         {

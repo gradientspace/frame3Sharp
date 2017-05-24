@@ -128,7 +128,7 @@ namespace f3
 
             float fCurAngle = AngleShift;
             for ( int i = 0; i < nItems; ++i ) {
-                Mesh m = MeshGenerators.CreatePuncturedDisc(fInnerRadius, Radius, nSlicesPerWedge, 
+                fMesh m = MeshGenerators.CreatePuncturedDisc(fInnerRadius, Radius, nSlicesPerWedge, 
                     fCurAngle, fCurAngle+fWedgeSpan);
 
                 float fMidAngleRad = (fCurAngle + fWedgeSpan * 0.5f) * Mathf.Deg2Rad;
@@ -183,7 +183,7 @@ namespace f3
             float fCurAngle = fParentAngleMid - fSubMenuSpan * 0.5f;
             for ( int i = 0; i < nItems; ++i ) {
                 MenuItem item = topItem.SubItems[i];
-                Mesh m = MeshGenerators.CreatePuncturedDisc(fInnerRadius, fOuterRadius, nSlicesPerWedge,
+                fMesh m = MeshGenerators.CreatePuncturedDisc(fInnerRadius, fOuterRadius, nSlicesPerWedge,
                      fCurAngle, fCurAngle + fWedgeSpan);
 
                 float fMidAngleRad = (fCurAngle + fWedgeSpan * 0.5f) * Mathf.Deg2Rad;

@@ -399,7 +399,7 @@ namespace f3
 
         // [RMS] cached construction of unity primitive meshes
         private static Dictionary<PrimitiveType, Mesh> primitiveMeshes = new Dictionary<PrimitiveType, Mesh>();
-        public static Mesh GetPrimitiveMesh(PrimitiveType type)
+        public static fMesh GetPrimitiveMesh(PrimitiveType type)
         {
             if (!UnityUtil.primitiveMeshes.ContainsKey(type)) {
                 GameObject gameObject = GameObject.CreatePrimitive(type);
@@ -407,15 +407,15 @@ namespace f3
                 GameObject.Destroy(gameObject);
                 UnityUtil.primitiveMeshes[type] = mesh;
             }
-            return Mesh.Instantiate(UnityUtil.primitiveMeshes[type]);
+            return new fMesh(Mesh.Instantiate(UnityUtil.primitiveMeshes[type]));
         }
-        public static Mesh GetSphereMesh() {
+        public static fMesh GetSphereMesh() {
             return GetPrimitiveMesh(PrimitiveType.Sphere);
         }
-        public static Mesh GetPlaneMesh() {
+        public static fMesh GetPlaneMesh() {
             return GetPrimitiveMesh(PrimitiveType.Plane);
         }
-        public static Mesh GetTwoSidedPlaneMesh() {
+        public static fMesh GetTwoSidedPlaneMesh() {
             Mesh m = GetPrimitiveMesh(PrimitiveType.Plane);
             Mesh m2 = GetPrimitiveMesh(PrimitiveType.Plane);
             UnityUtil.RotateMesh(m2, Quaternionf.AxisAngleD(Vector3f.AxisX, 180.0f), Vector3f.Zero);
@@ -425,7 +425,7 @@ namespace f3
             };
             Mesh twosided = new Mesh();
             twosided.CombineMeshes(combine);
-            return twosided;
+            return new fMesh(twosided);
         }
 
 

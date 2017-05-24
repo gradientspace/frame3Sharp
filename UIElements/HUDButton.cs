@@ -80,7 +80,7 @@ namespace f3
         }
 
         // creates a button that is just the mesh
-        public void Create( Mesh mesh, Material meshMaterial, float fScale, Quaternion transform )
+        public void Create( fMesh mesh, Material meshMaterial, float fScale, Quaternion transform )
         {
             button = new GameObject(UniqueNames.GetNext("HUDButton"));
 
@@ -93,7 +93,7 @@ namespace f3
         }
 
         // creates a button with a background shape and a foreground mesh
-        public void Create(Material bgMaterial, Mesh mesh, Material meshMaterial, float fScale, Frame3f deltaF)
+        public void Create(Material bgMaterial, fMesh mesh, Material meshMaterial, float fScale, Frame3f deltaF)
         {
             button = new GameObject(UniqueNames.GetNext("HUDButton"));
 

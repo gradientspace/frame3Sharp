@@ -19,7 +19,7 @@ namespace f3
         public static fGameObject CreateParentGO(string sName)
         {
             GameObject go = new GameObject(sName);
-            return new fGameObject(go);
+            return new fGameObject(go, FGOFlags.NoFlags);
         }
 
 
@@ -44,13 +44,13 @@ namespace f3
         {
             GameObject go = new GameObject(sName);
             initialize_meshgo(go, new fMesh(mesh), bCollider, bShared);
-            return new fMeshGameObject(go, new fMesh(go.GetSharedMesh()) );
+            return new fMeshGameObject(go, new fMesh(go.GetSharedMesh()), FGOFlags.NoFlags );
         }
         public static fMeshGameObject CreateMeshGO(string sName, fMesh mesh, bool bCollider = false, bool bShared = false)
         {
             GameObject go = new GameObject(sName);
             initialize_meshgo(go, mesh, bCollider, bShared);
-            return new fMeshGameObject(go, new fMesh(go.GetSharedMesh()) );
+            return new fMeshGameObject(go, new fMesh(go.GetSharedMesh()), FGOFlags.NoFlags );
         }
 
         // unit rectangle lying in plane
@@ -326,7 +326,7 @@ namespace f3
         public static fGameObject Duplicate(fGameObject go)
         {
             GameObject copy = GameObject.Instantiate<GameObject>(go);
-            fGameObject fcopy = new fGameObject(copy);
+            fGameObject fcopy = new fGameObject(copy, FGOFlags.NoFlags);
 
             // have to set parent fgo in PreRenderBehavior script...
             if (copy.GetComponent<PreRenderBehavior>() != null)

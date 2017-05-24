@@ -88,7 +88,7 @@ namespace f3
         public void Create()
         {
             entry = new GameObject(UniqueNames.GetNext("HUDTextEntry"));
-            Mesh mesh = MeshGenerators.CreateTrivialRect(Width, Height, MeshGenerators.UVRegionType.FullUVSquare);
+            fMesh mesh = MeshGenerators.CreateTrivialRect(Width, Height, MeshGenerators.UVRegionType.FullUVSquare);
             backgroundMaterial = MaterialUtil.CreateFlatMaterialF(BackgroundColor);
             activeBackgroundMaterial = MaterialUtil.CreateFlatMaterialF(ActiveBackgroundColor);
             bgMesh = AppendMeshGO("background", mesh, backgroundMaterial, entry);

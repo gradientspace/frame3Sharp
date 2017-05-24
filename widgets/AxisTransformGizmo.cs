@@ -181,21 +181,21 @@ namespace f3
             allHoverMaterial = MaterialUtil.CreateStandardMaterial(Color.white);
 
             x = AppendMeshGO ("x_translate", 
-				(Mesh)Resources.Load ("transform_gizmo/axis_translate_x", typeof(Mesh)),
+				FResources.LoadMesh("transform_gizmo/axis_translate_x"),
 				xMaterial, gizmo);
             Widgets[x] = new AxisTranslationWidget(0) {
                 RootGameObject = x, StandardMaterial = xMaterial, HoverMaterial = xHoverMaterial,
                 TranslationScaleF = () => { return 1.0f / parentScene.GetSceneScale(); }
             };
 			y = AppendMeshGO ("y_translate", 
-				(Mesh)Resources.Load ("transform_gizmo/axis_translate_y", typeof(Mesh)),
+				FResources.LoadMesh("transform_gizmo/axis_translate_y"),
 				yMaterial, gizmo);
 			Widgets [y] = new AxisTranslationWidget(1) {
                 RootGameObject = y, StandardMaterial = yMaterial, HoverMaterial = yHoverMaterial,
                 TranslationScaleF = () => { return 1.0f / parentScene.GetSceneScale(); }
             };
             z = AppendMeshGO ("z_translate", 
-				(Mesh)Resources.Load ("transform_gizmo/axis_translate_z", typeof(Mesh)),
+				FResources.LoadMesh("transform_gizmo/axis_translate_z"),
 				zMaterial, gizmo);	
 			Widgets [z] = new AxisTranslationWidget(2) {
                 RootGameObject = z, StandardMaterial = zMaterial, HoverMaterial = zHoverMaterial,
@@ -204,17 +204,17 @@ namespace f3
 
 
             rotate_x = AppendMeshGO ("x_rotate",
-				(Mesh)Resources.Load ("transform_gizmo/axisrotate_x", typeof(Mesh)),
+				FResources.LoadMesh("transform_gizmo/axisrotate_x"),
 				xMaterial, gizmo);
 			Widgets [rotate_x] = new AxisRotationWidget(0) {
                 RootGameObject = rotate_x, StandardMaterial = xMaterial, HoverMaterial = xHoverMaterial };
             rotate_y = AppendMeshGO ("y_rotate",
-				(Mesh)Resources.Load ("transform_gizmo/axisrotate_y", typeof(Mesh)),
+				FResources.LoadMesh("transform_gizmo/axisrotate_y"),
 				yMaterial, gizmo);
 			Widgets [rotate_y] = new AxisRotationWidget(1) {
                 RootGameObject = rotate_y, StandardMaterial = yMaterial, HoverMaterial = yHoverMaterial };
             rotate_z = AppendMeshGO ("z_rotate",
-				(Mesh)Resources.Load ("transform_gizmo/axisrotate_z", typeof(Mesh)),
+				FResources.LoadMesh("transform_gizmo/axisrotate_z"),
 				zMaterial, gizmo);			
 			Widgets [rotate_z] = new AxisRotationWidget(2) {
                 RootGameObject = rotate_z, StandardMaterial = zMaterial, HoverMaterial = zHoverMaterial };
@@ -222,21 +222,21 @@ namespace f3
 
             // plane translation widgets
             translate_xy = AppendMeshGO ("xy_translate",
-				(Mesh)Resources.Load ("transform_gizmo/plane_translate_xy", typeof(Mesh)),
+				FResources.LoadMesh("transform_gizmo/plane_translate_xy"),
 				zMaterial, gizmo);
 			Widgets [translate_xy] = new PlaneTranslationWidget(2) {
                 RootGameObject = translate_xy, StandardMaterial = zMaterial, HoverMaterial = zHoverMaterial,
                 TranslationScaleF = () => { return 1.0f / parentScene.GetSceneScale(); }
             };
             translate_xz = AppendMeshGO ("xz_translate",
-				(Mesh)Resources.Load ("transform_gizmo/plane_translate_xz", typeof(Mesh)),
+				FResources.LoadMesh("transform_gizmo/plane_translate_xz"),
 				yMaterial, gizmo);
 			Widgets [translate_xz] = new PlaneTranslationWidget(1) {
                 RootGameObject = translate_xz, StandardMaterial = yMaterial, HoverMaterial = yHoverMaterial,
                 TranslationScaleF = () => { return 1.0f / parentScene.GetSceneScale(); }
             };
             translate_yz = AppendMeshGO ("yz_translate",
-				(Mesh)Resources.Load ("transform_gizmo/plane_translate_yz", typeof(Mesh)),
+				FResources.LoadMesh("transform_gizmo/plane_translate_yz"),
 				xMaterial, gizmo);
 			Widgets [translate_yz] = new PlaneTranslationWidget(0) {
                 RootGameObject = translate_yz, StandardMaterial = xMaterial, HoverMaterial = xHoverMaterial,
@@ -245,7 +245,7 @@ namespace f3
 
 
             uniform_scale = AppendMeshGO("uniform_scale",
-                Resources.Load<Mesh>("transform_gizmo/uniform_scale"), allMaterial, gizmo);
+                FResources.LoadMesh("transform_gizmo/uniform_scale"), allMaterial, gizmo);
             Widgets[uniform_scale] = new UniformScaleWidget(parentScene.ActiveCamera) {
                 RootGameObject = uniform_scale, StandardMaterial = allMaterial, HoverMaterial = allHoverMaterial,
                 ScaleMultiplierF = () => { return 1.0f / parentScene.GetSceneScale(); }

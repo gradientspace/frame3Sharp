@@ -134,7 +134,7 @@ namespace f3
         {
             if (displayComponents != null) {
                 foreach (DisplayMeshComponent comp in displayComponents) {
-                    RemoveGO(comp.go);
+                    RemoveGO((fGameObject)comp.go);
                     comp.go.Destroy();
                 }
             }

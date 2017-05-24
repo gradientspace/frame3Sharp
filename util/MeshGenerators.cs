@@ -184,7 +184,7 @@ namespace f3 {
 
         // from http://answers.unity3d.com/questions/855827/problems-with-creating-a-disk-shaped-mesh-c.html
         // ugh this code is shit! 
-        public static Mesh CreateDisc(float radius, int radiusTiles,int tilesAround)
+        public static fMesh CreateDisc(float radius, int radiusTiles,int tilesAround)
 		{
 			Vector3[] vertices = new Vector3    [radiusTiles*tilesAround*6];
 			Vector3[] normals = new Vector3[vertices.Length];
@@ -228,12 +228,12 @@ namespace f3 {
 			disk.normals = normals;
 			disk.uv = UV;    //the UV doesnt need to be set
 
-			return disk;
+			return new fMesh(disk);
 		}
 
 
 		// from http://wiki.unity3d.com/index.php/ProceduralPrimitives#C.23_-_Tube
-		public static Mesh CreateCylider(float radius, float height = 1, int nbSides = 24)
+		public static fMesh CreateCylider(float radius, float height = 1, int nbSides = 24)
 		{
 			// Outter shell is at radius1 + radius2 / 2, inner shell at radius1 - radius2 / 2
 			float bottomRadius = radius;
@@ -297,7 +297,7 @@ namespace f3 {
 
 			cylinder.RecalculateBounds();
 
-			return cylinder;
+			return new fMesh(cylinder);
 		}
 
 

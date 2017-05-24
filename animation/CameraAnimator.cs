@@ -28,7 +28,7 @@ namespace f3
 
         public void Start()
         {
-            fadeObject = new fGameObject( GameObject.CreatePrimitive(PrimitiveType.Sphere) );
+            fadeObject = new fGameObject( GameObject.CreatePrimitive(PrimitiveType.Sphere), FGOFlags.NoFlags );
             //fadeObject.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
             fadeObject.SetMaterial(MaterialUtil.CreateFlatMaterial(Color.black, 0.0f), true);
             fadeObject.SetName("fade_sphere");

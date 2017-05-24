@@ -88,23 +88,17 @@ namespace f3
         }
 
 
-		public virtual GameObject AppendMeshGO(string name, Mesh mesh, Material setMaterial, GameObject parent, bool bCollider = true) {
-            // [TODO] replace with UnityUtil.CreateMeshGO ??
-            var gameObj = new GameObject (name);
-            gameObj.AddComponent<MeshFilter>();
-            gameObj.SetMesh(mesh);
-            if (bCollider) {
-                gameObj.AddComponent(typeof(MeshCollider));
-                gameObj.GetComponent<MeshCollider>().enabled = false;
-            }
-			(gameObj.AddComponent (typeof(MeshRenderer)) as MeshRenderer).material = setMaterial;
+		public virtual fMeshGameObject AppendMeshGO(string name, fMesh mesh, fMaterial setMaterial, fGameObject parent, bool bCollider = true) {
+            fMeshGameObject go = new fMeshGameObject(mesh, true, bCollider);
+            go.EnableCollisions = false;
+            go.SetMaterial(setMaterial);
 
-			vObjects.Add (gameObj);
+			vObjects.Add (go);
 
-            gameObj.transform.parent = parent.transform;
-            gameObj.SetLayer(parent.GetLayer());
+            parent.AddChild(go);
+            go.SetLayer(parent.GetLayer());
 
-			return gameObj;
+            return go;
 		}
 
 
@@ -124,7 +118,7 @@ namespace f3
                 gameObj.SetLayer(parent.GetLayer());
             }
 
-			return new fGameObject(gameObj);
+			return new fGameObject(gameObj, FGOFlags.NoFlags);
 		}
 
 
@@ -132,6 +126,11 @@ namespace f3
         {
             vObjects.Remove(go);
             go.transform.SetParent(null);
+        }
+        public virtual void RemoveGO(fGameObject go)
+        {
+            vObjects.Remove(go);
+            go.SetParent(null);
         }
 
 

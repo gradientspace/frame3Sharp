@@ -16,17 +16,19 @@ namespace f3
     public class fCamera
     {
         Camera camera;
+        fGameObject cameraGO;
 
 
         public fCamera(Camera go)
         {
             this.camera = go;
+            cameraGO = new fGameObject(go.gameObject, FGOFlags.NoFlags);
         }
 
 
         public fGameObject GameObject()
         {
-            return new fGameObject(this.camera.gameObject);
+            return cameraGO;
         }
 
 

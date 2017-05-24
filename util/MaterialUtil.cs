@@ -26,11 +26,18 @@ namespace f3
             return new fMaterial(m);
         }
 
+
         public static Material CreateStandardVertexColorMaterial(Colorf c)
         {
             Material m = SafeLoadMaterial("StandardMaterials/default_vertex_colored");
             m.color = c;
             return m;
+        }
+        public static fMaterial CreateStandardVertexColorMaterialF(Colorf c)
+        {
+            Material m = SafeLoadMaterial("StandardMaterials/default_vertex_colored");
+            m.color = c;
+            return new fMaterial(m);
         }
 
 

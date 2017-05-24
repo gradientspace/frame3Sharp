@@ -57,7 +57,11 @@ namespace f3
         {
             if (!vChildren.Contains(so)) {
                 vChildren.Add(so);
-                parentScene.AddSceneObjectToParentSO(so, this);
+                if (parentScene != null) {
+                    if (so.Parent != null)
+                        throw new Exception("GroupSO.AddChild: tried to re-parent SO to group that has no parent!");
+                    parentScene.AddSceneObjectToParentSO(so, this);
+                }
                 update_shared_origin();
                 increment_timestamp();
                 //so.OnTransformModified += childTransformModified;
