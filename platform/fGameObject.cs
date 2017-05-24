@@ -24,6 +24,14 @@ namespace f3
 
 
 
+    [Flags]
+    public enum FGOFlags
+    {
+        NoFlags = 0,
+        EnablePreRender = 1
+    }
+
+
 
     //
     // fGameObject wraps a GameObject for frame3Sharp. The idea is that eventually we
@@ -35,9 +43,9 @@ namespace f3
     {
         protected GameObject go;
 
-        public fGameObject(GameObject go)
+        public fGameObject(GameObject go, FGOFlags flags = FGOFlags.NoFlags)
         {
-            Initialize(go);
+            Initialize(go, flags);
         }
 
         /// <summary>
@@ -49,11 +57,17 @@ namespace f3
         }
 
 
-        public virtual void Initialize(GameObject go)
+        public virtual void Initialize(GameObject go, FGOFlags flags)
         {
             this.go = go;
-            PreRenderBehavior pb = go.AddComponent<PreRenderBehavior>();
-            pb.ParentFGO = this;
+
+            bool bEnablePreRender = (flags & FGOFlags.EnablePreRender) != 0;
+            if (bEnablePreRender) {
+                if (go.GetComponent<PreRenderBehavior>() != null)
+                    throw new Exception("fGameObject.Initialize: tried to add PreRenderBehavior to this go, but already exists!");
+                PreRenderBehavior pb = go.AddComponent<PreRenderBehavior>();
+                pb.ParentFGO = this;
+            }
         }
 
 
@@ -293,12 +307,12 @@ namespace f3
 
 
         // what to do about this??
-        public virtual T AddComponent<T>() where T : MonoBehaviour
+        public virtual T AddComponent<T>() where T : Component
         {
             T comp = go.AddComponent<T>();
             return comp;
         }
-        public virtual T GetComponent<T>() where T : MonoBehaviour
+        public virtual T GetComponent<T>() where T : Component
         {
             return go.GetComponent<T>();
         }
@@ -310,7 +324,7 @@ namespace f3
         }
         public static implicit operator fGameObject(UnityEngine.GameObject go)
         {
-            return (go != null) ? new fGameObject(go) : null;
+            return (go != null) ? new fGameObject(go, FGOFlags.NoFlags) : null;
         }
     }
 
@@ -324,7 +338,8 @@ namespace f3
         Vector2f size;
         fText textObj;
 
-        public fTextGameObject(GameObject go, fText textObj, Vector2f size) : base(go)
+        public fTextGameObject(GameObject go, fText textObj, Vector2f size)
+            : base(go, FGOFlags.EnablePreRender)
         {
             this.size = size;
             this.textObj = textObj;
@@ -374,7 +389,8 @@ namespace f3
         Vector2f size;
         fText textObj;
 
-        public fTextAreaGameObject(GameObject go, fText textObj, Vector2f size) : base(go)
+        public fTextAreaGameObject(GameObject go, fText textObj, Vector2f size)
+            : base(go, FGOFlags.EnablePreRender)
         {
             this.size = size;
             this.textObj = textObj;
@@ -429,7 +445,8 @@ namespace f3
 
         CurveRendererImplementation renderer;
 
-        public fCurveGameObject(GameObject go, CurveRendererImplementation curveRenderer) : base(go)
+        public fCurveGameObject(GameObject go, CurveRendererImplementation curveRenderer) 
+            : base(go, FGOFlags.EnablePreRender)
         {
             renderer = curveRenderer;
         }
@@ -603,7 +620,8 @@ namespace f3
         float width = 1;
         float height = 1;
 
-        public fRectangleGameObject(GameObject go, float widthIn = 1, float heightIn = 1) : base(go)
+        public fRectangleGameObject(GameObject go, float widthIn = 1, float heightIn = 1)
+            : base(go, FGOFlags.NoFlags)
         {
             width = widthIn;
             height = heightIn;
@@ -635,7 +653,8 @@ namespace f3
         float width = 1;
         float height = 1;
 
-        public fTriangleGameObject(GameObject go, float widthIn = 1, float heightIn = 1) : base(go)
+        public fTriangleGameObject(GameObject go, float widthIn = 1, float heightIn = 1)
+            : base(go, FGOFlags.NoFlags)
         {
             width = widthIn;
             height = heightIn;
@@ -670,17 +689,42 @@ namespace f3
 
         public fMeshGameObject() : base()
         {
-
         }
-        public fMeshGameObject(GameObject go, fMesh mesh) : base (go)
+
+        public fMeshGameObject(fMesh mesh, bool bCreate = true, bool bAddCollider = false) : base()
+        {
+            Mesh = mesh;
+            if ( bCreate ) {
+                GameObject go = new GameObject();
+                go.AddComponent<MeshFilter>();
+                go.AddComponent<MeshRenderer>();
+                if (bAddCollider)
+                    go.AddComponent<MeshCollider>();
+                Initialize(go, FGOFlags.NoFlags);
+                UpdateMesh(Mesh, true, bAddCollider);
+            }
+        }
+
+
+        public fMeshGameObject(GameObject go, fMesh mesh, FGOFlags flags)
+            : base (go, flags)
         {
             Mesh = mesh;
         }
 
-        public virtual void Initialize(GameObject go, fMesh mesh)
+        public virtual void Initialize(GameObject go, fMesh mesh, FGOFlags flags)
         {
-            base.Initialize(go);
+            base.Initialize(go, flags);
             Mesh = mesh;
+        }
+
+        public bool EnableCollisions
+        {
+            set {
+                MeshCollider c = go.GetComponent<MeshCollider>();
+                if (c != null)
+                    c.enabled = value;
+            }
         }
 
 
@@ -694,8 +738,9 @@ namespace f3
                 Mesh = new fMesh(go.GetSharedMesh());
             }
         }
-
     }
+
+
 
 
 
@@ -711,7 +756,8 @@ namespace f3
         {
             bDiscValid = false;
         }
-        public fDiscGameObject(GameObject go, fMesh mesh, float radiusIn = 1) : base(go, mesh)
+        public fDiscGameObject(GameObject go, fMesh mesh, float radiusIn = 1)
+            : base(go, mesh, FGOFlags.EnablePreRender)
         {
             radius = radiusIn;
             bDiscValid = false;
@@ -721,7 +767,7 @@ namespace f3
 
         public virtual void Initialize(GameObject go, fMesh mesh, float radiusIn = 1)
         {
-            base.Initialize(go, mesh);
+            base.Initialize(go, mesh, FGOFlags.EnablePreRender);
             radius = radiusIn;
             bDiscValid = false;
             SetLocalScale(new Vector3f(radius, 1, radius));
@@ -789,7 +835,8 @@ namespace f3
         {
             bDiscValid = false;
         }
-        public fRingGameObject(GameObject go, fMesh mesh, float outerRad = 1, float innerRad = 0.5f) : base(go, mesh)
+        public fRingGameObject(GameObject go, fMesh mesh, float outerRad = 1, float innerRad = 0.5f)
+            : base(go, mesh, FGOFlags.EnablePreRender)
         {
             outerRadius = outerRad;
             innerRadius = innerRad;
@@ -800,7 +847,7 @@ namespace f3
 
         public virtual void Initialize(GameObject go, fMesh mesh, float outerRad = 1, float innerRad = 0.5f)
         {
-            base.Initialize(go, mesh);
+            base.Initialize(go, mesh, FGOFlags.EnablePreRender);
             outerRadius = outerRad;
             innerRadius = innerRad;
             bDiscValid = false;
@@ -875,7 +922,8 @@ namespace f3
         {
             bBoxValid = false;
         }
-        public fBoxGameObject(GameObject go, fMesh mesh, float widthIn = 1, float heightIn = 1, float depthIn = 1) : base(go, mesh)
+        public fBoxGameObject(GameObject go, fMesh mesh, float widthIn = 1, float heightIn = 1, float depthIn = 1)
+            : base(go, mesh, FGOFlags.EnablePreRender)
         {
             width = widthIn;
             height = heightIn;
@@ -887,7 +935,7 @@ namespace f3
 
         public virtual void Initialize(GameObject go, fMesh mesh, float widthIn = 1, float heightIn = 1, float depthIn = 1)
         {
-            base.Initialize(go, mesh);
+            base.Initialize(go, mesh, FGOFlags.EnablePreRender);
             width = widthIn;
             height = heightIn;
             depth = depthIn;
