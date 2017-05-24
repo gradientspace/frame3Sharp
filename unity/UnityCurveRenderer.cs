@@ -57,14 +57,14 @@ namespace f3
 
 
 
-   public class UnityPixelCurveRenderer : UnityCurveRenderer
+    public class UnityPixelCurveRenderer : UnityCurveRenderer
     {
-        fGameObject lineGO;
+        //fGameObject lineGO;
         Vector3f center;
 
         public override void initialize(fGameObject go, Colorf color)
         {
-            lineGO = go;
+            //lineGO = go;
             base.initialize(go, color);
         }
 
