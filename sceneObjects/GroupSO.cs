@@ -58,7 +58,7 @@ namespace f3
             if (!vChildren.Contains(so)) {
                 vChildren.Add(so);
                 if (parentScene != null) {
-                    if (so.Parent != null)
+                    if (so.Parent == null)
                         throw new Exception("GroupSO.AddChild: tried to re-parent SO to group that has no parent!");
                     parentScene.AddSceneObjectToParentSO(so, this);
                 }

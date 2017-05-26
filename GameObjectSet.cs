@@ -92,6 +92,7 @@ namespace f3
             fMeshGameObject go = new fMeshGameObject(mesh, true, bCollider);
             go.EnableCollisions = false;
             go.SetMaterial(setMaterial);
+            go.SetName(name);
 
 			vObjects.Add (go);
 
