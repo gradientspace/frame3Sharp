@@ -43,7 +43,10 @@ namespace f3
 
         public const string NoGizmoType = "no_gizmo";
         public const string DefaultGizmoType = "default";
-        
+
+        Func<TransformableSO, bool> SelectionFilterF = null;
+
+
         public TransformManager( ITransformGizmoBuilder defaultBuilder )
         {
             activeBuilder = defaultBuilder;
@@ -103,6 +106,16 @@ namespace f3
         {
             sOverrideGizmoType = "";
             update_gizmo();
+        }
+
+
+        public void SetSelectionFilter(Func<TransformableSO, bool> filterF)
+        {
+            SelectionFilterF = filterF;
+        }
+        public void ClearSelectionFilter()
+        {
+            SelectionFilterF = null;
         }
 
 
@@ -246,8 +259,10 @@ namespace f3
             List<TransformableSO> vSelected = new List<TransformableSO>();
             foreach ( SceneObject so in scene.Selected ) {
                 TransformableSO tso = so as TransformableSO;
-                if (tso != null)
-                    vSelected.Add(tso);
+                if (tso != null) {
+                    if ( SelectionFilterF == null || SelectionFilterF(tso) )
+                        vSelected.Add(tso);
+                }
             }
 
             if (vSelected.Count == 0 && activeGizmo != null) {
