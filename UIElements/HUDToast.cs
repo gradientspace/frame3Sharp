@@ -55,7 +55,10 @@ namespace f3
                     if (dismiss) {
                         FUtil.SafeSendEvent(this.OnDismissed, this, EventArgs.Empty);
                         HUDUtil.AnimatedDimiss_Cockpit(this, cockpit, true, (disappear) ? 0.001f : fFadeInOut );
-                        dismiss_timer.Dispose();
+                        if (dismiss_timer != null) {
+                            dismiss_timer.Dispose();
+                            dismiss_timer = null;
+                        }
                         return true;
                     }
                     return false;
