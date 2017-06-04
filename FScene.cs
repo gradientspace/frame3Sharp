@@ -395,6 +395,16 @@ namespace f3
         }
 
 
+		public List<T> FindSceneObjectsOfType<T>() where T : class {
+			List<T> result = new List<T>();
+			foreach ( var so in SceneObjects ) {
+				if (so is T)
+					result.Add(so as T);
+			}
+			return result;
+		}
+
+
 
 
 
