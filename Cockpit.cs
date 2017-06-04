@@ -172,7 +172,7 @@ namespace f3
             AxisAlignedBox2f pixelBounds = GetPixelViewBounds();
             float fScale = uiBounds.MaxDim / pixelBounds.MaxDim;
 #if UNITY_STANDALONE_OSX
-            if ( Screen.dpi > 100.0f )
+            if ( UnityEngine.Screen.dpi > 100.0f && FPlatform.InUnityEditor() == false )
                 fScale /= 2.0f;
 #endif
 #if UNITY_IOS || UNITY_ANDROID
