@@ -203,7 +203,7 @@ namespace f3
         {
             ShowingExternalPopup = true;
 
-#if UNITY_STANDALONE_WIN
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX)
             // tinyfd changes CWD (?), and this makes Unity unhappy
             string curDirectory = Directory.GetCurrentDirectory();
 
@@ -234,7 +234,7 @@ namespace f3
         {
             ShowingExternalPopup = true;
 
-#if UNITY_STANDALONE_WIN
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX)
             // tinyfd changes CWD (?), and this makes Unity unhappy
             string curDirectory = Directory.GetCurrentDirectory();
 
@@ -263,6 +263,8 @@ namespace f3
 #if UNITY_STANDALONE_WIN
         [DllImport("user32.dll")]
         private static extern System.IntPtr GetActiveWindow();
+#endif
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX)
 
         [DllImport("tinyfiledialogs", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr tinyfd_inputBox(string aTitle, string aMessage, string aDefaultInput);
