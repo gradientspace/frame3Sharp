@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using g3;
 
 namespace f3
 {
     public class GroupSO : TransformableSO, SOCollection, SOParent
     {
-        GameObject gameObject;
+        fGameObject parentGO;
         SOParent parent;
         protected string uuid;
         List<TransformableSO> vChildren;
@@ -48,7 +47,7 @@ namespace f3
 
         public void Create()
         {
-            gameObject = new GameObject(UniqueNames.GetNext("Group"));
+            parentGO = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("Group"));
             increment_timestamp();
         }
 
@@ -103,19 +102,20 @@ namespace f3
                 return;
 
             if ( vChildren.Count == 0 ) {
-                RootGameObject.SetPosition(Vector3f.Zero);
+                SetLocalFrame(Frame3f.Identity, CoordSpace.SceneCoords);
                 return;
             }
 
             Vector3f origin = Vector3f.Zero;
             foreach (TransformableSO so in vChildren) {
-                origin += so.GetLocalFrame(CoordSpace.WorldCoords).Origin;
-                so.RootGameObject.SetParent(null);
+                origin += so.GetLocalFrame(CoordSpace.SceneCoords).Origin;
+                // remove from any existing parent
+                so.GetScene().ReparentSceneObject(so);
             }
             origin *= 1.0f / (float)vChildren.Count;
-            RootGameObject.SetPosition(origin);
+            SetLocalFrame(new Frame3f(origin), CoordSpace.SceneCoords);
             foreach (TransformableSO so in vChildren) {
-                so.RootGameObject.SetParent(gameObject, true);
+                so.GetScene().AddSceneObjectToParentSO(so, this);
             }
         }
 
@@ -126,7 +126,7 @@ namespace f3
 
         public fGameObject RootGameObject
         {
-            get { return gameObject; }
+            get { return parentGO; }
         }
 
         virtual public SOParent Parent
@@ -141,8 +141,8 @@ namespace f3
 
         public virtual string Name
         {
-            get { return gameObject.GetName(); }
-            set { gameObject.SetName(value); }
+            get { return parentGO.GetName(); }
+            set { parentGO.SetName(value); }
         }
 
         virtual public SOType Type { get { return SOTypes.Group; } }
