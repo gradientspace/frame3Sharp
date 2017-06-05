@@ -99,6 +99,11 @@ namespace f3
             return fO.Origin;
         }
 
+        public static Vector3d SceneToObject(TransformableSO so, Vector3d scenePt)
+        {
+            return (Vector3d)SceneToObject(so, (Vector3f)scenePt);
+        }
+
 
         /// <summary>
         /// input objectF is in Object (local) coords of so, apply all intermediate 
@@ -134,6 +139,12 @@ namespace f3
             Frame3f fS = ObjectToScene(so, f);
             return fS.Origin;
         }
+
+        public static Vector3d ObjectToScene(TransformableSO so, Vector3d scenePt)
+        {
+            return (Vector3d)ObjectToScene(so, (Vector3f)scenePt);
+        }
+
 
     }
 }
