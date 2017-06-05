@@ -86,7 +86,7 @@ namespace f3
             if (Children.Contains(ui)) {
                 Children.Remove(ui);
                 ui.Parent = null;
-                ui.RootGameObject.SetParent(null);
+                ui.RootGameObject.SetParent(null, true);
 
                 // [RMS] should re-parent to cockpit/scene we are part of? currently no reference to do that...
                 //so.RootGameObject.transform.SetParent(parentScene.RootGameObject.transform, true);

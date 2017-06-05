@@ -216,7 +216,7 @@ namespace f3
         }
         public void RemoveWorldBoundsObject(fGameObject obj)
         {
-            obj.SetParent(null);
+            obj.SetParent(null, true);
             vBoundsObjects.Remove(obj);
         }
 
@@ -242,7 +242,7 @@ namespace f3
         // this removes so from a SO/parent hierarchy and parents to Scene instead
         public void ReparentSceneObject(SceneObject so, bool bKeepPosition = true)
         {
-            so.RootGameObject.SetParent(null);
+            so.RootGameObject.SetParent(null, true);
             so.RootGameObject.SetParent(scene_objects, bKeepPosition);
             so.Parent = this;
         }
@@ -260,7 +260,7 @@ namespace f3
         {
             if (vObjects.Contains(so) == false)
                 vObjects.Add(so);
-            so.RootGameObject.SetParent(null);
+            so.RootGameObject.SetParent(null, true);
             so.RootGameObject.SetParent(scene_objects, true);
             so.Parent = this;
         }

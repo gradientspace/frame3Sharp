@@ -131,7 +131,7 @@ namespace f3
         public virtual void RemoveGO(fGameObject go)
         {
             vObjects.Remove(go);
-            go.SetParent(null);
+            go.SetParent(null, true);
         }
 
 
