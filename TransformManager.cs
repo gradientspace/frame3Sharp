@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 
 namespace f3
 {
@@ -29,7 +28,7 @@ namespace f3
 
     public class TransformManager
     {
-        public FContext SceneManager { get; set; }
+        public FContext Context { get; set; }
 
         ITransformGizmoBuilder activeBuilder;
         ITransformGizmo activeGizmo;
@@ -65,8 +64,8 @@ namespace f3
 
         public void Initialize(FContext manager)
         {
-            SceneManager = manager;
-            SceneManager.Scene.SelectionChangedEvent += Scene_SelectionChangedEvent;
+            Context = manager;
+            Context.Scene.SelectionChangedEvent += Scene_SelectionChangedEvent;
         }
 
         
@@ -105,7 +104,11 @@ namespace f3
         public void ClearOverrideGizmoType()
         {
             sOverrideGizmoType = "";
-            update_gizmo();
+
+            // [RMS] defer this update to next frame, as we often do this inside a Tool
+            //  and we should not immediately initialize gizmo...
+            //update_gizmo();
+            Context.RegisterNextFrameAction(update_gizmo);
         }
 
 
@@ -175,7 +178,7 @@ namespace f3
 
         public void DismissActiveGizmo()
         {
-            FScene scene = SceneManager.Scene;
+            FScene scene = Context.Scene;
             if ( activeGizmo != null ) {
                 scene.RemoveUIElement(activeGizmo, true);
                 activeGizmo = null;
@@ -201,7 +204,7 @@ namespace f3
             if (useTargets.Count > 0 && useBuilder.SupportsMultipleObjects == false)
                 useTargets.RemoveRange(1, useTargets.Count - 1);
 
-            FScene scene = SceneManager.Scene;
+            FScene scene = Context.Scene;
              
             // remove existing active gizmo
             // [TODO] support multiple gizmos?
@@ -255,7 +258,7 @@ namespace f3
 
         private void Scene_SelectionChangedEvent(object sender, EventArgs e)
         {
-            FScene scene = SceneManager.Scene;
+            FScene scene = Context.Scene;
             List<TransformableSO> vSelected = new List<TransformableSO>();
             foreach ( SceneObject so in scene.Selected ) {
                 TransformableSO tso = so as TransformableSO;
