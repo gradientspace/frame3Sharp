@@ -14,7 +14,7 @@ namespace f3
 
         public struct ImportedObject
         {
-            public UnityEngine.Mesh mesh;
+            public DMesh3 mesh;
             public SOMaterial material;      // may be null!
         }
         public List<ImportedObject> SceneObjects { get; set; }
@@ -34,7 +34,7 @@ namespace f3
         public SceneMeshImporter()
         {
             SwapLeftRight = true;       // this is right for importing from most other apps!
-            ImportBehavior = ImportMode.AsMeshReference;
+            ImportBehavior = ImportMode.SeparateObjects;
         }
 
 
@@ -46,7 +46,7 @@ namespace f3
 
             // read the input file
 
-            SimpleMeshBuilder build = new SimpleMeshBuilder();
+            DMesh3Builder build = new DMesh3Builder();
 
             StandardMeshReader reader = new StandardMeshReader() { MeshBuilder = build };
             reader.warningEvent += on_warning;
@@ -69,22 +69,16 @@ namespace f3
 
             SceneObjects = new List<ImportedObject>();
             for ( int k = 0; k < build.Meshes.Count; ++k ) {
-                if ( build.Meshes[k].VertexCount > 64000 || build.Meshes[k].TriangleCount > 64000 ) {
-                    SomeMeshesTooLargeForUnityWarning = true;
-                    continue;
-                }
+                DMesh3 mesh = build.Meshes[k];
 
                 int matID = build.MaterialAssignment[k];
                 SOMaterial soMaterial = 
                     (matID < 0 || matID >= vSOMaterials.Count) ? null : vSOMaterials[matID];
 
-                try {
-                    Mesh unityMesh = UnityUtil.SimpleMeshToUnityMesh(build.Meshes[k], SwapLeftRight);
-                    if (unityMesh != null)
-                        SceneObjects.Add(new ImportedObject() { mesh = unityMesh, material = soMaterial });
-                } catch (Exception e) {
-                    Debug.Log("[UnitySceneImporter] error converting to unity mesh : " + e.Message);
-                }
+                if (SwapLeftRight)
+                    MeshTransforms.FlipLeftRightCoordSystems(mesh);
+
+                SceneObjects.Add(new ImportedObject() { mesh = mesh, material = soMaterial });
             }
 
             return SceneObjects.Count > 0;
@@ -110,9 +104,8 @@ namespace f3
 
             } else {
                 foreach (ImportedObject obj in SceneObjects) {
-                    MeshSO meshSO = new MeshSO();
-                    meshSO.Create(obj.mesh,
-                        (obj.material == null) ? scene.DefaultMeshSOMaterial : obj.material);
+                    DMeshSO meshSO = new DMeshSO();
+                    meshSO.Create(obj.mesh, (obj.material == null) ? scene.DefaultMeshSOMaterial : obj.material);
                     meshSO.Name = UniqueNames.GetNext("ImportMesh");
 
                     var change = new AddSOChange() { scene = scene, so = meshSO };
@@ -133,7 +126,7 @@ namespace f3
             ref_group.Name = UniqueNames.GetNext("MeshReference");
 
             foreach (ImportedObject obj in SceneObjects) {
-                MeshSO meshSO = new MeshSO();
+                DMeshSO meshSO = new DMeshSO();
                 meshSO.Create(obj.mesh,
                     (obj.material == null) ? defaultMaterial : obj.material);
                 meshSO.Name = UniqueNames.GetNext("ImportMesh");
