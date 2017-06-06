@@ -38,6 +38,7 @@ namespace f3
         public SOType defaultPrimitiveType;
 
         public GenericAnimator ObjectAnimator { get; set; }
+        public SOLinkManager LinkManager { get; set; }
 
         FContext context;
 
@@ -81,6 +82,7 @@ namespace f3
             vUIElements = new List<SceneUIElement>();
             vBoundsObjects = new List<fGameObject>();
             ObjectAnimator = new GenericAnimator();
+            LinkManager = new SOLinkManager(this);
 
             sceneRoot = GameObjectFactory.CreateParentGO("Scene");
             // for animation playbacks
