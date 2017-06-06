@@ -394,6 +394,10 @@ namespace f3
             return SceneObjects.FindAll( (x) => { return filter(x); } );
         }
 
+        public SceneObject FindByUUID(string uuid)
+        {
+            return SceneObjects.Find( (x) => { return x.UUID == uuid; } );
+        }
 
 		public List<T> FindSceneObjectsOfType<T>() where T : class {
 			List<T> result = new List<T>();

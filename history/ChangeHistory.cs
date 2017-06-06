@@ -115,6 +115,15 @@ namespace f3
         }
 
 
+        /// <summary>
+        /// If we are currently in a stepback state, we do not want to push repeat nodes.
+        /// It isn't clear how to automatically prevent this, so you need to manually
+        /// check that you are ! InPastState before pushing changes that you might have already pushed!!
+        /// </summary>
+        public bool InPastState
+        {
+            get { return iCurrent < vHistory.Count; }
+        }
 
 
         public OpStatus StepBack()
