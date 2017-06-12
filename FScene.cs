@@ -348,8 +348,11 @@ namespace f3
                 return false;
 
 			if (!IsSelected (s)) {
-                if (bReplace)
-                    ClearSelection();
+                if (bReplace) {
+                    foreach (var v in vSelected)
+                        v.PopOverrideMaterial();
+                    vSelected.Clear();
+                }
 
 				vSelected.Add (s);
                 s.PushOverrideMaterial(SelectedMaterial);
