@@ -105,10 +105,11 @@ namespace f3
             BoxPosition titleBoxPos = BoxModel.ToPosition(TitleAlignment, VerticalAlignment.Top);
             titleTextMesh = (titleText == "") ? null : GameObjectFactory.CreateTextMeshGO(
                     "title", TitleText, TextColor, TitleTextHeight, titleBoxPos, SceneGraphConfig.TextLabelZOffset );
-            Vector2f titleToPos = BoxModel.GetBoxPosition(contentArea, titleBoxPos);
-            BoxModel.Translate(titleTextMesh, Vector2f.Zero, titleToPos);
-            AppendNewGO(titleTextMesh, entry, false);
-
+            if (titleTextMesh != null) {
+                Vector2f titleToPos = BoxModel.GetBoxPosition(contentArea, titleBoxPos);
+                BoxModel.Translate(titleTextMesh, Vector2f.Zero, titleToPos);
+                AppendNewGO(titleTextMesh, entry, false);
+            }
 
             IBoxModelElement messageArea = BoxModel.PaddedBounds(contentArea, 0, 0, 0, Padding+TitleTextHeight);
             Vector2f textDims = messageArea.Size2D;

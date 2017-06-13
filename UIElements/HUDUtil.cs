@@ -177,10 +177,15 @@ namespace f3
 
 
 
-        public static void ShowCenteredStaticPopupMessage(string sText, Cockpit cockpit)
+        public static void ShowCenteredStaticPopupMessage(string sTitleText, string sText, Cockpit cockpit)
         {
             HUDPopupMessage message = new HUDPopupMessage() {
-                Width = 1.0f, Height = 1.0f,
+                Width = 500*cockpit.GetPixelScale(), Height = 250*cockpit.GetPixelScale(),
+                TitleTextHeight = 30 * cockpit.GetPixelScale(),
+                TextHeight = 20 * cockpit.GetPixelScale(),
+                BackgroundColor = Colorf.Silver,
+                TextColor = Colorf.VideoBlack,
+                TitleText = sTitleText,
                 Text = sText
             };
             message.Create();
