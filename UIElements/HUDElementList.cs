@@ -100,6 +100,20 @@ namespace f3
             Vector2f topLeft = BoxModel.GetBoxPosition(contentBounds, BoxPosition.TopLeft);
             Vector2f insertPos = topLeft;
 
+            int N = ListItems.Count;
+            int visible = 0;
+            float spaceRequired = 0;
+            for (int i = 0; i < N; ++i) {
+                if (ListItems[i].IsVisible) {
+                    visible++;
+                    IBoxModelElement boxelem = ListItems[i] as IBoxModelElement;
+                    spaceRequired += (Direction == ListDirection.Vertical) ? boxelem.Size2D.y : boxelem.Size2D.x;
+                    if (i < N - 1)
+                        spaceRequired += Spacing;
+                }
+            }
+
+
             BoxPosition sourcePos = BoxPosition.TopLeft;
             if (Direction == ListDirection.Horizontal) {
                 if (VertAlign == VerticalAlignment.Center) {
@@ -109,6 +123,12 @@ namespace f3
                     sourcePos = BoxPosition.BottomLeft;
                     insertPos = BoxModel.GetBoxPosition(contentBounds, BoxPosition.BottomLeft);
                 }
+                if ( HorzAlign == HorizontalAlignment.Center ) {
+                    insertPos.x += (this.Size2D.x - spaceRequired) / 2;
+                } else if ( HorzAlign == HorizontalAlignment.Right ) {
+                    insertPos.x += this.Size2D.x - spaceRequired;
+                }
+
             } else {
                 if (HorzAlign == HorizontalAlignment.Center) {
                     sourcePos = BoxPosition.CenterTop;
@@ -120,7 +140,6 @@ namespace f3
             }
                         
 
-            int N = ListItems.Count;
             for ( int i = 0; i < N; ++i ) {
                 IBoxModelElement boxelem = ListItems[i] as IBoxModelElement;
                 if (ListItems[i].IsVisible == false) {
