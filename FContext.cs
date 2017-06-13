@@ -231,9 +231,13 @@ namespace f3 {
             }
 
             // run per-frame actions
-            Action execActions = nextFrameActions.GetRunnable();
-            nextFrameActions.Clear();
-            execActions();
+            Action execActions = null;
+            lock (nextFrameActions) {
+                execActions = nextFrameActions.GetRunnable();
+                nextFrameActions.Clear();
+            }
+            if ( execActions != null )
+                execActions();
 
 
             // can either use spacecontrols or mouse, but not both at same time
@@ -815,14 +819,18 @@ namespace f3 {
         /// Add an Action that will be run once, in the next frame, and then discarded
         /// </summary>
         public void RegisterNextFrameAction(Action F) {
-            nextFrameActions.RegisterAction(F);
+            lock (nextFrameActions) {
+                nextFrameActions.RegisterAction(F);
+            }
         }
 
         /// <summary>
         /// Add an Action that will be run once, in the next frame, and then discarded
         /// </summary>
         public void RegisterNextFrameAction(Action<object> F, object data) {
-            nextFrameActions.RegisterAction(F, data);
+            lock (nextFrameActions) {
+                nextFrameActions.RegisterAction(F, data);
+            }
         }
 
 
