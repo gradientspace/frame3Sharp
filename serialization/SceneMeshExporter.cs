@@ -40,7 +40,8 @@ namespace f3
         public string LastErrorMessage { get; set; }
 
 
-        public bool WriteInBackgroundThreads = true;
+        public bool WriteInBackgroundThreads = false;
+        public Action<SceneMeshExporter, ExportStatus> BackgroundWriteCompleteF = null;
 
         public bool WriteNormals = false;
         public bool WriteUVs = false;
@@ -160,6 +161,8 @@ namespace f3
                         status.LastErrorMessage = result.message;
                         status.Ok = (result.code == IOCode.Ok);
                         status.IsComputing = false;
+                        if (BackgroundWriteCompleteF != null)
+                            BackgroundWriteCompleteF(this, status);
                     }
                 };
                 t.Start();
