@@ -40,7 +40,7 @@ namespace f3 {
             return v;
         }
 
-        public static Mesh MakeUnityMesh(this MeshGenerator gen, bool bRecalcNormals = false, bool bFlipLR = false)
+        public static fMesh MakeUnityMesh(this MeshGenerator gen, bool bRecalcNormals = false, bool bFlipLR = false)
         {
             Mesh m = new Mesh();
             m.vertices = ToVector3(gen.vertices, bFlipLR);
@@ -53,7 +53,7 @@ namespace f3 {
             if ( bRecalcNormals )
                 m.RecalculateNormals();
 
-            return m;
+            return new fMesh(m);
         }
     }
 
@@ -62,18 +62,6 @@ namespace f3 {
 
 	public class MeshGenerators
     {
-
-
-        public static Mesh MakeMesh(Vector3[] vertices, Vector3[] normals, Vector2[] uv, int[] triangles)
-        {
-            Mesh m = new Mesh();
-            m.vertices = vertices;
-            m.uv = uv;
-            m.normals = normals;
-            m.triangles = triangles;
-            return m;
-        }
-
 
         // create a triangle fan
         public static fMesh CreateTrivialDisc(float radius, int nSteps, float fStartAngleDeg = 0.0f, float fEndAngleDeg = 360.0f)

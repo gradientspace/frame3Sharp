@@ -367,21 +367,6 @@ namespace f3
             m.vertices = verts;
         }
 
-        public static void ScaleMesh(Mesh m)
-        {
-            // TODO
-        }
-
-
-        public static AxisAlignedBox3f BoundsInFrame(Mesh m, Frame3f f)
-        {
-            AxisAlignedBox3f box = AxisAlignedBox3f.Empty;
-            int N = m.vertexCount;
-            for (int k = 0; k < N; ++k)
-                box.Contain(f.ToFrameP(m.vertices[k]));
-            return box;
-        }
-
 
         public static void ReverseMeshOrientation(Mesh m)
         {

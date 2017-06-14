@@ -145,6 +145,15 @@ namespace f3
             go.GetComponent<MeshFilter>().sharedMesh = m;
         }
 
+        public virtual void SetMesh(fMesh m)
+        {
+            go.GetComponent<MeshFilter>().mesh = m;
+        }
+        public virtual void SetSharedMesh(fMesh m)
+        {
+            go.GetComponent<MeshFilter>().sharedMesh = m;
+        }
+
         public virtual void SetMaterial(fMaterial mat, bool bShared = false)
         {
             go.SetMaterial(mat, bShared);
