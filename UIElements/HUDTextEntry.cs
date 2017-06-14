@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 using g3;
 
 namespace f3
@@ -11,7 +7,8 @@ namespace f3
     //  this field (ie the field "faces" -Z). Important if you want to align button towards something!
     public class HUDTextEntry : HUDStandardItem, IBoxModelElement
     {
-        GameObject entry, bgMesh;
+        fGameObject entry;
+        fMeshGameObject bgMesh;
         fTextGameObject textMesh;
         fRectangleGameObject cursor;
 
@@ -87,12 +84,12 @@ namespace f3
         // creates a button in the desired geometry shape
         public void Create()
         {
-            entry = new GameObject(UniqueNames.GetNext("HUDTextEntry"));
+            entry = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDTextEntry"));
             fMesh mesh = MeshGenerators.CreateTrivialRect(Width, Height, MeshGenerators.UVRegionType.FullUVSquare);
             backgroundMaterial = MaterialUtil.CreateFlatMaterialF(BackgroundColor);
             activeBackgroundMaterial = MaterialUtil.CreateFlatMaterialF(ActiveBackgroundColor);
             bgMesh = AppendMeshGO("background", mesh, backgroundMaterial, entry);
-            bgMesh.transform.Rotate(Vector3.right, -90.0f); // ??
+            bgMesh.RotateD(Vector3f.AxisX, -90.0f); // ??
 
             BoxPosition horzAlign = BoxPosition.CenterLeft;
             if (AlignmentHorz == HorizontalAlignment.Center)
@@ -113,6 +110,16 @@ namespace f3
             cursor.RotateD(Vector3f.AxisX, -90.0f);
             AppendNewGO(cursor, entry, false);
             cursor.SetVisible(false);
+        }
+
+
+        public override void Disconnect()
+        {
+            if (active_entry != null) {
+                Parent.Context.ReleaseTextEntry(active_entry);   // probably should not have to call this...
+                active_entry = null;
+            }
+            base.Disconnect();
         }
 
 
