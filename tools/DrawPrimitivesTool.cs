@@ -62,7 +62,7 @@ namespace f3
                 new DrawPrimitivesTool_SpatialDeviceBehavior(scene.Context) { Priority = 5 });
 
             // shut off transform gizmo
-            scene.Context.TransformManager.SetOverrideGizmoType(TransformManager.NoGizmoType);
+            scene.Context.TransformManager.PushOverrideGizmoType(TransformManager.NoGizmoType);
         }
 
 
@@ -80,7 +80,7 @@ namespace f3
 
         public void Shutdown()
         {
-            scene.Context.TransformManager.ClearOverrideGizmoType();
+            scene.Context.TransformManager.PopOverrideGizmoType();
         }
 
         public enum SupportedTypes

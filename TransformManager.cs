@@ -35,7 +35,9 @@ namespace f3
 
         Dictionary<string, ITransformGizmoBuilder> GizmoTypes;
         string sActiveGizmoType;
+
         string sOverrideGizmoType;
+        List<string> OverrideGizmoStack = new List<string>();
 
         FrameType defaultFrameType;
         Dictionary<SceneObject, FrameType> lastFrameTypeCache;
@@ -94,16 +96,26 @@ namespace f3
             update_gizmo();
         }
 
-        public void SetOverrideGizmoType(string sType)
+        public void PushOverrideGizmoType(string sType)
         {
             if (GizmoTypes.ContainsKey(sType) == false)
                 throw new ArgumentException("TransformManager.SetOverrideGizmoType : type " + sType + " is not registered!");
+            if (OverrideGizmoStack.Count > 10)
+                throw new Exception("TransformManager.PushOverrideGizmoType: stack is too large, probably a missing pop?");
+
+            OverrideGizmoStack.Add(this.sOverrideGizmoType);
             this.sOverrideGizmoType = sType;
-            update_gizmo();
+
+            //update_gizmo();
+            Context.RegisterNextFrameAction(update_gizmo);
         }
-        public void ClearOverrideGizmoType()
+        public void PopOverrideGizmoType()
         {
-            sOverrideGizmoType = "";
+            if (OverrideGizmoStack.Count == 0)
+                throw new Exception("TransformManager.PopOverrideGizmoType: tried to pop empty stack!");
+
+            this.sOverrideGizmoType = OverrideGizmoStack[OverrideGizmoStack.Count - 1];
+            OverrideGizmoStack.RemoveAt(OverrideGizmoStack.Count - 1);
 
             // [RMS] defer this update to next frame, as we often do this inside a Tool
             //  and we should not immediately initialize gizmo...
