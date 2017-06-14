@@ -11,6 +11,13 @@ namespace f3
     }
 
 
+    public enum RenderStage
+    {
+        OpaqueObjects,
+        TransparentObjects
+    }
+
+
 
     public static class UnityExtensions
     {
@@ -115,7 +122,7 @@ namespace f3
         {
             Renderer r = go.GetComponent<Renderer>();
             if (r != null)
-                r.material.color = color;
+                r.material.SetColor(color);
         }
 
         // [RMS] assumes all shaders have parameter _AlphaScale available (!)
@@ -124,6 +131,12 @@ namespace f3
             Renderer r = go.GetComponent<Renderer>();
             if (r != null) {
                 r.material.SetFloat("_AlphaScale", fScale);
+
+                // [RMS] update render queue for this material
+                if (r.material.GetColor().a*fScale == 1)
+                    r.material.SetRenderStage(RenderStage.OpaqueObjects);
+                else
+                    r.material.SetRenderStage(RenderStage.TransparentObjects);
             }
             CustomAlphaMultiply c = go.GetComponent<CustomAlphaMultiply>();
             if (c != null)
@@ -199,7 +212,22 @@ namespace f3
             return mat.name;
         }
 
+        public static void SetColor(this Material mat, Colorf color)
+        {
+            mat.color = color;
+        }
+        public static Colorf GetColor(this Material mat)
+        {
+            return new Colorf(mat.color);
+        }
 
+        public static void SetRenderStage(this Material mat, RenderStage eStage)
+        {
+            if (eStage == RenderStage.OpaqueObjects)
+                mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Geometry;
+            else
+                mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+        }
 
 
     }
