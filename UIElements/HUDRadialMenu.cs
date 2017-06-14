@@ -206,7 +206,7 @@ namespace f3
                     Translate = vMid * (fInnerRadius + (TextCenterPointFactor + fudge) * SubItemRadialWidth),
                     Align = TextLabelGenerator.Alignment.HVCenter
                 };
-                List<GameObject> vTextElems = textGen.Generate();
+                List<fGameObject> vTextElems = textGen.Generate();
                 AddVisualElements(vTextElems, true);
                 // actually want these GOs to be parented to itemGO
                 UnityUtil.AddChildren(itemGO, vTextElems, true);

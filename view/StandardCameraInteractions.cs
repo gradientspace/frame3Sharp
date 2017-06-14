@@ -36,7 +36,7 @@ namespace f3
                 return CameraInteractionState.Ignore;
         }
 
-        public void DoCameraControl(FScene scene, Camera mainCamera, InputState input)
+        public void DoCameraControl(FScene scene, fCamera mainCamera, InputState input)
         {
             Vector2f mouseDelta = InputExtension.Get.Mouse.PositionDelta;
             Vector2f stick1 = InputExtension.Get.GamepadLeftStick.Position;
@@ -126,7 +126,7 @@ namespace f3
         }
 
 
-        public void DoCameraControl(FScene scene, Camera mainCamera, InputState input)
+        public void DoCameraControl(FScene scene, fCamera mainCamera, InputState input)
         {
             if (bInAction == false) {
                 if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2)) {

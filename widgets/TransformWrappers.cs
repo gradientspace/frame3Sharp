@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using g3;
 
 namespace f3
@@ -41,7 +40,7 @@ namespace f3
                 curChange.childSOs = new List<TransformableSO>();
                 SceneUtil.FindAllPersistentTransformableChildren(target, curChange.childSOs);
                 curChange.before = new List<Frame3f>();
-                curChange.scaleBefore = new List<Vector3>();
+                curChange.scaleBefore = new List<Vector3f>();
                 foreach (TransformableSO so in curChange.childSOs) {
                     curChange.before.Add(so.GetLocalFrame(CoordSpace.SceneCoords));
                     curChange.scaleBefore.Add(UnityUtil.GetFreeLocalScale(so.RootGameObject));
@@ -55,7 +54,7 @@ namespace f3
             curChange.parentScaleAfter = GetLocalScale();
             if (target.IsTemporary) {
                 curChange.after = new List<Frame3f>();
-                curChange.scaleAfter = new List<Vector3>();
+                curChange.scaleAfter = new List<Vector3f>();
                 foreach (TransformableSO so in curChange.childSOs) {
                     curChange.after.Add(so.GetLocalFrame(CoordSpace.SceneCoords));
                     curChange.scaleAfter.Add(UnityUtil.GetFreeLocalScale(so.RootGameObject));
@@ -155,7 +154,7 @@ namespace f3
 
         override public void SetLocalFrame(Frame3f newFrame, CoordSpace eSpace)
         {
-            Debug.Assert(eSpace == CoordSpace.ObjectCoords);
+            Util.gDevAssert(eSpace == CoordSpace.ObjectCoords);
 
             Frame3f updateFrame = objectFrame;
             curRotation = newFrame.Rotation;

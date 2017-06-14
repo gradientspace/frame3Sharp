@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 using g3;
 
 namespace f3
@@ -22,7 +19,7 @@ namespace f3
         public float PaddedWidth { get { return Width - 2*Padding; } }
         public float PaddedHeight { get { return Height - 2*Padding; } }
 
-        fGameObject gameObject;
+        fGameObject parent;
 
         public HUDPanel()
         {
@@ -43,7 +40,7 @@ namespace f3
             get { return BoxModel.PaddedSize(this, Padding); }
         }
         public AxisAlignedBox2f ContentBounds {
-            get { if (gameObject == null)
+            get { if (parent == null)
                     return new AxisAlignedBox2f(ContentSize.x, ContentSize.y);
                 else
                     return BoxModel.PaddedBounds(this, Padding).Box;
@@ -53,7 +50,7 @@ namespace f3
 
         public virtual void Create()
         {
-            gameObject = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDPanel"));
+            parent = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDPanel"));
         }
 
 
@@ -69,7 +66,7 @@ namespace f3
                 Children.Add(ui);
                 ui.Parent = this;
                 ui.SetLayer(this.Layer);
-                gameObject.AddChild(ui.RootGameObject, bKeepWorldPosition);
+                parent.AddChild(ui.RootGameObject, bKeepWorldPosition);
             }
         }
         protected virtual void AddChildren(IEnumerable<SceneUIElement> v, bool bKeepWorldPosition = true)
@@ -113,7 +110,7 @@ namespace f3
         public override fGameObject RootGameObject
         {
             get {
-                return (gameObject == null) ? null : gameObject;
+                return (parent == null) ? null : parent;
             }
         }
 

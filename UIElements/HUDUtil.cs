@@ -336,7 +336,7 @@ namespace f3
             Color = Color.grey;
         }
 
-        public List<GameObject> Generate()
+        public List<fGameObject> Generate()
         {
             var gameObj = new GameObject("iconMesh");
             var gameObjMesh = (MeshFilter)gameObj.AddComponent(typeof(MeshFilter));
@@ -352,7 +352,7 @@ namespace f3
             // ignore material changes when we add to GameObjectSet
             gameObj.AddComponent<IgnoreMaterialChanges>();
 
-            return new List<GameObject>() { gameObj };
+            return new List<fGameObject>() { gameObj };
         }
     }
 
@@ -387,7 +387,7 @@ namespace f3
             ZOffset = -1.0f;
         }
 
-        public List<GameObject> Generate()
+        public List<fGameObject> Generate()
         {
             var gameObj = new GameObject("label");
 
@@ -419,7 +419,7 @@ namespace f3
             // [TODO] can we share between texts?
             MaterialUtil.SetTextMeshDefaultMaterial(tm);
 
-            return new List<GameObject>() { gameObj };
+            return new List<fGameObject>() { gameObj };
         }
     }
 

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 
 namespace f3
 {
@@ -29,7 +26,7 @@ namespace f3
 
     public interface IGameObjectGenerator
     {
-        List<GameObject> Generate();
+        List<fGameObject> Generate();
     }
 
 
@@ -67,7 +64,7 @@ namespace f3
     {
         CameraInteractionState CheckCameraControls(InputState input);
 
-        void DoCameraControl(FScene scene, Camera mainCamera, InputState input);
+        void DoCameraControl(FScene scene, fCamera mainCamera, InputState input);
     }
 
 

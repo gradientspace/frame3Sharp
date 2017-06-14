@@ -179,9 +179,9 @@ namespace f3
         {
         }
 
-        virtual public void AddVisualElements( List<GameObject> objects, bool bKeepPosition )
+        virtual public void AddVisualElements( List<fGameObject> objects, bool bKeepPosition )
         {
-            foreach (GameObject o in objects) {
+            foreach (fGameObject o in objects) {
                 this.AppendNewGO(o, RootGameObject, bKeepPosition);
             }
         }

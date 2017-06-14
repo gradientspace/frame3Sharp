@@ -262,12 +262,17 @@ namespace f3
 
         public static void AddChild(GameObject parent, GameObject child, bool bKeepPosition)
         {
-            child.transform.SetParent(parent.transform, bKeepPosition);
+            parent.AddChild(child, bKeepPosition);
         }
         public static void AddChildren(GameObject parent, List<GameObject> vChildren, bool bKeepPosition)
         {
             foreach (GameObject child in vChildren)
-                child.transform.SetParent(parent.transform, bKeepPosition);
+                parent.AddChild(child, bKeepPosition);
+        }
+        public static void AddChildren(GameObject parent, List<fGameObject> vChildren, bool bKeepPosition)
+        {
+            foreach (fGameObject child in vChildren)
+                parent.AddChild(child, bKeepPosition);
         }
 
         // recursively extract all children of root GO

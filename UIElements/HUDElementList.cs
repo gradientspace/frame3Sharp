@@ -67,12 +67,6 @@ namespace f3
         {
             base.Create();
 
-            //background = new HUDLabel() {
-            //    Width = this.Width, Height = this.Height, BackgroundColor = Colorf.Silver, Text = ""
-            //};
-            //background.Create();
-            //AddChild(background);
-
             foreach (SceneUIElement elem in ListItems)
                 AddChild(elem, false);
 

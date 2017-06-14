@@ -12,7 +12,7 @@ namespace f3
 
     public class PolyCurveSO : BaseSO, DCurve3Source
     {
-        protected GameObject root;
+        protected fGameObject root;
 
         protected DCurve3 curve;
         public DCurve3 Curve
@@ -78,7 +78,7 @@ namespace f3
             }
 
             // assumes type identifier is something like BlahBlahSO
-            root = new GameObject(UniqueNames.GetNext( Type.identifier.Remove(Type.identifier.Length-2) ));
+            root = GameObjectFactory.CreateParentGO(UniqueNames.GetNext( Type.identifier.Remove(Type.identifier.Length-2) ));
 
             if (EnableLineRenderer) {
                 LineRenderer ren = root.AddComponent<LineRenderer>();

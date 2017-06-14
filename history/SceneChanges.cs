@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using g3;
 
 namespace f3
@@ -120,11 +119,11 @@ namespace f3
     {
         public WeakReference parentSO;
         public Frame3f parentBefore, parentAfter;
-        public Vector3 parentScaleBefore, parentScaleAfter;
+        public Vector3f parentScaleBefore, parentScaleAfter;
 
         public List<TransformableSO> childSOs;
         public List<Frame3f> before, after;
-        public List<Vector3> scaleBefore, scaleAfter;
+        public List<Vector3f> scaleBefore, scaleAfter;
 
         public override string Identifier() { return "TransformSOChange"; }
 
