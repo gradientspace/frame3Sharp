@@ -177,7 +177,7 @@ namespace f3
 
 
 
-        public static void ShowCenteredStaticPopupMessage(string sTitleText, string sText, Cockpit cockpit)
+        public static void ShowCenteredPopupMessage(string sTitleText, string sText, Cockpit cockpit)
         {
             HUDPopupMessage message = new HUDPopupMessage() {
                 Width = 500*cockpit.GetPixelScale(), Height = 250*cockpit.GetPixelScale(),
@@ -199,15 +199,19 @@ namespace f3
         }
 
 
-        public static void ShowToastStaticPopupMessage(string sText, Cockpit cockpit)
+        public static void ShowToastPopupMessage(string sText, Cockpit cockpit)
         {
+            // [TODO] should size based on VR or not-VR...for VR use visual radius?
+
             HUDPopupMessage message = new HUDPopupMessage() {
-                Width = 1.0f, Height = 1.0f,
+                Width = 500*cockpit.GetPixelScale(), Height = 150*cockpit.GetPixelScale(),
+                TextHeight = 50 * cockpit.GetPixelScale(),
+                BackgroundColor = Colorf.DarkYellow,
+                TextColor = Colorf.VideoBlack,
                 Text = sText
             };
             message.Create();
-            HUDUtil.PlaceInSphere(message, 3.0f, 30, -10);
-            UnityUtil.TranslateInFrame(message.RootGameObject, 0.75f, -0.5f, 0.0f, CoordSpace.WorldCoords);
+            HUDUtil.PlaceInSphere(message, 1.0f, 30, -30);
             message.Name = "popup";
             cockpit.AddUIElement(message, true);
             message.OnDismissed += (s, e) => {
