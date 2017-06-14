@@ -289,7 +289,7 @@ namespace f3
             e.Parent = null;
 			if ( e.RootGameObject != null && bDestroy) {
                 e.RootGameObject.SetParent(null);
-				UnityEngine.Object.Destroy (e.RootGameObject);
+                e.RootGameObject.Destroy();
 			}
 		}
 

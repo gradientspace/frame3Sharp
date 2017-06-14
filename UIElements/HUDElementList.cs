@@ -6,7 +6,7 @@ using g3;
 
 namespace f3
 {
-    class HUDElementList : HUDPanel
+    public class HUDElementList : HUDPanel
     {
         public float Spacing { get; set; }
 
@@ -20,6 +20,12 @@ namespace f3
         // HorzAligin only has effect when using Vertical direction, and vice-versa
         public HorizontalAlignment HorzAlign { get; set; }
         public VerticalAlignment VertAlign { get; set; }
+
+
+        // these are computed when layout is updated
+        public float VisibleListWidth = 0;
+        public float VisibleListHeight = 0;
+
 
         List<SceneUIElement> ListItems = new List<SceneUIElement>();
         List<Vector3f> ItemNudge = new List<Vector3f>();
@@ -94,7 +100,7 @@ namespace f3
 
 
 
-        void update_layout()
+        protected virtual void update_layout()
         {
             FixedBoxModelElement contentBounds = BoxModel.PaddedContentBounds(this, Padding);
             Vector2f topLeft = BoxModel.GetBoxPosition(contentBounds, BoxPosition.TopLeft);
@@ -111,6 +117,13 @@ namespace f3
                     if (i < N - 1)
                         spaceRequired += Spacing;
                 }
+            }
+            if ( Direction == ListDirection.Vertical ) {
+                VisibleListHeight = spaceRequired;
+                VisibleListWidth = Width;
+            } else {
+                VisibleListHeight = Height;
+                VisibleListWidth = spaceRequired;
             }
 
 

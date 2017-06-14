@@ -23,8 +23,6 @@ namespace f3
         public float PaddedHeight { get { return Height - 2*Padding; } }
 
         fGameObject gameObject;
-        //SceneUIElement pCapturing;
-        //SceneUIElement pHovering;
 
         public HUDPanel()
         {
@@ -33,7 +31,6 @@ namespace f3
             Height = 1;
             Padding = 0;
         }
-
 
 
         // sets total Width and Height such that content area has specified dimensions)

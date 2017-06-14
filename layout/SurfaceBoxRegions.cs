@@ -131,7 +131,7 @@ namespace f3
             float fAngleX = (pos.x / circ) * 360.0f;
             float fAngleY = (pos.y / circ) * 360.0f;
             Vector3f normal = VRUtil.DirectionFromSphereCenter(fAngleX, fAngleY);
-            Vector3f pos3 = (Radius * fNormalOffset) * normal + Origin;
+            Vector3f pos3 = (Radius + fNormalOffset) * normal + Origin;
             return new Frame3f(pos3, normal);
         }
 
