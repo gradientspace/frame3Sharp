@@ -251,6 +251,10 @@ namespace f3
         {
             so.RootGameObject.Hide();
         }
+        public static bool IsVisible(SceneObject so)
+        {
+            return so.RootGameObject.IsVisible();
+        }
 
 
 

@@ -92,9 +92,8 @@ namespace f3
 
             // extract all the mesh data we want to export
             foreach (SceneObject so in scene.SceneObjects) {
-                if (so.IsTemporary)
+                if (so.IsTemporary || so.IsSurface == false || SceneUtil.IsVisible(so) == false)
                     continue;
-                // [TODO] check visibility!!
 
                 // if this SO has an internal mesh we can just copy, use it
                 if (so is DMeshSO) {
