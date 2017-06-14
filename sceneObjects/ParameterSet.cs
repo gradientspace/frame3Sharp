@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace f3
@@ -58,7 +59,14 @@ namespace f3
 
 
 
-    public class ParameterSet
+    public interface IParameterSource
+    {
+        ParameterSet Parameters { get; }
+    }
+
+
+
+    public class ParameterSet : IEnumerable<AnyParameter>
     {
         List<AnyParameter> vParameters;
 
@@ -69,6 +77,12 @@ namespace f3
 
         public virtual List<AnyParameter> Parameters {
             get { return vParameters;  }
+        }
+        public IEnumerator<AnyParameter> GetEnumerator() {
+            return vParameters.GetEnumerator();
+        }
+        IEnumerator IEnumerable.GetEnumerator() {
+            return vParameters.GetEnumerator();
         }
 
         public ParameterModifiedEvent OnParameterModified;

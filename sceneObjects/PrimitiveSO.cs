@@ -17,7 +17,7 @@ namespace f3
     //
     // This can be used as a base class for parametric primitive SOs, like
     //  Cylinders, Cubes, etc, where the paramters of the shape need to be exposed
-    public abstract class PrimitiveSO : BaseSO
+    public abstract class PrimitiveSO : BaseSO, IParameterSource
     {
         ParameterSet parameters;
 
