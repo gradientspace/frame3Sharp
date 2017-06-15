@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using g3;
 
 namespace f3
@@ -169,6 +170,74 @@ namespace f3
             return OpStatus.Success;
         }
     }
+
+
+
+
+
+
+    public class CreateGroupChange : BaseChangeOp
+    {
+        public FScene Scene;
+        public List<TransformableSO> Objects;
+
+        // [RMS] ugh this is terrible....but how else do we hold refs to SOs??
+        //  (Could we store UUID?)
+        GroupSO created_group;
+
+        public override string Identifier() { return "CreateGroupChange"; }
+
+        public override OpStatus Apply() {
+            if (created_group == null) {
+                created_group = new GroupSO();
+                created_group.Create();
+                Scene.AddSceneObject(created_group, false);
+            } else {
+                Scene.RestoreDeletedSceneObject(created_group);
+            }
+            created_group.AddChildren(Objects);
+            return OpStatus.Success;
+        }
+        public override OpStatus Revert() {
+            created_group.RemoveAllChildren();
+            Scene.RemoveSceneObject(created_group, false);
+            return OpStatus.Success;
+        }
+        public override OpStatus Cull() {
+            Scene.CullDeletedSceneObject(created_group);
+            return OpStatus.Success;
+        }
+    }
+
+
+
+
+
+    public class UnGroupChange : BaseChangeOp
+    {
+        public FScene Scene;
+        public GroupSO Group;
+
+        List<TransformableSO> Objects;
+
+        public override string Identifier() { return "UnGroupChange"; }
+
+        public override OpStatus Apply() {
+            Objects = new List<TransformableSO>(Group.GetChildren().Cast<TransformableSO>());
+            Group.RemoveAllChildren();
+            Scene.RemoveSceneObject(Group, false);
+            return OpStatus.Success;
+        }
+        public override OpStatus Revert() {
+            Scene.RestoreDeletedSceneObject(Group);
+            Group.AddChildren(Objects);
+            return OpStatus.Success;
+        }
+        public override OpStatus Cull() {
+            return OpStatus.Success;
+        }
+    }
+
 
 
 
