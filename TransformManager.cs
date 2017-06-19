@@ -122,6 +122,14 @@ namespace f3
             //update_gizmo();
             Context.RegisterNextFrameAction(update_gizmo);
         }
+        public void PopAllOverrideGizmos()
+        {
+            while (OverrideGizmoStack.Count > 0) {
+                sOverrideGizmoType = OverrideGizmoStack[OverrideGizmoStack.Count - 1];
+                OverrideGizmoStack.RemoveAt(OverrideGizmoStack.Count - 1);
+            }
+            Context.RegisterNextFrameAction(update_gizmo);
+        }
 
 
         public void SetSelectionFilter(Func<TransformableSO, bool> filterF)
