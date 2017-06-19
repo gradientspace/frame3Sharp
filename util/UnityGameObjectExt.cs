@@ -128,19 +128,16 @@ namespace f3
         // [RMS] assumes all shaders have parameter _AlphaScale available (!)
         public static void SetAlphaMultiply(this GameObject go, float fScale)
         {
-            Renderer r = go.GetComponent<Renderer>();
-            if (r != null) {
-                r.material.SetFloat("_AlphaScale", fScale);
-
-                // [RMS] update render queue for this material
-                if (r.material.GetColor().a*fScale == 1)
-                    r.material.SetRenderStage(RenderStage.OpaqueObjects);
-                else
-                    r.material.SetRenderStage(RenderStage.TransparentObjects);
-            }
+            // [RMS] assume if we have custom handling we shouldn't do default handling?
             CustomAlphaMultiply c = go.GetComponent<CustomAlphaMultiply>();
-            if (c != null)
+            if (c != null) {
                 c.SetAlphaMultiply(fScale);
+            } else {
+                Renderer r = go.GetComponent<Renderer>();
+                if (r != null) {
+                    r.material.SetFloat("_AlphaScale", fScale);
+                }
+            }
         }
 
 

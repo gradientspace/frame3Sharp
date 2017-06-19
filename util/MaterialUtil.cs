@@ -69,15 +69,11 @@ namespace f3
 
         public static Material CreateFlatMaterial(Colorf c, float alpha = 1.0f) {
             Material m = SafeLoadMaterial(SceneGraphConfig.DefaultUnlitTransparentMaterialPath);
-            if (alpha == 1)
-                m.SetRenderStage(RenderStage.OpaqueObjects);
             m.SetColor(MakeColor(c, c.a * alpha));
             return m;
         }
         public static fMaterial CreateFlatMaterialF(Colorf c, float alpha = 1.0f) {
             Material m = SafeLoadMaterial(SceneGraphConfig.DefaultUnlitTransparentMaterialPath);
-            if (alpha == 1)
-                m.SetRenderStage(RenderStage.OpaqueObjects);
             m.SetColor(MakeColor(c, c.a * alpha));
             return new fMaterial(m);
         }
