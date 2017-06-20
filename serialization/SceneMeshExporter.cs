@@ -50,6 +50,9 @@ namespace f3
 
         public WriteOptions Options = WriteOptions.Defaults;
 
+        // will be called for each SO. Return false to not include mesh in Export.
+        public Func<SceneObject, bool> SOFilterF = null;
+
         // Will be called for each GO child of an SO that contains a MeshFilter.
         // Return false to not include that mesh in Export
         public Func<SceneObject, fGameObject, bool> GOFilterF = null;
@@ -93,6 +96,8 @@ namespace f3
             // extract all the mesh data we want to export
             foreach (SceneObject so in scene.SceneObjects) {
                 if (so.IsTemporary || so.IsSurface == false || SceneUtil.IsVisible(so) == false)
+                    continue;
+                if (SOFilterF != null && SOFilterF(so) == false)
                     continue;
 
                 // if this SO has an internal mesh we can just copy, use it
