@@ -8,7 +8,7 @@ namespace f3
 {
 
 
-    public class DMeshSO : BaseSO, IMeshComponentManager
+    public class DMeshSO : BaseSO, IMeshComponentManager, SpatialQueryableSO
     {
         protected fGameObject parentGO;
 
@@ -261,6 +261,48 @@ namespace f3
             }
             return false;
         }
+
+
+
+        // SpatialQueryableSO impl
+
+        public virtual bool SupportsNearestQuery { get { return enable_spatial; } }
+        public virtual bool FindNearest(Vector3d point, double maxDist, out SORayHit nearest, CoordSpace eInCoords)
+        {
+            nearest = null;
+            if (enable_spatial == false)
+                return false;
+
+            if (spatial == null) {
+                spatial = new DMeshAABBTree3(mesh);
+                spatial.Build();
+            }
+
+            // convert to local
+            Vector3f local_pt = SceneTransforms.TransformTo((Vector3f)point, this, eInCoords, CoordSpace.ObjectCoords);
+
+            if (mesh.CachedBounds.Distance(local_pt) > maxDist)
+                return false;
+
+            int tid = spatial.FindNearestTriangle(local_pt);
+            if (tid != DMesh3.InvalidID) {
+                DistPoint3Triangle3 dist = MeshQueries.TriangleDistance(mesh, tid, local_pt);
+
+                nearest = new SORayHit();
+                nearest.fHitDist = (float)Math.Sqrt(dist.DistanceSquared);
+
+                Frame3f f_local = new Frame3f(dist.TriangleClosest, mesh.GetTriNormal(tid));
+                Frame3f f = SceneTransforms.TransformTo(f_local, this, CoordSpace.ObjectCoords, eInCoords);
+
+                nearest.hitPos = f.Origin;
+                nearest.hitNormal = f.Z;
+                nearest.hitGO = RootGameObject;
+                nearest.hitSO = this;
+                return true;
+            }
+            return false;
+        }
+
 
 
     }

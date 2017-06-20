@@ -55,6 +55,27 @@ namespace f3
 
 
 
+
+
+        public static bool FindNearestPoint(IEnumerable<SceneObject> vSceneObjects, Vector3d point, double maxDist, out SORayHit nearest, CoordSpace eSpace = CoordSpace.WorldCoords) {
+            nearest = null;
+            foreach (var so in vSceneObjects) {
+                if (so is SpatialQueryableSO) {
+                    SpatialQueryableSO spatialSO = so as SpatialQueryableSO;
+                    if (spatialSO.SupportsNearestQuery) {
+                        SORayHit soNearest;
+                        if (spatialSO.FindNearest(point, maxDist, out soNearest, eSpace)) {
+                            if (nearest == null || soNearest.fHitDist < nearest.fHitDist)
+                                nearest = soNearest;
+                        }
+                    }
+                }
+            }
+            return (nearest != null);
+        }
+
+
+
         // descends parent/child SO hierarchy and finds the set of topmost non-temporary SOs
         public static void FindAllPersistentTransformableChildren(SceneObject vParent, List<TransformableSO> children)
         {

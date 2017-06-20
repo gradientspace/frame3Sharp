@@ -4,7 +4,7 @@ using g3;
 
 namespace f3
 {
-	public class BoxSO : PrimitiveSO
+	public class BoxSO : PrimitiveSO, SpatialQueryableSO
     {
 		float width;  // x
 		float height; // y
@@ -164,6 +164,38 @@ namespace f3
         {
             return new AxisAlignedBox3f(Vector3f.Zero, ScaledWidth / 2, ScaledHeight / 2, ScaledDepth / 2);
         }
+
+
+
+
+        // SpatialQueryableSO impl
+
+        public virtual bool SupportsNearestQuery { get { return true; } }
+        public virtual bool FindNearest(Vector3d point, double maxDist, out SORayHit nearest, CoordSpace eInCoords)
+        {
+            nearest = null;
+
+            // convert to local
+            Vector3f local_pt = SceneTransforms.TransformTo((Vector3f)point, this, eInCoords, CoordSpace.ObjectCoords);
+
+            AxisAlignedBox3f bounds = GetLocalBoundingBox();
+            float local_dist = bounds.Distance(local_pt);
+            float dist_incoords = SceneTransforms.TransformTo(local_dist, this, CoordSpace.ObjectCoords, eInCoords);
+
+            if (dist_incoords > maxDist)
+                return false;
+
+            nearest = new SORayHit();
+            nearest.fHitDist = dist_incoords;
+            Vector3f nearPt = bounds.NearestPoint(local_pt);
+            nearest.hitPos =  SceneTransforms.TransformTo(nearPt, this, CoordSpace.ObjectCoords, eInCoords);
+            nearest.hitNormal = Vector3f.Zero;
+            nearest.hitGO = RootGameObject;
+            nearest.hitSO = this;
+            return true;
+        }
+
+
 
 
     }

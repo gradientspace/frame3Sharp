@@ -103,6 +103,12 @@ namespace f3
 
 
 
+    public interface SpatialQueryableSO
+    {
+        bool SupportsNearestQuery { get; }
+        bool FindNearest(Vector3d point, double maxDist, out SORayHit nearest, CoordSpace eInCoords = CoordSpace.WorldCoords);
+    }
+
 
 }
 
