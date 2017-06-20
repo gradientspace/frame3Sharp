@@ -78,6 +78,29 @@ namespace f3
         }
 
 
+        public void SetHeight(float fNewHeight)
+        {
+            switch (eType) {
+                case TextType.UnityTextMesh: {
+                        TextMesh tm = (text_component as TextMesh);
+                        tm.transform.localScale = Vector3f.One;
+                        Vector2f size = UnityUtil.EstimateTextMeshDimensions(tm);
+                        float fScaleH = fNewHeight / size.y;
+                        tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
+                        size = new Vector2f(fScaleH * size.x, fNewHeight);
+                    }
+                break;
+
+                case TextType.TextMeshPro:
+#if G3_ENABLE_TEXT_MESH_PRO
+                    (text_component as TextMeshProExt).SetTextSizeFromHeight(fNewHeight);
+#endif
+                    break;
+            }
+        }
+
+
+
 
         public Vector2f GetCursorPosition(int iPos)
         {
@@ -123,6 +146,35 @@ namespace f3
 
 
 
+
+
+
+#if G3_ENABLE_TEXT_MESH_PRO
+    public class TextMeshProExt : TextMeshPro
+    {
+        // [RMS] this is a magic number we compute in CreateTextMeshProGO
+        public float fontSizeYScale;
+
+
+        public float GetTextScaleForHeight(float fTextHeight)
+        {
+            return fTextHeight * fontSizeYScale;
+        }
+
+        public void SetTextSizeFromHeight(float fTextHeight)
+        {
+            float fScaleH = GetTextScaleForHeight(fTextHeight);
+            this.transform.localScale = fScaleH * Vector3f.One;
+        }
+
+    }
+
+
+
+#endif
+
+
+
     public static class TextMeshProUtil
     {
 #if G3_ENABLE_TEXT_MESH_PRO
@@ -138,7 +190,7 @@ namespace f3
             float fOffsetZ = -0.01f)
         {
             GameObject textGO = new GameObject(sName);
-            TextMeshPro tm = textGO.AddComponent<TextMeshPro>();
+            TextMeshProExt tm = textGO.AddComponent<TextMeshProExt>();
             //tm.isOrthographic = false;
             tm.alignment = TextAlignmentOptions.TopLeft;
             tm.enableWordWrapping = false;
@@ -200,10 +252,12 @@ namespace f3
             float t = tm.fontSize / tm.font.fontInfo.LineHeight;
             float magic_k = 10.929f;        // [RMS] solve-for-x given a few different fontSize values
             float font_size_y = magic_k * t;
-            float fScaleH = fTextHeight / font_size_y;
 
-            tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
-            float fTextWidth = fScaleH * size.x;
+            tm.fontSizeYScale = 1 / font_size_y;
+            tm.SetTextSizeFromHeight(fTextHeight);
+            //float fScaleH = fTextHeight / font_size_y;
+            //tm.transform.localScale = new Vector3f(fScaleH, fScaleH, fScaleH);
+            float fTextWidth = tm.GetTextScaleForHeight(fTextHeight) * size.x;
 
 
             textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;

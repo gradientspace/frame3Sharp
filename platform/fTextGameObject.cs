@@ -32,14 +32,7 @@ namespace f3
 
         public void SetHeight(float fNewHeight)
         {
-            // doesn't support textmeshpro text...
-
-            TextMesh tm = go.GetComponent<TextMesh>();
-            tm.transform.localScale = Vector3f.One;
-            Vector2f size = UnityUtil.EstimateTextMeshDimensions(tm);
-            float fScaleH = fNewHeight / size.y;
-            tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
-            size = new Vector2f(fScaleH * size.x, fNewHeight);
+            textObj.SetHeight(fNewHeight);
         }
 
         public void SetText(string sText)
