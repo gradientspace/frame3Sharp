@@ -121,6 +121,14 @@ namespace f3
         public static float DefaultSceneCurveVisualDegrees = 1.0f;
 
 
+        // VR "hand" cursor dimensions. You can use these to find different points on
+        // the arrrows (eg tip is handFrame.Origin + VRHandTipOffset*handFrame.Z)
+        public static float VRHandTipOffset = 0.1f;
+        public static float VRHandArrowRadius = 0.1f;
+        public static float VRHandStickLength = 0.1f;
+        public static float VRHandStickWidth = 0.05f;
+
+
         public static bool EnableVisibleCameraPivot = true;
 
 

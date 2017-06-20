@@ -108,10 +108,10 @@ namespace f3 {
             Left.Cursor.SetLayer(FPlatform.CursorLayer);
             Left.SmoothedHandFrame = Frame3f.Identity;
 
-            var leftHandMesh = MeshGenerators.Create3DArrow(1.0f, 1.0f, 1.0f, 0.5f, 16);
+            var leftHandMesh = MeshGenerators.Create3DArrow(SceneGraphConfig.VRHandTipOffset, SceneGraphConfig.VRHandArrowRadius,
+                SceneGraphConfig.VRHandStickLength, SceneGraphConfig.VRHandStickWidth, 16);
             Left.Hand = UnityUtil.CreateMeshGO( "left_hand", leftHandMesh, Left.HandMaterial);
-            UnityUtil.TranslateMesh(leftHandMesh, 0, -1.0f, 0);
-            Left.Hand.transform.localScale = 0.1f * Vector3.one;
+            UnityUtil.TranslateMesh(leftHandMesh, 0, -SceneGraphConfig.VRHandStickLength, 0);
             Left.Hand.transform.rotation = Quaternion.FromToRotation(Vector3.up, Vector3.forward);
             Left.Hand.SetLayer(FPlatform.HUDLayer);
 
@@ -130,10 +130,10 @@ namespace f3 {
             Right.Cursor.SetLayer(FPlatform.CursorLayer);
             Right.SmoothedHandFrame = Frame3f.Identity;
 
-            var rightHandMesh = MeshGenerators.Create3DArrow(1.0f, 1.0f, 1.0f, 0.5f, 16);
+            var rightHandMesh = MeshGenerators.Create3DArrow(SceneGraphConfig.VRHandTipOffset, SceneGraphConfig.VRHandArrowRadius,
+                SceneGraphConfig.VRHandStickLength, SceneGraphConfig.VRHandStickWidth, 16);
             Right.Hand = UnityUtil.CreateMeshGO("right_hand", rightHandMesh, Right.HandMaterial);
-            UnityUtil.TranslateMesh(rightHandMesh, 0, -1.0f, 0);
-            Right.Hand.transform.localScale = 0.1f * Vector3.one;
+            UnityUtil.TranslateMesh(rightHandMesh, 0, -SceneGraphConfig.VRHandStickLength, 0);
             Right.Hand.transform.rotation = Quaternion.FromToRotation(Vector3.up, Vector3.forward);
             Right.Hand.SetLayer(FPlatform.HUDLayer);
 
@@ -298,8 +298,9 @@ namespace f3 {
 
             h.HandIcon = 
                 UnityUtil.CreateMeshGO("hand_icon", m, MaterialUtil.CreateStandardVertexColorMaterial(Color.white), false);
-            h.HandIcon.transform.localScale = 0.3f * Vector3.one;
-            h.HandIcon.transform.localPosition = new Vector3(0.0f, -0.3f, -0.3f);
+            float s = SceneGraphConfig.VRHandArrowRadius;
+            h.HandIcon.transform.localScale = s * 0.3f * Vector3.one;
+            h.HandIcon.transform.localPosition = new Vector3(0.0f, -0.3f*s, -0.3f*s);
             h.HandIcon.transform.SetParent(h.Hand.transform, false);
             h.HandIcon.SetLayer(FPlatform.CursorLayer);
 
