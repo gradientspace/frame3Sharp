@@ -18,6 +18,14 @@ namespace f3
 
     public class FScene : SceneUIParent, SOParent
     {
+        // [RMS] [TODO] this is not good. But we need to access FScene in some internal
+        // places where we don't have a handle to context. How to deal with this??
+        public static FScene Active
+        {
+            get { return FContext.ActiveContext_HACK.Scene; }
+        }
+
+
         ChangeHistory history;
         public ChangeHistory History { get { return history; } }
 
