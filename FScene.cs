@@ -553,7 +553,7 @@ namespace f3
 
 
         // tests SceneObjects and Bounds
-        public bool FindSceneRayIntersection(Ray3f ray, out AnyRayHit hit, Func<SceneObject, bool> sofilter = null)
+        public bool FindSceneRayIntersection(Ray3f ray, out AnyRayHit hit, bool bFindBoundsHits = true, Func<SceneObject, bool> sofilter = null)
         {
             hit = null;
 
@@ -561,7 +561,7 @@ namespace f3
             GameObjectRayHit bestBoundsHit = null;
 
             bool bHitSO = FindSORayIntersection(ray, out bestSOHit, sofilter);
-            bool bHitBounds = FindWorldBoundsHit(ray, out bestBoundsHit);
+            bool bHitBounds = bFindBoundsHits && FindWorldBoundsHit(ray, out bestBoundsHit);
             if ( bHitSO && bHitBounds ) {
                 if ( bestSOHit.fHitDist < bestBoundsHit.fHitDist )
                     hit = new AnyRayHit(bestSOHit);
