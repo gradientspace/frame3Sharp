@@ -27,7 +27,7 @@ namespace f3
         }
 
 
-        public fMesh(int[] triangles, DMesh3 source, int[] source_vertices, bool bCopyNormals = false, bool bCopyColors = false)
+        public fMesh(int[] triangles, DMesh3 source, int[] source_vertices, bool bCopyNormals = false, bool bCopyColors = false, bool bCopyUVs = false)
         {
             int NV = source_vertices.Length;
             Vector3[] vertices = new Vector3[NV];
@@ -53,6 +53,13 @@ namespace f3
                 for ( int i = 0; i < NV; ++i )
                     colors[i] = (Color)source.GetVertexColor(source_vertices[i]);
                 m.colors = colors;
+            }
+
+            if ( bCopyUVs && source.HasVertexUVs ) {
+                Vector2[] uvs = new Vector2[NV];
+                for ( int i = 0; i < NV; ++i )
+                    uvs[i] = source.GetVertexUV(source_vertices[i]);
+                m.uv = uvs;
             }
 
             mesh = m;

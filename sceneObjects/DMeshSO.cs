@@ -119,7 +119,7 @@ namespace f3
 
         public void AddComponent(MeshDecomposition.Component C)
         {
-            fMesh submesh = new fMesh(C.triangles, mesh, C.source_vertices, true, true);
+            fMesh submesh = new fMesh(C.triangles, mesh, C.source_vertices, true, true, true);
             fMeshGameObject submesh_go = GameObjectFactory.CreateMeshGO("component", submesh, false);
             submesh_go.SetMaterial(new fMaterial(CurrentMaterial));
             displayComponents.Add(new DisplayMeshComponent() {
