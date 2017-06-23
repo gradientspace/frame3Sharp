@@ -242,6 +242,7 @@ namespace f3
                 // [TODO] should damp out jitter while allowing larger moves
                 if (bStaticUpdated == false) {
                     RootGameObject.SetPosition(ActiveCamera.GetPosition());
+                    RootGameObject.SetRotation(Quaternionf.Identity);
                     bStaticUpdated = true;
                 }
 
@@ -255,6 +256,7 @@ namespace f3
             } else {
                 // MovemementMode.TrackPosition
                 RootGameObject.SetPosition(ActiveCamera.GetPosition());
+                RootGameObject.SetRotation(Quaternionf.Identity);
             }
 
             // apply post-rotations
