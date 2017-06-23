@@ -7,6 +7,18 @@ namespace f3
     public static class SceneTransforms
     {
 
+        //
+        // WARNING!! These functions do not support non-uniform scaling. 
+        //
+        //
+        public static bool IsUniformScale(Vector3f s)
+        {
+            return MathUtil.EpsilonEqual(s[0], s[1]) && MathUtil.EpsilonEqual(s[1], s[2]);
+        }
+
+
+
+
         /// <summary>
         /// Assuming pointIn is in space eFrom of fromSO, transform to eTo
         /// </summary>
@@ -109,7 +121,9 @@ namespace f3
         public static Frame3f ApplyInverseTransform(ITransformed transform, Frame3f frameIn )
         {
             Frame3f result = transform.GetLocalFrame(CoordSpace.ObjectCoords).ToFrame(frameIn);
-            result.Scale(1.0f / transform.GetLocalScale());
+            Vector3f scale = transform.GetLocalScale();
+            Util.gDevAssert(IsUniformScale(scale));
+            result.Scale(1.0f / scale);
             return result;
         }
 
@@ -158,6 +172,7 @@ namespace f3
             TransformableSO curSO = so;
             while (curSO != null) {
                 Vector3f scale = curSO.GetLocalScale();
+                Util.gDevAssert(IsUniformScale(scale));
                 sceneDim *= ( (scale.x+scale.y+scale.z) / 3.0f);   // yikes!
                 SOParent parent = curSO.Parent;
                 if (parent is FScene)
@@ -181,6 +196,7 @@ namespace f3
             while (curSO != null) {
                 Frame3f curF = curSO.GetLocalFrame(CoordSpace.ObjectCoords);
                 Vector3f scale = curSO.GetLocalScale();
+                Util.gDevAssert(IsUniformScale(scale));
                 sceneF.Scale(scale);
                 sceneF = curF.FromFrame(sceneF);
                 SOParent parent = curSO.Parent;
