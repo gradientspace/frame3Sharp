@@ -11,12 +11,12 @@ namespace f3 {
     public static class ExtCamera
     {
         // extension methods to Camera
-        public static Vector3 GetTarget(this UnityEngine.Camera c)
+        public static Vector3f GetTarget(this UnityEngine.Camera c)
         {
             CameraTarget t = c.gameObject.GetComponent<CameraTarget>();
             return t.TargetPoint;
         }
-        public static void SetTarget(this UnityEngine.Camera c, Vector3 newTarget)
+        public static void SetTarget(this UnityEngine.Camera c, Vector3f newTarget)
         {
             CameraTarget t = c.gameObject.GetComponent<CameraTarget>();
             t.TargetPoint = newTarget;
@@ -39,7 +39,7 @@ namespace f3 {
     {
         public FContext context;
 
-        public Vector3 TargetPoint;
+        public Vector3f TargetPoint;
 
         public GameObject targetGO;
         public bool ShowTarget;
@@ -63,7 +63,7 @@ namespace f3 {
         {
             targetGO.transform.position = TargetPoint;
             float fScaling = VRUtil.GetVRRadiusForVisualAngle(TargetPoint, gameObject.transform.position, 1.0f);
-            targetGO.transform.localScale = new Vector3(fScaling, fScaling, fScaling);
+            targetGO.transform.localScale = fScaling * Vector3f.One; 
 
             if ( ShowTarget && SceneGraphConfig.EnableVisibleCameraPivot ) {
                 Material setMaterial = hiddenMaterial;
@@ -71,9 +71,9 @@ namespace f3 {
                 // raycast into scene and if we hit ball before we hit anything else, render
                 // it darker red, to give some sense of inside/outside
                 if (this.context != null) {
-                    Vector3 camPos = this.context.ActiveCamera.GetPosition();
-                    float fDistSqr = (TargetPoint - camPos).sqrMagnitude;
-                    Ray ray_t = new Ray(camPos, (TargetPoint - camPos).normalized);
+                    Vector3f camPos = this.context.ActiveCamera.GetPosition();
+                    float fDistSqr = TargetPoint.DistanceSquared(camPos);
+                    Ray3f ray_t = new Ray3f(camPos, (TargetPoint - camPos).Normalized);
                     AnyRayHit hit;
                     if (this.context.Scene.FindSceneRayIntersection(ray_t, out hit) == false)
                         setMaterial = visibleMaterial;
@@ -101,18 +101,18 @@ namespace f3 {
 		public CameraTracking() {
 		}
 
-		Camera mainCamera;
-		Camera widgetCamera;
-        Camera hudCamera;
-        Camera uiCamera;
-        Camera cursorCamera;
+		fCamera mainCamera;
+		fCamera widgetCamera;
+        fCamera hudCamera;
+        fCamera uiCamera;
+        fCamera cursorCamera;
         FContext controller;
 
 
-        public Camera MainCamera {
+        public fCamera MainCamera {
             get { return mainCamera;  }
         }
-        public Camera OrthoUICamera {
+        public fCamera OrthoUICamera {
             get { return uiCamera; }
         }
 
@@ -130,7 +130,7 @@ namespace f3 {
             if ( mainCameras.Length > 1 ) {
                 DebugUtil.Log(2, "CameraTracking.Initialize: there are multiple objects with tag MainCamera. Using the one named " + mainCameraObj.GetName());
             }
-			mainCamera = mainCameraObj.GetComponent<Camera> () as Camera;
+			mainCamera = new fCamera(mainCameraObj.GetComponent<Camera> () as Camera);
 
             // on Vive the MainCamera will have some child cameras that are a problem, 
             // so get rid of them
@@ -144,28 +144,28 @@ namespace f3 {
 
             List<Camera> newCameras = new List<Camera>();
 
-            Vector3f mainPos = mainCamera.transform.position;
-            Quaternionf mainRot = mainCamera.transform.rotation;
+            Vector3f mainPos = mainCamera.GetPosition();
+            Quaternionf mainRot = mainCamera.GetRotation();
 
             // create camera for 3D widgets layer
-            widgetCamera = Camera.Instantiate (mainCamera, mainPos, mainRot);
+            widgetCamera = new fCamera( Camera.Instantiate((Camera)mainCamera, mainPos, mainRot) );
 			widgetCamera.SetName("WidgetCamera");
             newCameras.Add(widgetCamera);
 
             // create camera for HUD layer
-            hudCamera = Camera.Instantiate(mainCamera, mainPos, mainRot);
+            hudCamera = new fCamera( Camera.Instantiate((Camera)mainCamera, mainPos, mainRot));
             hudCamera.SetName("HUDCamera");
             newCameras.Add(hudCamera);
 
             // create camera for UI
-            uiCamera = Camera.Instantiate(mainCamera, mainPos, mainRot);
+            uiCamera = new fCamera( Camera.Instantiate((Camera)mainCamera, mainPos, mainRot));
             uiCamera.SetName("UICamera");
-            uiCamera.orthographic = true;
-            uiCamera.orthographicSize = 0.5f;
+            ((Camera)uiCamera).orthographic = true;
+            ((Camera)uiCamera).orthographicSize = 0.5f;
             newCameras.Add(uiCamera);
 
             // create camera for cursor
-            cursorCamera = Camera.Instantiate(mainCamera, mainPos, mainRot);
+            cursorCamera = new fCamera( Camera.Instantiate((Camera)mainCamera, mainPos, mainRot));
             cursorCamera.SetName("CursorCamera");
             newCameras.Add(cursorCamera);
 
@@ -191,29 +191,28 @@ namespace f3 {
             int nUILayer = FPlatform.UILayer;
             int nCursorLayer = FPlatform.CursorLayer;
 
-            widgetCamera.cullingMask = (1 << nWidgetLayer);
-            hudCamera.cullingMask = (1 << nHUDLayer);
-            uiCamera.cullingMask = (1 << nUILayer);
-            cursorCamera.cullingMask = (1 << nCursorLayer);
+            ((Camera)widgetCamera).cullingMask = (1 << nWidgetLayer);
+            ((Camera)hudCamera).cullingMask = (1 << nHUDLayer);
+            ((Camera)uiCamera).cullingMask = (1 << nUILayer);
+            ((Camera)cursorCamera).cullingMask = (1 << nCursorLayer);
 
-            mainCamera.cullingMask &= ~(1 << nWidgetLayer);
-            mainCamera.cullingMask &= ~(1 << nHUDLayer);
-            mainCamera.cullingMask &= ~(1 << nUILayer);
-            mainCamera.cullingMask &= ~(1 << nCursorLayer);
+            ((Camera)mainCamera).cullingMask &= ~(1 << nWidgetLayer);
+            ((Camera)mainCamera).cullingMask &= ~(1 << nHUDLayer);
+            ((Camera)mainCamera).cullingMask &= ~(1 << nUILayer);
+            ((Camera)mainCamera).cullingMask &= ~(1 << nCursorLayer);
 
             // attach camera animation object to main camera
-            CameraAnimator anim = mainCamera.gameObject.AddComponent<CameraAnimator>();
+            CameraAnimator anim = mainCamera.AddComponent<CameraAnimator>();
             anim.UseCamera = mainCamera;
             anim.UseScene = this.controller.Scene;
 
             // add target point to camera
-            CameraTarget target = mainCamera.gameObject.AddComponent<CameraTarget>();
-            target.TargetPoint = new Vector3(
-                0.0f, mainCamera.transform.position[1], 0.0f);
+            CameraTarget target = mainCamera.AddComponent<CameraTarget>();
+            target.TargetPoint = new Vector3f(0.0f, mainCamera.GetPosition().y, 0.0f);
             target.context = this.controller;
 
             // add camera manipulator to camera
-            mainCamera.gameObject.AddComponent<CameraManipulator>();
+            mainCamera.AddComponent<CameraManipulator>();
 
 
             // initialize FPlatform

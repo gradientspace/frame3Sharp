@@ -362,12 +362,22 @@ namespace f3
             m.vertices = verts;
         }
 
-        public static void RotateMesh(Mesh m, Quaternionf q, Vector3f c)
+        public static void RotateMesh(Mesh m, Quaternionf q, Vector3f center)
         {
             Vector3[] verts = m.vertices;
             for ( int k = 0; k < verts.Length; ++k ) {
                 Vector3f v = verts[k];
-                verts[k] = q * (v - c) + c;
+                verts[k] = q * (v - center) + center;
+            }
+            m.vertices = verts;
+        }
+
+        public static void ScaleMesh(Mesh m, Vector3f scale, Vector3f center)
+        {
+            Vector3[] verts = m.vertices;
+            for ( int k = 0; k < verts.Length; ++k ) {
+                Vector3f v = verts[k];
+                verts[k] = scale * (v - center) + center;
             }
             m.vertices = verts;
         }

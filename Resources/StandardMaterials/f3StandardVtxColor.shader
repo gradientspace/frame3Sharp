@@ -54,6 +54,8 @@ Shader "f3StandardVtxColor"
 		Tags { "RenderType"="Opaque" "PerformanceChecks"="False" }
 		LOD 300
 	
+		Cull Off
+
 
 		// ------------------------------------------------------------------
 		//  Base forward pass (directional light, emission, lightmaps, ...)
@@ -214,6 +216,8 @@ Shader "f3StandardVtxColor"
 	{
 		Tags { "RenderType"="Opaque" "PerformanceChecks"="False" }
 		LOD 150
+
+		Cull Off
 
 		// ------------------------------------------------------------------
 		//  Base forward pass (directional light, emission, lightmaps, ...)

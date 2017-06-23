@@ -76,13 +76,13 @@ namespace f3 {
 
         public fCamera ActiveCamera
         {
-            get { return new fCamera(camTracker.MainCamera); }
+            get { return camTracker.MainCamera; }
         }
 
         // UI camera is orthographic projection, does not exist in VR contexts
         public fCamera OrthoUICamera
         {
-            get { return new fCamera(camTracker.OrthoUICamera); }
+            get { return camTracker.OrthoUICamera; }
         }
 
 		public Cockpit ActiveCockpit { 
@@ -692,12 +692,17 @@ namespace f3 {
 
         public void ResetView()
         {
+            ActiveCamera.Animator().DoActionDuringDipToBlack( () => {
+                    
             Scene.SetSceneScale(1.0f);
             ActiveCamera.Manipulator().ResetSceneOrbit(Scene, true, true, true);
             // [RMS] above should already do this, but sometimes it gets confused..
             Scene.RootGameObject.SetRotation(Quaternion.identity);
             ActiveCamera.Manipulator().ResetScenePosition(scene);
             ActiveCamera.Manipulator().SceneTranslate(Scene, SceneGraphConfig.InitialSceneTranslate, true);
+
+                }, 0.5f);
+
         }
 
         public void ScaleView(Vector3 vCenterW, float fRadiusW )

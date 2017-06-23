@@ -53,7 +53,7 @@ namespace f3
         }
         public virtual void AddChild(fGameObject child, bool bKeepWorldPosition = true)
         {
-            camera.transform.SetParent( ((GameObject)child).transform, bKeepWorldPosition);
+            GameObject().AddChild(child, bKeepWorldPosition);
         }
 
 
@@ -155,6 +155,13 @@ namespace f3
             CameraTarget t = camera.gameObject.GetComponent<CameraTarget>();
             t.ShowTarget = bVisible;
         }
+
+
+        public virtual T AddComponent<T>() where T : Component {
+            T comp = camera.gameObject.AddComponent<T>();
+            return comp;
+        }
+
 
 
         public CameraManipulator Manipulator()
