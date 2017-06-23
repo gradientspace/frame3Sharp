@@ -16,6 +16,7 @@ namespace f3
 	{
 		FContext context;
 		fGameObject gameobject;
+        fGameObject onCameraGO;
 
         // additional UI behavior attached to this cockpit
         public InputBehaviorSet InputBehaviors { get; set; }
@@ -111,6 +112,9 @@ namespace f3
         public fGameObject RootGameObject {
 			get { return gameobject; }
 		}
+        public fGameObject FixedCameraTrackingGO {
+			get { return onCameraGO; }
+		}
         public bool IsActive {
             get { return Context.ActiveCockpit == this; }
         }
@@ -192,6 +196,10 @@ namespace f3
 		{
             // create invisible plane for cockpit
             gameobject = GameObjectFactory.CreateParentGO("cockpit");
+
+            onCameraGO = GameObjectFactory.CreateParentGO("cockpit_camera");
+            gameobject.AddChild(onCameraGO, false);
+
             // [RMS] probably can delete this code now?
             //gameobject = GameObject.CreatePrimitive (PrimitiveType.Plane);
 			//gameobject.SetName("cockpit");
@@ -265,6 +273,10 @@ namespace f3
             Quaternionf rotateUp = Quaternionf.AxisAngleD(rotateLR * frame.X, TiltAngle);
             RootGameObject.SetRotation(rotateLR * rotateUp * RootGameObject.GetRotation());
 
+
+            // camera-tracking GO always tracks camera
+            onCameraGO.SetPosition(ActiveCamera.GetPosition());
+            onCameraGO.SetRotation(ActiveCamera.GetRotation());
         }
 
         public void InvalidateStaticPosition()
