@@ -63,6 +63,8 @@ namespace f3
         // Objects in Selection Mask will not be selectable, or ray-cast for hit tests
         public HashSet<SceneObject> SelectionMask = null;
 
+        public bool DisableSelectionMaterial = false;
+
 
         // [RMS] deleted objects that are not destroyed are parented to this GO,
         //   which remains under sceneo. Assumption is these will not be visible.
@@ -357,13 +359,16 @@ namespace f3
 
 			if (!IsSelected (s)) {
                 if (bReplace) {
-                    foreach (var v in vSelected)
-                        v.PopOverrideMaterial();
+                    if (DisableSelectionMaterial == false) {
+                        foreach (var v in vSelected)
+                            v.PopOverrideMaterial();
+                    }
                     vSelected.Clear();
                 }
 
 				vSelected.Add (s);
-                s.PushOverrideMaterial(SelectedMaterial);
+                if ( DisableSelectionMaterial == false )
+                    s.PushOverrideMaterial(SelectedMaterial);
 
                 OnSelectionChanged(EventArgs.Empty);
 
@@ -381,7 +386,8 @@ namespace f3
                 return;
             }
 
-            s.PopOverrideMaterial();        // assume we only pushed once!
+            if ( DisableSelectionMaterial == false )
+                s.PopOverrideMaterial();        // assume we only pushed once!
 			vSelected.Remove (s);
 			OnSelectionChanged (EventArgs.Empty);
 		}
@@ -395,8 +401,10 @@ namespace f3
                 return;
             }
 
-            foreach (var v in vSelected)
-                v.PopOverrideMaterial();
+            if (DisableSelectionMaterial == false) {
+                foreach (var v in vSelected)
+                    v.PopOverrideMaterial();
+            }
 			vSelected = new List<SceneObject> ();
 			OnSelectionChanged (EventArgs.Empty);
 		}
