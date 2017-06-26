@@ -5,6 +5,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Threading;
+using g3;
 
 using UnityEngine;
 
@@ -65,11 +66,13 @@ namespace f3
 
         // argh unity does not have a window resize event built-in ?!??
         static private int window_width = -1, window_height = -1;
+        static private int startup_height = -1;
         static public bool IsWindowResized()
         {
             if ( window_width == -1 || window_height == -1 ) {
                 window_height = Screen.height;
                 window_width = Screen.width;
+                startup_height = window_height;
                 return false;
             }
             if ( window_height != Screen.height || window_width != Screen.width ) {
@@ -80,7 +83,14 @@ namespace f3
             return false;
         }
 
-
+        // [RMS] Cockpit uses this to clamp screen-size used for PixelScale. Set to
+        // larger min / smaller max to prevent crazy huge/tiny UI.
+        static Interval1i valid_screen_dim_range = new Interval1i(512, 8096);
+        static public Interval1i ValidScreenDimensionRange
+        {
+            get { return valid_screen_dim_range; }
+            set { valid_screen_dim_range = value; }
+        }
 
 
         static private bool _in_unity_editor = Application.isEditor;
@@ -139,7 +149,7 @@ namespace f3
 
         // pixel-scaled UI elements will (should) be scaled by this amount when
         // running inside editor. Mainly via Cockpit.GetPixelScale()
-        static public float EditorUIScaleFactor = 0.5f;
+        static public float EditorUIScaleFactor = 1.0f;
         // this is used when *not* in editor. Can globally scale UI with it,
         // at least any UI that uses it...
         static public float UIScaleFactor = 1.0f;

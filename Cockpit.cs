@@ -170,7 +170,11 @@ namespace f3
         {
             AxisAlignedBox2f uiBounds = GetOrthoViewBounds();
             AxisAlignedBox2f pixelBounds = GetPixelViewBounds();
-            float fScale = uiBounds.MaxDim / pixelBounds.MaxDim;
+            Interval1i valid_range = FPlatform.ValidScreenDimensionRange;
+            float maxPixel = MathUtil.Clamp(pixelBounds.MaxDim, (float)valid_range.a, (float)valid_range.b);
+
+            float fScale = uiBounds.MaxDim / maxPixel;
+
 #if UNITY_STANDALONE_OSX
             if ( UnityEngine.Screen.dpi > 100.0f && FPlatform.InUnityEditor() == false )
                 fScale /= 2.0f;

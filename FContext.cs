@@ -214,8 +214,12 @@ namespace f3 {
 
             FPlatform.IncrementFrameCounter();
 
-            if (FPlatform.IsWindowResized())
+            if (FPlatform.IsWindowResized()) {
+                // [TODO] to support fixed-size 2D UI, we would need to change OrthoCameraUI.orthographicSize here.
+                // Basically we want to keep orthosize/pixel_height constant. 
+                // This could possibly replace FPLatform.ValidScreenDimensionRange
                 FUtil.SafeSendAnyEvent(OnWindowResized);
+            }
 
             // update our wrappers around various different Input modes
             InputExtension.Get.Update();
