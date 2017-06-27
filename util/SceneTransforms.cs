@@ -13,7 +13,7 @@ namespace f3
         //
         public static bool IsUniformScale(Vector3f s)
         {
-            return MathUtil.EpsilonEqual(s[0], s[1]) && MathUtil.EpsilonEqual(s[1], s[2]);
+            return MathUtil.EpsilonEqual(s[0], s[1], 0.0001f) && MathUtil.EpsilonEqual(s[1], s[2], 0.0001f);
         }
 
 
