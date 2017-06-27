@@ -119,6 +119,7 @@ namespace f3
         public static float DefaultAxisGizmoVisualDegrees = 25.0f;
         public static float DefaultSnapCurveVisualDegrees = 0.25f;
         public static float DefaultSceneCurveVisualDegrees = 1.0f;
+        public static float DefaultSnapDistVisualDegrees = 5.0f;
 
 
         // VR "hand" cursor dimensions. You can use these to find different points on
