@@ -25,6 +25,7 @@ namespace f3 {
 
             public Material CursorDefaultMaterial { get; set; }
             public Material CursorHitMaterial { get; set; }
+            public Material CursorClickableMaterial { get; set; }
             public Material CursorCapturingMaterial { get; set; }
 
             public Material HandMaterial { get; set; }
@@ -85,12 +86,14 @@ namespace f3 {
             Right = new SpatialDevice();
 
             Left.CursorDefaultMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.ForestGreen, 0.6f);
-            Left.CursorHitMaterial = MaterialUtil.CreateStandardMaterial(ColorUtil.SelectionGold);
+            Left.CursorHitMaterial = MaterialUtil.CreateStandardMaterial(ColorUtil.ForestGreen);
+            Left.CursorClickableMaterial = MaterialUtil.CreateStandardMaterial(ColorUtil.SelectionGold);
             Left.CursorCapturingMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.SelectionGold, 0.75f);
             Left.HandMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.ForestGreen, 0.3f);
 
             Right.CursorDefaultMaterial = MaterialUtil.CreateTransparentMaterial(Colorf.DarkRed, 0.6f);
-            Right.CursorHitMaterial = MaterialUtil.CreateStandardMaterial(ColorUtil.PivotYellow);
+            Right.CursorHitMaterial = MaterialUtil.CreateStandardMaterial(Colorf.VideoRed);
+            Right.CursorClickableMaterial = MaterialUtil.CreateStandardMaterial(ColorUtil.PivotYellow);
             Right.CursorCapturingMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.PivotYellow, 0.75f);
             Right.HandMaterial = MaterialUtil.CreateTransparentMaterial(ColorUtil.CgRed, 0.3f);
 
@@ -199,6 +202,7 @@ namespace f3 {
 
                     // raycast into scene to see if we hit object, UI, bounds, etc. 
                     bool bHit = false;
+                    bool bHitGizmo = false;
                     if (context != null) {
                         // want to hit-test active gizmo first, because that has hit-priority
                         if ( context.TransformManager.HaveActiveGizmo ) {
@@ -206,6 +210,7 @@ namespace f3 {
                             if ( context.TransformManager.ActiveGizmo.FindRayIntersection(h.CursorRay, out uiHit) ) {
                                 h.RayHitPos = uiHit.hitPos;
                                 bHit = true;
+                                bHitGizmo = true;
                             }
                         }
                         // next we tested scene
@@ -236,7 +241,9 @@ namespace f3 {
                     //if (scene.InCapture)
                     //    MaterialUtil.SetMaterial(h.Cursor, h.CursorCapturingMaterial);
                     //else
-                    if (bHit)
+                    if ( bHitGizmo )
+                        MaterialUtil.SetMaterial(h.Cursor, h.CursorClickableMaterial);
+                    else if (bHit)
                         MaterialUtil.SetMaterial(h.Cursor, h.CursorHitMaterial);
                     else
                         MaterialUtil.SetMaterial(h.Cursor, h.CursorDefaultMaterial);
