@@ -52,8 +52,9 @@ namespace f3
         }
 
 
-        public void AddChild(TransformableSO so)
+        public void AddChild(TransformableSO so, bool bMaintainOrigin = false)
         {
+            Util.gDevAssert(so != this);
             if (!vChildren.Contains(so)) {
                 vChildren.Add(so);
                 if (parentScene != null) {
@@ -61,27 +62,30 @@ namespace f3
                         throw new Exception("GroupSO.AddChild: tried to re-parent SO to group that has no parent!");
                     parentScene.AddSceneObjectToParentSO(so, this);
                 }
-                update_shared_origin();
+                if ( bMaintainOrigin == false )
+                    update_shared_origin();
                 increment_timestamp();
                 //so.OnTransformModified += childTransformModified;
             }
         }
-        public void AddChildren(IEnumerable<TransformableSO> v)
+        public void AddChildren(IEnumerable<TransformableSO> v, bool bMaintainOrigin = false)
         {
             defer_origin_update = true;
             foreach (TransformableSO so in v)
                 AddChild(so);
             defer_origin_update = false;
-            update_shared_origin();
+            if ( ! bMaintainOrigin )
+                update_shared_origin();
         }
 
-        public void RemoveChild(TransformableSO so)
+        public void RemoveChild(TransformableSO so, bool bMaintainOrigin = false)
         {
             if ( vChildren.Contains(so) ) {
                 //so.OnTransformModified -= childTransformModified;
                 vChildren.Remove(so);
                 parentScene.RemoveSceneObjectFromParentSO(so);
-                update_shared_origin();
+                if ( bMaintainOrigin == false )
+                    update_shared_origin();
                 increment_timestamp();
             }
         }
