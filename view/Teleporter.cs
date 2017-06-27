@@ -57,7 +57,8 @@ namespace f3
             float fUp = Vector3f.Dot(targetNormal, vSceneUp) > 0 ? 1.0f : -0.5f;
             // [RMS] camera height does not work because OVRCameraRig sets eye-level to be origin!!
             //float fHeight = camera.GetPosition()[1] * scene.GetSceneScale();
-            float fHeight = DefaultHeightInM * scene.GetSceneScale();
+            //float fHeight = DefaultHeightInM * scene.GetSceneScale();
+            float fHeight = DefaultHeightInM * (float)Math.Sqrt(scene.GetSceneScale());  // don't scale! otherwise tiny offsets
             Vector3f vNewCamPos = targetPoint + fUp * fHeight * Vector3f.AxisY;
             Vector3f vNewTargetPos = vNewCamPos + fNewTargetDist * vCurCamFWXZ;
             camera.Animator().Teleport_Level(vNewCamPos, vNewTargetPos, targetPoint);
