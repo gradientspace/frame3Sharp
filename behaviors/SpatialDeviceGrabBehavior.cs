@@ -9,6 +9,7 @@ namespace f3
 
         public float RotationSpeed = 1.0f;
         public float TranslationSpeed = 1.0f;
+        public float StickMoveSpeed = 0.1f;
 
         public delegate void GrabEventHandler(object sender, TransformableSO target);
         public event GrabEventHandler OnBeginGrab;
@@ -35,6 +36,7 @@ namespace f3
 
             public float RotationSpeed = 1.0f;
             public float TranslationSpeed = 1.0f;
+            public float StickSpeed = 0.1f;
 
             public TransformGizmoChange change;        // [TODO] shouldn't be using gizmo change for this?
             public GrabInfo(Cockpit cockpit, TransformableSO so, Frame3f handF)
@@ -99,7 +101,7 @@ namespace f3
                 //fNew.Rotation = fNew.Rotation * stickY;
 
                 // shift in/out along hand-ray by Z
-                fNew.Origin += 0.1f * stickDelta[1] * handF.Z * cockpit.Scene.GetSceneScale();
+                fNew.Origin += StickSpeed * stickDelta[1] * handF.Z * cockpit.Scene.GetSceneScale();
 
                 curHandTargetF = fNew;
                 curUseTargetF = new Frame3f(curHandTargetF);
@@ -138,7 +140,8 @@ namespace f3
                     if ( OnBeginGrab != null )
                         OnBeginGrab(this, tso);
                     return Capture.Begin(this, eSide,
-                        new GrabInfo(cockpit, tso, handF) { RotationSpeed = this.RotationSpeed, TranslationSpeed = this.TranslationSpeed } );
+                        new GrabInfo(cockpit, tso, handF) {
+                            RotationSpeed = this.RotationSpeed, TranslationSpeed = this.TranslationSpeed, StickSpeed = this.StickMoveSpeed } );
                 }
             }
             return Capture.Ignore;
