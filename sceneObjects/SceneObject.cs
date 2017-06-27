@@ -70,6 +70,8 @@ namespace f3
 
         bool IsSurface { get; }         // does this object have a surface we can use (ie a mesh/etc)
 
+        bool IsSelectable { get; }      // cna this SO be selected. Some cannot (eg TransientGroupSO)
+
 		void SetScene(FScene s);
 		FScene GetScene();
 

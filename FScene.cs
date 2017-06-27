@@ -343,7 +343,7 @@ namespace f3
 
 
         bool is_selectable(SceneObject s) {
-            return (SelectionMask == null || SelectionMask.Contains(s) == false );
+            return s.IsSelectable && (SelectionMask == null || SelectionMask.Contains(s) == false );
         }
 
 		public bool Select(SceneObject s, bool bReplace)

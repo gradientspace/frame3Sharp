@@ -170,6 +170,11 @@ namespace f3
             get { return true; }
         }
 
+        virtual public bool IsSelectable { 
+            get { return true; }
+        }
+
+
         virtual public SceneObject Duplicate()
         {
             throw new InvalidOperationException("GroupSO::Duplicate not implemented!");

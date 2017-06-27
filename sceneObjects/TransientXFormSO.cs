@@ -87,6 +87,10 @@ namespace f3
             get { return true; }
         }
 
+        virtual public bool IsSelectable { 
+            get { return false; }
+        }
+
         virtual public bool IsSurface {
             get { return (target != null ) ? target.IsSurface : false; }
         }
