@@ -212,6 +212,37 @@ namespace f3
 
 
 
+    public class AddToGroupChange : BaseChangeOp
+    {
+        public FScene Scene;
+        public GroupSO Group;
+        public List<TransformableSO> Objects;
+
+        public override string Identifier() { return "AddToGroupChange"; }
+
+        public AddToGroupChange(FScene scene, GroupSO group, TransformableSO so)
+        {
+            this.Scene = scene; this.Group = group; this.Objects = new List<TransformableSO>() { so };
+        }
+
+        public override OpStatus Apply() {
+            Group.AddChildren(Objects, true);
+            return OpStatus.Success;
+        }
+        public override OpStatus Revert() {
+            foreach (var so in Objects)
+                Group.RemoveChild(so, true);
+            return OpStatus.Success;
+        }
+        public override OpStatus Cull() {
+            return OpStatus.Success;
+        }
+    }
+
+
+
+
+
 
     public class UnGroupChange : BaseChangeOp
     {
