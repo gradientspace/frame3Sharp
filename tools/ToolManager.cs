@@ -73,6 +73,14 @@ namespace f3
         public bool HasActiveTool(int nSide) {
             return activeTool[nSide] != null;
         }
+        public ToolSide FindSide(ITool tool)
+        {
+            if (activeTool[0] == tool)
+                return ToolSide.Left;
+            else if (activeTool[1] == tool) 
+                return ToolSide.Right;
+            throw new Exception("ToolManager.FindSide: tool is not active!");
+        }
 
 
         /// <summary>

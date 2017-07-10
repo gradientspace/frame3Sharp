@@ -18,6 +18,14 @@ namespace f3
 
     public class FScene : SceneUIParent, SOParent
     {
+        // [RMS] [TODO] this is not good. But we need to access FScene in some internal
+        // places where we don't have a handle to context. How to deal with this??
+        public static FScene Active
+        {
+            get { return FContext.ActiveContext_HACK.Scene; }
+        }
+
+
         ChangeHistory history;
         public ChangeHistory History { get { return history; } }
 
@@ -54,6 +62,8 @@ namespace f3
 
         // Objects in Selection Mask will not be selectable, or ray-cast for hit tests
         public HashSet<SceneObject> SelectionMask = null;
+
+        public bool DisableSelectionMaterial = false;
 
 
         // [RMS] deleted objects that are not destroyed are parented to this GO,
@@ -333,7 +343,7 @@ namespace f3
 
 
         bool is_selectable(SceneObject s) {
-            return (SelectionMask == null || SelectionMask.Contains(s) == false );
+            return s.IsSelectable && (SelectionMask == null || SelectionMask.Contains(s) == false );
         }
 
 		public bool Select(SceneObject s, bool bReplace)
@@ -349,13 +359,16 @@ namespace f3
 
 			if (!IsSelected (s)) {
                 if (bReplace) {
-                    foreach (var v in vSelected)
-                        v.PopOverrideMaterial();
+                    if (DisableSelectionMaterial == false) {
+                        foreach (var v in vSelected)
+                            v.PopOverrideMaterial();
+                    }
                     vSelected.Clear();
                 }
 
 				vSelected.Add (s);
-                s.PushOverrideMaterial(SelectedMaterial);
+                if ( DisableSelectionMaterial == false )
+                    s.PushOverrideMaterial(SelectedMaterial);
 
                 OnSelectionChanged(EventArgs.Empty);
 
@@ -373,7 +386,8 @@ namespace f3
                 return;
             }
 
-            s.PopOverrideMaterial();        // assume we only pushed once!
+            if ( DisableSelectionMaterial == false )
+                s.PopOverrideMaterial();        // assume we only pushed once!
 			vSelected.Remove (s);
 			OnSelectionChanged (EventArgs.Empty);
 		}
@@ -387,8 +401,10 @@ namespace f3
                 return;
             }
 
-            foreach (var v in vSelected)
-                v.PopOverrideMaterial();
+            if (DisableSelectionMaterial == false) {
+                foreach (var v in vSelected)
+                    v.PopOverrideMaterial();
+            }
 			vSelected = new List<SceneObject> ();
 			OnSelectionChanged (EventArgs.Empty);
 		}
@@ -545,7 +561,7 @@ namespace f3
 
 
         // tests SceneObjects and Bounds
-        public bool FindSceneRayIntersection(Ray3f ray, out AnyRayHit hit, Func<SceneObject, bool> sofilter = null)
+        public bool FindSceneRayIntersection(Ray3f ray, out AnyRayHit hit, bool bFindBoundsHits = true, Func<SceneObject, bool> sofilter = null)
         {
             hit = null;
 
@@ -553,7 +569,7 @@ namespace f3
             GameObjectRayHit bestBoundsHit = null;
 
             bool bHitSO = FindSORayIntersection(ray, out bestSOHit, sofilter);
-            bool bHitBounds = FindWorldBoundsHit(ray, out bestBoundsHit);
+            bool bHitBounds = bFindBoundsHits && FindWorldBoundsHit(ray, out bestBoundsHit);
             if ( bHitSO && bHitBounds ) {
                 if ( bestSOHit.fHitDist < bestBoundsHit.fHitDist )
                     hit = new AnyRayHit(bestSOHit);

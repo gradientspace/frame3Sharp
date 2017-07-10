@@ -62,6 +62,10 @@ namespace f3
 
             Vector3f scale = go.GetLocalScale();
 
+            // [RMS] why don't we bake transform into mesh ??! then we could handle non-uniform scaling...
+            if ( SceneTransforms.IsUniformScale(scale) == false)
+                throw new Exception("UnitySceneUtil.ImportExistingUnityMesh: nonuniform scaling is not supported...");
+
             Mesh useMesh = meshF.mesh;      // makes a copy
             AxisAlignedBox3f bounds = useMesh.bounds;       // bounds.Center is wrt local frame of input go
                                                             // ie offset from origin in local coordinates

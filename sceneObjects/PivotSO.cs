@@ -3,7 +3,7 @@ using g3;
 
 namespace f3
 {
-    public class PivotSO : BaseSO
+    public class PivotSO : BaseSO, SpatialQueryableSO
     {
         fGameObject pivotGO;
         fGameObject shapeGO;
@@ -124,6 +124,32 @@ namespace f3
             copy.MaintainConsistentViewSize = this.MaintainConsistentViewSize;
             return copy;
         }
+
+
+
+
+        // SpatialQueryableSO impl
+
+        public virtual bool SupportsNearestQuery { get { return true; } }
+        public virtual bool FindNearest(Vector3d point, double maxDist, out SORayHit nearest, CoordSpace eInCoords)
+        {
+            nearest = null;
+
+            Frame3f f = this.GetLocalFrame(eInCoords);
+            double dist = (f.Origin - point).Length;
+            if (dist > maxDist)
+                return false;
+
+            nearest = new SORayHit();
+            nearest.fHitDist = (float)dist;
+            nearest.hitPos = f.Origin;
+            nearest.hitNormal = Vector3f.Zero;
+            nearest.hitGO = RootGameObject;
+            nearest.hitSO = this;
+            return true;
+        }
+
+
 
     }
 

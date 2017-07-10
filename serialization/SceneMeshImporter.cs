@@ -146,7 +146,10 @@ namespace f3
             OBJMaterial objMat = mIn as OBJMaterial;
             // TODO handle other types?
 
-            if (objMat.illum < 0 || objMat.illum == 1 || objMat.illum == 2) {
+            int lightmodel = objMat.illum;
+            if (lightmodel > 2)     // [RMS] we don't support these anyway, but don't want to ignore these materials...
+                lightmodel = 2;
+            if (lightmodel < 0 || lightmodel == 0 || lightmodel == 1 || lightmodel == 2) {
                 SOMaterial sceneMat = new SOMaterial() {
                     Name = objMat.name,
                     Type = SOMaterial.MaterialType.TextureMap,

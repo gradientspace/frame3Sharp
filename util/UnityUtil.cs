@@ -362,12 +362,22 @@ namespace f3
             m.vertices = verts;
         }
 
-        public static void RotateMesh(Mesh m, Quaternionf q, Vector3f c)
+        public static void RotateMesh(Mesh m, Quaternionf q, Vector3f center)
         {
             Vector3[] verts = m.vertices;
             for ( int k = 0; k < verts.Length; ++k ) {
                 Vector3f v = verts[k];
-                verts[k] = q * (v - c) + c;
+                verts[k] = q * (v - center) + center;
+            }
+            m.vertices = verts;
+        }
+
+        public static void ScaleMesh(Mesh m, Vector3f scale, Vector3f center)
+        {
+            Vector3[] verts = m.vertices;
+            for ( int k = 0; k < verts.Length; ++k ) {
+                Vector3f v = verts[k];
+                verts[k] = scale * (v - center) + center;
             }
             m.vertices = verts;
         }
@@ -407,7 +417,9 @@ namespace f3
         }
         public static fMesh GetTwoSidedPlaneMesh() {
             Mesh m = GetPrimitiveMesh(PrimitiveType.Plane);
+            UnityUtil.ScaleMesh(m, 0.1f * Vector3f.One, Vector3f.Zero);
             Mesh m2 = GetPrimitiveMesh(PrimitiveType.Plane);
+            UnityUtil.ScaleMesh(m2, 0.1f * Vector3f.One, Vector3f.Zero);
             UnityUtil.RotateMesh(m2, Quaternionf.AxisAngleD(Vector3f.AxisX, 180.0f), Vector3f.Zero);
             CombineInstance[] combine = new CombineInstance[2] {
                 new CombineInstance() { mesh = m, transform = Matrix4x4.identity },

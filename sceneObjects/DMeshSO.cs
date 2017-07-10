@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using g3;
 
-using UnityEngine;
 
 namespace f3
 {
 
 
-    public class DMeshSO : BaseSO, IMeshComponentManager
+    public class DMeshSO : BaseSO, IMeshComponentManager, SpatialQueryableSO
     {
         protected fGameObject parentGO;
 
@@ -119,7 +118,7 @@ namespace f3
 
         public void AddComponent(MeshDecomposition.Component C)
         {
-            fMesh submesh = new fMesh(C.triangles, mesh, C.source_vertices, true, true);
+            fMesh submesh = new fMesh(C.triangles, mesh, C.source_vertices, true, true, true);
             fMeshGameObject submesh_go = GameObjectFactory.CreateMeshGO("component", submesh, false);
             submesh_go.SetMaterial(new fMaterial(CurrentMaterial));
             displayComponents.Add(new DisplayMeshComponent() {
@@ -239,28 +238,70 @@ namespace f3
                 spatial.Build();
             }
 
-            Transform xform = ((GameObject)RootGameObject).transform;
-
             // convert ray to local
-            Ray3d local_ray = new Ray3d();
-            local_ray.Origin = xform.InverseTransformPoint(ray.Origin);
-            local_ray.Direction = xform.InverseTransformDirection(ray.Direction);
-            local_ray.Direction.Normalize();
+            Frame3f f = new Frame3f(ray.Origin, ray.Direction);
+            f = SceneTransforms.TransformTo(f, this, CoordSpace.WorldCoords, CoordSpace.ObjectCoords);
+            Ray3d local_ray = new Ray3d(f.Origin, f.Z);
 
             int hit_tid = spatial.FindNearestHitTriangle(local_ray);
             if (hit_tid != DMesh3.InvalidID) {
                 IntrRay3Triangle3 intr = MeshQueries.TriangleIntersection(mesh, hit_tid, local_ray);
 
+                Frame3f hitF = new Frame3f(local_ray.PointAt(intr.RayParameter), mesh.GetTriNormal(hit_tid));
+                hitF = SceneTransforms.TransformTo(hitF, this, CoordSpace.ObjectCoords, CoordSpace.WorldCoords);
+
                 hit = new SORayHit();
-                hit.fHitDist = (float)intr.RayParameter;
-                hit.hitPos = xform.TransformPoint((Vector3f)local_ray.PointAt(intr.RayParameter));
-                hit.hitNormal = xform.TransformDirection((Vector3f)mesh.GetTriNormal(hit_tid));
+                hit.hitPos = hitF.Origin;
+                hit.hitNormal = hitF.Z;
+                hit.fHitDist = hit.hitPos.Distance(ray.Origin);    // simpler than transforming!
                 hit.hitGO = RootGameObject;
                 hit.hitSO = this;
                 return true;
             }
             return false;
         }
+
+
+
+        // SpatialQueryableSO impl
+
+        public virtual bool SupportsNearestQuery { get { return enable_spatial; } }
+        public virtual bool FindNearest(Vector3d point, double maxDist, out SORayHit nearest, CoordSpace eInCoords)
+        {
+            nearest = null;
+            if (enable_spatial == false)
+                return false;
+
+            if (spatial == null) {
+                spatial = new DMeshAABBTree3(mesh);
+                spatial.Build();
+            }
+
+            // convert to local
+            Vector3f local_pt = SceneTransforms.TransformTo((Vector3f)point, this, eInCoords, CoordSpace.ObjectCoords);
+
+            if (mesh.CachedBounds.Distance(local_pt) > maxDist)
+                return false;
+
+            int tid = spatial.FindNearestTriangle(local_pt);
+            if (tid != DMesh3.InvalidID) {
+                DistPoint3Triangle3 dist = MeshQueries.TriangleDistance(mesh, tid, local_pt);
+
+                nearest = new SORayHit();
+                nearest.fHitDist = (float)Math.Sqrt(dist.DistanceSquared);
+
+                Frame3f f_local = new Frame3f(dist.TriangleClosest, mesh.GetTriNormal(tid));
+                Frame3f f = SceneTransforms.TransformTo(f_local, this, CoordSpace.ObjectCoords, eInCoords);
+
+                nearest.hitPos = f.Origin;
+                nearest.hitNormal = f.Z;
+                nearest.hitGO = RootGameObject;
+                nearest.hitSO = this;
+                return true;
+            }
+            return false;
+        }
+
 
 
     }

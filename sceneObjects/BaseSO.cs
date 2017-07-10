@@ -65,6 +65,10 @@ namespace f3
             get { return false; }
         }
 
+        virtual public bool IsSelectable { 
+            get { return true; }
+        }
+
         virtual public bool IsSurface {
             get { throw new NotImplementedException("BaseSO.IsSurface"); }
         }

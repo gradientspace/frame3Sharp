@@ -125,12 +125,13 @@ namespace f3
                 if (EnableLineRenderer) {
                     LineRenderer ren = root.GetComponent<LineRenderer>();
                     int Nc = curve.VertexCount;
-                    int N = (curve.Closed) ? Nc + 1 : Nc;
+                    int N = Nc;
                     Vector3[] vec = new Vector3[N];
                     for ( int i = 0; i < N; ++i )
                         vec[i] = (Vector3)curve[ i % Nc ];
                     ren.positionCount = N;
                     ren.SetPositions(vec);
+                    ren.loop = (curve.Closed);
                 }
 
                 localBounds = curve.GetBoundingBox();
@@ -211,7 +212,8 @@ namespace f3
                 return false;
 
             double rayHitT;
-            if (CurveUtils.FindClosestRayIntersection(curve, sceneWidth * 0.5f, localRay, out rayHitT)) {
+            //if (CurveUtils.FindClosestRayIntersection(curve, sceneWidth * 0.5f, localRay, out rayHitT)) {
+            if (CurveUtils.FindClosestRayIntersection(curve, sceneWidth, localRay, out rayHitT)) {
                 hit = new SORayHit();
                 hit.fHitDist = (float)rayHitT;
                 hit.hitPos = localRay.GetPoint(hit.fHitDist);

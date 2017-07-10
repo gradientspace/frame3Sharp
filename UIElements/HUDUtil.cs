@@ -199,13 +199,13 @@ namespace f3
         }
 
 
-        public static void ShowToastPopupMessage(string sText, Cockpit cockpit)
+        public static void ShowToastPopupMessage(string sText, Cockpit cockpit, float heightScale = 1.0f, float textScale = 1.0f)
         {
             // [TODO] should size based on VR or not-VR...for VR use visual radius?
 
             HUDPopupMessage message = new HUDPopupMessage() {
-                Width = 500*cockpit.GetPixelScale(), Height = 150*cockpit.GetPixelScale(),
-                TextHeight = 50 * cockpit.GetPixelScale(),
+                Width = 500*cockpit.GetPixelScale(), Height = heightScale*150*cockpit.GetPixelScale(),
+                TextHeight = textScale * 50 * cockpit.GetPixelScale(),
                 BackgroundColor = Colorf.DarkYellow,
                 TextColor = Colorf.VideoBlack,
                 Text = sText

@@ -7,6 +7,18 @@ namespace f3
     public static class SceneTransforms
     {
 
+        //
+        // WARNING!! These functions do not support non-uniform scaling. 
+        //
+        //
+        public static bool IsUniformScale(Vector3f s)
+        {
+            return MathUtil.EpsilonEqual(s[0], s[1], 0.0001f) && MathUtil.EpsilonEqual(s[1], s[2], 0.0001f);
+        }
+
+
+
+
         /// <summary>
         /// Assuming pointIn is in space eFrom of fromSO, transform to eTo
         /// </summary>
@@ -54,6 +66,45 @@ namespace f3
 
 
 
+
+        /// <summary>
+        /// Assuming dimensionIn is in space eFrom of fromSO, transform to eTo
+        /// </summary>
+        public static float TransformTo(float dimensionIn, TransformableSO fromSO, CoordSpace eFrom, CoordSpace eTo)
+        {
+            if (eFrom == eTo)
+                return dimensionIn;
+
+            FScene scene = fromSO.GetScene();
+
+            float sceneDim = dimensionIn;
+            if (eFrom == CoordSpace.ObjectCoords) {
+                // if we are in Object coords, we are either going up to Scene or World
+                sceneDim = ObjectToScene(fromSO, dimensionIn);
+
+            } else if (eFrom == CoordSpace.WorldCoords) {
+                // if we are in World coords, we are going down to Scene or Object
+                sceneDim = scene.ToSceneDimension(dimensionIn);
+
+            } // (otherwise frameIn is in Scene coords)
+
+            // going World->Scene or Object->Scene
+            if (eTo == CoordSpace.SceneCoords)
+                return sceneDim;
+
+            // going Scene->World or Object->World
+            if (eTo == CoordSpace.WorldCoords)
+                return scene.ToWorldDimension(sceneDim);
+
+            // only thing left is going from Scene to Object
+            //return SceneToObject(fromSO, sceneDim);
+            throw new NotImplementedException("SceneTransforms.TransformTo: transforming to object coordinates not supported yet");
+        }
+
+
+
+
+
         /// <summary>
         /// Apply the local rotate/translate/scale at transform to frameIn
         /// </summary>
@@ -70,7 +121,9 @@ namespace f3
         public static Frame3f ApplyInverseTransform(ITransformed transform, Frame3f frameIn )
         {
             Frame3f result = transform.GetLocalFrame(CoordSpace.ObjectCoords).ToFrame(frameIn);
-            result.Scale(1.0f / transform.GetLocalScale());
+            Vector3f scale = transform.GetLocalScale();
+            Util.gDevAssert(IsUniformScale(scale));
+            result.Scale(1.0f / scale);
             return result;
         }
 
@@ -105,6 +158,33 @@ namespace f3
         }
 
 
+
+
+
+
+        /// <summary>
+        /// input dimension is in Object (local) coords of so, apply all intermediate 
+        /// transform scaling to get it to Scene coords
+        /// </summary>
+        public static float ObjectToScene(TransformableSO so, float objectDim)
+        {
+            float sceneDim = objectDim;
+            TransformableSO curSO = so;
+            while (curSO != null) {
+                Vector3f scale = curSO.GetLocalScale();
+                Util.gDevAssert(IsUniformScale(scale));
+                sceneDim *= ( (scale.x+scale.y+scale.z) / 3.0f);   // yikes!
+                SOParent parent = curSO.Parent;
+                if (parent is FScene)
+                    return sceneDim;
+                curSO = (parent as TransformableSO);
+            }
+            if (curSO == null)
+                DebugUtil.Error("SceneTransforms.TransformTo: found null parent SO!");
+            return sceneDim;
+        }
+
+
         /// <summary>
         /// input objectF is in Object (local) coords of so, apply all intermediate 
         /// transforms to get it to Scene coords
@@ -116,6 +196,7 @@ namespace f3
             while (curSO != null) {
                 Frame3f curF = curSO.GetLocalFrame(CoordSpace.ObjectCoords);
                 Vector3f scale = curSO.GetLocalScale();
+                Util.gDevAssert(IsUniformScale(scale));
                 sceneF.Scale(scale);
                 sceneF = curF.FromFrame(sceneF);
                 SOParent parent = curSO.Parent;

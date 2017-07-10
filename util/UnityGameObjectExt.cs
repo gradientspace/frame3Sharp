@@ -124,6 +124,13 @@ namespace f3
             if (r != null)
                 r.material.SetColor(color);
         }
+        public static Colorf GetColor(this GameObject go)
+        {
+            Renderer r = go.GetComponent<Renderer>();
+            if (r != null)
+                return r.material.color;
+            return Colorf.White;
+        }
 
         // [RMS] assumes all shaders have parameter _AlphaScale available (!)
         public static void SetAlphaMultiply(this GameObject go, float fScale)
