@@ -10,7 +10,7 @@ namespace f3
     //
     public class HUDPanel : HUDStandardItem, SceneUIParent, IBoxModelElement
     {
-        public List<SceneUIElement> Children { get; set; }
+        public HUDChildren Children;
 
         public float Width { get; set; }
         public float Height { get; set; }
@@ -23,7 +23,15 @@ namespace f3
 
         public HUDPanel()
         {
-            Children = new List<SceneUIElement>();
+            Children = new HUDChildren(this) {
+                OnChildAdded = (elem, bKeepWorldPosition) => {
+                    elem.SetLayer(this.Layer);
+                    parent.AddChild(elem.RootGameObject, bKeepWorldPosition);
+                },
+                OnChildRemoved = (elem) => {
+                    ;
+                }
+            };
             Width = 1;
             Height = 1;
             Padding = 0;
@@ -51,46 +59,6 @@ namespace f3
         public virtual void Create()
         {
             parent = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDPanel"));
-        }
-
-
-        // [RMS] management of Panel children. Currently we do not use Panel
-        //   directly, so these are not publicly accessible. I don't entirely like this.
-        //   However, C# does not allow us to "hide" a public member in a subclass,
-        //   which means that Panel implementations would directly expose these, when
-        //   in most cases they should not be exposed...
-
-        protected virtual void AddChild(SceneUIElement ui, bool bKeepWorldPosition = true)
-        {
-            if (!Children.Contains(ui)) {
-                Children.Add(ui);
-                ui.Parent = this;
-                ui.SetLayer(this.Layer);
-                parent.AddChild(ui.RootGameObject, bKeepWorldPosition);
-            }
-        }
-        protected virtual void AddChildren(IEnumerable<SceneUIElement> v, bool bKeepWorldPosition = true)
-        {
-            foreach (SceneUIElement ui in v)
-                AddChild(ui, bKeepWorldPosition);
-        }
-
-        protected virtual void RemoveChild(SceneUIElement ui)
-        {
-            if (Children.Contains(ui)) {
-                Children.Remove(ui);
-                ui.Parent = null;
-                ui.RootGameObject.SetParent(null, true);
-
-                // [RMS] should re-parent to cockpit/scene we are part of? currently no reference to do that...
-                //so.RootGameObject.transform.SetParent(parentScene.RootGameObject.transform, true);
-            }
-        }
-
-        protected virtual void RemoveAllChildren()
-        {
-            while (Children.Count > 0)
-                RemoveChild(Children[0]);
         }
 
 

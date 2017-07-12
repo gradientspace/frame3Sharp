@@ -286,7 +286,7 @@ namespace f3
         }
 
 
-        public static bool FindNearestRayIntersection(List<SceneUIElement> vElements, Ray ray, out UIRayHit hit)
+        public static bool FindNearestRayIntersection(IEnumerable<SceneUIElement> vElements, Ray ray, out UIRayHit hit)
         {
             hit = null;
 
@@ -299,7 +299,7 @@ namespace f3
             }
             return (hit != null);
         }
-        public static bool FindNearestHoverRayIntersection(List<SceneUIElement> vElements, Ray ray, out UIRayHit hit)
+        public static bool FindNearestHoverRayIntersection(IEnumerable<SceneUIElement> vElements, Ray ray, out UIRayHit hit)
         {
             hit = null;
 

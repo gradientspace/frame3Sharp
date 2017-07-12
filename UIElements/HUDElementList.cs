@@ -68,7 +68,7 @@ namespace f3
             base.Create();
 
             foreach (SceneUIElement elem in ListItems)
-                AddChild(elem, false);
+                Children.Add(elem, false);
 
             update_layout();
         }
