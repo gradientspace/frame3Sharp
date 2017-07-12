@@ -7,6 +7,55 @@ namespace f3
     public static class LayoutUtil
     {
 
+        public static LayoutOptions PointToPoint(IBoxModelElement eFrom, BoxPosition posFrom, 
+                                                 IBoxModelElement eTo, BoxPosition posTo, float fShiftZ = 0)
+        {
+            return new LayoutOptions() {
+                Flags = LayoutFlags.None,
+                PinSourcePoint2D = BoxPointF(eFrom, posFrom),
+                PinTargetPoint2D = BoxPointF(eTo, posTo),
+                DepthShift = fShiftZ
+            }; 
+        }
+
+
+        public static LayoutOptions PointToPoint(IBoxModelElement eFrom, BoxPosition posFrom, Vector2f vFromDelta, 
+                                                 IBoxModelElement eTo, BoxPosition posTo, float fShiftZ = 0)
+        {
+            return new LayoutOptions() {
+                Flags = LayoutFlags.None,
+                PinSourcePoint2D = BoxPointF(eFrom, posFrom, vFromDelta),
+                PinTargetPoint2D = BoxPointF(eTo, posTo),
+                DepthShift = fShiftZ
+            }; 
+        }
+
+
+        public static LayoutOptions PointToPoint(IBoxModelElement eFrom, BoxPosition posFrom, 
+                                                 IBoxModelElement eTo, BoxPosition posTo, Vector2f vToDelta, float fShiftZ = 0)
+        {
+            return new LayoutOptions() {
+                Flags = LayoutFlags.None,
+                PinSourcePoint2D = BoxPointF(eFrom, posFrom),
+                PinTargetPoint2D = BoxPointF(eTo, posTo, vToDelta),
+                DepthShift = fShiftZ
+            }; 
+        }
+
+
+        public static LayoutOptions PointToPoint(IBoxModelElement eFrom, BoxPosition posFrom, Vector2f vFromDelta, 
+                                                 IBoxModelElement eTo, BoxPosition posTo, Vector2f vToDelta, float fShiftZ = 0)
+        {
+            return new LayoutOptions() {
+                Flags = LayoutFlags.None,
+                PinSourcePoint2D = BoxPointF(eFrom, posFrom, vFromDelta),
+                PinTargetPoint2D = BoxPointF(eTo, posTo, vToDelta),
+                DepthShift = fShiftZ
+            }; 
+        }
+
+
+
         /// <summary>
         /// constructs a Func that returns a 2D point
         /// </summary>

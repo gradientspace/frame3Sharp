@@ -67,6 +67,37 @@ namespace f3
 
 
 
+
+    /// <summary>
+    /// just wraps an existing box element. But we need resize event...
+    /// </summary>
+    public class BoxModelElementContainerProvider : IContainerBoundsProvider, IDisposable
+    {
+        IBoxModelElement element;
+
+        public BoxModelElementContainerProvider(IBoxModelElement element)
+        {
+            this.element = element;
+        }
+        public virtual void Dispose()
+        {
+        }
+
+        public virtual AxisAlignedBox2f ContainerBounds
+        {
+            get { return element.Bounds2D; }
+        }
+
+        // how to fire??
+        public event BoundsModifiedEventHandler OnContainerBoundsModified;
+    }
+
+
+
+
+
+
+
     /// <summary>
     /// Provides 2D window dimensions as box container. Notifies when window is resized.
     /// </summary>

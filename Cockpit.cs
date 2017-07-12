@@ -32,8 +32,8 @@ namespace f3
         List<IShortcutKeyHandler> vKeyHandlers;
 
 
-        Dictionary<string, ILayout> Layouts;
-        ILayout defaultLayout;
+        Dictionary<string, ICockpitLayout> Layouts;
+        ICockpitLayout defaultLayout;
 
 
         public enum MovementMode
@@ -73,7 +73,7 @@ namespace f3
 			vUIElements = new List<SceneUIElement> ();
             UIElementLayer = FPlatform.HUDLayer;
 
-            Layouts = new Dictionary<string, ILayout>();
+            Layouts = new Dictionary<string, ICockpitLayout>();
             defaultLayout = null;
 
             vKeyHandlers = new List<IShortcutKeyHandler>();
@@ -336,7 +336,7 @@ namespace f3
         /// <summary>
         /// Register a layout
         /// </summary>
-        public void AddLayout(ILayout e, string name, bool bSetAsDefault = false)
+        public void AddLayout(ICockpitLayout e, string name, bool bSetAsDefault = false)
         {
             if (Layouts.ContainsKey(name))
                 throw new Exception("Cockpit.AddLayout: tried to register duplicate name " + name);
@@ -353,7 +353,7 @@ namespace f3
 
         public void SetDefaultLayout(string name)
         {
-            ILayout setdefault = null;
+            ICockpitLayout setdefault = null;
             if (Layouts.TryGetValue(name, out setdefault) == false)
                 throw new Exception("Cockpit.SetDefaultLayout: could not find layout named " + name);
             defaultLayout = setdefault;
@@ -367,7 +367,7 @@ namespace f3
         /// </summary>
         public void RemoveLayout(string name, bool bRemoveAllElements = true)
         {
-            ILayout remove = null;
+            ICockpitLayout remove = null;
             if (Layouts.TryGetValue(name, out remove) == false)
                 throw new Exception("Cockpit.RemoveLayout: could not find layout named " + name);
 
@@ -386,7 +386,7 @@ namespace f3
         /// <summary>
         /// get default Layout
         /// </summary>
-        public ILayout DefaultLayout
+        public ICockpitLayout DefaultLayout
         {
             get { return defaultLayout; }
         }
@@ -394,10 +394,10 @@ namespace f3
         /// <summary>
         /// Find Layout with given name, or default layout if no argument
         /// </summary>
-        public ILayout Layout(string name = "") {
+        public ICockpitLayout Layout(string name = "") {
             if (name == "")
                 return defaultLayout;
-            ILayout r = null;
+            ICockpitLayout r = null;
             if (Layouts.TryGetValue(name, out r) == false)
                 throw new Exception("Cockpit.Layout: could not find layout named " + name);
             return r;

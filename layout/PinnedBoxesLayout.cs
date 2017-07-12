@@ -11,7 +11,7 @@ namespace f3
     /// Quirks:
     ///   - automatically uses fade in/out transitions on Add/Remove
     /// </summary>
-    public class PinnedBoxesLayout : ILayout
+    public class PinnedBoxesLayout : ICockpitLayout
     {
         public Cockpit Cockpit;
         public PinnedBoxesLayoutSolver Solver;
@@ -38,6 +38,10 @@ namespace f3
         }
 
 
+        virtual public Cockpit Parent
+        {
+            get { return Cockpit; }
+        }
 
         // in VR layouts we were returning 1 here...??
         virtual public float UIScaleFactor

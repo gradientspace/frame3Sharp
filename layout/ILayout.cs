@@ -46,6 +46,24 @@ namespace f3
         // remove all UI elements
         void RemoveAll(bool bDestroy);
 
+        /// <summary>
+        /// If this layout has a "frame" that other things can be aligned relative to,
+        /// you can access that frame via this property. May be null.
+        /// </summary>
+        IBoxModelElement BoxElement { get; }
+    }
+
+
+
+    public interface IElementLayout : ILayout
+    {
+        SceneUIElement Parent { get; }
+    }
+
+
+    public interface ICockpitLayout : ILayout
+    {
+        Cockpit Parent { get; }
 
         /// <summary>
         /// Generally we want to set up a UI in some abstract coordinates, and then
@@ -53,13 +71,6 @@ namespace f3
         /// transparently, so client must do it themselves by multiplying by UIScaleFactor
         /// </summary>
         float UIScaleFactor { get; }
-
-
-        /// <summary>
-        /// If this layout has a "frame" that other things can be aligned relative to,
-        /// you can access that frame via this property. May be null.
-        /// </summary>
-        IBoxModelElement BoxElement { get; }
-
     }
+
 }
