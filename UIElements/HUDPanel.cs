@@ -20,6 +20,7 @@ namespace f3
         public float PaddedHeight { get { return Height - 2*Padding; } }
 
         fGameObject parent;
+        List<IElementLayout> Layouts;
 
         public HUDPanel()
         {
@@ -118,6 +119,25 @@ namespace f3
         }
 
 
+
+        public virtual void AttachLayout(IElementLayout layout)
+        {
+            if (this.Layouts == null)
+                this.Layouts = new List<IElementLayout>();
+            this.Layouts.Add(layout);
+        }
+
+        public virtual void ValidateLayouts()
+        {
+            // [TODO]
+            //if ( this.Layouts != null ) {
+            //    foreach ( var layout in this.Layouts )
+            //        layout.RecomputeLayout()
+            //}
+        }
+
+
+
         override public bool FindRayIntersection(Ray3f ray, out UIRayHit hit)
         {
             return HUDUtil.FindNearestRayIntersection(Children, ray, out hit);
@@ -190,6 +210,28 @@ namespace f3
 
         #endregion
 
+    }
 
+
+
+
+    /// <summary>
+    /// This is just a BoxModel wrapper for the Content area of a HUDPanel (ie w/ padding)
+    /// </summary>
+    public class HUDPanelContentBox : IBoxModelElement
+    {
+        public HUDPanel Panel;
+
+        public HUDPanelContentBox(HUDPanel panel) { this.Panel = panel; }
+
+        public Vector2f Size2D
+        {
+            get { return Panel.ContentSize; }
+        }
+
+        public AxisAlignedBox2f Bounds2D
+        {
+            get { return Panel.ContentBounds; }
+        }
     }
 }
