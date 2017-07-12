@@ -264,13 +264,30 @@ namespace f3
 
 
         // not sure where these should go...
+        public static void SetVisible(SceneObject so, bool bVisible)
+        {
+            if ( so.RootGameObject.IsVisible() != bVisible ) {
+                if (bVisible)
+                    Show(so);
+                else
+                    Hide(so);
+            }
+        }
         public static void Show(SceneObject so)
         {
             so.RootGameObject.Show();
+            if ( so is SOCollection ) {
+                foreach (SceneObject childso in (so as SOCollection).GetChildren())
+                    Show(childso);
+            }
         }
         public static void Hide(SceneObject so)
         {
             so.RootGameObject.Hide();
+            if ( so is SOCollection ) {
+                foreach (SceneObject childso in (so as SOCollection).GetChildren())
+                    Hide(childso);
+            }
         }
         public static bool IsVisible(SceneObject so)
         {

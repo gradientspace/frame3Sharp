@@ -269,7 +269,7 @@ namespace f3
         }
 
 
-        public static bool FindNearestRayIntersection(List<SceneObject> vObjects, Ray ray, out SORayHit hit, Func<SceneObject,bool> filter = null)
+        public static bool FindNearestRayIntersection(IEnumerable<SceneObject> vObjects, Ray ray, out SORayHit hit, Func<SceneObject,bool> filter = null)
         {
             hit = null;
 

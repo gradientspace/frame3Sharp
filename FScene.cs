@@ -233,9 +233,18 @@ namespace f3
         }
 
 
-        public List<SceneObject> SceneObjects {
+        public IEnumerable<SceneObject> SceneObjects {
             get { return vObjects; }
         }
+        public IEnumerable<SceneObject> VisibleSceneObjects {
+            get {
+                foreach (SceneObject so in SceneObjects) {
+                    if (SceneUtil.IsVisible(so))
+                        yield return so;
+                }
+            }
+        }
+
 
         // add new SO to scene
         public void AddSceneObject(SceneObject so, bool bUseExistingWorldPos = false)
@@ -412,12 +421,12 @@ namespace f3
 
         public List<SceneObject> Find(Func<SceneObject, bool> filter)
         {
-            return SceneObjects.FindAll( (x) => { return filter(x); } );
+            return vObjects.FindAll( (x) => { return filter(x); } );
         }
 
         public SceneObject FindByUUID(string uuid)
         {
-            return SceneObjects.Find( (x) => { return x.UUID == uuid; } );
+            return vObjects.Find( (x) => { return x.UUID == uuid; } );
         }
 
 		public List<T> FindSceneObjectsOfType<T>() where T : class {
@@ -428,8 +437,6 @@ namespace f3
 			}
 			return result;
 		}
-
-
 
 
 
@@ -495,16 +502,16 @@ namespace f3
         }
 
         public bool FindSORayIntersection(Ray3f ray, out SORayHit hit, Func<SceneObject, bool> filter = null) {
-            return HUDUtil.FindNearestRayIntersection(SceneObjects, ray, out hit,
+            return HUDUtil.FindNearestRayIntersection(VisibleSceneObjects, ray, out hit,
                 (SelectionMask == null) ? filter : mask_filter(filter));
         }
 
         public bool FindSORayIntersection_PivotPriority(Ray3f ray, out SORayHit hit, Func<SceneObject, bool> filter = null)
         {
-            bool bHitPivot = HUDUtil.FindNearestRayIntersection(SceneObjects, ray, out hit, (s) => { return s is PivotSO; });
+            bool bHitPivot = HUDUtil.FindNearestRayIntersection(VisibleSceneObjects, ray, out hit, (s) => { return s is PivotSO; });
             if (bHitPivot)
                 return true;
-            return HUDUtil.FindNearestRayIntersection(SceneObjects, ray, out hit,
+            return HUDUtil.FindNearestRayIntersection(VisibleSceneObjects, ray, out hit,
                                 (SelectionMask == null) ? filter : mask_filter(filter));
         }
 
@@ -524,7 +531,7 @@ namespace f3
 						bestUIHit = uiHit;
 				}
 			}
-			foreach (var so in vObjects) {
+			foreach (var so in VisibleSceneObjects) {
                 if (!is_selectable(so))
                     continue;
 				SORayHit objHit;
