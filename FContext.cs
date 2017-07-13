@@ -679,7 +679,7 @@ namespace f3 {
 
 
         // remove all scene stuff and reset view to default
-        public void NewScene()
+        public void NewScene(bool bAnimated)
         {
             if (InCameraManipulation)
                 return;     // not supported yet
@@ -691,22 +691,24 @@ namespace f3 {
 
             UniqueNames.Reset();
 
-            ResetView();
+            ResetView(bAnimated);
         }
 
-        public void ResetView()
+        public void ResetView(bool bAnimated)
         {
-            ActiveCamera.Animator().DoActionDuringDipToBlack( () => {
-                    
-            Scene.SetSceneScale(1.0f);
-            ActiveCamera.Manipulator().ResetSceneOrbit(Scene, true, true, true);
-            // [RMS] above should already do this, but sometimes it gets confused..
-            Scene.RootGameObject.SetRotation(Quaternion.identity);
-            ActiveCamera.Manipulator().ResetScenePosition(scene);
-            ActiveCamera.Manipulator().SceneTranslate(Scene, SceneGraphConfig.InitialSceneTranslate, true);
+            Action resetAction = () => {
+                Scene.SetSceneScale(1.0f);
+                ActiveCamera.Manipulator().ResetSceneOrbit(Scene, true, true, true);
+                // [RMS] above should already do this, but sometimes it gets confused..
+                Scene.RootGameObject.SetRotation(Quaternion.identity);
+                ActiveCamera.Manipulator().ResetScenePosition(scene);
+                ActiveCamera.Manipulator().SceneTranslate(Scene, SceneGraphConfig.InitialSceneTranslate, true);
+            };
 
-                }, 0.5f);
-
+            if (bAnimated)
+                ActiveCamera.Animator().DoActionDuringDipToBlack(resetAction, 0.5f);
+            else
+                resetAction();
         }
 
         public void ScaleView(Vector3 vCenterW, float fRadiusW )
