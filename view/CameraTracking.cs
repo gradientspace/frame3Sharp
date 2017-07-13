@@ -212,7 +212,9 @@ namespace f3 {
             target.context = this.controller;
 
             // add camera manipulator to camera
-            mainCamera.AddComponent<CameraManipulator>();
+            // TODO: this does not need to be a monobehavior...
+            var manipulator = mainCamera.AddComponent<CameraManipulator>();
+            manipulator.Camera = mainCamera;
 
 
             // initialize FPlatform

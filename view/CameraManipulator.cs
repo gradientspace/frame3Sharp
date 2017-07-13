@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 using g3;
 
@@ -25,10 +22,7 @@ namespace f3
 
     public class CameraManipulator : MonoBehaviour
     {
-        Camera getCamera()
-        {
-            return gameObject.GetComponent<Camera>();
-        }
+        public fCamera Camera;
 
         // camera stuff
         public float turntableAzimuth = 0;
@@ -37,8 +31,6 @@ namespace f3
         public CameraManipulator()
         {
         }
-
-
 
         public Frame3f SceneGetFrame(FScene scene)
         {
@@ -62,13 +54,13 @@ namespace f3
         }
 
 
-        public void SceneTumble(FScene scene, Camera cam, float dx, float dy)
+        public void SceneTumble(FScene scene, fCamera cam, float dx, float dy)
         {
-            Vector3 up = cam.gameObject.transform.up;
-            Vector3 right = cam.gameObject.transform.right;
+            Vector3f up = cam.Up();
+            Vector3f right = cam.Right();
 
             //Vector3 curOrigin = scene.RootGameObject.transform.position;
-            Vector3 curOrigin = cam.GetTarget();
+            Vector3f curOrigin = cam.GetTarget();
 
             scene.RootGameObject.RotateAroundD(curOrigin, up, dx);
             scene.RootGameObject.RotateAroundD(curOrigin, right, dy);
@@ -77,17 +69,17 @@ namespace f3
 
         public void SceneTumbleAround(FScene scene, Vector3f position, float dx, float dy)
         {
-            Vector3 targetPos = getCamera().GetTarget();
-            getCamera().SetTarget(position);
-            SceneTumble(scene, getCamera(), dx, dy);
-            getCamera().SetTarget(targetPos);
+            Vector3 targetPos = Camera.GetTarget();
+            Camera.SetTarget(position);
+            SceneTumble(scene, Camera, dx, dy);
+            Camera.SetTarget(targetPos);
         }
 
 
-        public void SceneOrbit(FScene scene, Camera cam, float deltaAzimuth, float deltaAltitude, bool bSet = false)
+        public void SceneOrbit(FScene scene, fCamera cam, float deltaAzimuth, float deltaAltitude, bool bSet = false)
         {
-            //Vector3 sceneOrigin = scene.RootGameObject.transform.position;
-            Vector3 rotTarget = cam.GetTarget();
+            //Vector3f sceneOrigin = scene.RootGameObject.transform.position;
+            Vector3f rotTarget = cam.GetTarget();
 
             // [RMS] Orbiting around the Target point is kind of a weird concept when
             //   you are moving the scene and not the camera. Basically we want to rotate
@@ -97,7 +89,7 @@ namespace f3
             //   (???)
 
             Vector3f up = Vector3f.AxisY;
-            Vector3f right = cam.transform.right;
+            Vector3f right = cam.Right();
 
             scene.RootGameObject.RotateAroundD(rotTarget, right, -turntableAltitude);
             scene.RootGameObject.RotateAroundD(rotTarget, up, -turntableAzimuth);
@@ -119,9 +111,9 @@ namespace f3
         public void ResetSceneOrbit(FScene scene, bool bAzimuth, bool bAltitude, bool bApply = true)
         {
             Vector3f up = Vector3f.AxisY;
-            Vector3f right = getCamera().transform.right;
+            Vector3f right = Camera.Right();
 
-            Vector3 rotTarget = getCamera().GetTarget();
+            Vector3f rotTarget = Camera.GetTarget();
             if ( bApply ) {
                 scene.RootGameObject.RotateAroundD(rotTarget, right, -turntableAltitude);
                 scene.RootGameObject.RotateAroundD(rotTarget, up, -turntableAzimuth);
@@ -140,10 +132,10 @@ namespace f3
 
         public void SceneOrbitAround(FScene scene, Vector3f position, float deltaAzimuth, float deltaAltitude)
         {
-            Vector3 targetPos = getCamera().GetTarget();
-            getCamera().SetTarget(position);
-            SceneOrbit(scene, getCamera(), deltaAzimuth, deltaAltitude);
-            getCamera().SetTarget(targetPos);
+            Vector3f targetPos = Camera.GetTarget();
+            Camera.SetTarget(position);
+            SceneOrbit(scene, Camera, deltaAzimuth, deltaAltitude);
+            Camera.SetTarget(targetPos);
         }
 
 
@@ -151,8 +143,8 @@ namespace f3
         public void ResetScenePosition(FScene scene)
         {
             scene.RootGameObject.SetPosition(Vector3f.Zero);
-            Vector3 targetPos = Vector3.zero;
-            getCamera().SetTarget(targetPos);
+            Vector3f targetPos = Vector3f.Zero;
+            Camera.SetTarget(targetPos);
         }
 
 
@@ -173,7 +165,12 @@ namespace f3
             scene.RootGameObject.SetPosition( newPos );
         }
 
-        public void SceneZoom(FScene scene, fCamera cam, float dz)
+
+        /// <summary>
+        /// Shift scene towards (+) / away-from (-) camera. 
+        /// If bKeepTargetPos == false, then target shifts with scene
+        /// </summary>
+        public void SceneZoom(FScene scene, fCamera cam, float dz, bool bKeepTargetPos = true)
         {
             if (dz == 0.0f)
                 return;
@@ -191,7 +188,8 @@ namespace f3
 
             Vector3f delta = dz * fScale * fw;
             scene.RootGameObject.Translate(-delta, false);
-            cam.SetTarget(cam.GetTarget() - delta);
+            if ( bKeepTargetPos )
+                cam.SetTarget(cam.GetTarget() - delta);
         }
 
 
@@ -220,11 +218,11 @@ namespace f3
         public CameraState GetCurrentState(FScene scene)
         {
             CameraState s = new CameraState();
-            s.camPosition = getCamera().transform.position;
-            s.camRotation = getCamera().transform.rotation;
+            s.camPosition = Camera.GetPosition();
+            s.camRotation = Camera.GetRotation();
             s.scenePosition = scene.RootGameObject.GetPosition();
             s.sceneRotation = scene.RootGameObject.GetRotation();
-            s.target = getCamera().GetTarget();
+            s.target = Camera.GetTarget();
             s.turntableAzimuth = turntableAzimuth;
             s.turntableAltitude = turntableAltitude;
             return s;
@@ -235,7 +233,7 @@ namespace f3
         {
             scene.RootGameObject.SetPosition(s.scenePosition);
             scene.RootGameObject.SetRotation(s.sceneRotation);
-            getCamera().SetTarget(s.target);
+            Camera.SetTarget(s.target);
             turntableAzimuth = s.turntableAzimuth;
             turntableAltitude = s.turntableAltitude;
         }
@@ -253,7 +251,7 @@ namespace f3
             public float rampUpRadius;
             public float deadZoneRadius;
             public bool StayLevel;
-            public RateControlInfo(Vector2 startPos)
+            public RateControlInfo(Vector2f startPos)
             {
                 lastTime = FPlatform.RealTime();
                 maxSpeed = 5.0f;
@@ -364,6 +362,13 @@ namespace f3
             Vector3f curScenePos = scene.RootGameObject.GetPosition();
             Vector3f newScenePos = curScenePos - dt * (rc.curSpeedY * up + rc.curSpeedX * right);
             scene.RootGameObject.SetPosition(newScenePos);
+        }
+
+
+        public float FitToViewWidth(float fFitWidth)
+        {
+            double tan_half_hfov = Math.Tan(Camera.HorzFieldOfViewDeg * 0.5 * MathUtil.Deg2Rad);
+            return fFitWidth / (float)tan_half_hfov;
         }
 
 
