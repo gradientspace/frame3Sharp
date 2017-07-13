@@ -139,6 +139,21 @@ namespace f3
         }
 
 
+        public float AspectRatio
+        {
+            get { return camera.aspect; }
+        }
+
+        public float VertFieldOfViewDeg
+        {
+            get { return camera.fieldOfView; }
+        }
+
+        public float HorzFieldOfViewDeg
+        {
+            get { return camera.aspect * camera.fieldOfView; }
+        }
+
 
         public Vector3f GetTarget()
         {

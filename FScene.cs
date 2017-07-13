@@ -437,6 +437,13 @@ namespace f3
 			}
 			return result;
 		}
+        public IEnumerable<T> SceneObjectsOfType<T>() where T : class
+        {
+			foreach ( var so in SceneObjects ) {
+				if (so is T)
+					yield return (so as T);
+			}
+        }
 
 
 
