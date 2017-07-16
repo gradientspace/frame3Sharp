@@ -743,5 +743,31 @@ namespace f3
         }
 
 
+
+
+		/// <summary>
+		/// Find first instance of GameObject by name, including inactive objects (!)
+		/// </summary>
+		public static GameObject FindGameObjectByName(string sName) {
+			GameObject go = GameObject.Find(sName);
+			if (go != null)
+				return go;
+
+			List<GameObject> rootObjects = new List<GameObject>();
+			var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+			scene.GetRootGameObjects(rootObjects);
+
+			// iterate root objects and do something
+			for (int i = 0; i < rootObjects.Count; ++i) {
+				if (rootObjects[i].name == sName)
+					return rootObjects[i];
+
+				GameObject child = rootObjects[i].FindChildByName(sName, true);
+				if (child != null)
+					return child;
+			}
+			return null;
+		}
+
     }
 }
