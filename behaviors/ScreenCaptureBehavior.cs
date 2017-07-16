@@ -45,7 +45,7 @@ namespace f3
                     if (System.IO.File.Exists(sPath))
                         continue;
 
-                    UnityEngine.Application.CaptureScreenshot(sPath, 4);
+                    ScreenCapture.CaptureScreenshot(sPath, 4);
                     DebugUtil.Log(0, "Wrote screenshot " + sPath);
                     bDone = true;
                 }
