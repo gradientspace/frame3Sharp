@@ -114,7 +114,12 @@ namespace f3
             if (iPos == 0)
                 return new Vector2f(0, 0);
 
-            float fWidth = textmesh.textInfo.characterInfo[iPos-1].xAdvance;
+            // [RMS] if we call this after changing text, but before Text component has done an Update(),
+            //   then the results will be nonsense and we may be out-of-bounds on the characterInfo array.
+            //   Not sure what to do about this, so just clamping for now...
+            iPos = MathUtil.Clamp(iPos - 1, 0, textmesh.textInfo.characterInfo.Length-1);
+            float fWidth = textmesh.textInfo.characterInfo[iPos].xAdvance;
+            //float fWidth = textmesh.textInfo.characterInfo[iPos-1].xAdvance;
             fWidth *= textmesh.transform.localScale[0];
             return new Vector2f(fWidth, 0);
 #else
