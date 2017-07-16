@@ -204,43 +204,41 @@ namespace f3
             // use our textmesh material instead
             //MaterialUtil.SetTextMeshDefaultMaterial(tm);
 
-            TextContainer container = textGO.GetComponent<TextContainer>();
-            container.isAutoFitting = true;
-
-            container.anchorPosition = TextContainerAnchors.TopLeft;
+            // convert TextContainerAnchor (which refers to TextContainer, that was deprecated) to
+            // pivot point, which we will set on rectTransform
+            Vector2f pivot = GetTextMeshProPivot(TextContainerAnchors.TopLeft);
             if (textOrigin == BoxPosition.Center) {
-                container.anchorPosition = TextContainerAnchors.Middle;
+                pivot = GetTextMeshProPivot(TextContainerAnchors.Middle);
                 tm.alignment = TextAlignmentOptions.Center;
             } else if (textOrigin == BoxPosition.BottomLeft) {
-                container.anchorPosition = TextContainerAnchors.BottomLeft;
+                pivot = GetTextMeshProPivot(TextContainerAnchors.BottomLeft);
                 tm.alignment = TextAlignmentOptions.BottomLeft;
             } else if (textOrigin == BoxPosition.TopRight) {
-                container.anchorPosition = TextContainerAnchors.TopRight;
+                pivot = GetTextMeshProPivot(TextContainerAnchors.TopRight);
                 tm.alignment = TextAlignmentOptions.TopRight;
             } else if (textOrigin == BoxPosition.BottomRight) {
-                container.anchorPosition = TextContainerAnchors.BottomRight;
+                pivot = GetTextMeshProPivot(TextContainerAnchors.BottomRight);
                 tm.alignment = TextAlignmentOptions.BottomRight;
             } else if (textOrigin == BoxPosition.CenterLeft) {
-                container.anchorPosition = TextContainerAnchors.Left;
+                pivot = GetTextMeshProPivot(TextContainerAnchors.Left);
                 tm.alignment = TextAlignmentOptions.Left;
             } else if (textOrigin == BoxPosition.CenterRight) {
-                container.anchorPosition = TextContainerAnchors.Right;
+                pivot = GetTextMeshProPivot(TextContainerAnchors.Right);
                 tm.alignment = TextAlignmentOptions.Right;
             } else if (textOrigin == BoxPosition.CenterTop) {
-                container.anchorPosition = TextContainerAnchors.Top;
+                pivot = GetTextMeshProPivot(TextContainerAnchors.Top);
                 tm.alignment = TextAlignmentOptions.Top;
             } else if (textOrigin == BoxPosition.CenterBottom) {
-                container.anchorPosition = TextContainerAnchors.Bottom;
+                pivot = GetTextMeshProPivot(TextContainerAnchors.Bottom);
                 tm.alignment = TextAlignmentOptions.Bottom;
             }
+            tm.rectTransform.pivot = pivot;
 
             tm.ForceMeshUpdate();
 
             // set container width and height to just contain text
             AxisAlignedBox3f bounds = tm.bounds;
             Vector2f size = new Vector2f(bounds.Width, bounds.Height);
-            container.width = size.x + 1;
-            container.height = size.y + 1;
 
             // Now we want to scale text to hit our target height, but if we scale by size.y
             // then the scaling will vary by text height (eg "m" will get same height as "My").
@@ -259,7 +257,7 @@ namespace f3
             //tm.transform.localScale = new Vector3f(fScaleH, fScaleH, fScaleH);
             float fTextWidth = tm.GetTextScaleForHeight(fTextHeight) * size.x;
 
-
+            // set rendering queue (?)
             textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
 
             return new fTextGameObject(textGO, new fText(tm, TextType.TextMeshPro),
@@ -301,9 +299,9 @@ namespace f3
             // use our textmesh material instead
             //MaterialUtil.SetTextMeshDefaultMaterial(tm);
 
-            TextContainer container = textGO.GetComponent<TextContainer>();
-            container.isAutoFitting = false;
-            container.anchorPosition = TextContainerAnchors.TopLeft;
+
+            Vector2f pivot = GetTextMeshProPivot(TextContainerAnchors.TopLeft);
+            tm.rectTransform.pivot = pivot;
 
             if ( alignment != HorizontalAlignment.Left ) {
                 throw new NotSupportedException("CreateTextAreaGO: currently only Left-aligned text is supported");
@@ -319,11 +317,8 @@ namespace f3
 
             tm.ForceMeshUpdate();
 
-            // set container width and height to just contain text
             AxisAlignedBox3f bounds = tm.bounds;
             Vector2f size = new Vector2f(bounds.Width, bounds.Height);
-
-
 
             // Now we want to scale text to hit our target height, but if we scale by size.y
             // then the scaling will vary by text height (eg "m" will get same height as "My").
@@ -340,9 +335,8 @@ namespace f3
             tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
             float fTextWidth = fScaleH * size.x;
 
-            // set container size now that we know text scaling factor
-            container.width = areaDimensions.x/fScaleH;
-            container.height = areaDimensions.y/fScaleH;
+            // set container size now that we know text scaling factor (right?)
+            tm.rectTransform.sizeDelta = new Vector2f(areaDimensions.x / fScaleH, areaDimensions.y / fScaleH);
 
 
             // by default text origin is top-left
@@ -367,6 +361,33 @@ namespace f3
 
             return new fTextAreaGameObject(textGO, new fText(tm, TextType.TextMeshPro), areaDimensions);
                 //new Vector2f(fTextWidth, fTextHeight) );
+        }
+
+
+
+        static Vector2f GetTextMeshProPivot(TextContainerAnchors anchor)
+        {
+            switch (anchor) {
+                case TextContainerAnchors.TopLeft:
+                    return new Vector2f(0, 1);
+                case TextContainerAnchors.Top:
+                    return new Vector2f(0.5f, 1);
+                case TextContainerAnchors.TopRight:
+                    return new Vector2f(1, 1);
+                case TextContainerAnchors.Left:
+                    return new Vector2f(0, 0.5f);
+                case TextContainerAnchors.Middle:
+                    return new Vector2f(0.5f, 0.5f);
+                case TextContainerAnchors.Right:
+                    return new Vector2f(1, 0.5f);
+                case TextContainerAnchors.BottomLeft:
+                    return new Vector2f(0, 0);
+                case TextContainerAnchors.Bottom:
+                    return new Vector2f(0.5f, 0);
+                case TextContainerAnchors.BottomRight:
+                    return new Vector2f(1, 0);
+            }
+            return Vector2f.Zero;
         }
 
 

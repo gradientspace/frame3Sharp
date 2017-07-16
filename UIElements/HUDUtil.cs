@@ -189,7 +189,10 @@ namespace f3
                 Text = sText
             };
             message.Create();
-            HUDUtil.PlaceInSphere(message, 0.5f, 0, 0);
+            if ( FPlatform.IsUsingVR() )
+                HUDUtil.PlaceInSphere(message, 0.5f, 0, 0);
+            else
+                HUDUtil.PlaceInSphere(message, 1.5f, 0, 0);
             message.Name = "popup";
             cockpit.AddUIElement(message, true);
             message.OnDismissed += (s, e) => {
