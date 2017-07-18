@@ -97,7 +97,7 @@ namespace f3
         public static FixedBoxModelElement PaddedBounds(IBoxModelElement element, float fPadLeft, float fPadRight, float fPadBottom, float fPadTop)
         {
             AxisAlignedBox2f bounds = element.Bounds2D;
-            bounds.Pad(-fPadLeft, -fPadRight, -fPadBottom, -fPadTop);
+            bounds.Add(-fPadLeft, -fPadRight, -fPadBottom, -fPadTop);
             return new FixedBoxModelElement(bounds);
         }
 
