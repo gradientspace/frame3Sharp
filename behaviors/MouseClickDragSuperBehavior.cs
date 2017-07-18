@@ -23,7 +23,7 @@ namespace f3
         public Func<InputState, bool> ButtonReleasedF = MouseBehaviors.LeftButtonReleasedF;
 
         // how far cursor has to move in pixel-space units to switch from Click to Drag behavior
-        public float DragTolerance = 2.5f;
+        public float DragTolerance = 5.0f;
 
 
         Vector2f mouseDownPos;

@@ -8,10 +8,20 @@ namespace f3
 {
     public abstract class BaseSingleClickTool : ITool
     {
-        protected FScene Scene;
 
+        /// <summary>
+        /// "Normal" click behavior is to apply action on the release of a click, that way you can 
+        /// cancel by mousing off object before releasing. Set this to false to apply action on click-down.
+        /// </summary>
+        public bool ActionOnRelease = true;
+
+
+        // Tool identification that you need to provide
         abstract public string Name { get; }
         abstract public string TypeIdentifier { get; }
+
+
+        protected FScene Scene;
 
 
         InputBehaviorSet behaviors;
@@ -33,6 +43,7 @@ namespace f3
         }
 
         public virtual bool AllowSelectionChanges { get { return false; } }
+
 
         // override this to limit SOs that can be clicked
         virtual public bool ObjectFilter(SceneObject so)
@@ -70,8 +81,6 @@ namespace f3
 
     class BaseSingleClickTool_2DBehavior : Any2DInputBehavior
     {
-        public static float MaxClickMoveDelta = 3.0f;       // in pixels
-
         FContext context;
         Func<SceneObject, bool> ObjectFilterF;
 
@@ -104,6 +113,13 @@ namespace f3
             if (bHit) {
                 clickSO = rayHit.hitSO;
                 vClickDown = ClickPoint(input);
+
+                // if tool wants to apply action on press instead of release, we send it next frame
+                BaseSingleClickTool tool = (context.ToolManager.ActiveRightTool as BaseSingleClickTool);
+                if (tool.ActionOnRelease == false) {
+                    clicked(clickSO, ClickPoint(input), WorldRay(input));
+                }
+
                 return Capture.Begin(this);
             }
             return Capture.Ignore;
@@ -112,21 +128,19 @@ namespace f3
 
         override public Capture UpdateCapture(InputState input, CaptureData data)
         {
+            BaseSingleClickTool tool = (context.ToolManager.ActiveRightTool as BaseSingleClickTool);
             Vector2d vCurPos = ClickPoint(input);
 
             if ( Released(input) ) {
 
-                if (vCurPos.Distance(vClickDown) > MaxClickMoveDelta)
-                    return Capture.End;
+                if (tool.ActionOnRelease) {
+                    SORayHit rayHit;
+                    bool bHit = context.Scene.FindSORayIntersection(WorldRay(input), out rayHit, ObjectFilterF);
+                    if (bHit && rayHit.hitSO == clickSO) {
+                        clicked(clickSO, vCurPos, WorldRay(input));
+                    }
+                }
 
-                SORayHit rayHit;
-                bool bHit = context.Scene.FindSORayIntersection(WorldRay(input), out rayHit, ObjectFilterF);
-                if (bHit == false || rayHit.hitSO != clickSO)
-                    return Capture.End;
-
-                BaseSingleClickTool tool =
-                    (context.ToolManager.ActiveRightTool as BaseSingleClickTool);
-                tool.OnClicked(clickSO, vCurPos, WorldRay(input));
                 return Capture.End;
             } else
                 return Capture.Continue;
@@ -136,6 +150,15 @@ namespace f3
         override public Capture ForceEndCapture(InputState input, CaptureData data)
         {
             return Capture.End;
+        }
+
+
+        protected virtual void clicked(SceneObject clickedSO, Vector2d position, Ray3f worldRay)
+        {
+            BaseSingleClickTool tool = (context.ToolManager.ActiveRightTool as BaseSingleClickTool);
+            context.RegisterNextFrameAction(() => {
+                tool.OnClicked(clickedSO, position, worldRay);
+            });
         }
     }
 
