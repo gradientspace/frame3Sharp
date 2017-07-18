@@ -136,6 +136,11 @@ namespace f3
         }
 
 
+        public void Dismiss()
+        {
+            FUtil.SafeSendEvent(OnDismissed, this, new EventArgs());
+        }
+
 
         void UpdateText()
         {
@@ -194,7 +199,7 @@ namespace f3
         {
             if (FindHitGO(e.ray)) {
                 if (EnableClickToDismiss) {
-                    FUtil.SafeSendEvent(OnDismissed, this, new EventArgs());
+                    Dismiss();
                 } else {
                     // send single-click and reset timer
                     FUtil.SafeSendEvent(OnClicked, this, new EventArgs());
