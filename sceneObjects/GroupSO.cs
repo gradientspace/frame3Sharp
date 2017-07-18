@@ -5,6 +5,15 @@ using g3;
 
 namespace f3
 {
+    /// <summary>
+    /// GroupSO enables hierarchies of Scene Objects. It has no geometry
+    /// itself, but SOs can be added as children, and then transforms to
+    /// the Group apply hierarchically to the children. 
+    /// 
+    /// Note that this adds lots of complications. Generally using Groups
+    /// is not as well-tested as a flat scene of objects. So if you have weird
+    /// bugs, try taking the objects out of the Group and see if it still happens!
+    /// </summary>
     public class GroupSO : TransformableSO, SOCollection, SOParent
     {
         fGameObject parentGO;
@@ -31,6 +40,26 @@ namespace f3
             SelectChildren
         }
         public SelectionModes SelectionMode = SelectionModes.SelectGroup;
+
+
+        /// <summary>
+        /// The GroupSO has its own frame and scaling. By default, when we add a child
+        /// to the Group, we recompute a shared origin point and shift all children
+        /// so that they keep their current positions.
+        /// </summary>
+        public bool EnableSharedOrigin {
+            get { return enable_shared_origin; }
+            set {
+                if (enable_shared_origin != value) {
+                    enable_shared_origin = value;
+                    if (enable_shared_origin == true)
+                        update_shared_origin();
+                }
+            }
+        }
+        bool enable_shared_origin = true;
+
+
 
 
         public GroupSO()
@@ -100,8 +129,16 @@ namespace f3
         }
 
 
+        /// <summary>
+        /// TODO: this is a terrible way to implement this. Each time we reparent
+        /// an SO it accumulates a little bit of numerical drift, because of the
+        /// rotation transformations applied to it. The most immediate way this 
+        /// shows up as a problem is that the localScale can drift away from One!!
+        /// </summary>
         void update_shared_origin()
         {
+            if (enable_shared_origin == false)
+                return;
             if (defer_origin_update)
                 return;
 
