@@ -684,6 +684,13 @@ namespace f3 {
             if (InCameraManipulation)
                 return;     // not supported yet
 
+            // disable tools, because they might refer to active selection
+            if (ToolManager.HasActiveTool(ToolSide.Left))
+                ToolManager.DeactivateTool(ToolSide.Left);
+            if (ToolManager.HasActiveTool(ToolSide.Right))
+                ToolManager.DeactivateTool(ToolSide.Right);
+
+            Scene.ClearSelection();
             Scene.RemoveAllSceneObjects();
             Scene.RemoveAllUIElements();
             Scene.SetCurrentTime(0);
