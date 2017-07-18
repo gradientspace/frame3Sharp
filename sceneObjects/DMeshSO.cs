@@ -87,7 +87,6 @@ namespace f3
             validate_decomp();
         }
 
-
         public void UpdateVertexPositions(Vector3f[] vPositions) {
             if (vPositions.Length < mesh.MaxVertexID)
                 throw new Exception("DMeshSO.UpdateVertexPositions: not enough positions provided!");
@@ -210,6 +209,7 @@ namespace f3
             return copy;
         }
 
+        // [RMS] this is not a good name...
         override public AxisAlignedBox3f GetLocalBoundingBox()
         {
             AxisAlignedBox3f b = (AxisAlignedBox3f)mesh.CachedBounds;
@@ -223,6 +223,39 @@ namespace f3
             enable_shadows = false;
             MaterialUtil.DisableShadows(parentGO, true, true);
         }
+
+
+
+
+        public void RepositionPivot(Frame3f objFrame)
+        {
+            if (Parent is FScene == false)
+                throw new NotSupportedException("DMeshSO.RepositionMeshFrame: have not tested this!");
+
+            Frame3f curFrame = this.GetLocalFrame(CoordSpace.ObjectCoords);
+            bool bNormals = mesh.HasVertexNormals;
+
+            // map vertices to new frame
+            foreach (int vid in mesh.VertexIndices()) {
+                Vector3f v = (Vector3f)mesh.GetVertex(vid);
+                v = curFrame.FromFrameP(v);   // 
+                v = objFrame.ToFrameP(v);
+                mesh.SetVertex(vid, v);
+
+                if ( bNormals ) {
+                    Vector3f n = mesh.GetVertexNormal(vid);
+                    n = curFrame.FromFrameV(n);
+                    n = objFrame.ToFrameV(n);
+                    mesh.SetVertexNormal(vid, n);
+                }
+            }
+
+            // set new object frame
+            SetLocalFrame(objFrame, CoordSpace.ObjectCoords);
+
+            fast_mesh_update();                
+        }
+
 
 
 
