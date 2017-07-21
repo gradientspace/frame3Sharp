@@ -180,15 +180,15 @@ namespace f3
 
 
 
-        public void Hide()
+        public virtual void Hide()
         {
-            go.Hide();
+            SetVisible(false);
         }
-        public void Show()
+        public virtual void Show()
         {
-            go.Show();
+            SetVisible(true);
         }
-        public void SetVisible(bool bVisible)
+        public virtual void SetVisible(bool bVisible)
         {
             go.SetVisible(bVisible);
         }
@@ -198,7 +198,7 @@ namespace f3
         }
 
 
-        public void SetActive(bool bActive)
+        public virtual void SetActive(bool bActive)
         {
             go.SetActive(bActive);
         }
