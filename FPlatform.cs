@@ -66,13 +66,13 @@ namespace f3
 
         // argh unity does not have a window resize event built-in ?!??
         static private int window_width = -1, window_height = -1;
-        static private int startup_height = -1;
+        //static private int startup_height = -1;
         static public bool IsWindowResized()
         {
             if ( window_width == -1 || window_height == -1 ) {
                 window_height = Screen.height;
                 window_width = Screen.width;
-                startup_height = window_height;
+                //startup_height = window_height;
                 return false;
             }
             if ( window_height != Screen.height || window_width != Screen.width ) {

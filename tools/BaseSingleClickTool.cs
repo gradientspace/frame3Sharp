@@ -84,7 +84,7 @@ namespace f3
         FContext context;
         Func<SceneObject, bool> ObjectFilterF;
 
-        Vector2d vClickDown;
+        //Vector2d vClickDown;
         SceneObject clickSO;
 
         public BaseSingleClickTool_2DBehavior(FContext s, Func<SceneObject, bool> filterF )
@@ -112,7 +112,7 @@ namespace f3
             bool bHit = context.Scene.FindSORayIntersection(WorldRay(input), out rayHit, ObjectFilterF);
             if (bHit) {
                 clickSO = rayHit.hitSO;
-                vClickDown = ClickPoint(input);
+                //vClickDown = ClickPoint(input);
 
                 // if tool wants to apply action on press instead of release, we send it next frame
                 BaseSingleClickTool tool = (context.ToolManager.ActiveRightTool as BaseSingleClickTool);

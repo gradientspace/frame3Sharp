@@ -88,6 +88,11 @@ namespace f3
             get { return element.Bounds2D; }
         }
 
+        public virtual void PostOnModified()
+        {
+            FUtil.SafeSendAnyEvent(OnContainerBoundsModified, this);
+        }
+
         // how to fire??
         public event BoundsModifiedEventHandler OnContainerBoundsModified;
     }

@@ -7,7 +7,7 @@ namespace f3
     public class LocalCurvePreview : CurvePreview
     {
         public TransformableSO Target;
-        int target_timestamp;
+        //int target_timestamp;
 
         struct LocalVertexRef
         {
@@ -20,7 +20,7 @@ namespace f3
         {
             Target = targetSurf;
             SurfacePoints = new List<LocalVertexRef>();
-            target_timestamp = Target.Timestamp;
+            //target_timestamp = Target.Timestamp;
         }
 
 
@@ -39,10 +39,11 @@ namespace f3
 
         protected override void update_vertices(FScene s)
         {
+            // [RMS] this was commented out...doesn't work? something?
             //if (Target.Timestamp == target_timestamp)
             //    return;
 
-            target_timestamp = Target.Timestamp;
+            //target_timestamp = Target.Timestamp;
 
             for ( int i = 0; i < VertexCount; ++i ) {
                 LocalVertexRef r = SurfacePoints[i];
