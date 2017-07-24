@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace f3
 {
@@ -37,5 +38,18 @@ namespace f3
 
             return newStr;
         }
+
+
+        public static string BasicAlphaNumericText(string oldStr, string newStr)
+        {
+            string cleanString = Regex.Replace(newStr, @"[^a-zA-Z0-9\-\_]", "");
+            return cleanString;
+        }
+        public static string KeyboardSymbolsText(string oldStr, string newStr)
+        {
+            string cleanString = Regex.Replace(newStr, @"[^a-zA-Z0-9\-\_\,\.\?\*\#\(\)\[\]\<\>\\\/ ]", "");
+            return cleanString;
+        }
     }
+
 }
