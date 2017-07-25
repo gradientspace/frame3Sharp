@@ -100,6 +100,9 @@ namespace f3
                 GameObjectFactory.CreateTextMeshGO(
                 "text", Text, TextColor, TextHeight, horzAlign, SceneGraphConfig.TextLabelZOffset );
 
+            textMesh.TextObject.SetFixedWidth(Shape.Width);
+            textMesh.TextObject.SetOverflowMode(TextOverflowMode.Ellipses);
+
             Vector2f toPos = BoxModel.GetBoxPosition(this, horzAlign);
             BoxModel.Translate(textMesh, Vector2f.Zero, toPos);
 

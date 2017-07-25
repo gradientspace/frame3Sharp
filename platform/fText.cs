@@ -22,6 +22,14 @@ namespace f3
         TextMeshPro
     }
 
+
+
+    public enum TextOverflowMode
+    {
+        Ignore, Truncate, Ellipses, Clipped
+    }
+
+
     public class fText
     {
         object text_component;
@@ -101,6 +109,39 @@ namespace f3
 
 
 
+        public void SetFixedWidth(float fWidth)
+        {
+            switch (eType) {
+                case TextType.UnityTextMesh:
+                    DebugUtil.Log(2,"Unity fText.SetFixedWidth not implemented!");
+                    break;
+
+                case TextType.TextMeshPro:
+#if G3_ENABLE_TEXT_MESH_PRO
+                    (text_component as TextMeshProExt).SetFixedWidth(fWidth);
+#endif
+                    break;
+            }
+        }
+
+
+        public void SetOverflowMode(TextOverflowMode eMode)
+        {
+            switch (eType) {
+                case TextType.UnityTextMesh:
+                    DebugUtil.Log(2,"Unity fText.SetOverflowMode not implemented!");
+                    break;
+
+                case TextType.TextMeshPro:
+#if G3_ENABLE_TEXT_MESH_PRO
+                    (text_component as TextMeshProExt).SetOverflowMode(eMode);
+#endif
+                    break;
+            }
+        }
+
+
+
 
         public Vector2f GetCursorPosition(int iPos)
         {
@@ -172,10 +213,28 @@ namespace f3
             this.transform.localScale = fScaleH * Vector3f.One;
         }
 
+        public void SetFixedWidth(float fWidth)
+        {
+            this.autoSizeTextContainer = false;
+            fWidth /= fontSizeYScale;
+            fWidth /= this.transform.localScale.x;
+            this.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, fWidth);
+        }
+
+        public void SetOverflowMode(TextOverflowMode eMode)
+        {
+            if (this.autoSizeTextContainer == true)
+                throw new Exception("TextMeshProExt.SetOverflowMode: cannot set overflow mode if text container is auto-sized. Call SetFixedWidth first.");
+            if (eMode == TextOverflowMode.Clipped)
+                this.overflowMode = TextOverflowModes.Masking;
+            else if (eMode == TextOverflowMode.Truncate)
+                this.overflowMode = TextOverflowModes.Truncate;
+            else if (eMode == TextOverflowMode.Ellipses)
+                this.overflowMode = TextOverflowModes.Ellipsis;
+            else 
+                this.overflowMode = TextOverflowModes.Overflow;
+        }
     }
-
-
-
 #endif
 
 
