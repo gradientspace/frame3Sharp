@@ -43,6 +43,21 @@ namespace f3
         }
 
 
+        public static LayoutOptions PointToPointSplitXY(IBoxModelElement eFrom, BoxPosition posFrom, 
+                                                        IBoxModelElement eToX, BoxPosition posToX, 
+                                                        IBoxModelElement eToY, BoxPosition posToY, 
+                                                        Vector2f vToDelta, float fShiftZ = 0)
+        {
+            return new LayoutOptions() {
+                Flags = LayoutFlags.None,
+                PinSourcePoint2D = BoxPointF(eFrom, posFrom),
+                PinTargetPoint2D = BoxPointSplitXYF(eToX, posToX, eToY, posToY, vToDelta),
+                DepthShift = fShiftZ
+            }; 
+        }
+
+
+
         public static LayoutOptions PointToPoint(IBoxModelElement eFrom, BoxPosition posFrom, Vector2f vFromDelta, 
                                                  IBoxModelElement eTo, BoxPosition posTo, Vector2f vToDelta, float fShiftZ = 0)
         {
@@ -62,6 +77,19 @@ namespace f3
         public static Func<Vector2f> BoxPointF(IBoxModelElement element, BoxPosition pos) {
             Func<Vector2f> f = () => {
                 return BoxModel.GetBoxPosition(element, pos);
+            };
+            return f;
+        }
+
+
+        /// <summary>
+        /// constructs a Func that returns a 2D point
+        /// </summary>
+        public static Func<Vector2f> BoxPointSplitXYF(IBoxModelElement elementX, BoxPosition posX, IBoxModelElement elementY, BoxPosition posY, Vector2f vDelta) {
+            Func<Vector2f> f = () => {
+                Vector2f x = BoxModel.GetBoxPosition(elementX, posX);
+                Vector2f y = BoxModel.GetBoxPosition(elementY, posY);
+                return new Vector2f(x.x + vDelta.x, y.y + vDelta.y);
             };
             return f;
         }
