@@ -160,7 +160,15 @@ namespace f3
             //   Not sure what to do about this, so just clamping for now...
             iPos = MathUtil.Clamp(iPos - 1, 0, textmesh.textInfo.characterInfo.Length-1);
             float fWidth = textmesh.textInfo.characterInfo[iPos].xAdvance;
-            //float fWidth = textmesh.textInfo.characterInfo[iPos-1].xAdvance;
+
+            // Ugh because of same problem as above, correct xAdvance may not be available on iPos.
+            // Seems like value will be 0 in these cases? If so we can force a mesh update and then
+            // the right values seem to be available
+            if ( fWidth == 0 && iPos > 0) {
+                textmesh.ForceMeshUpdate();
+                fWidth = textmesh.textInfo.characterInfo[iPos].xAdvance;
+            }
+
             fWidth *= textmesh.transform.localScale[0];
             return new Vector2f(fWidth, 0);
 #else
