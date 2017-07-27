@@ -66,7 +66,7 @@ namespace f3
             // this is for children to subclass
         }
 
-        public PolyCurveSO Create(SOMaterial defaultMaterial)
+        public virtual PolyCurveSO Create(SOMaterial defaultMaterial)
         {
             if (curve == null) {
                 LineGenerator gen = new LineGenerator() {
