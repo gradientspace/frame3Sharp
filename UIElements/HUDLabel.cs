@@ -63,7 +63,22 @@ namespace f3
             TextColor = Colorf.VideoBlack;
             DisabledTextColor = Colorf.DimGrey;
             AlignmentHorz = HorizontalAlignment.Left;
-            text = "(entry)";
+            text = "(default)";
+        }
+
+
+        public HUDLabel(IContentBoxStyle boxStyle, ITextElementStyle textStyle)
+        {
+            Shape = boxStyle.ShapeF(boxStyle.Width, boxStyle.Height);
+            BackgroundColor = boxStyle.BackgroundColor;
+            BorderWidth = boxStyle.BorderWidth;
+            BorderColor = boxStyle.BorderColor;
+            EnableBorder = (boxStyle.BorderWidth != 0);
+
+            TextHeight = textStyle.TextHeight;
+            TextColor = textStyle.TextColor;
+            AlignmentHorz = textStyle.AlignmentHorz;
+            text = "(default)";
         }
 
 
