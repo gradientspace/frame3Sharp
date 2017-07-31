@@ -202,7 +202,7 @@ namespace f3
 
         static public void QuitApplication() {
             Cursor.lockState = CursorLockMode.None;
-            GlobalControl.Quit();
+            Application.Quit();
         }
 
 
