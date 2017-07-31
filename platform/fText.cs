@@ -1,5 +1,5 @@
 ﻿//force TMPRo support
-//#define G3_ENABLE_TEXT_MESH_PRO
+//#define F3_ENABLE_TEXT_MESH_PRO
 
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,8 @@ using UnityEngine;
 using g3;
 
 
-#if G3_ENABLE_TEXT_MESH_PRO
+// [RMS] argh. accidentally used G3 here long ago...
+#if G3_ENABLE_TEXT_MESH_PRO || F3_ENABLE_TEXT_MESH_PRO
 using TMPro;
 #endif
 
@@ -48,7 +49,7 @@ namespace f3
                     (text_component as TextMesh).text = text;
                     break;
                 case TextType.TextMeshPro:
-#if G3_ENABLE_TEXT_MESH_PRO
+#if G3_ENABLE_TEXT_MESH_PRO || F3_ENABLE_TEXT_MESH_PRO
                     (text_component as TextMeshPro).text = text;
 #endif
                     break;
@@ -62,7 +63,7 @@ namespace f3
                 case TextType.UnityTextMesh:
                     return (text_component as TextMesh).text;
                 case TextType.TextMeshPro:
-#if G3_ENABLE_TEXT_MESH_PRO
+#if G3_ENABLE_TEXT_MESH_PRO || F3_ENABLE_TEXT_MESH_PRO
                     return (text_component as TextMeshPro).text;
 #else
                     return null;
@@ -78,7 +79,7 @@ namespace f3
                     (text_component as TextMesh).color = color;
                     break;
                 case TextType.TextMeshPro:
-#if G3_ENABLE_TEXT_MESH_PRO
+#if G3_ENABLE_TEXT_MESH_PRO || F3_ENABLE_TEXT_MESH_PRO
                     (text_component as TextMeshPro).color = color;
 #endif
                     break;
@@ -100,7 +101,7 @@ namespace f3
                 break;
 
                 case TextType.TextMeshPro:
-#if G3_ENABLE_TEXT_MESH_PRO
+#if G3_ENABLE_TEXT_MESH_PRO || F3_ENABLE_TEXT_MESH_PRO
                     (text_component as TextMeshProExt).SetTextSizeFromHeight(fNewHeight);
 #endif
                     break;
@@ -117,7 +118,7 @@ namespace f3
                     break;
 
                 case TextType.TextMeshPro:
-#if G3_ENABLE_TEXT_MESH_PRO
+#if G3_ENABLE_TEXT_MESH_PRO || F3_ENABLE_TEXT_MESH_PRO
                     (text_component as TextMeshProExt).SetFixedWidth(fWidth);
 #endif
                     break;
@@ -133,7 +134,7 @@ namespace f3
                     break;
 
                 case TextType.TextMeshPro:
-#if G3_ENABLE_TEXT_MESH_PRO
+#if G3_ENABLE_TEXT_MESH_PRO || F3_ENABLE_TEXT_MESH_PRO
                     (text_component as TextMeshProExt).SetOverflowMode(eMode);
 #endif
                     break;
@@ -149,7 +150,7 @@ namespace f3
             // this might do it: http://answers.unity3d.com/questions/31622/is-it-possible-to-find-the-width-of-a-text-mesh.html
 
 
-#if G3_ENABLE_TEXT_MESH_PRO
+#if G3_ENABLE_TEXT_MESH_PRO || F3_ENABLE_TEXT_MESH_PRO
             TextMeshPro textmesh = (text_component as TextMeshPro);
 
             if (iPos == 0)
@@ -187,7 +188,7 @@ namespace f3
         public float start_alpha = float.MaxValue;
         public override void SetAlphaMultiply(float fT)
         {
-#if G3_ENABLE_TEXT_MESH_PRO            
+#if G3_ENABLE_TEXT_MESH_PRO || F3_ENABLE_TEXT_MESH_PRO
             TextMeshPro tm = this.gameObject.GetComponent<TextMeshPro>();
             if (start_alpha == float.MaxValue)
                 start_alpha = tm.alpha;
@@ -203,7 +204,7 @@ namespace f3
 
 
 
-#if G3_ENABLE_TEXT_MESH_PRO
+#if G3_ENABLE_TEXT_MESH_PRO || F3_ENABLE_TEXT_MESH_PRO
     public class TextMeshProExt : TextMeshPro
     {
         // [RMS] this is a magic number we compute in CreateTextMeshProGO
@@ -257,7 +258,7 @@ namespace f3
 
     public static class TextMeshProUtil
     {
-#if G3_ENABLE_TEXT_MESH_PRO
+#if G3_ENABLE_TEXT_MESH_PRO || F3_ENABLE_TEXT_MESH_PRO
         public static bool HaveTextMeshPro { get { return true; } }
 
         // [TODO] currently only allows for left-justified text.
@@ -281,6 +282,7 @@ namespace f3
             // ignore material changes when we add to GameObjectSet
             textGO.AddComponent<IgnoreMaterialChanges>();
             textGO.AddComponent<TextMeshProAlphaMultiply>();
+
             // use our textmesh material instead
             //MaterialUtil.SetTextMeshDefaultMaterial(tm);
 
@@ -440,7 +442,7 @@ namespace f3
             BoxPosition textOrigin = BoxPosition.Center, 
             float fOffsetZ = -0.01f)
         {
-            throw new NotImplementedException("you need to #define G3_ENABLE_TEXT_MESH_PRO to use TextMeshPro (!)");
+            throw new NotImplementedException("you need to #define F3_ENABLE_TEXT_MESH_PRO to use TextMeshPro (!)");
         }
 
 
@@ -452,7 +454,7 @@ namespace f3
             BoxPosition textOrigin = BoxPosition.Center,
             float fOffsetZ = -0.01f)
         {
-            throw new NotImplementedException("you need to #define G3_ENABLE_TEXT_MESH_PRO to use TextMeshPro (!)");
+            throw new NotImplementedException("you need to #define F3_ENABLE_TEXT_MESH_PRO to use TextMeshPro (!)");
         }
 
 #endif
