@@ -228,12 +228,6 @@ namespace f3 {
             if (options.EnableCockpit) 
                 ActiveCockpit.Update();
 
-            // hardcoded Q key quits app
-            if (Input.GetKeyUp(KeyCode.Q)) {
-                Cursor.lockState = CursorLockMode.None;
-                GlobalControl.Quit();
-            }
-
             // run per-frame actions
             Action execActions = null;
             lock (nextFrameActions) {

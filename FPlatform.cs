@@ -200,6 +200,14 @@ namespace f3
 
 
 
+        static public void QuitApplication() {
+            Cursor.lockState = CursorLockMode.None;
+            GlobalControl.Quit();
+        }
+
+
+
+
 
         static public bool ShowingExternalPopup = false;
 
