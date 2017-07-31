@@ -122,7 +122,12 @@ namespace f3
 
 		override public bool EndCapture (InputEvent e)
 		{
-			if (IsGOHit (e.ray, buttonMesh)) {
+            if (Parent == null) {
+                DebugUtil.Log(2, "HUDToggleButton.EndCapture: our parent went invalid while we were capturing!");
+                return true;
+            }
+
+            if (IsGOHit (e.ray, buttonMesh)) {
                 // this is a bit hacky...if we are in a group, then we only toggle disabled -> enabled on click,
                 // not enabled->disabled
                 if ( parentGroup != null) {

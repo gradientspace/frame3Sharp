@@ -169,7 +169,12 @@ namespace f3
 
 		override public bool EndCapture (InputEvent e)
 		{
-			if (FindHitGO(e.ray)) {
+            if (Parent == null) {
+                DebugUtil.Log(2, "HUDButton.EndCapture: our parent went invalid while we were capturing!");
+                return true;
+            }
+
+            if (FindHitGO(e.ray)) {
 
                 if (sent_click == false) {
                     // on first click we reset timer

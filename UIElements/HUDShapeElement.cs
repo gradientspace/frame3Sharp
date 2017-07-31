@@ -131,6 +131,11 @@ namespace f3
 
         override public bool EndCapture(InputEvent e)
         {
+            if (Parent == null) {
+                DebugUtil.Log(2, "HUDShapeElement.EndCapture: our parent went invalid while we were capturing!");
+                return true;
+            }
+
             if (FindHitGO(e.ray)) {
 
                 if (sent_click == false) {
