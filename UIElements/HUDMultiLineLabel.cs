@@ -67,6 +67,34 @@ namespace f3
         }
 
 
+        public HUDMultiLineLabel(float width, float height, ITextElementStyle textStyle) {
+            Shape = new HUDShape(HUDShapeType.Rectangle, width, height);
+            BackgroundColor = Colorf.TransparentBlack;
+            BorderWidth = 0;
+            BorderColor = Colorf.TransparentBlack;
+            EnableBorder = false;
+
+            TextHeight = textStyle.TextHeight;
+            TextColor = textStyle.TextColor;
+            AlignmentHorz = textStyle.AlignmentHorz;
+            text = "(default)";
+        }
+
+
+        public HUDMultiLineLabel(IContentBoxStyle boxStyle, ITextElementStyle textStyle) {
+            Shape = boxStyle.ShapeF(boxStyle.Width, boxStyle.Height);
+            BackgroundColor = boxStyle.BackgroundColor;
+            BorderWidth = boxStyle.BorderWidth;
+            BorderColor = boxStyle.BorderColor;
+            EnableBorder = (boxStyle.BorderWidth != 0);
+
+            TextHeight = textStyle.TextHeight;
+            TextColor = textStyle.TextColor;
+            AlignmentHorz = textStyle.AlignmentHorz;
+            text = "(default)";
+        }
+
+
         // creates a button in the desired geometry shape
         public void Create()
         {

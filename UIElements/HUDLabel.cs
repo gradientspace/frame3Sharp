@@ -67,6 +67,21 @@ namespace f3
         }
 
 
+        public HUDLabel(float width, float height, ITextElementStyle textStyle) 
+        {
+            Shape = new HUDShape(HUDShapeType.Rectangle, width, height);
+            BackgroundColor = Colorf.TransparentBlack;
+            BorderWidth = 0;
+            BorderColor = Colorf.TransparentBlack;
+            EnableBorder = false;
+
+            TextHeight = textStyle.TextHeight;
+            TextColor = textStyle.TextColor;
+            AlignmentHorz = textStyle.AlignmentHorz;
+            text = "(default)";
+        }
+
+
         public HUDLabel(IContentBoxStyle boxStyle, ITextElementStyle textStyle)
         {
             Shape = boxStyle.ShapeF(boxStyle.Width, boxStyle.Height);

@@ -9,6 +9,9 @@ namespace f3
     /// <summary>
     /// Basic popup message box. 
     /// Note that most fields must be configured before calling Create()
+    /// 
+    /// TODO: refactor this to be based on HUDPanel, like HUDPopupDialog
+    /// 
     /// </summary>
     public class HUDPopupMessage : HUDStandardItem, IBoxModelElement
     {

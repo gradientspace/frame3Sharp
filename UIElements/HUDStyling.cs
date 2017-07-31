@@ -25,6 +25,28 @@ namespace f3
 
 
 
+    public class HUDContentBoxStyle : IContentBoxStyle
+    {
+        public Func<float, float, HUDShape> ShapeF { get; set; }
+        public float Height { get; set; }
+        public float Width { get; set; }
+
+        public Colorf BackgroundColor { get; set; }
+
+        public float BorderWidth { get; set; }
+        public Colorf BorderColor { get; set; }
+
+        public HUDContentBoxStyle() {
+            ShapeF = HUDUIDefaults.MakeStandardButtonShapeF;
+            Width = 1.0f * HUDUIDefaults.UIScale;
+            Height = 0.2f * HUDUIDefaults.UIScale;
+            BackgroundColor = Colorf.Silver;
+            BorderWidth = 0.05f * HUDUIDefaults.UIScale;
+            BorderColor = Colorf.DimGrey;
+        }
+    }
+
+
     public class HUDLabelStyle : ITextElementStyle
     {
         public Colorf TextColor { get; set; }
@@ -39,30 +61,15 @@ namespace f3
     }
 
 
-    public class HUDButtonStyle : IContentBoxStyle, ITextElementStyle
+
+    public class HUDButtonStyle : HUDContentBoxStyle, ITextElementStyle
     {
-        // IContentBoxStyle
-        public Func<float, float, HUDShape> ShapeF { get; set; }
-        public float Height { get; set; }
-        public float Width { get; set; }
-
-        public Colorf BackgroundColor { get; set; }
-
-        public float BorderWidth { get; set; }
-        public Colorf BorderColor { get; set; }
-
         // ITextElementStyle
         public Colorf TextColor { get; set; }
         public float TextHeight { get; set; }
         public HorizontalAlignment AlignmentHorz { get; set; }
 
-        public HUDButtonStyle() {
-            ShapeF = HUDUIDefaults.MakeStandardButtonShapeF;
-            Width = 1.0f * HUDUIDefaults.UIScale;
-            Height = 0.2f * HUDUIDefaults.UIScale;
-            BackgroundColor = Colorf.Silver;
-            BorderWidth = 0.05f * HUDUIDefaults.UIScale;
-            BorderColor = Colorf.DimGrey;
+        public HUDButtonStyle() : base() {
             TextColor = Colorf.VideoBlack;
             TextHeight = 0.15f * HUDUIDefaults.UIScale;
             AlignmentHorz = HorizontalAlignment.Center;

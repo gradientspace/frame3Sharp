@@ -92,14 +92,12 @@ namespace f3
 
 
 
-        public override void Create()
-        {
+        public override void Create() {
             base.Create();
 
             HUDElementLayout layout = new HUDElementLayout(this, new HUDPanelContentBox(this), this.Children);
             float fZ = -0.01f * Width;
-            //Vector2f vertFieldOffset = -FieldSpacing * Vector2f.AxisY;
-            //Vector2f horzFieldOffset = FieldSpacing * Vector2f.AxisX;
+            Vector2f vertFieldOffset = -this.Padding * Vector2f.AxisY;
 
             background = new HUDShapeElement() {
                 Shape = BackgroundShapeF(this.Width, this.Height),
@@ -112,15 +110,9 @@ namespace f3
                 PinTargetPoint2D = LayoutUtil.BoxPointF(layout.BoxElement, BoxPosition.Center)
             });
 
-            
-            header_label = new HUDLabel() {
-                Shape = new HUDShape(HUDShapeType.Rectangle, this.PaddedWidth, HeaderStyle.TextHeight),
-                TextHeight = HeaderStyle.TextHeight,
-                BackgroundColor = Colorf.TransparentBlack,
-                TextColor = HeaderStyle.TextColor,
-                AlignmentHorz = HeaderStyle.AlignmentHorz,
-                Text = TitleText
-            };
+
+            header_label = new HUDLabel(this.PaddedWidth, HeaderStyle.TextHeight, HeaderStyle)
+                { Text = TitleText };
             header_label.Create();
             header_label.Name = "header_label";
             BoxPosition headerBoxPos = BoxModel.ToPosition(HeaderStyle.AlignmentHorz, VerticalAlignment.Top);
@@ -129,21 +121,13 @@ namespace f3
 
 
             float message_height = this.PaddedHeight - HeaderStyle.TextHeight - ButtonStyle.Height;
-
-
-            message_area = new HUDMultiLineLabel() {
-                Shape = new HUDShape(HUDShapeType.Rectangle, this.PaddedWidth, message_height),
-                TextHeight = MessageStyle.TextHeight,
-                BackgroundColor = Colorf.TransparentBlack,
-                TextColor = MessageStyle.TextColor,
-                AlignmentHorz = MessageStyle.AlignmentHorz,
-                Text = this.MessageText
-            };
+            message_area = new HUDMultiLineLabel(this.PaddedWidth, message_height, MessageStyle) 
+                { Text = MessageText };
             message_area.Create();
             message_area.Name = "message_area";
             BoxPosition messageAreaBoxPos = BoxModel.ToPosition(MessageStyle.AlignmentHorz, VerticalAlignment.Top);
             layout.Add(message_area, 
-                LayoutUtil.PointToPoint(message_area, messageAreaBoxPos, header_label, BoxModel.ToBottom(headerBoxPos), fZ) );
+                LayoutUtil.PointToPoint(message_area, messageAreaBoxPos, header_label, BoxModel.ToBottom(headerBoxPos), vertFieldOffset, fZ) );
 
 
             IBoxModelElement prev = layout.BoxElement;
