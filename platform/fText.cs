@@ -223,10 +223,18 @@ namespace f3
 
         public void SetFixedWidth(float fWidth)
         {
-            this.autoSizeTextContainer = false;
-            fWidth /= fontSizeYScale;
+            if (this.autoSizeTextContainer == true)
+                this.autoSizeTextContainer = false;
             fWidth /= this.transform.localScale.x;
             this.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, fWidth);
+        }
+
+        public void SetFixedHeight(float fHeight)
+        {
+            if (this.autoSizeTextContainer == true )
+                this.autoSizeTextContainer = false;
+            fHeight /= this.transform.localScale.y;
+            this.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, fHeight);
         }
 
         public void SetOverflowMode(TextOverflowMode eMode)
@@ -308,25 +316,12 @@ namespace f3
 
             tm.ForceMeshUpdate();
 
-            // set container width and height to just contain text
+            // read out bounds so we can know size (does this matter? why does fTextGO have size field?)
             AxisAlignedBox3f bounds = tm.bounds;
             Vector2f size = new Vector2f(bounds.Width, bounds.Height);
 
-            // Now we want to scale text to hit our target height, but if we scale by size.y
-            // then the scaling will vary by text height (eg "m" will get same height as "My").
-            // However: 1) size.y varies with tm.fontSize, but it's not clear how. 
-            //          2) fontInfo.LineHeight tells us the height we want but doesn't change w/ tm.fontSize
-            // I tried a few values and the relationship is linear. It is in the ballpark
-            // of just being 10x...actually closer to 11x. No other values in fontInfo have a nice
-            // round-number relationship. But this value is probably font-dependent!!
-            float t = tm.fontSize / tm.font.fontInfo.LineHeight;
-            float magic_k = 10.929f;        // [RMS] solve-for-x given a few different fontSize values
-            float font_size_y = magic_k * t;
-
-            tm.fontSizeYScale = 1 / font_size_y;
+            tm.fontSizeYScale = GetYScale(tm);
             tm.SetTextSizeFromHeight(fTextHeight);
-            //float fScaleH = fTextHeight / font_size_y;
-            //tm.transform.localScale = new Vector3f(fScaleH, fScaleH, fScaleH);
             float fTextWidth = tm.GetTextScaleForHeight(fTextHeight) * size.x;
 
             // set rendering queue (?)
@@ -346,11 +341,11 @@ namespace f3
             Colorf textColor, float fTextHeight, 
             Vector2f areaDimensions,
             HorizontalAlignment alignment = HorizontalAlignment.Left,
-            BoxPosition textOrigin = BoxPosition.Center,
+            BoxPosition textOrigin = BoxPosition.TopLeft,
             float fOffsetZ = -0.01f)
         {
             GameObject textGO = new GameObject(sName);
-            TextMeshPro tm = textGO.AddComponent<TextMeshPro>();
+            TextMeshProExt tm = textGO.AddComponent<TextMeshProExt>();
             //tm.isOrthographic = false;
             switch ( alignment ) {
                 case HorizontalAlignment.Left:
@@ -371,68 +366,41 @@ namespace f3
             // use our textmesh material instead
             //MaterialUtil.SetTextMeshDefaultMaterial(tm);
 
-
+            // convert TextContainerAnchor (which refers to TextContainer, that was deprecated) to
+            // pivot point, which we will set on rectTransform
             Vector2f pivot = GetTextMeshProPivot(TextContainerAnchors.TopLeft);
+            if (textOrigin != BoxPosition.TopLeft)
+                throw new Exception("fTextAreaGameObject: only TopLeft text origin is supported?");
             tm.rectTransform.pivot = pivot;
-
-            if ( alignment != HorizontalAlignment.Left ) {
-                throw new NotSupportedException("CreateTextAreaGO: currently only Left-aligned text is supported");
-            }
-            //switch ( alignment ) {
-            //    case HorizontalAlignment.Left:
-            //        container.anchorPosition = TextContainerAnchors.TopLeft; break;
-            //    case HorizontalAlignment.Center:
-            //        container.anchorPosition = TextContainerAnchors.Middle; break;
-            //    case HorizontalAlignment.Right:
-            //        container.anchorPosition = TextContainerAnchors.TopRight; break;
-            //}
 
             tm.ForceMeshUpdate();
 
-            AxisAlignedBox3f bounds = tm.bounds;
-            Vector2f size = new Vector2f(bounds.Width, bounds.Height);
+            tm.fontSizeYScale = GetYScale(tm);
+            tm.SetTextSizeFromHeight(fTextHeight);
 
-            // Now we want to scale text to hit our target height, but if we scale by size.y
+            tm.SetFixedWidth(areaDimensions.x);
+            tm.SetFixedHeight(areaDimensions.y);
+            
+            textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
+
+            return new fTextAreaGameObject(textGO, new fText(tm, TextType.TextMeshPro), areaDimensions);
+        }
+
+
+        public static float GetYScale(TextMeshPro tm)
+        {
+            // We want to scale text to hit our target height, but if we scale by size.y
             // then the scaling will vary by text height (eg "m" will get same height as "My").
             // However: 1) size.y varies with tm.fontSize, but it's not clear how. 
             //          2) fontInfo.LineHeight tells us the height we want but doesn't change w/ tm.fontSize
             // I tried a few values and the relationship is linear. It is in the ballpark
             // of just being 10x...actually closer to 11x. No other values in fontInfo have a nice
             // round-number relationship. But this value is probably font-dependent!!
+
             float t = tm.fontSize / tm.font.fontInfo.LineHeight;
             float magic_k = 10.929f;        // [RMS] solve-for-x given a few different fontSize values
             float font_size_y = magic_k * t;
-            float fScaleH = fTextHeight / font_size_y;
-
-            tm.transform.localScale = new Vector3(fScaleH, fScaleH, fScaleH);
-            float fTextWidth = fScaleH * size.x;
-
-            // set container size now that we know text scaling factor (right?)
-            tm.rectTransform.sizeDelta = new Vector2f(areaDimensions.x / fScaleH, areaDimensions.y / fScaleH);
-
-
-            // by default text origin is top-left
-            if ( textOrigin == BoxPosition.Center )
-                tm.transform.Translate(-fTextWidth / 2.0f, fTextHeight / 2.0f, fOffsetZ);
-            else if ( textOrigin == BoxPosition.BottomLeft )
-                tm.transform.Translate(0, fTextHeight, fOffsetZ);
-            else if ( textOrigin == BoxPosition.TopRight )
-                tm.transform.Translate(-fTextWidth, 0, fOffsetZ);
-            else if ( textOrigin == BoxPosition.BottomRight )
-                tm.transform.Translate(-fTextWidth, fTextHeight, fOffsetZ);
-            else if ( textOrigin == BoxPosition.CenterLeft )
-                tm.transform.Translate(0, fTextHeight/2.0f, fOffsetZ);
-            else if ( textOrigin == BoxPosition.CenterRight )
-                tm.transform.Translate(-fTextWidth, fTextHeight/2.0f, fOffsetZ);
-            else if ( textOrigin == BoxPosition.CenterTop )
-                tm.transform.Translate(-fTextWidth / 2.0f, 0, fOffsetZ);
-            else if ( textOrigin == BoxPosition.CenterBottom )
-                tm.transform.Translate(-fTextWidth / 2.0f, fTextHeight, fOffsetZ);
-
-            textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
-
-            return new fTextAreaGameObject(textGO, new fText(tm, TextType.TextMeshPro), areaDimensions);
-                //new Vector2f(fTextWidth, fTextHeight) );
+            return 1.0f / font_size_y;
         }
 
 
