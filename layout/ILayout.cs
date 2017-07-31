@@ -32,7 +32,7 @@ namespace f3
         public Func<Vector2f> PinSourcePoint2D;
         public Func<Vector2f> PinTargetPoint2D;
 
-        // distance UI element is shifted in/out of standard UI plane/surface
+        // distance UI element is shifted in/out of standard UI plane/surface (negative is toward camera)
         public float DepthShift = 0;
     }
 

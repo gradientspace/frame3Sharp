@@ -198,8 +198,6 @@ namespace f3
         }
 
 
-
-
         public static BoxPosition ToPosition(HorizontalAlignment h, VerticalAlignment v)
         {
             switch (h) {
@@ -229,6 +227,29 @@ namespace f3
             }
             // shouldn't be able to get here...
             throw new Exception("BoxModel.ToPosition: unknown combination??");
+        }
+
+
+        public static BoxPosition ToBottom(BoxPosition p)
+        {
+            if (p == BoxPosition.TopLeft || p == BoxPosition.CenterLeft)
+                return BoxPosition.BottomLeft;
+            else if (p == BoxPosition.CenterTop || p == BoxPosition.Center)
+                return BoxPosition.CenterBottom;
+            else if (p == BoxPosition.TopRight || p == BoxPosition.CenterRight)
+                return BoxPosition.BottomRight;
+            return p;
+        }
+
+        public static BoxPosition ToTop(BoxPosition p)
+        {
+            if (p == BoxPosition.BottomLeft || p == BoxPosition.CenterLeft)
+                return BoxPosition.TopLeft;
+            else if (p == BoxPosition.CenterBottom || p == BoxPosition.Center)
+                return BoxPosition.CenterTop;
+            else if (p == BoxPosition.BottomRight || p == BoxPosition.CenterRight)
+                return BoxPosition.TopRight;
+            return p;
         }
 
 

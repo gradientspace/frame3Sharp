@@ -45,7 +45,6 @@ namespace f3
 
 
 
-        public enum HorizontalAlignment { Left, Center, Right }
         public HorizontalAlignment AlignmentHorz { get; set; }
 
         string text;
