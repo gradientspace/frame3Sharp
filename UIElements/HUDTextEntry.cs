@@ -18,7 +18,6 @@ namespace f3
         public Colorf BackgroundColor { get; set; }
         public Colorf ActiveBackgroundColor { get; set; }
 
-        public enum HorizontalAlignment { Left, Center, Right }
         public HorizontalAlignment AlignmentHorz { get; set; }
 
         // by default HUDTextEntry will capture text input on click (via Context.RequestTextEntry)
