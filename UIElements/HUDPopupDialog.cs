@@ -96,12 +96,12 @@ namespace f3
             base.Create();
 
             HUDElementLayout layout = new HUDElementLayout(this, new HUDPanelContentBox(this), this.Children);
-            float fZ = -0.01f * Width;
+            float fZ = -0.01f;
             Vector2f vertFieldOffset = -this.Padding * Vector2f.AxisY;
 
             background = new HUDShapeElement() {
                 Shape = BackgroundShapeF(this.Width, this.Height),
-                Color = this.BackgroundColor
+                Color = this.BackgroundColor, IsInteractive = false
             };
             background.Create();
             background.Name = "background";
@@ -112,7 +112,7 @@ namespace f3
 
 
             header_label = new HUDLabel(this.PaddedWidth, HeaderStyle.TextHeight, HeaderStyle)
-                { Text = TitleText };
+                { Text = TitleText, IsInteractive = false };
             header_label.Create();
             header_label.Name = "header_label";
             BoxPosition headerBoxPos = BoxModel.ToPosition(HeaderStyle.AlignmentHorz, VerticalAlignment.Top);
@@ -122,7 +122,7 @@ namespace f3
 
             float message_height = this.PaddedHeight - HeaderStyle.TextHeight - ButtonStyle.Height;
             message_area = new HUDMultiLineLabel(this.PaddedWidth, message_height, MessageStyle) 
-                { Text = MessageText };
+                { Text = MessageText, IsInteractive = false };
             message_area.Create();
             message_area.Name = "message_area";
             BoxPosition messageAreaBoxPos = BoxModel.ToPosition(MessageStyle.AlignmentHorz, VerticalAlignment.Top);
