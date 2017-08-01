@@ -14,7 +14,17 @@ namespace f3
     }
 
 
-
+    /// <summary>
+    /// HUDChildren stores/manipulates a set of child SceneUIElements. The idea is that
+    /// instead of storing the List in a widget itself (eg like a HUDPanel), this class
+    /// provides a more structured component, that can be passed to other objects. The
+    /// parent listens to the OnChildAdded/OnChildRemoved events to find out about 
+    /// modifications to the list.
+    /// 
+    /// This allows us to, for example, pass the HUDChildren to layout classes like
+    /// HUDElementLayout. Then we can add widgets to the Layout, which will then
+    /// add to the HUDChildren, and the parent widget hear about the changes via the events.
+    /// </summary>
     public class HUDChildren : IChildren<SceneUIElement>
     {
         SceneUIParent Parent;

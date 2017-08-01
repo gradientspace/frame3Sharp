@@ -59,6 +59,7 @@ namespace f3
         public event EventHandler OnDisconnected;
 
         public bool IsVisible { get { return true; } set { } }
+        public bool IsInteractive { get { return false; } set { } }
         public void SetLayer(int nLayer) { }
 
         // called on per-frame Update()

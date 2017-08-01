@@ -20,6 +20,7 @@ namespace f3
         SceneUIParent parent;
         //SceneUIElement pCapturing;
         //SceneUIElement pHovering;
+        bool is_interactive = true;
 
         public HUDCollection()
         {
@@ -122,6 +123,10 @@ namespace f3
             }
         }
 
+        public virtual bool IsInteractive {
+            get { return is_interactive; }
+            set { is_interactive = value; }
+        }
 
         public void SetLayer(int nLayer)
         {
@@ -139,6 +144,10 @@ namespace f3
 
         public bool FindRayIntersection(Ray3f ray, out UIRayHit hit)
         {
+            if (is_interactive == false) {
+                hit = null;
+                return false;
+            }
             return HUDUtil.FindNearestRayIntersection(Children, ray, out hit);
         }
 
@@ -166,6 +175,8 @@ namespace f3
         public bool EnableHover
         {
             get {
+                if (is_interactive == false)
+                    return false;
                 foreach (var ui in Children)
                     if (ui.EnableHover)
                         return true;
@@ -176,6 +187,10 @@ namespace f3
 
         public bool FindHoverRayIntersection(Ray3f ray, out UIRayHit hit)
         {
+            if (is_interactive == false) {
+                hit = null;
+                return false;
+            }
             return HUDUtil.FindNearestHoverRayIntersection(Children, ray, out hit);
         }
 

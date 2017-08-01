@@ -43,6 +43,8 @@ namespace f3
         Standard3DWidget activeWidget;
         Standard3DWidget hoverWidget;
 
+        bool is_interactive = true;
+
         Material xMaterial, yMaterial, zMaterial;
         Material xHoverMaterial, yHoverMaterial, zHoverMaterial;
         Material allMaterial, allHoverMaterial;
@@ -141,6 +143,11 @@ namespace f3
         public virtual bool IsVisible {
             get { return RootGameObject.IsVisible(); }
             set { RootGameObject.SetVisible(value);}
+        }
+
+        public virtual bool IsInteractive {
+            get { return is_interactive; }
+            set { is_interactive = value; }
         }
 
         // [TODO] why isn't this in GameObjectSet?
@@ -362,7 +369,7 @@ namespace f3
 		{
 			hit = null;
 			GameObjectRayHit hitg = null;
-			if (FindGORayIntersection (ray, out hitg)) {
+			if (is_interactive && FindGORayIntersection(ray, out hitg)) {
 				if (hitg.hitGO != null) {
 					hit = new UIRayHit (hitg, this);
 					return true;
@@ -435,7 +442,7 @@ namespace f3
 
         public virtual bool EnableHover
         {
-            get { return true; }
+            get { return is_interactive; }
         }
         public virtual void UpdateHover(Ray3f ray, UIRayHit hit)
         {

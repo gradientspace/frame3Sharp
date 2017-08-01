@@ -10,6 +10,7 @@ namespace f3
         float _alphaFade = 1.0f;
         SceneUIParent parent;
         bool enabled = true;
+        bool is_interactive = true;
 
         /// <summary>
         /// Any Action added to this set will be called every frame, during PreRender().
@@ -94,6 +95,12 @@ namespace f3
             }
         }
 
+
+        public virtual bool IsInteractive {
+            get { return is_interactive; }
+            set { is_interactive = value; }
+        }
+
         public virtual void SetLayer(int nLayer)
         {
             RootGameObject.SetLayer(nLayer);
@@ -115,7 +122,7 @@ namespace f3
         public virtual bool FindRayIntersection(Ray3f ray, out UIRayHit hit)
 		{
             hit = null;
-            if (Enabled == false)
+            if (Enabled == false || IsInteractive == false)
                 return false;
 
 			GameObjectRayHit hitg = null;
@@ -132,9 +139,8 @@ namespace f3
         public virtual bool FindHoverRayIntersection(Ray3f ray, out UIRayHit hit)
         {
             hit = null;
-            if (Enabled == false)
+            if (Enabled == false || IsInteractive == false)
                 return false;
-
             if (EnableHover == false)
                 return false;
 
