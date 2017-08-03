@@ -160,8 +160,6 @@ namespace f3
 
 
 
-
-
         /// <summary>
         /// input dimension is in Object (local) coords of so, apply all intermediate 
         /// transform scaling to get it to Scene coords
@@ -224,6 +222,37 @@ namespace f3
         public static Vector3d ObjectToScene(TransformableSO so, Vector3d scenePt)
         {
             return (Vector3d)ObjectToScene(so, (Vector3f)scenePt);
+        }
+
+
+
+
+
+        /// <summary>
+        /// convert input sceneF in Scene to World
+        /// </summary>
+        public static Frame3f SceneToWorld(FScene scene, Frame3f sceneF) {
+            return scene.ToWorldFrame(sceneF);
+        }
+        public static Vector3f SceneToWorld(FScene scene, Vector3f scenePt) {
+            return scene.ToWorldP(scenePt);
+        }
+        public static Vector3d SceneToWorld(FScene scene, Vector3d scenePt) {
+            return scene.ToWorldP(scenePt);
+        }
+
+
+        /// <summary>
+        /// convert input sceneF in World into Scene
+        /// </summary>
+        public static Frame3f WorldToScene(FScene scene, Frame3f sceneF) {
+            return scene.ToSceneFrame(sceneF);
+        }
+        public static Vector3f WorldToScene(FScene scene, Vector3f scenePt) {
+            return scene.ToSceneP(scenePt);
+        }
+        public static Vector3d WorldToScene(FScene scene, Vector3d scenePt) {
+            return scene.ToSceneP(scenePt);
         }
 
 

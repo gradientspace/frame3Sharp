@@ -168,6 +168,13 @@ namespace f3
                 SendOnToolActivationChanged(tool, eSide, false);
             }
         }
+        public void DeactivateTools()
+        {
+            if (activeTool[0] != null)
+                DeactivateTool(0);
+            if (activeTool[1] != null)
+                DeactivateTool(1);
+        }
 
 
         public event ToolActivationChangedEvent OnToolActivationChanged;
