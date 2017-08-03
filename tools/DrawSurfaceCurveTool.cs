@@ -11,29 +11,38 @@ namespace f3
     {
         public float DefaultSamplingRate = 0.25f;
         public float DefaultSurfaceOffset = 0.05f;
+        public float DefaultCloseThreshold = 2.5f;
         public bool Closed = false;
         public bool IsOverlayCurve = false;
         public bool AttachCurveToSurface = false;
         public Func<SOMaterial> CurveMaterialF = null;
         public Action<CurvePreview> EmitNewCurveF = null;
+        public DrawSurfaceCurveTool.DrawMode InputMode = DrawSurfaceCurveTool.DrawMode.Continuous;
 
         public bool IsSupported(ToolTargetType type, List<SceneObject> targets)
         {
-            return (type == ToolTargetType.SingleObject && targets[0].IsSurface);
+            return (type == ToolTargetType.SingleObject && targets[0] is TransformableSO && targets[0].IsSurface);
         }
 
-        public ITool Build(FScene scene, List<SceneObject> targets)
+        public virtual ITool Build(FScene scene, List<SceneObject> targets)
         {
-            DrawSurfaceCurveTool tool = new DrawSurfaceCurveTool(scene, targets[0]);
+            DrawSurfaceCurveTool tool = new_tool(scene, targets[0] as TransformableSO);
             tool.SamplingRate = DefaultSamplingRate;
             tool.MinSamplingRate = Math.Min(tool.MinSamplingRate, DefaultSamplingRate * 0.1f);
             tool.SurfaceOffset = DefaultSurfaceOffset;
+            tool.CloseThreshold = DefaultCloseThreshold;
             tool.Closed = Closed;
             tool.IsOverlayCurve = IsOverlayCurve;
             tool.EmitNewCurveF = EmitNewCurveF;
             tool.CurveMaterialF = CurveMaterialF;
             tool.AttachCurveToSurface = AttachCurveToSurface;
+            tool.InputMode = InputMode;
             return tool;
+        }
+
+        protected virtual DrawSurfaceCurveTool new_tool(FScene scene, TransformableSO target)
+        {
+            return new DrawSurfaceCurveTool(scene, target);
         }
     }
 
@@ -44,7 +53,7 @@ namespace f3
     {
         static readonly public string Identifier = "draw_surface_curve";
 
-        FScene scene;
+        protected FScene Scene;
 
         virtual public string Name
         {
@@ -64,6 +73,13 @@ namespace f3
 
         public virtual bool AllowSelectionChanges { get { return true; } }
 
+
+
+        /// <summary>
+        /// post-processor applied to curve. This does not modify the curve you are drawing,
+        /// it modifies the curve you see. See CurvePreview.CurveProcessorF for details.
+        /// </summary>
+        public Action<List<Vector3d>> CurveProcessorF = null;
 
         /// <summary>
         /// Default behavior is to emit a PolyCurveSO in EndDraw(). To override
@@ -95,8 +111,14 @@ namespace f3
             set { surface_offset = value; }
         }
 
+        float close_threshold = 0.5f;
+        virtual public float CloseThreshold {
+            get { return close_threshold; }
+            set { close_threshold = MathUtil.Clamp(value, 0.001f, 100000.0f); }
+        }
+
         /// <summary>
-        /// Closed loop or open curve
+        /// Closed loop or open curve. When Closed, the closing line will be shown during drawing.
         /// </summary>
         virtual public bool Closed
         {
@@ -106,8 +128,18 @@ namespace f3
         bool closed = false;
 
 
+        public enum DrawMode {
+            Continuous, OnClick
+        }
+        DrawMode input_mode;
+        virtual public DrawMode InputMode {
+            get { return input_mode; }
+            set { input_mode = value; }
+        }
+
+
         /// <summary>
-        /// Overlay curves are drawn on top of scene
+        /// Overlay curves are drawn "on top" of scene, ie will be visible even if "inside" target object
         /// </summary>
         virtual public bool IsOverlayCurve
         {
@@ -117,28 +149,34 @@ namespace f3
         bool overlay = false;
 
 
-
+        /// <summary>
+        /// This has two effects. One, it means that if the target surface moves, the curve you are
+        /// drawing will move with it (useful in bimanual VR drawing). Two, the generated SO will be
+        /// attached to the Target so using an SOLink (see EndDraw())
+        /// </summary>
         public bool AttachCurveToSurface = false;
 
 
-
-        SceneObject target;
-        public SceneObject Target
+        /// <summary>
+        /// Target object you are drawing on.
+        /// </summary>
+        public TransformableSO Target
         {
             get { return target; }
         }
+        TransformableSO target;
 
 
-        public DrawSurfaceCurveTool(FScene scene, SceneObject target)
+        public DrawSurfaceCurveTool(FScene scene, TransformableSO target)
         {
-            this.scene = scene;
+            this.Scene = scene;
             this.target = target;
 
             behaviors = new InputBehaviorSet();
 
             // TODO is this where we should be doing this??
             behaviors.Add(
-                new DrawSurfaceCurveTool_2DBehavior(scene.Context) { Priority = 5 });
+                new DrawSurfaceCurveTool_2DBehavior(this, scene.Context) { Priority = 5 });
             behaviors.Add(
                 new DrawSurfaceCurveTool_SpatialDeviceBehavior(scene.Context) { Priority = 5 });
 
@@ -155,7 +193,7 @@ namespace f3
 
         private void Scene_SelectionChangedEvent(object sender, EventArgs e)
         {
-            List<SceneObject> targets = new List<SceneObject>(scene.Selected);
+            List<TransformableSO> targets = Scene.FindSceneObjectsOfType<TransformableSO>();
             if (targets.Count == 1 && targets[0].IsSurface)
                 this.target = targets[0];
         }
@@ -163,8 +201,9 @@ namespace f3
         virtual public void PreRender()
         {
             if (preview != null)
-                preview.PreRender(scene);
+                preview.PreRender(Scene);
         }
+
 
         virtual public bool HasApply { get { return false; } }
         virtual public bool CanApply { get { return false; } }
@@ -172,31 +211,35 @@ namespace f3
 
 
 
-        public void Shutdown()
+        virtual public void Shutdown()
         {
-            scene.SelectionChangedEvent -= Scene_SelectionChangedEvent;
-            scene.Context.TransformManager.PopOverrideGizmoType();
+            Scene.SelectionChangedEvent -= Scene_SelectionChangedEvent;
+            Scene.Context.TransformManager.PopOverrideGizmoType();
         }
 
 
         void CreateNewCurve()
         {
             if (AttachCurveToSurface) 
-                preview = new LocalCurvePreview(Target as TransformableSO);
+                preview = new LocalCurvePreview(Target);
             else
                 preview = new CurvePreview();
 
             preview.Closed = this.Closed;
 
-            SOMaterial useMat = (CurveMaterialF == null) ? scene.DefaultCurveSOMaterial : CurveMaterialF();
-            preview.Create(useMat, scene.RootGameObject, 
+            SOMaterial useMat = (CurveMaterialF == null) ? Scene.DefaultCurveSOMaterial : CurveMaterialF();
+            preview.Create(useMat, Scene.RootGameObject, 
                 (overlay) ? FPlatform.WidgetOverlayLayer : -1 );
+
+            if (CurveProcessorF != null)
+                preview.CurveProcessorF = CurveProcessorF;
         }
 
 
-        CurvePreview preview;
-        //InPlaceIterativeCurveSmooth smoother;
+        protected CurvePreview preview;
 
+        public bool InDraw { get { return in_draw; } }
+        bool in_draw;
 
 
         // wow this is tricky. Want to do smoothed appending but as-you-draw, not at the end.
@@ -273,12 +316,6 @@ namespace f3
                 }
                 last_append_idx = preview.VertexCount - 1;
                 appended_last_update = true;
-
-                // do smoothing pass
-                // [TODO] cannot do this until we can reproject onto surface!!
-                //smoother.End = curve.VertexCount - 1;
-                //smoother.Start = MathUtil.Clamp(smoother.End - 5, 0, smoother.End);
-                //smoother.UpdateDeformation(2);
             }
         }
 
@@ -291,54 +328,115 @@ namespace f3
         }
 
 
-        public void BeginDraw_Ray(Ray3f ray)
+        public virtual void BeginDraw_Ray_Continuous(Ray3f ray)
         {
             CreateNewCurve();
+            in_draw = true;
 
             SORayHit hit;
             bool bHit = target.FindRayIntersection(ray, out hit);
             if (!bHit)
                 throw new Exception("DrawSurfaceCurveTool.BeginDraw_Ray: how did we get here if no target hit???");
 
-            float offset = SurfaceOffset * scene.GetSceneScale();
+            float offset = SurfaceOffset * Scene.GetSceneScale();
             Vector3f vHit = hit.hitPos + offset * hit.hitNormal;
-            float fScale = scene.GetSceneScale();
+            float fScale = Scene.GetSceneScale();
             smooth_append(preview,
-                scene.SceneFrame.ToFrameP(vHit) / fScale, dist_thresh(SamplingRate, fScale));
+                Scene.SceneFrame.ToFrameP(vHit) / fScale, dist_thresh(SamplingRate, fScale));
         }
 
 
-        public void UpdateDraw_Ray(Ray3f ray)
+        public virtual void UpdateDraw_Ray_Continuous(Ray3f ray)
         {
             SORayHit hit;
             bool bHit = target.FindRayIntersection(ray, out hit);
             if (bHit) {
-                float offset = SurfaceOffset * scene.GetSceneScale();
+                float offset = SurfaceOffset * Scene.GetSceneScale();
                 Vector3f vHit = hit.hitPos + offset * hit.hitNormal;
-                float fScale = scene.GetSceneScale();
-                smooth_append(preview, scene.SceneFrame.ToFrameP(vHit) / fScale, dist_thresh(SamplingRate, fScale));
+                float fScale = Scene.GetSceneScale();
+                smooth_append(preview, Scene.SceneFrame.ToFrameP(vHit) / fScale, dist_thresh(SamplingRate, fScale));
             }
         }
 
 
-        public void EndDraw()
+
+
+        public virtual void BeginDraw_Ray_MultiClick()
         {
-            if (preview.Curve.ArcLength > 2 * SamplingRate) {
+            CreateNewCurve();
+            in_draw = true;
+        }
+
+
+        public virtual bool UpdateDraw_Ray_MultiClick(Ray3f ray)
+        {
+            bool first = (preview.VertexCount == 0);
+            SORayHit hit;
+            bool bHit = target.FindRayIntersection(ray, out hit);
+            if (bHit) {
+                float offset = SurfaceOffset * Scene.GetSceneScale();
+                Vector3f vHit = hit.hitPos + offset * hit.hitNormal;
+                float fScale = Scene.GetSceneScale();
+                Vector3f vPos = Scene.SceneFrame.ToFrameP(vHit) / fScale;
+
+                // the last vertex is the one we are repositioning in UpdateDrawPreview. So, on
+                // click we actaully want to freeze that vertex to this position and then add a new
+                // temporary one. Except for the first vertex.
+                if (first) {
+                    preview.AppendVertex(vPos);
+                    preview.AppendVertex(vPos);
+                } else {
+                    // close curve if we are within close threshold
+                    if ( preview.VertexCount > 2  &&  vPos.Distance((Vector3f)preview[0]) < CloseThreshold)
+                        return false;
+
+                    //preview[preview.VertexCount - 1] = vPos;
+                    preview.AppendVertex(vPos);
+                }
+            }
+
+            return true;
+        }
+
+
+        public virtual void UpdateDrawPreview_Ray_MultiClick(Ray3f ray)
+        {
+            if (preview == null || preview.VertexCount == 0)
+                return;
+            SORayHit hit;
+            bool bHit = target.FindRayIntersection(ray, out hit);
+            if (bHit) {
+                float offset = SurfaceOffset * Scene.GetSceneScale();
+                Vector3f vHit = hit.hitPos + offset * hit.hitNormal;
+                float fScale = Scene.GetSceneScale();
+                preview[preview.VertexCount - 1] = Scene.SceneFrame.ToFrameP(vHit) / fScale;
+            }
+        }
+
+
+
+
+        public virtual void EndDraw()
+        {
+            in_draw = false;
+            if (preview == null)
+                return;
+            if (preview.Curve.VertexCount > 2 && preview.Curve.ArcLength > 2 * SamplingRate) {
 
                 if (EmitNewCurveF == null) {
                     // store undo/redo record for new primitive
-                    SOMaterial mat = (CurveMaterialF == null) ? scene.DefaultCurveSOMaterial : CurveMaterialF();
+                    SOMaterial mat = (CurveMaterialF == null) ? Scene.DefaultCurveSOMaterial : CurveMaterialF();
                     PolyCurveSO CurveSO = preview.BuildSO(mat, 1.0f);
-                    scene.History.PushChange(
-                        new AddSOChange() { scene = scene, so = CurveSO, bKeepWorldPosition = false });
+                    Scene.History.PushChange(
+                        new AddSOChange() { scene = Scene, so = CurveSO, bKeepWorldPosition = false });
 
                     // link ?
                     if (AttachCurveToSurface) {
-                        scene.History.PushChange(
+                        Scene.History.PushChange(
                             new SOAddFrameLinkChangeOp(CurveSO, Target as TransformableSO));
                     }
                          
-                    scene.History.PushInteractionCheckpoint();
+                    Scene.History.PushInteractionCheckpoint();
 
 
                 } else {
@@ -406,7 +504,7 @@ namespace f3
         {
             Ray3f sideRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
             DrawSurfaceCurveTool tool = context.ToolManager.GetActiveTool((int)eSide) as DrawSurfaceCurveTool;
-            tool.BeginDraw_Ray(sideRay);
+            tool.BeginDraw_Ray_Continuous(sideRay);
             return Capture.Begin(this, eSide);
         }
 
@@ -424,7 +522,7 @@ namespace f3
                 return Capture.End;
             }
 
-            tool.UpdateDraw_Ray( sideRay );
+            tool.UpdateDraw_Ray_Continuous( sideRay );
 
             bool bReleased = (data.which == CaptureSide.Left) ? input.bLeftTriggerReleased : input.bRightTriggerReleased;
             if (bReleased) {
@@ -453,11 +551,23 @@ namespace f3
 
     class DrawSurfaceCurveTool_2DBehavior : Any2DInputBehavior
     {
+        DrawSurfaceCurveTool ownerTool;
         FContext context;
 
-        public DrawSurfaceCurveTool_2DBehavior(FContext s)
+        public DrawSurfaceCurveTool_2DBehavior(DrawSurfaceCurveTool tool, FContext s)
         {
+            ownerTool = tool;
             context = s;
+
+            // have to cancel capture if we are in multi-click mode and tool exits
+            s.ToolManager.OnToolActivationChanged += ToolManager_OnToolActivationChanged;
+        }
+
+        private void ToolManager_OnToolActivationChanged(ITool tool, ToolSide eSide, bool bActivated)
+        {
+            if (bActivated == false && tool == ownerTool) {
+                ownerTool.EndDraw();
+            }
         }
 
         override public CaptureRequest WantsCapture(InputState input)
@@ -478,7 +588,10 @@ namespace f3
         {
             DrawSurfaceCurveTool tool =
                 (context.ToolManager.ActiveRightTool as DrawSurfaceCurveTool);
-            tool.BeginDraw_Ray(WorldRay(input));
+            if (tool.InputMode == DrawSurfaceCurveTool.DrawMode.Continuous)
+                tool.BeginDraw_Ray_Continuous(WorldRay(input));
+            else
+                tool.BeginDraw_Ray_MultiClick();
             return Capture.Begin(this);
         }
 
@@ -488,13 +601,33 @@ namespace f3
             DrawSurfaceCurveTool tool =
                 (context.ToolManager.ActiveRightTool as DrawSurfaceCurveTool);
 
-            tool.UpdateDraw_Ray( WorldRay(input) );
-
-            if ( Released(input) ) {
-                tool.EndDraw();
+            // this happens if we exit tool while in draw (cts or multi-click). We need to fail gracefully in those cases.
+            if (tool == null) {
                 return Capture.End;
-            } else
+            }
+            // this can happen if we called tool.EndDraw() somewhere else
+            if (tool.InDraw == false)
+                return Capture.End;
+
+            if (tool.InputMode == DrawSurfaceCurveTool.DrawMode.OnClick) {
+                if (Released(input)) {
+                    if (tool.UpdateDraw_Ray_MultiClick(WorldRay(input)) == false ) {
+                        tool.EndDraw();
+                        return Capture.End;
+                    }
+                } else
+                    tool.UpdateDrawPreview_Ray_MultiClick(WorldRay(input));
+
                 return Capture.Continue;
+
+            } else {
+                tool.UpdateDraw_Ray_Continuous(WorldRay(input));
+                if (Released(input)) {
+                    tool.EndDraw();
+                    return Capture.End;
+                } else
+                    return Capture.Continue;
+            } 
         }
 
         override public Capture ForceEndCapture(InputState input, CaptureData data)
@@ -504,5 +637,6 @@ namespace f3
             tool.CancelDraw();
             return Capture.End;
         }
+
     }
 }
