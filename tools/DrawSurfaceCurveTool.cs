@@ -423,6 +423,10 @@ namespace f3
                 return;
             if (preview.Curve.VertexCount > 2 && preview.Curve.ArcLength > 2 * SamplingRate) {
 
+                // update Closed state because in some cases we change this during drawing
+                // (ie when drawing multi-point curve, but closing at end)
+                preview.Closed = this.Closed;
+
                 if (EmitNewCurveF == null) {
                     // store undo/redo record for new primitive
                     SOMaterial mat = (CurveMaterialF == null) ? Scene.DefaultCurveSOMaterial : CurveMaterialF();
