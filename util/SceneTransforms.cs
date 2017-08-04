@@ -106,6 +106,35 @@ namespace f3
 
 
         /// <summary>
+        /// transform frame from Object coords of fromSO into Object coords of toSO
+        /// </summary>
+        public static Frame3f TransformTo(Frame3f frameIn, TransformableSO fromSO, TransformableSO toSO)
+        {
+            Frame3f frameW = TransformTo(frameIn, fromSO, CoordSpace.ObjectCoords, CoordSpace.WorldCoords);
+            return TransformTo(frameW, toSO, CoordSpace.WorldCoords, CoordSpace.ObjectCoords);
+        }
+
+        /// <summary>
+        /// transform point from Object coords of fromSO into Object coords of toSO
+        /// </summary>
+        public static Vector3f TransformTo(Vector3f ptIn, TransformableSO fromSO, TransformableSO toSO)
+        {
+            Frame3f frameW = TransformTo(new Frame3f(ptIn), fromSO, CoordSpace.ObjectCoords, CoordSpace.WorldCoords);
+            return TransformTo(frameW, toSO, CoordSpace.WorldCoords, CoordSpace.ObjectCoords).Origin;
+        }
+
+        /// <summary>
+        /// transform point from Object coords of fromSO into Object coords of toSO
+        /// </summary>
+        public static Vector3d TransformTo(Vector3d ptIn, TransformableSO fromSO, TransformableSO toSO)
+        {
+            Frame3f frameW = TransformTo(new Frame3f((Vector3f)ptIn), fromSO, CoordSpace.ObjectCoords, CoordSpace.WorldCoords);
+            return TransformTo(frameW, toSO, CoordSpace.WorldCoords, CoordSpace.ObjectCoords).Origin;
+        }
+
+
+
+        /// <summary>
         /// Apply the local rotate/translate/scale at transform to frameIn
         /// </summary>
         public static Frame3f ApplyTransform(ITransformed transform, Frame3f frameIn )
