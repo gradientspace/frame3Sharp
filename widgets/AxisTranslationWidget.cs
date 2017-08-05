@@ -15,7 +15,11 @@ namespace f3
         // Also you can use this to compensate for global scene scaling (hence the function)
         public Func<float> TranslationScaleF = () => { return 1.0f; };
 
-		int nTranslationAxis;
+
+        public Func<Frame3f, int, float, float> DeltaDistanceConstraintF = null;
+
+
+        int nTranslationAxis;
 
 		public AxisTranslationWidget(int nFrameAxis)
 		{
@@ -60,6 +64,8 @@ namespace f3
 			float fNewT = Distance.ClosestPointOnLineT (translateFrameW.Origin, translateAxisW, planeHit);
 			float fDeltaT = (fNewT - fTranslateStartT);
             fDeltaT *= TranslationScaleF();
+            if (DeltaDistanceConstraintF != null)
+                fDeltaT = DeltaDistanceConstraintF(translateFrameL, nTranslationAxis, fDeltaT);
 
             // construct new frame translated along axis (in local space)
             Frame3f newFrame = translateFrameL;

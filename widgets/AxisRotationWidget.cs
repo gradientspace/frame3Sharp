@@ -11,7 +11,12 @@ namespace f3
     {
 		int nRotationAxis;
 
-		public AxisRotationWidget(int nFrameAxis)
+
+        public Func<Frame3f, int, float, float> AbsoluteAngleConstraintF = null;
+        public Func<Frame3f, int, float, float> DeltaAngleConstraintF = null;
+
+
+        public AxisRotationWidget(int nFrameAxis)
 		{
 			nRotationAxis = nFrameAxis;
 		}
@@ -58,11 +63,17 @@ namespace f3
 			int iY = (nRotationAxis + 2) % 3;
 			float fX = Vector3.Dot( dv, rotateFrameW.GetAxis(iX) );
 			float fY = Vector3.Dot( dv, rotateFrameW.GetAxis(iY) );
-			float fNewAngle = (float)Math.Atan2 (fY, fX);
-			float fDeltaAngle = (fNewAngle - fRotateStartAngle);
 
-			// construct new frame for target that is rotated around axis
-			Vector3f rotateAxisL = rotateFrameL.GetAxis(nRotationAxis);
+			float fNewAngle = (float)Math.Atan2 (fY, fX);
+            if (AbsoluteAngleConstraintF != null)
+                fNewAngle = AbsoluteAngleConstraintF(rotateFrameL, nRotationAxis, fNewAngle);
+
+            float fDeltaAngle = (fNewAngle - fRotateStartAngle);
+            if (DeltaAngleConstraintF != null)
+                fDeltaAngle = DeltaAngleConstraintF(rotateFrameL, nRotationAxis, fDeltaAngle);
+
+            // construct new frame for target that is rotated around axis
+            Vector3f rotateAxisL = rotateFrameL.GetAxis(nRotationAxis);
 			Quaternionf q = Quaternion.AngleAxis(fDeltaAngle * Mathf.Rad2Deg, rotateAxisL );
 			Frame3f newFrame = rotateFrameL;
 			newFrame.Rotation = q * newFrame.Rotation;		// order matters here!

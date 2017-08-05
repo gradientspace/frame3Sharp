@@ -20,10 +20,33 @@ namespace f3
         }
     }
 
+
+    [Flags]
+    public enum AxisGizmoFlags
+    {
+        AxisTranslateX = 1,
+        AxisTranslateY = 1<<2,
+        AxisTranslateZ = 1<<3,
+        PlaneTranslateX = 1<<4,
+        PlaneTranslateY = 1<<5,
+        PlaneTranslateZ = 1<<6,
+        AxisRotateX = 1<<7,
+        AxisRotateY = 1<<8,
+        AxisRotateZ = 1<<9,
+        UniformScale = 1<<24,
+
+        AxisTranslations = AxisTranslateX | AxisTranslateY | AxisTranslateZ,
+        PlaneTranslations = PlaneTranslateX | PlaneTranslateY | PlaneTranslateZ,
+        AxisRotations = AxisRotateX | AxisRotateY | AxisRotateZ,
+
+        All = AxisTranslations | PlaneTranslations | AxisRotations | UniformScale
+    }
+
+
     public class AxisTransformGizmo : GameObjectSet, ITransformGizmo
     {
 		fGameObject gizmo;
-		fGameObject x, y, z;
+		fGameObject translate_x, translate_y, translate_z;
 		fGameObject rotate_x, rotate_y, rotate_z;
 		fGameObject translate_xy, translate_xz, translate_yz;
         fGameObject uniform_scale;
@@ -58,6 +81,13 @@ namespace f3
 			}
 		}
         public bool SupportsFrameMode { get { return true; } }
+
+
+        AxisGizmoFlags eEnabledWidgets = AxisGizmoFlags.All;
+        public AxisGizmoFlags ActiveWidgets {
+            get { return eEnabledWidgets; }
+            set { eEnabledWidgets = value; update_active(); }
+        }
 
 
         //bool EnableDebugLogging;
@@ -171,7 +201,7 @@ namespace f3
             gizmo.SetLocalScale( new Vector3f(fScaling) );
         }
 
-        public void Create(FScene parentScene, List<TransformableSO> targets) {
+        public virtual void Create(FScene parentScene, List<TransformableSO> targets) {
 			this.parentScene = parentScene;
 			this.targets = targets;
 
@@ -187,25 +217,25 @@ namespace f3
             allMaterial = MaterialUtil.CreateTransparentMaterial(Color.white, fAlpha);
             allHoverMaterial = MaterialUtil.CreateStandardMaterial(Color.white);
 
-            x = AppendMeshGO ("x_translate", 
+            translate_x = AppendMeshGO ("x_translate", 
 				FResources.LoadMesh("transform_gizmo/axis_translate_x"),
 				xMaterial, gizmo);
-            Widgets[x] = new AxisTranslationWidget(0) {
-                RootGameObject = x, StandardMaterial = xMaterial, HoverMaterial = xHoverMaterial,
+            Widgets[translate_x] = new AxisTranslationWidget(0) {
+                RootGameObject = translate_x, StandardMaterial = xMaterial, HoverMaterial = xHoverMaterial,
                 TranslationScaleF = () => { return 1.0f / parentScene.GetSceneScale(); }
             };
-			y = AppendMeshGO ("y_translate", 
+			translate_y = AppendMeshGO ("y_translate", 
 				FResources.LoadMesh("transform_gizmo/axis_translate_y"),
 				yMaterial, gizmo);
-			Widgets [y] = new AxisTranslationWidget(1) {
-                RootGameObject = y, StandardMaterial = yMaterial, HoverMaterial = yHoverMaterial,
+			Widgets [translate_y] = new AxisTranslationWidget(1) {
+                RootGameObject = translate_y, StandardMaterial = yMaterial, HoverMaterial = yHoverMaterial,
                 TranslationScaleF = () => { return 1.0f / parentScene.GetSceneScale(); }
             };
-            z = AppendMeshGO ("z_translate", 
+            translate_z = AppendMeshGO ("z_translate", 
 				FResources.LoadMesh("transform_gizmo/axis_translate_z"),
 				zMaterial, gizmo);	
-			Widgets [z] = new AxisTranslationWidget(2) {
-                RootGameObject = z, StandardMaterial = zMaterial, HoverMaterial = zHoverMaterial,
+			Widgets [translate_z] = new AxisTranslationWidget(2) {
+                RootGameObject = translate_z, StandardMaterial = zMaterial, HoverMaterial = zHoverMaterial,
                 TranslationScaleF = () => { return 1.0f / parentScene.GetSceneScale(); }
             };
 
@@ -259,13 +289,15 @@ namespace f3
             };
 
             gizmoGeomBounds = UnityUtil.GetGeometryBoundingBox( new List<GameObject>()
-                { x,y,z,rotate_x,rotate_y,rotate_z,translate_xy,translate_xz,translate_yz,uniform_scale} );
+                { translate_x,translate_y,translate_z,rotate_x,rotate_y,rotate_z,translate_xy,translate_xz,translate_yz,uniform_scale} );
 
             // disable shadows on widget components
             foreach ( var go in GameObjects )
                 MaterialUtil.DisableShadows(go);
 
-			eCurrentFrameMode = FrameType.LocalFrame;
+            update_active();
+
+            eCurrentFrameMode = FrameType.LocalFrame;
 			SetActiveFrame (eCurrentFrameMode);
 
             SetLayer(FPlatform.WidgetOverlayLayer);
@@ -305,7 +337,8 @@ namespace f3
             onTransformModified(null);
 
             // configure gizmo
-            uniform_scale.SetVisible(targetWrapper.SupportsScaling);
+            if (uniform_scale != null)
+                uniform_scale.SetVisible( targetWrapper.SupportsScaling && (eEnabledWidgets & AxisGizmoFlags.UniformScale) != 0);
 		}
 
 
@@ -351,7 +384,7 @@ namespace f3
 
 
 
-        void onTransformModified(TransformableSO so)
+        virtual protected void onTransformModified(TransformableSO so)
         {
             // keep widget synced with object frame of target
             Frame3f widgetFrame = targetWrapper.GetLocalFrame(CoordSpace.ObjectCoords);
@@ -360,12 +393,65 @@ namespace f3
         }
 
 
+        void update_active()
+        {
+            if (translate_x != null) translate_x.SetActive((eEnabledWidgets & AxisGizmoFlags.AxisTranslateX) != 0);
+            if (translate_y != null) translate_y.SetActive((eEnabledWidgets & AxisGizmoFlags.AxisTranslateY) != 0);
+            if (translate_z != null) translate_z.SetActive((eEnabledWidgets & AxisGizmoFlags.AxisTranslateZ) != 0);
+
+            if (rotate_x != null) rotate_x.SetActive((eEnabledWidgets & AxisGizmoFlags.AxisRotateX) != 0 );
+            if (rotate_y != null) rotate_y.SetActive((eEnabledWidgets & AxisGizmoFlags.AxisRotateY) != 0);
+            if (rotate_z != null) rotate_z.SetActive((eEnabledWidgets & AxisGizmoFlags.AxisRotateZ) != 0);
+
+            if (translate_yz != null) translate_yz.SetActive((eEnabledWidgets & AxisGizmoFlags.PlaneTranslateX) != 0);
+            if (translate_xz != null) translate_xz.SetActive((eEnabledWidgets & AxisGizmoFlags.PlaneTranslateY) != 0);
+            if (translate_xy != null) translate_xy.SetActive((eEnabledWidgets & AxisGizmoFlags.PlaneTranslateZ) != 0);
+
+            if (uniform_scale != null) uniform_scale.SetActive((eEnabledWidgets & AxisGizmoFlags.UniformScale) != 0);
+        }
+
+
+
+
+        // subwidget access
+        public AxisRotationWidget GetAxisRotationWidget(int axis) {
+            if (axis == 0)
+                return (rotate_x == null) ? null : Widgets[rotate_x] as AxisRotationWidget;
+            else if ( axis == 1 )
+                return (rotate_y == null) ? null : Widgets[rotate_y] as AxisRotationWidget;
+            else if (axis == 2)
+                return (rotate_z == null) ? null : Widgets[rotate_z] as AxisRotationWidget;
+            throw new ArgumentOutOfRangeException("AxisTransformGizmo.RotationWidget: invalid axis index " + axis.ToString());
+        }
+        public AxisTranslationWidget GetAxisTranslationWidget(int axis) {
+            if (axis == 0)
+                return (translate_x == null) ? null : Widgets[translate_x] as AxisTranslationWidget;
+            else if (axis == 1)
+                return (translate_y == null) ? null : Widgets[translate_y] as AxisTranslationWidget;
+            else if (axis == 2)
+                return (translate_z == null) ? null : Widgets[translate_z] as AxisTranslationWidget;
+            throw new ArgumentOutOfRangeException("AxisTransformGizmo.AxisTranslationWidget: invalid axis index " + axis.ToString());
+        }
+        public PlaneTranslationWidget GetPlaneTranslationWidget(int axis) {
+            if (axis == 0)
+                return (translate_yz == null) ? null : Widgets[translate_yz] as PlaneTranslationWidget;
+            else if (axis == 1)
+                return (translate_xz == null) ? null : Widgets[translate_xz] as PlaneTranslationWidget;
+            else if (axis == 2)
+                return (translate_xy == null) ? null : Widgets[translate_xy] as PlaneTranslationWidget;
+            throw new ArgumentOutOfRangeException("AxisTransformGizmo.PlaneTranslationWidget: invalid axis index " + axis.ToString());
+        }
+        public UniformScaleWidget GetUniformScaleWidget()
+        {
+            return (uniform_scale == null) ? null : Widgets[uniform_scale] as UniformScaleWidget;
+        }
 
 
 
 
 
-		public bool FindRayIntersection(Ray3f ray, out UIRayHit hit)
+
+        public bool FindRayIntersection(Ray3f ray, out UIRayHit hit)
 		{
 			hit = null;
 			GameObjectRayHit hitg = null;
