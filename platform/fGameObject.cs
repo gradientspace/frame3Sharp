@@ -65,6 +65,11 @@ namespace f3
         }
 
 
+        public virtual bool IsDestroyed {
+            // see http://answers.unity3d.com/questions/13840/how-to-detect-if-a-gameobject-has-been-destroyed.html
+            get { return go == null && ReferenceEquals(go, null) == false; }
+        }
+
 
         // allow game object wrapper to do things here, eg lazy updates, etc
         // This will be called by the GameObject itself, using the PreRenderBehavior (!)
@@ -165,8 +170,10 @@ namespace f3
 
         public virtual void SetColor(Colorf color)
         {
-            Renderer r = go.GetComponent<Renderer>();
-            r.material.color = color;
+            if (go != null) {
+                Renderer r = go.GetComponent<Renderer>();
+                r.material.color = color;
+            }
         }
 
 
