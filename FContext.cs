@@ -684,6 +684,7 @@ namespace f3 {
             if (ToolManager.HasActiveTool(ToolSide.Right))
                 ToolManager.DeactivateTool(ToolSide.Right);
 
+            Scene.ClearHistory();
             Scene.ClearSelection();
             Scene.RemoveAllSceneObjects();
             Scene.RemoveAllUIElements();
@@ -693,6 +694,9 @@ namespace f3 {
             UniqueNames.Reset();
 
             ResetView(bAnimated);
+
+            // seems like a good time for this...
+            FPlatform.SuggestGarbageCollection();
         }
 
         public void ResetView(bool bAnimated)

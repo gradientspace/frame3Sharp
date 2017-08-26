@@ -188,6 +188,15 @@ namespace f3
 
 
 
+        // discard existing history
+        public void ClearHistory()
+        {
+            history = new ChangeHistory();
+        }
+
+
+
+
         public SOType DefaultPrimitiveType
         {
             get { return defaultPrimitiveType; }

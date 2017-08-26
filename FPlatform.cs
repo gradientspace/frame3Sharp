@@ -206,7 +206,13 @@ namespace f3
         }
 
 
-
+        static public void SuggestGarbageCollection()
+        {
+            // [RMS] collective wisdom is that the GC is smart enough that we should never do this, 
+            //  except if we *know* many objects just became invalid. Like, when we clear the scene.
+            //  Comment out the call to disable this behavior.
+            GC.Collect();
+        }
 
 
         static public bool ShowingExternalPopup = false;
