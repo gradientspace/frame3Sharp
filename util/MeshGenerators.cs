@@ -8,51 +8,10 @@ namespace f3 {
     // extension to geometry3Sharp.MeshGenerator so we can convert to UnityEngine.Mesh
     static public class MeshGenExt
     {
-        public static Vector3[] ToVector3(VectorArray3f a, bool bFlipLR = false)
-        {
-            Vector3[] v = new Vector3[a.Count];
-            float fXSign = (bFlipLR) ? -1 : 1;
-            for (int i = 0; i < a.Count; ++i) {
-                v[i].x = fXSign * a.array[3 * i];
-                v[i].y = a.array[3 * i + 1];
-                v[i].z = a.array[3 * i + 2];
-            }
-            return v;
-        }
-        public static Vector3[] ToVector3(VectorArray3d a, bool bFlipLR = false)
-        {
-            Vector3[] v = new Vector3[a.Count];
-            float fXSign = (bFlipLR) ? -1 : 1;
-            for (int i = 0; i < a.Count; ++i) {
-                v[i].x = fXSign * (float)a.array[3 * i];
-                v[i].y = (float)a.array[3 * i + 1];
-                v[i].z = (float)a.array[3 * i + 2];
-            }
-            return v;
-        }
-        public static Vector2[] ToVector2(VectorArray2f a)
-        {
-            Vector2[] v = new Vector2[a.Count];
-            for (int i = 0; i < a.Count; ++i) {
-                v[i].x = (float)a.array[2 * i];
-                v[i].y = (float)a.array[2 * i + 1];
-            }
-            return v;
-        }
-
         public static fMesh MakeUnityMesh(this MeshGenerator gen, bool bRecalcNormals = false, bool bFlipLR = false)
         {
             Mesh m = new Mesh();
-            m.vertices = ToVector3(gen.vertices, bFlipLR);
-            if ( gen.uv != null && gen.WantUVs )
-                m.uv = ToVector2(gen.uv);
-            if (gen.normals != null && gen.WantNormals)
-                m.normals = ToVector3(gen.normals, bFlipLR);
-            m.triangles = gen.triangles.array;
-
-            if ( bRecalcNormals )
-                m.RecalculateNormals();
-
+            gen.MakeMesh(m, bRecalcNormals, bFlipLR);
             return new fMesh(m);
         }
     }

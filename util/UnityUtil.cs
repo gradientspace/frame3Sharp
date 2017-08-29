@@ -483,6 +483,10 @@ namespace f3
 
         public static Mesh DMeshToUnityMesh(DMesh3 m, bool bSwapLeftRight)
         {
+            if (bSwapLeftRight)
+                throw new Exception("[RMSNOTE] I think this conversion is wrong, see MeshTransforms.SwapLeftRight. Just want to know if this code is ever hit.");
+
+
             if (m.VertexCount > 65000 || m.TriangleCount > 65000) {
                 Debug.Log("[UnityUtil.DMeshToUnityMesh] attempted to import object larger than 65000 verts/tris, not supported by Unity!");
                 return null;
@@ -524,8 +528,11 @@ namespace f3
 
 
 
-        public static SimpleMesh UnityMeshToSimpleMesh(UnityEngine.Mesh mesh, bool bSwapLeftright)
+        public static SimpleMesh UnityMeshToSimpleMesh(UnityEngine.Mesh mesh, bool bSwapLeftRight)
         {
+            if (bSwapLeftRight)
+                throw new Exception("[RMSNOTE] I think this conversion is wrong, see MeshTransforms.SwapLeftRight. Just want to know if this code is ever hit.");
+
             SimpleMesh smesh = new SimpleMesh();
 
             Vector3[] vertices = mesh.vertices;
@@ -544,7 +551,7 @@ namespace f3
 
             for ( int i = 0; i < mesh.vertexCount; ++i ) {
                 Vector3d v = vertices[i];
-                if ( bSwapLeftright ) {
+                if (bSwapLeftRight) {
                     v.x = -v.x;
                     v.z = -v.z;
                 }
@@ -552,7 +559,7 @@ namespace f3
                 if ( bNormals ) {
                     vInfo.bHaveN = true;
                     vInfo.n = normals[i];
-                    if ( bSwapLeftright ) {
+                    if (bSwapLeftRight) {
                         vInfo.n.x = -vInfo.n.x;
                         vInfo.n.z = -vInfo.n.z;
                     }
@@ -584,8 +591,11 @@ namespace f3
 
 
 
-        public static DMesh3 UnityMeshToDMesh(Mesh mesh, bool bSwapLeftright)
+        public static DMesh3 UnityMeshToDMesh(Mesh mesh, bool bSwapLeftRight)
         {
+            if (bSwapLeftRight)
+                throw new Exception("[RMSNOTE] I think this conversion is wrong, see MeshTransforms.SwapLeftRight. Just want to know if this code is ever hit.");
+
             Vector3[] vertices = mesh.vertices;
             Vector3[] normals = mesh.normals;
             Color32[] colors32 = mesh.colors32;
@@ -601,7 +611,7 @@ namespace f3
 
             for ( int i = 0; i < mesh.vertexCount; ++i ) {
                 Vector3d v = vertices[i];
-                if ( bSwapLeftright ) {
+                if (bSwapLeftRight) {
                     v.x = -v.x;
                     v.z = -v.z;
                 }
@@ -609,7 +619,7 @@ namespace f3
                 if ( bNormals ) {
                     vInfo.bHaveN = true;
                     vInfo.n = normals[i];
-                    if ( bSwapLeftright ) {
+                    if (bSwapLeftRight) {
                         vInfo.n.x = -vInfo.n.x;
                         vInfo.n.z = -vInfo.n.z;
                     }
