@@ -29,6 +29,11 @@ namespace f3
             set { unitymaterial.color = value; }
         }
 
+        public int renderQueue {
+            get { return unitymaterial.renderQueue; }
+            set { unitymaterial.renderQueue = value; }
+        }
+
         public static implicit operator UnityEngine.Material(fMaterial mat)
         {
             return mat.unitymaterial;

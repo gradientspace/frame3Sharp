@@ -176,7 +176,17 @@ namespace f3
                 fgo.SetVertices(vVertices);
             return fgo;
         }
-
+        public static fPolylineGameObject CreatePolylineGO(string sName, List<Vector3f> vVertices, fMaterial material, bool bSharedMaterial, float fLineWidth, LineWidthType widthType)
+        {
+            GameObject go = new GameObject(sName);
+            CurveRendererImplementation curveRen = CurveRendererSource.Build(widthType);
+            curveRen.initialize(go, material, bSharedMaterial);
+            fPolylineGameObject fgo = new fPolylineGameObject(go, curveRen);
+            fgo.SetLineWidth(fLineWidth);
+            if (vVertices != null)
+                fgo.SetVertices(vVertices);
+            return fgo;
+        }
 
 
         public static fBoxGameObject CreateBoxGO(string sName, float fWidth, float fHeight, float fDepth, fMaterial material, bool bShareMaterial, bool bCollider)

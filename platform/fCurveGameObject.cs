@@ -11,11 +11,14 @@ namespace f3
     public interface CurveRendererImplementation
     {
         void initialize(fGameObject go, Colorf color);
+        void initialize(fGameObject go, fMaterial material, bool bSharedMaterial);
         void update_curve(Vector3f[] Vertices);
         void update_num_points(int N);
         void update_position(int i, Vector3f v);
         void update_width(float width);
+        void update_width(float startWidth, float endWidth);
         void update_color(Colorf color);
+        void set_corner_quality(int n);
         bool is_pixel_width();      // alternative is world-width
     }
     public interface CurveRendererFactory
@@ -55,11 +58,32 @@ namespace f3
         }
         public float GetLineWidth() { return width; }
 
+        public void SetLineWidth(float fStartWidth, float fEndWidth)
+        {
+            update(fStartWidth, fEndWidth, color);
+        }
+
         public override void SetColor(Colorf newColor)
         {
             update(width, newColor);
         }
         public Colorf GetColor() { return color; }
+
+
+
+        public enum CornerQuality
+        {
+            Minimal, Moderate, High
+        }
+        public void SetCornerQuality(CornerQuality q)
+        {
+            if (q == CornerQuality.Minimal)
+                renderer.set_corner_quality(0);
+            else if (q == CornerQuality.Moderate)
+                renderer.set_corner_quality(3);
+            else if (q == CornerQuality.High)
+                renderer.set_corner_quality(8);
+        }
 
 
         protected void update(float newWidth, Colorf newColor)
@@ -73,6 +97,11 @@ namespace f3
                 renderer.update_color(color);
                 base.SetColor(color);       // material overrides line renderer??
             }
+        }
+        protected void update(float newStartWidth, float newEndWidth, Colorf newColor)
+        {
+            update(newStartWidth, newColor);
+            renderer.update_width(newStartWidth, newEndWidth);
         }
 
         protected void update_curve(Vector3f[] Vertices)

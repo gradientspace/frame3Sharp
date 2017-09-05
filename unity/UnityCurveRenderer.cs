@@ -20,6 +20,16 @@ namespace f3
             r.material = MaterialUtil.CreateTransparentMaterial(color);
         }
 
+        public virtual void initialize(fGameObject go, fMaterial material, bool bSharedMat)
+        {
+            r = ((GameObject)go).AddComponent<LineRenderer>();
+            r.useWorldSpace = false;
+            if (bSharedMat)
+                r.sharedMaterial = material;
+            else
+                r.material = material;
+        }
+
         public virtual void update_curve(Vector3f[] Vertices)
         {
             if ( Vertices == null ) {
@@ -28,7 +38,7 @@ namespace f3
             }
             if (r.positionCount != Vertices.Length)
                 r.positionCount = Vertices.Length;
-            for (int i = 0; i < Vertices.Length; ++i)
+            for (int i = 0; i < Vertices.Length; ++i) 
                 r.SetPosition(i, Vertices[i]);
         }
         public virtual void update_num_points(int N)
@@ -44,10 +54,21 @@ namespace f3
         {
             r.startWidth = r.endWidth = width;
         }
+        public virtual void update_width(float startWidth, float endWidth)
+        {
+            r.startWidth = startWidth;
+            r.endWidth = endWidth;
+        }
         public virtual void update_color(Colorf color)
         {
             r.startColor = r.endColor = color;
         }
+
+        public virtual void set_corner_quality(int n)
+        {
+            r.numCornerVertices = n;
+        }
+
 
         public virtual bool is_pixel_width() {
             return false;
