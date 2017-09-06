@@ -7,41 +7,82 @@ namespace f3
 {
     public class InputBehaviorSet
     {
-        protected List<InputBehavior> Behaviors { get; set; }
+        protected struct BehaviorInfo
+        {
+            public InputBehavior b;
+            public object source;
+            public string group; 
+        } 
+
+        protected List<BehaviorInfo> Behaviors { get; set; }
+
+        public object DefaultSource = null;
 
         public InputBehaviorSet()
         {
-            Behaviors = new List<InputBehavior>();
+            Behaviors = new List<BehaviorInfo>();
         }
 
-        public void Add(InputBehavior behavior)
+
+        public delegate void SetChangedHandler(InputBehaviorSet set);
+        public SetChangedHandler OnSetChanged;
+
+
+        public void Add(InputBehavior behavior, object source = null, string group = "")
         {
-            Behaviors.Add(behavior);
-            Behaviors.Sort( (x, y) => x.Priority.CompareTo(y.Priority) );
+            if (source == null)
+                source = DefaultSource;
+            Behaviors.Add(new BehaviorInfo() { b = behavior, source = source, group = group });
+            behaviors_modified();
         }
         public void Remove(InputBehavior behavior)
         {
-            Behaviors.Remove(behavior);
-            Behaviors.Sort((x, y) => x.Priority.CompareTo(y.Priority));
+            int idx = Behaviors.FindIndex((x) => { return x.b == behavior; });
+            if (idx >= 0) {
+                Behaviors.RemoveAt(idx);
+                behaviors_modified();
+            }
         }
 
-        public void Add(InputBehaviorSet behaviors)
+        public void Add(InputBehaviorSet behaviors, string new_group = "" )
         {
             if (behaviors == null)
                 return;
-            foreach ( var b in behaviors.Behaviors)
-                Behaviors.Add(b);
-            Behaviors.Sort((x, y) => x.Priority.CompareTo(y.Priority));
+            foreach (BehaviorInfo b in behaviors.Behaviors) {
+                BehaviorInfo bcopy = b;
+                if ( new_group != "" )
+                    bcopy.group = new_group;
+                Behaviors.Add(bcopy);
+            }
+            behaviors_modified();
         }
         public void Remove(InputBehaviorSet behaviors)
         {
             if (behaviors == null)
                 return;
-            foreach (var b in behaviors.Behaviors)
-                Behaviors.Remove(b);
-            Behaviors.Sort((x, y) => x.Priority.CompareTo(y.Priority));
+            foreach (var binfo in behaviors.Behaviors) {
+                int idx = Behaviors.FindIndex((x) => { return x.b == binfo.b; });
+                Behaviors.RemoveAt(idx);
+            }
+            behaviors_modified();
         }
 
+        public void RemoveByGroup(string group)
+        {
+            for ( int i = 0; i < Behaviors.Count; ++i ) {
+                if ( Behaviors[i].group == group ) {
+                    Behaviors.RemoveAt(i);
+                    i--;
+                }
+            }
+            behaviors_modified();
+        }
+
+        void behaviors_modified()
+        {
+            Behaviors.Sort((x, y) => x.b.Priority.CompareTo(y.b.Priority));
+            FUtil.SafeSendAnyEvent(OnSetChanged, this);
+        }
 
         // [RMS] maybe we should do capture & forward in this class, then
         //   we have more control? but what for?
@@ -52,9 +93,9 @@ namespace f3
 
         public void CollectWantsCapture(InputState input, List<CaptureRequest> result)
         {
-            foreach (InputBehavior b in Behaviors) {
-                if (supports_input_type(b, input)) {
-                    CaptureRequest req = b.WantsCapture(input);
+            foreach (BehaviorInfo binfo in Behaviors) {
+                if (supports_input_type(binfo.b, input)) {
+                    CaptureRequest req = binfo.b.WantsCapture(input);
                     if (req.type != CaptureRequestType.Ignore)
                         result.Add(req);
                 }
@@ -62,36 +103,42 @@ namespace f3
         }
 
 
-        // this just calls UpdateBehavior on each behavior - these are special
-        //   behaviors, should perhaps have a special type for them...
+        // this just calls UpdateCapture on each behavior - these are special
+        //   behaviors, should perhaps have a special type for them?
+        // If UpdateCapture returns State.End, we assume it wanted to "consume"
+        //   the event, and halt the iteration.
         public void SendOverrideInputs(InputState input)
         {
             CaptureData tmp = new CaptureData() { which = CaptureSide.Any };
-            foreach (InputBehavior b in Behaviors)
-                if (supports_input_type(b, input))
-                    b.UpdateCapture(input, tmp);
+            foreach (BehaviorInfo b in Behaviors) {
+                if (supports_input_type(b.b, input)) {
+                    Capture result = b.b.UpdateCapture(input, tmp);
+                    if (result.state == CaptureState.End)
+                        break;     // consume this event
+                }
+            }
         }
 
 
 
         public virtual void UpdateHover(InputState input)
         {
-            foreach (InputBehavior b in Behaviors) {
-                if (supports_input_type(b, input) == false)
+            foreach (BehaviorInfo b in Behaviors) {
+                if (supports_input_type(b.b, input) == false)
                     continue;
 
-                if (b.EnableHover)
-                    b.UpdateHover(input);
+                if (b.b.EnableHover)
+                    b.b.UpdateHover(input);
             }
         }
         public virtual void EndHover(InputState input)
         {
-            foreach (InputBehavior b in Behaviors) {
-                if (supports_input_type(b, input) == false)
+            foreach (BehaviorInfo b in Behaviors) {
+                if (supports_input_type(b.b, input) == false)
                     continue;
 
-                if (b.EnableHover)
-                    b.EndHover(input);
+                if (b.b.EnableHover)
+                    b.b.EndHover(input);
             }
         }
 

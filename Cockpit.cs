@@ -77,8 +77,8 @@ namespace f3
             defaultLayout = null;
 
             vKeyHandlers = new List<IShortcutKeyHandler>();
-            InputBehaviors = new InputBehaviorSet();
-            OverrideBehaviors = new InputBehaviorSet();
+            InputBehaviors = new InputBehaviorSet() { DefaultSource = this };
+            OverrideBehaviors = new InputBehaviorSet() { DefaultSource = this };
             HUDAnimator = new GenericAnimator();
 
             TiltAngle = ShiftAngle = 0.0f;

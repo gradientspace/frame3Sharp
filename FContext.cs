@@ -621,6 +621,8 @@ namespace f3 {
                 trackingInitializer = activeCockpit;
                 inputBehaviors.Remove(activeCockpit.InputBehaviors);
                 overrideBehaviors.Remove(activeCockpit.OverrideBehaviors);
+                activeCockpit.InputBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;
+                activeCockpit.OverrideBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;
                 cockpitStack.Push(activeCockpit);
                 activeCockpit.RootGameObject.SetActive(false);
             }
@@ -632,8 +634,10 @@ namespace f3 {
             c.Start(initializer);
             if (trackingInitializer != null)
                 c.InitializeTracking(trackingInitializer);
-            inputBehaviors.Add(c.InputBehaviors);
-            overrideBehaviors.Add(c.OverrideBehaviors);
+            inputBehaviors.Add(c.InputBehaviors, "active_cockpit");
+            overrideBehaviors.Add(c.OverrideBehaviors, "active_cockpit_override");
+            activeCockpit.InputBehaviors.OnSetChanged += on_cockpit_behaviors_changed;
+            activeCockpit.OverrideBehaviors.OnSetChanged += on_cockpit_behaviors_changed;
 
             mouseCursor.ResetCursorToCenter();
         }
@@ -642,6 +646,8 @@ namespace f3 {
             if (activeCockpit != null) {
                 inputBehaviors.Remove(activeCockpit.InputBehaviors);
                 overrideBehaviors.Remove(activeCockpit.OverrideBehaviors);
+                activeCockpit.InputBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;
+                activeCockpit.OverrideBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;
                 activeCockpit.RootGameObject.SetActive(false);
                 if (bDestroy)
                     activeCockpit.Destroy();
@@ -651,8 +657,10 @@ namespace f3 {
             activeCockpit = cockpitStack.Pop();
             if (activeCockpit != null) {
                 activeCockpit.RootGameObject.SetActive(true);
-                inputBehaviors.Add(activeCockpit.InputBehaviors);
-                overrideBehaviors.Add(activeCockpit.OverrideBehaviors);
+                inputBehaviors.Add(activeCockpit.InputBehaviors, "active_cockpit");
+                overrideBehaviors.Add(activeCockpit.OverrideBehaviors, "active_cockpit_override");
+                activeCockpit.InputBehaviors.OnSetChanged += on_cockpit_behaviors_changed;
+                activeCockpit.OverrideBehaviors.OnSetChanged += on_cockpit_behaviors_changed;
             }
 
             mouseCursor.ResetCursorToCenter();
@@ -663,11 +671,33 @@ namespace f3 {
 
         protected virtual void OnToolActivationChanged(ITool tool, ToolSide eSide, bool bActivated)
         {
-            if (bActivated)
-                inputBehaviors.Add(tool.InputBehaviors);
-            else
+            if (bActivated) {
+                inputBehaviors.Add(tool.InputBehaviors, "active_tool");
+                tool.InputBehaviors.OnSetChanged += on_tool_behaviors_changed;
+            } else {
+                tool.InputBehaviors.OnSetChanged -= on_tool_behaviors_changed;
                 inputBehaviors.Remove(tool.InputBehaviors);
+            }
         }
+
+
+        void on_tool_behaviors_changed(InputBehaviorSet behaviors)
+        {
+            inputBehaviors.RemoveByGroup("active_tool");
+        }
+        void on_cockpit_behaviors_changed(InputBehaviorSet behaviors)
+        {
+            activeCockpit.InputBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;
+            activeCockpit.OverrideBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;
+            inputBehaviors.RemoveByGroup("active_cockpit");
+            inputBehaviors.RemoveByGroup("active_cockpit_override");
+            inputBehaviors.Add(activeCockpit.InputBehaviors, "active_cockpit");
+            overrideBehaviors.Add(activeCockpit.OverrideBehaviors, "active_cockpit_override");
+            activeCockpit.InputBehaviors.OnSetChanged += on_cockpit_behaviors_changed;
+            activeCockpit.OverrideBehaviors.OnSetChanged += on_cockpit_behaviors_changed;
+        }
+
+
 
 
 
