@@ -27,8 +27,29 @@ namespace f3
         public float VisibleListHeight = 0;
 
 
+        public bool LimitItemsToBounds {
+            get { return limit_items_to_bounds; }
+            set { limit_items_to_bounds = value; InvalidateLayout(); }
+        }
+        bool limit_items_to_bounds = false;
+
+
+        public int ScrollItems {
+            get { return scroll_items; }
+        }
+        int scroll_items = 0;
+        public int ScrollIndex {
+            get { return scroll_index; }
+            set { scroll_index = MathUtil.Clamp(value, 0, scroll_items); InvalidateLayout(); }
+        }
+        int scroll_index = 0;
+
+
         List<SceneUIElement> ListItems = new List<SceneUIElement>();
         List<Vector3f> ItemNudge = new List<Vector3f>();
+
+        enum VisibleState { WasVisible, WasHidden, WasVisible_SetHidden }
+        List<VisibleState> InternalVisibility = new List<VisibleState>();
 
         bool is_layout_valid;
 
@@ -58,7 +79,8 @@ namespace f3
 
             ListItems.Add(element);
             ItemNudge.Add(nudge);
-            is_layout_valid = false;
+            InternalVisibility.Add( (element.IsVisible) ? VisibleState.WasVisible : VisibleState.WasHidden );
+            InvalidateLayout();
         }
 
 
@@ -76,7 +98,13 @@ namespace f3
 
         virtual public void InvalidateLayout()
         {
-            is_layout_valid = false;
+            if (is_layout_valid) {
+                is_layout_valid = false;
+                for (int i = 0; i < ListItems.Count; ++i) {
+                    if (InternalVisibility[i] == VisibleState.WasVisible_SetHidden)
+                        ListItems[i].IsVisible = true;
+                }
+            }
         }
         virtual public void RecalculateLayout()
         {
@@ -96,21 +124,66 @@ namespace f3
 
         protected virtual void update_layout()
         {
+            int N = ListItems.Count;
+            if (N == 0)
+                return;
+
+            // update initial visibility
+            int total_visible = 0;
+            for (int i = 0; i < ListItems.Count; ++i) {
+                if (ListItems[i].IsVisible) {
+                    InternalVisibility[i] = VisibleState.WasVisible;
+                    total_visible++;
+                } else
+                    InternalVisibility[i] = VisibleState.WasHidden;
+            }
+
             FixedBoxModelElement contentBounds = BoxModel.PaddedContentBounds(this, Padding);
             Vector2f topLeft = BoxModel.GetBoxPosition(contentBounds, BoxPosition.TopLeft);
             Vector2f insertPos = topLeft;
 
-            int N = ListItems.Count;
-            int visible = 0;
+            int Nstop = -1;
+            int iStart = 0;
+            int actual_visible = 0;
             float spaceRequired = 0;
-            for (int i = 0; i < N; ++i) {
-                if (ListItems[i].IsVisible) {
-                    visible++;
-                    IBoxModelElement boxelem = ListItems[i] as IBoxModelElement;
-                    spaceRequired += (Direction == ListDirection.Vertical) ? boxelem.Size2D.y : boxelem.Size2D.x;
-                    if (i < N - 1)
-                        spaceRequired += Spacing;
+            float availableSpace = (Direction == ListDirection.Vertical) ? Height : Width;
+            int li = 0;
+            if (limit_items_to_bounds) {
+                int hid = 0;
+                while ( li < N && hid < scroll_index ) {
+                    if ( InternalVisibility[li] == VisibleState.WasVisible ) {
+                        InternalVisibility[li] = VisibleState.WasVisible_SetHidden;
+                        ListItems[li].IsVisible = false;
+                        hid++;
+                    }
+                    li++;
                 }
+            }
+            while (li < N) {
+                if (InternalVisibility[li] == VisibleState.WasHidden) {
+                    li++;
+                    continue;
+                }
+                if ( Nstop >= 0 ) {
+                    InternalVisibility[li] = VisibleState.WasVisible_SetHidden;
+                    ListItems[li].IsVisible = false;
+                    li++;
+                    continue;
+                }
+
+                actual_visible++;
+                IBoxModelElement boxelem = ListItems[li] as IBoxModelElement;
+                spaceRequired += (Direction == ListDirection.Vertical) ? boxelem.Size2D.y : boxelem.Size2D.x;
+                if (limit_items_to_bounds && spaceRequired > availableSpace) {
+                    InternalVisibility[li] = VisibleState.WasVisible_SetHidden;
+                    ListItems[li].IsVisible = false;
+                    Nstop = li;
+                    spaceRequired = availableSpace;
+                    actual_visible--;
+                } else if (li < N - 1) {
+                    spaceRequired += Spacing;
+                }
+                ++li;
             }
             if ( Direction == ListDirection.Vertical ) {
                 VisibleListHeight = spaceRequired;
@@ -120,6 +193,9 @@ namespace f3
                 VisibleListWidth = spaceRequired;
             }
 
+            scroll_items = 0;
+            if (limit_items_to_bounds)
+                scroll_items = total_visible - actual_visible;
 
             BoxPosition sourcePos = BoxPosition.TopLeft;
             if (Direction == ListDirection.Horizontal) {
@@ -153,7 +229,6 @@ namespace f3
                     BoxModel.SetObjectPosition(boxelem, BoxPosition.TopLeft, topLeft);
                     continue;
                 }
-
                 Vector2f usePos = insertPos + ItemNudge[i].xy;
                 BoxModel.SetObjectPosition(boxelem, sourcePos, usePos, ItemNudge[i].z);
 
