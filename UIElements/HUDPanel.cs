@@ -12,15 +12,31 @@ namespace f3
     {
         public HUDChildren Children;
 
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public float Padding { get; set; }
+        public float Width {
+            get { return width; }
+            set { if (width != value) { width = value; FUtil.SafeSendEvent(BoundsModifiedEvent, this); } }
+        }
+        float width;
+
+        public float Height {
+            get { return height; }
+            set { if (height != value) { height = value; FUtil.SafeSendEvent(BoundsModifiedEvent, this); } }
+        }
+        float height;
+
+        public float Padding {
+            get { return padding; }
+            set { if (padding != value) { padding = value; FUtil.SafeSendEvent(BoundsModifiedEvent, this); } }
+        }
+        float padding;
 
         public float PaddedWidth { get { return Width - 2*Padding; } }
         public float PaddedHeight { get { return Height - 2*Padding; } }
 
         fGameObject parent;
         List<IElementLayout> Layouts;
+
+        public BoundsModifiedEventHandler BoundsModifiedEvent;
 
         public HUDPanel()
         {
@@ -33,9 +49,9 @@ namespace f3
                     ;
                 }
             };
-            Width = 1;
-            Height = 1;
-            Padding = 0;
+            width = 1;
+            height = 1;
+            padding = 0;
         }
 
 
@@ -44,6 +60,7 @@ namespace f3
         {
             Width = width + 2 * Padding;
             Height = height + 2 * Padding;
+            FUtil.SafeSendEvent(BoundsModifiedEvent, this);
         }
         public Vector2f ContentSize {
             get { return BoxModel.PaddedSize(this, Padding); }
@@ -222,7 +239,9 @@ namespace f3
     {
         public HUDPanel Panel;
 
-        public HUDPanelContentBox(HUDPanel panel) { this.Panel = panel; }
+        public HUDPanelContentBox(HUDPanel panel) {
+            this.Panel = panel;
+        }
 
         public Vector2f Size2D
         {
@@ -234,4 +253,42 @@ namespace f3
             get { return Panel.ContentBounds; }
         }
     }
+
+
+
+    /// <summary>
+    /// container provider for content area of HUDPanel
+    /// </summary>
+    public class HUDPanelContainerProvider : IContainerBoundsProvider, IDisposable
+    {
+        HUDPanel panel;
+
+        public HUDPanelContainerProvider(HUDPanel panel)
+        {
+            this.panel = panel;
+            panel.BoundsModifiedEvent += on_element_modified;
+        }
+        public virtual void Dispose()
+        {
+            panel.BoundsModifiedEvent -= on_element_modified;
+        }
+
+        public virtual AxisAlignedBox2f ContainerBounds {
+            get { return panel.ContentBounds; }
+        }
+
+        virtual protected void on_element_modified(object source)
+        {
+            PostOnModified();
+        }
+
+        public virtual void PostOnModified()
+        {
+            FUtil.SafeSendAnyEvent(OnContainerBoundsModified, this);
+        }
+
+        // how to fire??
+        public event BoundsModifiedEventHandler OnContainerBoundsModified;
+    }
+
 }

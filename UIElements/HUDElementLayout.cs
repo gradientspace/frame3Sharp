@@ -25,17 +25,21 @@ namespace f3
         List<LayoutItem> items;
 
 
-        public HUDElementLayout(SceneUIElement parent, IBoxModelElement boxElement, IChildren<SceneUIElement> children)
+        public HUDElementLayout(SceneUIElement parent, IBoxModelElement boxElement, IChildren<SceneUIElement> children )
+        {
+            initialize(parent, new BoxModelElementContainerProvider(boxElement), children);
+        }
+        public HUDElementLayout(SceneUIElement parent, IContainerBoundsProvider elementBoundsProvider, IChildren<SceneUIElement> children)
+        {
+            initialize(parent, elementBoundsProvider, children);
+        }
+        void initialize(SceneUIElement parent, IContainerBoundsProvider boundsProvider, IChildren<SceneUIElement> children)
         {
             this.StandardDepth = 0.0f;
-
             this.parentElement = parent;
             this.childSet = children;
-
             Solver = new PinnedBoxes2DLayoutSolver(
-                new BoxContainer(
-                    new BoxModelElementContainerProvider(boxElement)));
-
+                new BoxContainer(boundsProvider));
             items = new List<LayoutItem>();
         }
 

@@ -62,6 +62,13 @@ namespace f3
             if (tmp != null)
                 tmp(source);
         }
+
+        public static void SafeSendEvent(BoundsModifiedEventHandler handler, object source)
+        {
+            var tmp = handler;
+            if (tmp != null)
+                tmp(source);
+        }
             
 
         public static void SafeSendEvent(OnChangeOpHandler handler, object source, IChangeOp change) {
