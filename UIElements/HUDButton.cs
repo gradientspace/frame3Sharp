@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 using g3;
 
 namespace f3
@@ -8,7 +7,9 @@ namespace f3
 	//  this button (ie the button "faces" -Z). Important if you want to align button towards something!
 	public class HUDButton : HUDStandardItem, IBoxModelElement
 	{
-		protected GameObject button, buttonMesh;
+        protected fGameObject button;
+        protected fGameObject buttonMesh;
+        protected fGameObject iconMesh;  // only for buttons w/ mesh icon
         protected fMaterial standard_mat, disabled_mat;
 
         public fMaterial StandardMaterial
@@ -34,12 +35,11 @@ namespace f3
 
 
         // creates a button in the desired geometry shape
-		public void Create( Material defaultMaterial, Material disabledMaterial = null ) {
-            button = new GameObject(UniqueNames.GetNext("HUDButton"));
+		public void Create( fMaterial defaultMaterial, fMaterial disabledMaterial = null ) {
+            button = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDButton"));
 			buttonMesh = AppendMeshGO ("shape", HUDUtil.MakeBackgroundMesh(this.Shape),
                 defaultMaterial, button);
-
-			buttonMesh.transform.Rotate (Vector3.right, -90.0f); // ??
+            buttonMesh.RotateD(Vector3f.AxisX, -90.0f); // ??
             MaterialUtil.DisableShadows(buttonMesh);
 
             standard_mat = new fMaterial(defaultMaterial);
@@ -48,64 +48,72 @@ namespace f3
         }
 
         // creates a button with a floating primitive in front of the button shape
-        public void Create( PrimitiveType eType, Material bgMaterial, Material primMaterial, float fPrimScale = 0.7f  ) {
-			button = new GameObject(UniqueNames.GetNext("HUDButton"));
+        public void Create( UnityEngine.PrimitiveType eType, fMaterial bgMaterial, fMaterial primMaterial, float fPrimScale = 0.7f  ) {
+            button = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDButton"));
             buttonMesh = AppendMeshGO ("shape", HUDUtil.MakeBackgroundMesh(this.Shape), bgMaterial, button);
-			buttonMesh.transform.Rotate (Vector3.right, -90.0f); // ??
+            buttonMesh.RotateD(Vector3f.AxisX, -90.0f); // ??
             MaterialUtil.DisableShadows(buttonMesh);
 
-            GameObject prim = AppendUnityPrimitiveGO ("primitive", eType, primMaterial, button);
+            iconMesh = AppendUnityPrimitiveGO ("primitive", eType, primMaterial, button);
 			float primSize = Shape.EffectiveRadius() * fPrimScale;
-			prim.transform.localScale = new Vector3 (primSize, primSize, primSize);
-			prim.transform.Translate (0.0f, 0.0f, - primSize);
-			prim.transform.Rotate (-15.0f, 45.0f, 0.0f, Space.Self);
-            MaterialUtil.DisableShadows(prim);
+            iconMesh.SetLocalScale(new Vector3f(primSize, primSize, primSize));
+            iconMesh.Translate(new Vector3f(0.0f, 0.0f, -primSize), false);
+            Quaternionf rot = iconMesh.GetLocalRotation();
+            rot = rot * Quaternionf.AxisAngleD(Vector3f.AxisY, 45.0f);
+            rot = rot * Quaternionf.AxisAngleD(Vector3f.AxisX, -15.0f);
+            iconMesh.SetLocalRotation(rot);
+            //buttonMesh.transform.Rotate(-15.0f, 45.0f, 0.0f, Space.Self);
+            MaterialUtil.DisableShadows(iconMesh);
 
             standard_mat = new fMaterial(bgMaterial);
         }
 
         // creates a button that is just the mesh, basically same as above but without the background disc
-        public void Create(PrimitiveType eType, Material primMaterial, float fPrimScale = 1.0f)
+        public void Create(UnityEngine.PrimitiveType eType, fMaterial primMaterial, float fPrimScale = 1.0f)
         {
-            button = new GameObject(UniqueNames.GetNext("HUDButton"));
+            button = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDButton"));
 
             buttonMesh = AppendUnityPrimitiveGO(UniqueNames.GetNext("HUDButton"), eType, primMaterial, button);
             float primSize = Shape.EffectiveRadius() * fPrimScale;
-            buttonMesh.transform.localScale = new Vector3(primSize, primSize, primSize);
-            buttonMesh.transform.Translate(0.0f, 0.0f, -primSize);
-            buttonMesh.transform.Rotate(-15.0f, 45.0f, 0.0f, Space.Self);
+            buttonMesh.SetLocalScale(new Vector3f(primSize, primSize, primSize));
+            buttonMesh.Translate( new Vector3f(0.0f, 0.0f, -primSize), false);
+            Quaternionf rot = buttonMesh.GetLocalRotation();
+            rot = rot * Quaternionf.AxisAngleD(Vector3f.AxisY, 45.0f);
+            rot = rot * Quaternionf.AxisAngleD(Vector3f.AxisX, -15.0f);
+            buttonMesh.SetLocalRotation(rot);
+            //buttonMesh.transform.Rotate(-15.0f, 45.0f, 0.0f, Space.Self);
             MaterialUtil.DisableShadows(buttonMesh);
 
             standard_mat = new fMaterial(primMaterial);
         }
 
         // creates a button that is just the mesh
-        public void Create( fMesh mesh, Material meshMaterial, float fScale, Quaternion transform )
+        public void Create( fMesh mesh, fMaterial meshMaterial, float fScale, Quaternionf transform )
         {
-            button = new GameObject(UniqueNames.GetNext("HUDButton"));
+            button = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDButton"));
 
-            GameObject meshGO = AppendMeshGO("shape", mesh, meshMaterial, button);
-            meshGO.transform.localScale = new Vector3(fScale, fScale, fScale);
-            meshGO.transform.localRotation *= transform;
-            MaterialUtil.DisableShadows(meshGO);
+            iconMesh = AppendMeshGO("shape", mesh, meshMaterial, button);
+            iconMesh.SetLocalScale(new Vector3f(fScale, fScale, fScale));
+            iconMesh.SetLocalRotation(iconMesh.GetLocalRotation() * transform);
+            MaterialUtil.DisableShadows(iconMesh);
 
             standard_mat = new fMaterial(meshMaterial);
         }
 
         // creates a button with a background shape and a foreground mesh
-        public void Create(Material bgMaterial, fMesh mesh, Material meshMaterial, float fScale, Frame3f deltaF)
+        public void Create(fMaterial bgMaterial, fMesh mesh, fMaterial meshMaterial, float fScale, Frame3f deltaF)
         {
-            button = new GameObject(UniqueNames.GetNext("HUDButton"));
+            button = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDButton"));
 
             buttonMesh = AppendMeshGO("shape", HUDUtil.MakeBackgroundMesh(this.Shape), bgMaterial, button);
-            buttonMesh.transform.Rotate(Vector3.right, -90.0f); // ??
+            buttonMesh.RotateD(Vector3f.AxisX, -90.0f); // ??
             MaterialUtil.DisableShadows(buttonMesh);
 
-            GameObject meshGO = AppendMeshGO("shape", mesh, meshMaterial, button);
-            meshGO.transform.localScale = new Vector3(fScale, fScale, fScale);
-            meshGO.transform.localPosition = deltaF.Origin;
-            meshGO.transform.localRotation = deltaF.Rotation;
-            MaterialUtil.DisableShadows(meshGO);
+            iconMesh = AppendMeshGO("shape", mesh, meshMaterial, button);
+            iconMesh.SetLocalScale(new Vector3f(fScale, fScale, fScale));
+            iconMesh.SetLocalPosition(deltaF.Origin);
+            iconMesh.SetLocalRotation(deltaF.Rotation);
+            MaterialUtil.DisableShadows(iconMesh);
 
             standard_mat = new fMaterial(bgMaterial);
         }
