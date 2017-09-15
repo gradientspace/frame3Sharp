@@ -68,7 +68,7 @@ namespace f3
                 return Capture.End;
 
             } else {
-                DebugUtil.Log(2, "VRMouseUIBehavior.UpdateCapture: somehow ended up bere without left mouse release!");
+                DebugUtil.Log(2, "VRMouseUIBehavior.UpdateCapture: somehow ended up here without left mouse release!");
                 if ( pCapturing != null ) {
                     pCapturing.EndCapture(InputEvent.Mouse(input.ToOrthoLayerInput()));
                     pCapturing = null;

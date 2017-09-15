@@ -69,7 +69,7 @@ namespace f3
                 return Capture.End;
 
             } else {
-                DebugUtil.Log(2, "Touch2DCockpitUIBehavior.UpdateCapture: somehow ended up bere without left mouse release!");
+                DebugUtil.Log(2, "Touch2DCockpitUIBehavior.UpdateCapture: somehow ended up here without left mouse release!");
                 if ( pCapturing != null ) {
                     pCapturing.EndCapture(InputEvent.Touch(input.ToOrthoLayerInput()));
                     pCapturing = null;
