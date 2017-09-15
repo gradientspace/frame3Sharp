@@ -55,6 +55,8 @@ namespace f3 {
         ActionSet nextFrameActions;             // actions that will be run in the next frame, before
                                                 // UI event handling, prerender(), etc
 
+        ActionSet everyFrameActions;            // actions that will be run every frame until removed
+
 
         public TransformManager TransformManager {
             get { return this.transformManager; }
@@ -144,6 +146,7 @@ namespace f3 {
             InputExtension.Get.Start();
 
             nextFrameActions = new ActionSet();
+            everyFrameActions = new ActionSet();
 
             // intialize camera stuff
             camTracker = new CameraTracking();
@@ -229,13 +232,19 @@ namespace f3 {
                 ActiveCockpit.Update();
 
             // run per-frame actions
-            Action execActions = null;
+            Action runAllOnceActions = null;
             lock (nextFrameActions) {
-                execActions = nextFrameActions.GetRunnable();
+                runAllOnceActions = nextFrameActions.GetRunnable();
                 nextFrameActions.Clear();
             }
-            if ( execActions != null )
-                execActions();
+            if ( runAllOnceActions != null )
+                runAllOnceActions();
+            Action runAllEveryFrameActions = null;
+            lock (everyFrameActions) {
+                runAllEveryFrameActions = everyFrameActions.GetRunnable();
+            }
+            if (runAllEveryFrameActions != null)
+                runAllEveryFrameActions();
 
 
             // can either use spacecontrols or mouse, but not both at same time
@@ -881,9 +890,16 @@ namespace f3 {
 
 
 
+        public void RegisterEveryFrameAction(Action F) {
+            lock (everyFrameActions) {
+                everyFrameActions.RegisterAction(F);
+            }
+        }
 
 
-       public bool RequestTextEntry(ITextEntryTarget target)
+
+
+        public bool RequestTextEntry(ITextEntryTarget target)
        {
             if ( activeTextTarget != null ) {
                 activeTextTarget.OnEndTextEntry();
