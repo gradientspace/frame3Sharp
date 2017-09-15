@@ -110,8 +110,8 @@ namespace f3
         /// </summary>
         public static Frame3f TransformTo(Frame3f frameIn, TransformableSO fromSO, TransformableSO toSO)
         {
-            Frame3f frameW = TransformTo(frameIn, fromSO, CoordSpace.ObjectCoords, CoordSpace.WorldCoords);
-            return TransformTo(frameW, toSO, CoordSpace.WorldCoords, CoordSpace.ObjectCoords);
+            Frame3f frameS = TransformTo(frameIn, fromSO, CoordSpace.ObjectCoords, CoordSpace.SceneCoords);
+            return TransformTo(frameS, toSO, CoordSpace.SceneCoords, CoordSpace.ObjectCoords);
         }
 
         /// <summary>
@@ -119,8 +119,8 @@ namespace f3
         /// </summary>
         public static Vector3f TransformTo(Vector3f ptIn, TransformableSO fromSO, TransformableSO toSO)
         {
-            Frame3f frameW = TransformTo(new Frame3f(ptIn), fromSO, CoordSpace.ObjectCoords, CoordSpace.WorldCoords);
-            return TransformTo(frameW, toSO, CoordSpace.WorldCoords, CoordSpace.ObjectCoords).Origin;
+            Frame3f frameS = TransformTo(new Frame3f(ptIn), fromSO, CoordSpace.ObjectCoords, CoordSpace.SceneCoords);
+            return TransformTo(frameS, toSO, CoordSpace.SceneCoords, CoordSpace.ObjectCoords).Origin;
         }
 
         /// <summary>
@@ -128,8 +128,8 @@ namespace f3
         /// </summary>
         public static Vector3d TransformTo(Vector3d ptIn, TransformableSO fromSO, TransformableSO toSO)
         {
-            Frame3f frameW = TransformTo(new Frame3f((Vector3f)ptIn), fromSO, CoordSpace.ObjectCoords, CoordSpace.WorldCoords);
-            return TransformTo(frameW, toSO, CoordSpace.WorldCoords, CoordSpace.ObjectCoords).Origin;
+            Frame3f frameS = TransformTo(new Frame3f((Vector3f)ptIn), fromSO, CoordSpace.ObjectCoords, CoordSpace.SceneCoords);
+            return TransformTo(frameS, toSO, CoordSpace.SceneCoords, CoordSpace.ObjectCoords).Origin;
         }
 
 
