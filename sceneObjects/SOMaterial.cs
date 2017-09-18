@@ -18,6 +18,7 @@ namespace f3
             PerVertexColor,
             TextureMap,
             UnlitRGBColor,
+            DepthWriteOnly,
 
             Custom
         };
@@ -27,6 +28,9 @@ namespace f3
 
         // [TODO] abstract this so we don't use unity.Texture2D
         public virtual Texture2D MainTexture { get; set; }
+
+
+        public virtual int RenderQueueShift { get; set; }
 
 
         public SOMaterial()

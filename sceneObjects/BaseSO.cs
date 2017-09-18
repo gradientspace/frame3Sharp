@@ -141,6 +141,11 @@ namespace f3
             throw new NotImplementedException("BaseSO.DisableShadows: must be implemented by subclasses");
         }
 
+        virtual public void SetLayer(int nLayer)
+        {
+            this.SetAllGOLayer(nLayer);
+        }
+
         public virtual void PreRender() {
             // nothing
         }

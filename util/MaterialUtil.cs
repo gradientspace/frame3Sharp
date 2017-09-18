@@ -99,6 +99,10 @@ namespace f3
         }
 
 
+        public static Material CreateDepthWriteOnly() {
+            return SafeLoadMaterial(SceneGraphConfig.DefaultDepthWriteOnlyMaterialPath);
+        }
+
         public static fMaterial CreateParticlesMaterial() {
             Material m = SafeLoadMaterial(SceneGraphConfig.DefaultParticleMaterialPath);
             return new fMaterial(m);
@@ -291,16 +295,29 @@ namespace f3
                 return unityMat;
 
             } else if (m.Type == SOMaterial.MaterialType.PerVertexColor) {
-                return MaterialUtil.CreateStandardVertexColorMaterial(m.RGBColor);
+                Material mat = MaterialUtil.CreateStandardVertexColorMaterial(m.RGBColor);
+                mat.renderQueue += m.RenderQueueShift;
+                return mat;
 
             } else if (m.Type == SOMaterial.MaterialType.TransparentRGBColor) {
-                return MaterialUtil.CreateTransparentMaterial(m.RGBColor);
+                Material mat = MaterialUtil.CreateTransparentMaterial(m.RGBColor);
+                mat.renderQueue += m.RenderQueueShift;
+                return mat;
 
             } else if (m.Type == SOMaterial.MaterialType.StandardRGBColor) {
-                return MaterialUtil.CreateStandardMaterial(m.RGBColor);
+                Material mat = MaterialUtil.CreateStandardMaterial(m.RGBColor);
+                mat.renderQueue += m.RenderQueueShift;
+                return mat;
 
             } else if (m.Type == SOMaterial.MaterialType.UnlitRGBColor) {
-                return MaterialUtil.CreateFlatMaterial(m.RGBColor);
+                Material mat = MaterialUtil.CreateFlatMaterial(m.RGBColor);
+                mat.renderQueue += m.RenderQueueShift;
+                return mat;
+
+            } else if (m.Type == SOMaterial.MaterialType.DepthWriteOnly) {
+                Material mat = MaterialUtil.CreateDepthWriteOnly();
+                mat.renderQueue += m.RenderQueueShift;
+                return mat;
 
             } else if ( m is UnitySOMaterial ) {
                 return (m as UnitySOMaterial).unityMaterial;

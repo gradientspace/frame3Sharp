@@ -120,6 +120,7 @@ namespace f3
             fMesh submesh = new fMesh(C.triangles, mesh, C.source_vertices, true, true, true);
             fMeshGameObject submesh_go = GameObjectFactory.CreateMeshGO("component", submesh, false);
             submesh_go.SetMaterial(new fMaterial(CurrentMaterial));
+            submesh_go.SetLayer(parentGO.GetLayer());
             displayComponents.Add(new DisplayMeshComponent() {
                 go = submesh_go, source_vertices = C.source_vertices
             });
@@ -201,13 +202,26 @@ namespace f3
         override public SceneObject Duplicate()
         {
             DMeshSO copy = new DMeshSO();
+            duplicate_to(copy);
+            return copy;
+        }
+
+        public T DuplicateSubtype<T>() where T: DMeshSO, new()
+        {
+            T copy = new T();
+            duplicate_to(copy);
+            return copy;
+        }
+
+        void duplicate_to(DMeshSO copy) {
             DMesh3 copyMesh = new DMesh3(mesh);
-            copy.Create( copyMesh, this.GetAssignedSOMaterial() );
+            copy.Create(copyMesh, this.GetAssignedSOMaterial());
             copy.SetLocalFrame(
                 this.GetLocalFrame(CoordSpace.ObjectCoords), CoordSpace.ObjectCoords);
             copy.SetLocalScale(this.GetLocalScale());
-            return copy;
         }
+
+
 
         // [RMS] this is not a good name...
         override public AxisAlignedBox3f GetLocalBoundingBox()
@@ -224,6 +238,11 @@ namespace f3
             MaterialUtil.DisableShadows(parentGO, true, true);
         }
 
+        override public void SetLayer(int nLayer)
+        {
+            parentGO.SetLayer(nLayer);
+            base.SetLayer(nLayer);
+        }
 
 
 

@@ -151,6 +151,13 @@ namespace f3
         }
 
 
+        public virtual void SetAllGOLayer(int nLayer)
+        {
+            foreach (var go in vObjects)
+                go.SetLayer(nLayer);
+        }
+
+
 		public virtual bool FindGORayIntersection (Ray ray, out GameObjectRayHit hit)
 		{
 			hit = new GameObjectRayHit();

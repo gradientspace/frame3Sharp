@@ -102,6 +102,10 @@ namespace f3
         {
             get { return "StandardMaterials/drop_shadow_mat"; }
         }
+        public static string DefaultDepthWriteOnlyMaterialPath {
+            get { return "StandardMaterials/depth_write_only"; }
+        }
+
 
         public static string LastFileOpenPath
         {
