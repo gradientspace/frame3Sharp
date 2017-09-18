@@ -39,7 +39,6 @@ namespace f3
         public SOMaterial PivotSOMaterial { get; set; }
         public SOMaterial FrameSOMaterial { get; set; }
 
-        public fMaterial SelectedMaterial { get; set; }
         public fMaterial FrameMaterial { get; set; }
         public fMaterial PivotMaterial { get; set; }
 
@@ -63,6 +62,9 @@ namespace f3
         // Objects in Selection Mask will not be selectable, or ray-cast for hit tests
         public HashSet<SceneObject> SelectionMask = null;
 
+        public fMaterial SelectedMaterial { get; set; }
+        public Dictionary<SceneObject, fMaterial> PerObjectSelectionMaterial = new Dictionary<SceneObject, fMaterial>();
+        public Dictionary<SOType, fMaterial> PerTypeSelectionMaterial = new Dictionary<SOType, fMaterial>();
         public bool DisableSelectionMaterial = false;
 
 
@@ -384,9 +386,9 @@ namespace f3
                     vSelected.Clear();
                 }
 
-				vSelected.Add (s);
-                if ( DisableSelectionMaterial == false )
-                    s.PushOverrideMaterial(SelectedMaterial);
+				vSelected.Add(s);
+                if (DisableSelectionMaterial == false)
+                    push_selection_material(s);
 
                 OnSelectionChanged(EventArgs.Empty);
 
@@ -684,9 +686,34 @@ namespace f3
         }
 
 
-        //public Vector3f TransferPoint(SceneObject fromSO, SceneObject toSO, Vector3f point)
-        //{
-        //}
+
+
+
+
+
+        /*
+         *  internals
+         */
+
+
+        // selection material handling
+        void push_selection_material(SceneObject so)
+        {
+            if (DisableSelectionMaterial)
+                throw new Exception("FScene.push_selection_material: disabled!");
+
+            fMaterial objectMat;
+            if (PerObjectSelectionMaterial.TryGetValue(so, out objectMat)) {
+                so.PushOverrideMaterial(objectMat);
+                return;
+            }
+            fMaterial typeMat;
+            if ( PerTypeSelectionMaterial.TryGetValue(so.Type, out typeMat)) {
+                so.PushOverrideMaterial(typeMat);
+                return;
+            }
+            so.PushOverrideMaterial(SelectedMaterial);
+        }
 
     }
 }
