@@ -18,10 +18,10 @@ namespace f3
         public DCurve3 Curve
         {
             get { return curve; }
-            set { curve = value; invalidate_geometry(); }
+            set { curve = value; on_set_curve(); }
         }
         int curve_timestamp = -1;
-        protected void invalidate_geometry() {
+        protected virtual void on_set_curve() {
             curve_timestamp = -1;
         }
 

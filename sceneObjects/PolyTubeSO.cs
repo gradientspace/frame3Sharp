@@ -15,7 +15,7 @@ namespace f3
         public Polygon2d Polygon
         {
             get { return polygon; }
-            set { polygon = value; invalidate_geometry(); }
+            set { polygon = value; on_set_curve(); }
         }
 
         // [RMS] see notes in PrimitiveSO
