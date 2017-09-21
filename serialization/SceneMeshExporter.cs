@@ -58,7 +58,6 @@ namespace f3
         public Func<SceneObject, fGameObject, bool> GOFilterF = null;
 
 
-
         /// <summary>
         /// This is called for each SO we are going to export, and only fGameObject
         /// elements in the returned list will be included in mesh export. By default
@@ -85,6 +84,14 @@ namespace f3
 
 
 
+
+        protected virtual DMesh3 GetMeshForDMeshSO(DMeshSO meshSO)
+        {
+            return new DMesh3(meshSO.Mesh, true);
+        }
+
+
+
         public virtual ExportStatus Export(FScene scene, string filename)
         {
             int[] vertexMap = new int[2048];        // temp
@@ -107,7 +114,7 @@ namespace f3
                     // todo: flags
 
                     // make a copy of mesh
-                    DMesh3 m = new DMesh3(meshSO.Mesh, true);
+                    DMesh3 m = GetMeshForDMeshSO(meshSO);
 
                     // transform to scene coords and swap left/right
                     foreach (int vid in m.VertexIndices()) {
