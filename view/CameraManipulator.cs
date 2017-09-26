@@ -101,6 +101,7 @@ namespace f3
                 turntableAzimuth -= deltaAzimuth;
                 turntableAltitude += deltaAltitude;
             }
+            turntableAzimuth = (float)MathUtil.ClampAngleDeg(Convert.ToDouble(turntableAzimuth), -360d, 360d);
             turntableAltitude = Mathf.Clamp(turntableAltitude, -89.9f, 89.9f);
 
             scene.RootGameObject.RotateAroundD(rotTarget, up, turntableAzimuth);
