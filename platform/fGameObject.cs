@@ -715,6 +715,15 @@ namespace f3
     public class PreRenderBehavior : MonoBehaviour
     {
         public fGameObject ParentFGO = null;
+
+        List<Action> AdditionalActions = null;
+        public void AddAction(Action a)
+        {
+            if (AdditionalActions == null)
+                AdditionalActions = new List<Action>();
+            AdditionalActions.Add(a);
+        }
+
         void Update() {
             // [RMS] this can be null if we created a GO by copying an fGO using Unity functions (eg Object.Instantiate).
             // The GO wil be created, and the PreRenderBehavior script will be copied, however there
@@ -723,6 +732,11 @@ namespace f3
             // Currently only happens when using UnityWrapperSO? so not a crisis.
             if ( ParentFGO != null )
                 ParentFGO.PreRender();
+
+            if (AdditionalActions != null) {
+                foreach (var action in AdditionalActions)
+                    action();
+            }
         }
     }
 
