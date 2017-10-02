@@ -41,6 +41,16 @@ namespace f3
         }
 
 
+
+        public static fMaterial CreateFlatShadedVertexColorMaterialF(Colorf c)
+        {
+            Material m = SafeLoadMaterial("StandardMaterials/flat_vertex_colored");
+            m.color = c;
+            return new fMaterial(m);
+        }
+
+
+
         public static Material CreateTransparentMaterial(Colorf c)
         {
             Material m = SafeLoadMaterial(SceneGraphConfig.DefaultTransparentMaterialPath);
