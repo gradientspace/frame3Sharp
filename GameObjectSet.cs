@@ -96,8 +96,10 @@ namespace f3
 
 			vObjects.Add (go);
 
-            parent.AddChild(go);
-            go.SetLayer(parent.GetLayer());
+            if (parent != null) {
+                parent.AddChild(go);
+                go.SetLayer(parent.GetLayer());
+            }
 
             return go;
 		}
