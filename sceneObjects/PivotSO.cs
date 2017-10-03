@@ -65,6 +65,9 @@ namespace f3
         }
 
 
+        protected virtual fGameObject PivotShapeGO {
+            get { return shapeGO; }
+        }
 
 
         override public void DisableShadows() {

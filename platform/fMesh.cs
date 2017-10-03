@@ -25,7 +25,10 @@ namespace f3
         {
             mesh = UnityUtil.DMeshToUnityMesh(source, false);
         }
-
+        public fMesh(SimpleMesh source)
+        {
+            mesh = UnityUtil.SimpleMeshToUnityMesh(source, false);
+        }
 
         public fMesh(int[] triangles, DMesh3 source, int[] source_vertices, bool bCopyNormals = false, bool bCopyColors = false, bool bCopyUVs = false)
         {
