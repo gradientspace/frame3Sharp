@@ -481,7 +481,7 @@ namespace f3
 
 
 
-        public static Mesh DMeshToUnityMesh(DMesh3 m, bool bSwapLeftRight)
+        public static fMesh DMeshToUnityMesh(DMesh3 m, bool bSwapLeftRight)
         {
             if (bSwapLeftRight)
                 throw new Exception("[RMSNOTE] I think this conversion is wrong, see MeshTransforms.SwapLeftRight. Just want to know if this code is ever hit.");
@@ -520,7 +520,7 @@ namespace f3
             if (m.HasVertexNormals == false)
                 unityMesh.RecalculateNormals();
 
-            return unityMesh;
+            return new fMesh(unityMesh);
         }
 
 

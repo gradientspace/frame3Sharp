@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using g3;
 
 namespace f3
@@ -51,6 +52,7 @@ namespace f3
 
         fGameObject sceneRoot;
         fGameObject scene_objects;
+        fGameObject transient_objects;
 
 
         List<SceneObject> vObjects;
@@ -100,6 +102,9 @@ namespace f3
             // for animation playbacks
             sceneRoot.AddComponent<SceneAnimator>().Scene = this;
             sceneRoot.AddComponent<UnityPerFrameAnimationBehavior>().Animator = ObjectAnimator;
+
+            transient_objects = GameObjectFactory.CreateParentGO("transient");
+            sceneRoot.AddChild(transient_objects, false);
 
             scene_objects = GameObjectFactory.CreateParentGO("scene_objects");
             sceneRoot.AddChild(scene_objects, false);
@@ -154,6 +159,14 @@ namespace f3
 
         public fGameObject RootGameObject {
             get { return sceneRoot; }
+        }
+
+        /// <summary>
+        /// Use this instead of RootGameObject if you want to put things in the Scene. Then we can clear
+        /// them out automatically on new scene.
+        /// </summary>
+        public fGameObject TransientObjectsParent {
+            get { return transient_objects; }
         }
 
 
@@ -481,10 +494,17 @@ namespace f3
 			}
 		}
 
-        public void RemoveAllUIElements()
+        public void RemoveAllUIElements(bool bDiscardTransientObjects = true)
         {
             while (vUIElements.Count > 0)
                 RemoveUIElement(vUIElements[0], true);
+
+            // discard any transient objects we have floating around
+            if (bDiscardTransientObjects) {
+                transient_objects.Destroy();
+                transient_objects = GameObjectFactory.CreateParentGO("transient");
+                sceneRoot.AddChild(transient_objects, false);
+            }
         }
 
 

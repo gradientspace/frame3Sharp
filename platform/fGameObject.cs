@@ -742,4 +742,25 @@ namespace f3
 
 
 
+
+    /// <summary>
+    /// Behavior that causes parent GO to track the transform of another GO. Allows for
+    /// 'attaching' objects to eachother w/o parenting.
+    /// </summary>
+    public class TrackObjectBehavior : MonoBehaviour
+    {
+        public fGameObject TrackGO = null;
+        public bool TrackScale = false;
+
+        void LateUpdate()
+        {
+            this.gameObject.transform.position = TrackGO.GetPosition();
+            this.gameObject.transform.rotation = TrackGO.GetRotation();
+            if (TrackScale)
+                this.gameObject.transform.localScale = TrackGO.GetLocalScale();
+        }
+    }
+
+
+
 }

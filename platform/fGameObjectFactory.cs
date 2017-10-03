@@ -23,6 +23,16 @@ namespace f3
         }
 
 
+        public static fGameObject CreateTrackingGO(string sName, fGameObject trackGO)
+        {
+            GameObject go = new GameObject(sName);
+            TrackObjectBehavior tracker = go.AddComponent<TrackObjectBehavior>();
+            tracker.TrackGO = trackGO;
+            return go;
+        }
+
+
+
         static void initialize_meshgo(GameObject go, fMesh mesh, bool bCollider, bool bShared)
         {
             go.AddComponent<MeshFilter>();
