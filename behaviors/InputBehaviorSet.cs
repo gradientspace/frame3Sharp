@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace f3
 {
-    public class InputBehaviorSet
+    public class InputBehaviorSet : IEnumerable<InputBehavior>
     {
         protected struct BehaviorInfo
         {
@@ -67,15 +66,18 @@ namespace f3
             behaviors_modified();
         }
 
-        public void RemoveByGroup(string group)
+        public List<InputBehavior> RemoveByGroup(string group)
         {
+            List<InputBehavior> removed = new List<InputBehavior>();
             for ( int i = 0; i < Behaviors.Count; ++i ) {
                 if ( Behaviors[i].group == group ) {
+                    removed.Add(Behaviors[i].b);
                     Behaviors.RemoveAt(i);
                     i--;
                 }
             }
             behaviors_modified();
+            return removed;
         }
 
         void behaviors_modified()
@@ -141,6 +143,19 @@ namespace f3
                     b.b.EndHover(input);
             }
         }
+
+
+
+        public IEnumerator<InputBehavior> GetEnumerator()
+        {
+            for (int k = 0; k < Behaviors.Count; ++k)
+                yield return Behaviors[k].b;
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
 
 
     }

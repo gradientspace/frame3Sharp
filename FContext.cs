@@ -414,6 +414,13 @@ namespace f3 {
             input.Initialize_TouchInput(this);
             lastInputState = input;
 
+            // [RMS] not sure if this is 100% correct thing to do. We need to allow Platform UI
+            // layer (eg like Unity ui) to consume mouse events before we see them. However this
+            // only applies if they are "on top". It is a bit tricky...
+            if (FPlatformUI.IsConsumingMouseInput()) {
+                return;
+            }
+
             // run override behaviors
             overrideBehaviors.SendOverrideInputs(input);
 
@@ -487,6 +494,15 @@ namespace f3 {
             InputState input = new InputState();
             input.Initialize_MouseGamepad(this);
             lastInputState = input;
+
+
+            // [RMS] not sure if this is 100% correct thing to do. We need to allow Platform UI
+            // layer (eg like Unity ui) to consume mouse events before we see them. However this
+            // only applies if they are "on top". It is a bit tricky...
+            if ( FPlatformUI.IsConsumingMouseInput()) { 
+                return;
+            }
+
 
             CameraInteractionState eCamState = (MouseCameraController != null) 
                 ? MouseCameraController.CheckCameraControls(input) : CameraInteractionState.Ignore;
@@ -581,22 +597,45 @@ namespace f3 {
         void TerminateCaptures(InputState input)
         {
             if ( captureMouse != null ) {
-                captureMouse.element.ForceEndCapture(lastInputState, captureMouse.data);
+                captureMouse.element.ForceEndCapture(input, captureMouse.data);
                 captureMouse = null;
             }
             if ( captureTouch != null ) {
-                captureTouch.element.ForceEndCapture(lastInputState, captureTouch.data);
+                captureTouch.element.ForceEndCapture(input, captureTouch.data);
                 captureTouch = null;
             }
             if ( captureLeft != null ) {
-                captureLeft.element.ForceEndCapture(lastInputState, captureLeft.data);
+                captureLeft.element.ForceEndCapture(input, captureLeft.data);
                 captureLeft = null;
             }
             if ( captureRight != null ) {
-                captureRight.element.ForceEndCapture(lastInputState, captureRight.data);
+                captureRight.element.ForceEndCapture(input, captureRight.data);
                 captureRight = null;
             }
         }
+
+        void TerminateIfCapturing(IEnumerable<InputBehavior> behaviors, InputState input)
+        {
+            foreach ( InputBehavior b in behaviors ) {
+                if ( captureMouse != null && captureMouse.element == b) {
+                    captureMouse.element.ForceEndCapture(lastInputState, captureMouse.data);
+                    captureMouse = null;
+                }
+                if (captureTouch != null && captureTouch.element == b) {
+                    captureTouch.element.ForceEndCapture(lastInputState, captureTouch.data);
+                    captureTouch = null;
+                }
+                if (captureLeft != null && captureLeft.element == b) {
+                    captureLeft.element.ForceEndCapture(lastInputState, captureLeft.data);
+                    captureLeft = null;
+                }
+                if (captureRight != null && captureRight.element == b) {
+                    captureRight.element.ForceEndCapture(lastInputState, captureRight.data);
+                    captureRight = null;
+                }
+            }
+        }
+
 
 
         // called when we lose window focus
@@ -685,6 +724,7 @@ namespace f3 {
                 tool.InputBehaviors.OnSetChanged += on_tool_behaviors_changed;
             } else {
                 tool.InputBehaviors.OnSetChanged -= on_tool_behaviors_changed;
+                TerminateIfCapturing(tool.InputBehaviors, lastInputState);
                 inputBehaviors.Remove(tool.InputBehaviors);
             }
         }
@@ -692,14 +732,19 @@ namespace f3 {
 
         void on_tool_behaviors_changed(InputBehaviorSet behaviors)
         {
-            inputBehaviors.RemoveByGroup("active_tool");
+            List<InputBehavior> removed = inputBehaviors.RemoveByGroup("active_tool");
+            TerminateIfCapturing(removed, lastInputState);
         }
         void on_cockpit_behaviors_changed(InputBehaviorSet behaviors)
         {
             activeCockpit.InputBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;
             activeCockpit.OverrideBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;
-            inputBehaviors.RemoveByGroup("active_cockpit");
-            inputBehaviors.RemoveByGroup("active_cockpit_override");
+
+            List<InputBehavior> actives = inputBehaviors.RemoveByGroup("active_cockpit");
+            TerminateIfCapturing(actives, lastInputState);
+            List<InputBehavior> overrides = inputBehaviors.RemoveByGroup("active_cockpit_override");
+            TerminateIfCapturing(overrides, lastInputState);
+
             inputBehaviors.Add(activeCockpit.InputBehaviors, "active_cockpit");
             overrideBehaviors.Add(activeCockpit.OverrideBehaviors, "active_cockpit_override");
             activeCockpit.InputBehaviors.OnSetChanged += on_cockpit_behaviors_changed;
