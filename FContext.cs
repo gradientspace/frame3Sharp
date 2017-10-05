@@ -210,6 +210,9 @@ namespace f3 {
         //  (should this be exposed somehow?)
         InputState lastInputState;
 
+        // we use this as a guard to prevent calling things that would cancel current capture
+        bool inCapturingObjectCall = false;
+
         // Update is called once per frame
         public void Update() {
 
@@ -298,7 +301,14 @@ namespace f3 {
 
             // update left-capture
             if (captureLeft != null) {
-                Capture cap = captureLeft.element.UpdateCapture(input, captureLeft.data);
+                inCapturingObjectCall = true;
+                Capture cap = Capture.End;
+                try {
+                    cap = captureLeft.element.UpdateCapture(input, captureLeft.data);
+                }catch ( Exception e ) {
+                    DebugUtil.Log(2, "FContext.HandleInput_SpaceControllers: exception in left UpdateCapture! " + e.Message);
+                }
+                inCapturingObjectCall = false;
                 if (cap.state == CaptureState.Continue) {
                     // (carry on)
                 } else if (cap.state == CaptureState.End) {
@@ -312,7 +322,14 @@ namespace f3 {
             // update right-capture
             // if we are doing a both-capture, we only want to send update once
             if ( captureRight != null && captureRight != captureLeft ) {
-                Capture cap = captureRight.element.UpdateCapture(input, captureRight.data);
+                inCapturingObjectCall = true;
+                Capture cap = Capture.End;
+                try {
+                    cap = captureRight.element.UpdateCapture(input, captureRight.data);
+                } catch (Exception e) {
+                    DebugUtil.Log(2, "FContext.HandleInput_SpaceControllers: exception in right UpdateCapture! " + e.Message);
+                }
+                inCapturingObjectCall = false;
                 if (cap.state == CaptureState.Continue) {
                     // (carry on)
                 } else if (cap.state == CaptureState.End) {
@@ -428,7 +445,14 @@ namespace f3 {
 
             // update left-capture
             if (captureTouch != null) {
-                Capture cap = captureTouch.element.UpdateCapture(input, captureTouch.data);
+                inCapturingObjectCall = true;
+                Capture cap = Capture.End;
+                try {
+                    cap = captureTouch.element.UpdateCapture(input, captureTouch.data);
+                } catch (Exception e) {
+                    DebugUtil.Log(2, "FContext.HandleInput_Touch: exception in UpdateCapture! " + e.Message);
+                }
+                inCapturingObjectCall = false;
                 if (cap.state == CaptureState.Continue) {
                     // (carry on)
                 } else if (cap.state == CaptureState.End) {
@@ -526,7 +550,14 @@ namespace f3 {
                 input.MouseGamepadCaptureActive = (captureMouse != null);
 
                 if (InCaptureMouse) {
-                    Capture cap = captureMouse.element.UpdateCapture(input, captureMouse.data);
+                    inCapturingObjectCall = true;
+                    Capture cap = Capture.End;
+                    try {
+                        cap = captureMouse.element.UpdateCapture(input, captureMouse.data);
+                    } catch (Exception e) {
+                        DebugUtil.Log(2, "FContext.HandleInput_MouseOrGamepad: exception in UpdateCapture! " + e.Message);
+                    }
+                    inCapturingObjectCall = false;
                     if (cap.state == CaptureState.Continue) {
                         // (carry on)
                     } else if (cap.state == CaptureState.End) {
@@ -664,6 +695,11 @@ namespace f3 {
 
         public void PushCockpit(ICockpitInitializer initializer)
         {
+            if (inCapturingObjectCall) {
+                DebugUtil.Log(2, "FContext.PushCockpit: called from inside Behaviour.UpdateCapture(). This is not permitted. Use FContext.RegisterNextFrameAction().");
+                throw new Exception("FContext.PushCockpit: called from inside Behaviour.UpdateCapture(). This is not permitted. Use FContext.RegisterNextFrameAction().");
+            }
+
             Cockpit trackingInitializer = null;
             if (activeCockpit != null) {
                 trackingInitializer = activeCockpit;
@@ -691,6 +727,11 @@ namespace f3 {
         }
         public void PopCockpit(bool bDestroy)
         {
+            if (inCapturingObjectCall) {
+                DebugUtil.Log(2, "FContext.PopCockpit: called from inside Behaviour.UpdateCapture(). This is not permitted. Use FContext.RegisterNextFrameAction().");
+                throw new Exception("FContext.PopCockpit: called from inside Behaviour.UpdateCapture(). This is not permitted. Use FContext.RegisterNextFrameAction().");
+            }
+
             if (activeCockpit != null) {
                 inputBehaviors.Remove(activeCockpit.InputBehaviors);
                 overrideBehaviors.Remove(activeCockpit.OverrideBehaviors);
@@ -740,9 +781,15 @@ namespace f3 {
             activeCockpit.InputBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;
             activeCockpit.OverrideBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;
 
+            // remove from global behavior set
             List<InputBehavior> actives = inputBehaviors.RemoveByGroup("active_cockpit");
-            TerminateIfCapturing(actives, lastInputState);
             List<InputBehavior> overrides = inputBehaviors.RemoveByGroup("active_cockpit_override");
+
+            // if a Behavior that is currently capturing is no longer in active or override sets,
+            // we need to terminate that behavior.
+            actives.RemoveAll((x) => { return activeCockpit.InputBehaviors.Contains(x); });
+            TerminateIfCapturing(actives, lastInputState);
+            overrides.RemoveAll((x) => { return activeCockpit.OverrideBehaviors.Contains(x); });
             TerminateIfCapturing(overrides, lastInputState);
 
             inputBehaviors.Add(activeCockpit.InputBehaviors, "active_cockpit");
