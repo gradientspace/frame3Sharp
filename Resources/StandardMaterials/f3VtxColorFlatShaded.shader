@@ -126,7 +126,7 @@ Shader "f3/f3VtxColorFlatShaded"
 			ZTest LEqual
 
 			CGPROGRAM
-			#pragma target 3.0
+			#pragma target 4.0
 
 			// -------------------------------------
 
@@ -145,8 +145,27 @@ Shader "f3/f3VtxColorFlatShaded"
 			// [RMS] also need to do geom shader here if we want specular highlights...
 
 			#pragma vertex vertAdd
+			#pragma geometry geom_test_Add
 			#pragma fragment fragAdd
 			#include "UnityStandardCoreForward.cginc"
+
+			[maxvertexcount(3)]
+			void geom_test_Add(triangle VertexOutputForwardAdd input[3], inout TriangleStream<VertexOutputForwardAdd> OutputStream)
+			{
+				float3 p0 = input[0].posWorld;
+				float3 p1 = input[1].posWorld;
+				float3 p2 = input[2].posWorld;
+				float3 normal = normalize(cross(p1 - p0, p2 - p0));
+
+				for (int i = 0; i < 3; i++) {
+					VertexOutputForwardAdd vtx = input[i];
+					vtx.tangentToWorldAndLightDir[2].xyz = normal;
+					vtx.tangentToWorldAndLightDir[1].xyz = normalize(cross(vtx.tangentToWorldAndLightDir[0].xyz, vtx.tangentToWorldAndLightDir[2].xyz));
+					vtx.tangentToWorldAndLightDir[0].xyz = normalize(cross(vtx.tangentToWorldAndLightDir[1].xyz, vtx.tangentToWorldAndLightDir[2].xyz));
+					OutputStream.Append(vtx);
+				}
+			}
+
 
 			ENDCG
 		}
