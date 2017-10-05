@@ -307,6 +307,12 @@ namespace f3
         }
 
 
+        public virtual void SetIgnoreMaterialChanges()
+        {
+            AddComponent<IgnoreMaterialChanges>();
+        }
+
+
 
         // what to do about this??
         public virtual T AddComponent<T>() where T : Component

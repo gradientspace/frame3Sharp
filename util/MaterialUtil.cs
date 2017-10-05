@@ -133,6 +133,7 @@ namespace f3
         public static Material CreateTextMeshMaterial()
         {
             Material m = SafeLoadMaterial("StandardMaterials/default_text_material");
+            m.SetColor("_Color", Color.white);  // [RMS] material has red color set in unity editor...for debugging purposes?
             return m;
         }
         public static void SetTextMeshDefaultMaterial(TextMesh textMesh)
@@ -306,6 +307,11 @@ namespace f3
 
             } else if (m.Type == SOMaterial.MaterialType.PerVertexColor) {
                 Material mat = MaterialUtil.CreateStandardVertexColorMaterial(m.RGBColor);
+                mat.renderQueue += m.RenderQueueShift;
+                return mat;
+
+            } else if (m.Type == SOMaterial.MaterialType.FlatShadedPerVertexColor) {
+                Material mat = MaterialUtil.CreateFlatShadedVertexColorMaterialF(m.RGBColor);
                 mat.renderQueue += m.RenderQueueShift;
                 return mat;
 

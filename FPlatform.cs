@@ -17,6 +17,7 @@ namespace f3
         {
             return LayerMask.NameToLayer(sLayerName);
         }
+        static public int GeometryLayer { get { return GetLayerID(SceneGraphConfig.GeometryLayerName); } }
         static public int WidgetOverlayLayer { get { return GetLayerID(SceneGraphConfig.WidgetOverlayLayerName); } }
         static public int HUDLayer { get { return GetLayerID(SceneGraphConfig.HUDLayerName); } }
         static public int UILayer { get { return GetLayerID(SceneGraphConfig.UILayerName); } }

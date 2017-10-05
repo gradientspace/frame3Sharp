@@ -19,6 +19,7 @@ namespace f3
             TextureMap,
             UnlitRGBColor,
             DepthWriteOnly,
+            FlatShadedPerVertexColor,
 
             Custom
         };

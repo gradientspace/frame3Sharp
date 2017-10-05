@@ -40,9 +40,13 @@ namespace f3
             ActiveDoubleClickDelay = MouseDoubleClickDelay;
         }
 
-		// assumption is that layer with this name has been created in the Editor, because we 
-		// cannot create layers in code. We will use this layer to draw overlay 3D objects (eg 3D widgets, etc)
-		public static string WidgetOverlayLayerName {
+        public static string GeometryLayerName {
+            get { return "Default"; }
+        }
+
+        // assumption is that layer with this name has been created in the Editor, because we 
+        // cannot create layers in code. We will use this layer to draw overlay 3D objects (eg 3D widgets, etc)
+        public static string WidgetOverlayLayerName {
 			get { return "3DWidgetOverlay"; }
 		}
 
