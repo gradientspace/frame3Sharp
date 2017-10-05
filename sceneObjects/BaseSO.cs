@@ -143,6 +143,7 @@ namespace f3
 
         virtual public void SetLayer(int nLayer)
         {
+            RootGameObject.SetLayer(nLayer);
             this.SetAllGOLayer(nLayer);
         }
 

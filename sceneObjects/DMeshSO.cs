@@ -6,6 +6,8 @@ using g3;
 namespace f3
 {
 
+    public delegate void DMeshChangedEventHandler(DMeshSO so);
+
 
     public class DMeshSO : BaseSO, IMeshComponentManager, SpatialQueryableSO
     {
@@ -53,6 +55,10 @@ namespace f3
         }
 
 
+        /// <summary>
+        /// Event will be called whenever our internal mesh changes
+        /// </summary>
+        public event DMeshChangedEventHandler OnMeshModified;
 
 
         public DMeshAABBTree3 Spatial
@@ -76,15 +82,20 @@ namespace f3
                 on_mesh_changed();
                 validate_decomp();
             }
+            post_mesh_modified();
         }
 
 
-        public void ReplaceMesh(DMesh3 newMesh)
+        public void ReplaceMesh(DMesh3 newMesh, bool bTakeOwnership = true)
         {
-            this.mesh = newMesh;
+            if (bTakeOwnership)
+                this.mesh = newMesh;
+            else
+                this.mesh = new DMesh3(newMesh);
 
             on_mesh_changed();
             validate_decomp();
+            post_mesh_modified();
         }
 
         public void UpdateVertexPositions(Vector3f[] vPositions) {
@@ -93,6 +104,7 @@ namespace f3
             foreach (int vid in mesh.VertexIndices())
                 mesh.SetVertex(vid, vPositions[vid]);
             fast_mesh_update();
+            post_mesh_modified();
         }
         public void UpdateVertexPositions(Vector3d[] vPositions) {
             if (vPositions.Length < mesh.MaxVertexID)
@@ -100,6 +112,7 @@ namespace f3
             foreach (int vid in mesh.VertexIndices())
                 mesh.SetVertex(vid, vPositions[vid]);
             fast_mesh_update();
+            post_mesh_modified();
         }
 
         // fast update of existing spatial decomp
@@ -175,6 +188,13 @@ namespace f3
                 decomp = new MeshDecomposition(mesh, this);
                 decomp.BuildLinear();
             }
+        }
+
+        void post_mesh_modified()
+        {
+            var tmp = OnMeshModified;
+            if (tmp != null)
+                tmp(this);
         }
 
 
