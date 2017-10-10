@@ -18,13 +18,20 @@ namespace f3
             Frame = frame;
         }
 
+        /// <summary>
+        /// Construct new keyframe that interpolates between parent1 and parent2.
+        /// Argument is a time in range [parent1.Time,parent2.Time], not a lerp-alpha!!
+        /// </summary>
         public Keyframe(Keyframe parent1, Keyframe parent2, double interpTime)
         {
             Time = interpTime;
 
-            if (interpTime <= 0) {
+            // [RMS] catch weird inputs in debug?
+            Util.gDevAssert(interpTime >= parent1.Time && interpTime <= parent2.Time);
+
+            if (interpTime <= parent1.Time) {
                 this.Frame = parent1.Frame;
-            } else if (interpTime >= 1) {
+            } else if (interpTime >= parent2.Time) {
                 this.Frame = parent2.Frame;
             } else {
                 double a = (parent1.Time == parent2.Time) ? 0.5 :
