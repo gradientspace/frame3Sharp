@@ -96,15 +96,26 @@ namespace f3
     {
         public TransformableSO so;
         public Frame3f before, after;
+        public CoordSpace space;
 
         public override string Identifier() { return "TransformSOChange"; }
 
+        public TransformSOChange() {
+            space = CoordSpace.SceneCoords;
+        }
+        public TransformSOChange(TransformableSO target, Frame3f before, Frame3f after, CoordSpace coords) {
+            this.so = target;
+            this.before = before;
+            this.after = after;
+            this.space = coords;
+        }
+
         public override OpStatus Apply() {
-            so.SetLocalFrame(after, CoordSpace.SceneCoords);
+            so.SetLocalFrame(after, space);
             return OpStatus.Success;
         }
         public override OpStatus Revert() {
-            so.SetLocalFrame(before, CoordSpace.SceneCoords);
+            so.SetLocalFrame(before, space);
             return OpStatus.Success;
         }
         public override OpStatus Cull() {

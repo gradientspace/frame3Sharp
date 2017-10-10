@@ -19,9 +19,24 @@ namespace f3
 
     public enum FrameType
     {
-        LocalFrame,
-        WorldFrame
+        LocalFrame = 0,
+        WorldFrame = 1
     };
+
+
+    public enum UpDirection
+    {
+        ZUp = 0,
+        YUp = 1
+    }
+
+
+    public enum PivotLocation
+    {
+        Center = 0,
+        BaseCenter = 1
+    }
+
 
 
     public interface IGameObjectGenerator
