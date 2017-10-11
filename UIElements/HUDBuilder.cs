@@ -9,6 +9,41 @@ namespace f3
     public class HUDBuilder
     {
 
+        public static HUDElementList CreateAutoSizeHorizontalList(string name, float spacing, params SceneUIElement[] items)
+        {
+            HUDElementList items_list = new HUDElementList() {
+                Width = 0, Height = 0,
+                Direction = HUDElementList.ListDirection.Horizontal,
+                SizeMode = HUDElementList.SizeModes.AutoSizeToFit,
+                Spacing = spacing
+            };
+            foreach ( var item in items )
+                items_list.AddListItem(item);
+            items_list.Create();
+            items_list.Name = name;
+            return items_list;
+        }
+
+
+        public static HUDElementList CreateAutoSizeVerticalList(string name, float spacing, params SceneUIElement[] items)
+        {
+            HUDElementList items_list = new HUDElementList() {
+                Width = 0, Height = 0,
+                Direction = HUDElementList.ListDirection.Vertical,
+                SizeMode = HUDElementList.SizeModes.AutoSizeToFit,
+                Spacing = spacing
+            };
+            foreach (var item in items)
+                items_list.AddListItem(item);
+            items_list.Create();
+            items_list.Name = name;
+            return items_list;
+        }
+
+
+
+
+
         public static HUDButton CreateIconClickButton(HUDShape shape,
                                      float fHUDRadius, float fAngleHorz, float fAngleVert,
                                      string icon,
