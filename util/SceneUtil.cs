@@ -303,6 +303,33 @@ namespace f3
             UnityEngine.Object.Destroy(so.RootGameObject);
         }
 
+
+
+        public static bool IsSelectionMatch(FScene scene, Type type, int count)
+        {
+            var c = scene.Selected;
+            if (c.Count != count)
+                return false;
+            foreach ( var o in c ) {
+                if ( ! type.IsAssignableFrom(o.GetType()) )
+                    return false;
+            }
+            return true;
+        }
+        public static bool IsSelectionMatch(FScene scene, params Type[] typeList)
+        {
+            var c = scene.Selected;
+            if (c.Count != typeList.Length)
+                return false;
+            int k = 0;
+            foreach (var o in c) {
+                if ( ! typeList[k++].IsAssignableFrom(o.GetType()) )
+                    return false;
+            }
+            return true;
+        }
+
+
     }
 
 

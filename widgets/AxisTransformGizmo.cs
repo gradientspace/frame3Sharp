@@ -45,6 +45,9 @@ namespace f3
 
     public class AxisTransformGizmo : GameObjectSet, ITransformGizmo
     {
+        public static readonly string DefaultName = "axis_transform";
+
+
 		fGameObject gizmo;
 		fGameObject translate_x, translate_y, translate_z;
 		fGameObject rotate_x, rotate_y, rotate_z;

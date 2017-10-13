@@ -38,6 +38,9 @@ namespace f3
             if (nLevel <= LogLevel)
                 Debug.Log(string.Format(text, args));
         }
+        static public void Log(string text, params object[] args) {
+            Debug.Log(string.Format(text, args));
+        }
 
         // Warning always prints
         static public void Warning(string sMessage) {
