@@ -19,6 +19,25 @@ namespace f3
         }
 
 
+        public static Button FindButtonAndAddToggleBehavior(string buttonName, Func<bool> getValue, Action<bool> setValue, Action<bool,Button> updateF )
+        {
+            var button = UnityUtil.FindGameObjectByName(buttonName).GetComponent<Button>();
+            button.onClick.AddListener( () => {
+                bool curState = getValue();
+                setValue(! curState);
+                bool newState = getValue();
+                if (newState != curState)
+                    updateF(newState, button);
+
+            });
+            updateF(getValue(), button);
+            return button;
+        }
+
+
+
+
+
         public static InputField FindInputAndAddValueChangedHandler(string inputName, UnityAction<string> handler)
         {
             var field = UnityUtil.FindGameObjectByName(inputName).GetComponent<InputField>();
