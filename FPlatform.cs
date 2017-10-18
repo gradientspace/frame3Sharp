@@ -158,7 +158,7 @@ namespace f3
 
         static public bool IsUsingVR()
         {
-            return UnityEngine.VR.VRSettings.enabled;
+            return UnityEngine.XR.XRSettings.enabled;
             //return UnityEngine.VR.VRSettings.isDeviceActive;
         }
 
