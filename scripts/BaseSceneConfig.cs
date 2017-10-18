@@ -26,5 +26,12 @@ namespace f3
             Context.OnFocusChange(hasFocus);
         }
 
+
+        public virtual void OnApplicationQuit()
+        {
+            // let client decide what to do here
+        }
+
+
     }
 }
