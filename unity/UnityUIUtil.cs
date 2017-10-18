@@ -18,13 +18,12 @@ namespace f3
             return button;
         }
 
-
-        public static Button FindButtonAndAddToggleBehavior(string buttonName, Func<bool> getValue, Action<bool> setValue, Action<bool,Button> updateF )
+        public static Button FindButtonAndAddToggleBehavior(string buttonName, Func<bool> getValue, Action<bool> setValue, Action<bool, Button> updateF)
         {
             var button = UnityUtil.FindGameObjectByName(buttonName).GetComponent<Button>();
-            button.onClick.AddListener( () => {
+            button.onClick.AddListener(() => {
                 bool curState = getValue();
-                setValue(! curState);
+                setValue(!curState);
                 bool newState = getValue();
                 if (newState != curState)
                     updateF(newState, button);
@@ -35,6 +34,27 @@ namespace f3
         }
 
 
+
+
+
+
+        public static Toggle FindToggleAndAddHandler(string toggleName, UnityAction<bool> handler)
+        {
+            var toggle = UnityUtil.FindGameObjectByName(toggleName).GetComponent<Toggle>();
+            toggle.onValueChanged.AddListener(handler);
+            return toggle;
+        }
+
+        public static Toggle FindToggleAndConnectToSource(string toggleName, Func<bool> getValue, Action<bool> setValue)
+        {
+            var toggle = UnityUtil.FindGameObjectByName(toggleName).GetComponent<Toggle>();
+            toggle.onValueChanged.AddListener((b) => {
+                setValue(b);
+                toggle.isOn = getValue();
+            });
+            toggle.isOn = getValue();
+            return toggle;
+        }
 
 
 

@@ -54,8 +54,10 @@ namespace f3
         {
             get { return bgColor; }
             set {
-                bgColor = value;
-                backgroundGO.SetColor(bgColor);
+                if (bgColor != value) {
+                    bgColor = value;
+                    backgroundGO.SetColor(bgColor);
+                }
             }
         }
 
@@ -64,8 +66,10 @@ namespace f3
         {
             get { return completedColor; }
             set {
-                completedColor = value;
-                progressGO.SetColor(completedColor);
+                if (completedColor != value) {
+                    completedColor = value;
+                    progressGO.SetColor(completedColor);
+                }
             }
         }
 
@@ -79,7 +83,7 @@ namespace f3
             (progressGO as fDiscGameObject).SetRadius(0.95f*radius);
 
             double fT = Progress / MaxProgress;
-            progressGO.SetStartAngleDeg(90 - MathUtil.Clamp((float)(360 * fT), 1.0f, 359.0f));
+            progressGO.SetStartAngleDeg(90 - MathUtil.Clamp((float)(360 * fT), 1.0f, 359.999f));
         }
 
 

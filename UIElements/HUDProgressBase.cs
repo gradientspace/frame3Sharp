@@ -33,12 +33,18 @@ namespace f3
 
         public double MaxProgress {
             get { return max_progress; }
+            set {
+                if ( max_progress != value ) {
+                    max_progress = value;
+                    update_progress(current_progress, true, true);
+                }
+            }
         }
 
 
-        void update_progress(double newValue, bool bSendEvent)
+        void update_progress(double newValue, bool bSendEvent, bool max_changed = false)
         {
-            if (newValue != current_progress) {
+            if (newValue != current_progress || max_changed) {
                 double prev = current_progress;
                 current_progress = newValue;
                 update_geometry();
