@@ -201,8 +201,13 @@ namespace f3
 
 
 
+        // background threads should kill themselves if this ever becomes true...
+        static public bool ShutdownBackgroundThreadsOnQuit = false;
+
+
         static public void QuitApplication() {
             Cursor.lockState = CursorLockMode.None;
+            ShutdownBackgroundThreadsOnQuit = true;
             Application.Quit();
         }
 
