@@ -18,6 +18,7 @@ public static class VRPlatform {
 	}
 	public static bool VREnabled {
 		get { return false; }
+        set { }  // ignore!
 	}
 	public static bool HaveActiveSpatialInput {
 		get { return false; }
