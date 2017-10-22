@@ -59,6 +59,10 @@ namespace f3
         {
         }
 
+        public virtual void Setup()
+        {
+        }
+
         virtual public void Shutdown()
         {
         }

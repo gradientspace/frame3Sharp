@@ -147,6 +147,7 @@ namespace f3
             }
 
             if (activeTool[nSide] != null) {
+                activeTool[nSide].Setup();
                 SendOnToolActivationChanged(activeTool[nSide], eSide, true);
                 return true;
             } else

@@ -119,7 +119,7 @@ namespace f3
                     // transform to scene coords and swap left/right
                     foreach (int vid in m.VertexIndices()) {
                         Vector3f v = (Vector3f)m.GetVertex(vid);
-                        v = SceneTransforms.ObjectToScene(meshSO, v);
+                        v = SceneTransforms.ObjectToSceneP(meshSO, v);
                         v = UnityUtil.SwapLeftRight(v);
                         m.SetVertex(vid, v);
                     }

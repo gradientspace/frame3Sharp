@@ -30,7 +30,7 @@ namespace f3
 
             // map v to local coords
             LocalVertexRef r = new LocalVertexRef();
-            r.localPos = SceneTransforms.SceneToObject(Target, v);
+            r.localPos = SceneTransforms.SceneToObjectP(Target, v);
             SurfacePoints.Add(r);
             if (Curve.VertexCount != SurfacePoints.Count)
                 throw new Exception("SurfaceCurvePreview: counts are out of sync!!");
@@ -47,7 +47,7 @@ namespace f3
 
             for ( int i = 0; i < VertexCount; ++i ) {
                 LocalVertexRef r = SurfacePoints[i];
-                Vector3d vScene = SceneTransforms.ObjectToScene(Target, r.localPos);
+                Vector3d vScene = SceneTransforms.ObjectToSceneP(Target, r.localPos);
                 this[i] = vScene;
             }
 

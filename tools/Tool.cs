@@ -28,7 +28,8 @@ namespace f3
         // if false, cannot change selection while tool is active
         bool AllowSelectionChanges { get; }
 
-        void Shutdown();
+        void Setup();      // called right after constructor
+        void Shutdown();   // called right before deactivating
     }
 
 

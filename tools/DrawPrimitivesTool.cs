@@ -78,6 +78,10 @@ namespace f3
         virtual public void Apply() { }
 
 
+        public virtual void Setup()
+        {
+        }
+
         public void Shutdown()
         {
             scene.Context.TransformManager.PopOverrideGizmoType();

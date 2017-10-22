@@ -210,6 +210,9 @@ namespace f3
         virtual public void Apply() { }
 
 
+        public virtual void Setup()
+        {
+        }
 
         virtual public void Shutdown()
         {
