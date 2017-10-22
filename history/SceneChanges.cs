@@ -109,6 +109,13 @@ namespace f3
             this.after = after;
             this.space = coords;
         }
+        public TransformSOChange(TransformableSO target, Frame3f newFrame, CoordSpace coords)
+        {
+            this.so = target;
+            this.before = target.GetLocalFrame(coords);
+            this.after = newFrame;
+            this.space = coords;
+        }
 
         public override OpStatus Apply() {
             so.SetLocalFrame(after, space);
