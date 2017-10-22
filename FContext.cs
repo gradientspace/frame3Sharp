@@ -557,7 +557,7 @@ namespace f3 {
                     } catch (Exception e) {
                         DebugUtil.Log(2, "FContext.HandleInput_MouseOrGamepad: exception in UpdateCapture! " + e.Message);
                         if (FPlatform.InUnityEditor())
-                            throw e;
+                            throw;
                     }
                     inCapturingObjectCall = false;
                     if (cap.state == CaptureState.Continue) {

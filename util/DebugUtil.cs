@@ -211,6 +211,24 @@ namespace f3
 
 
 
+        static public fGameObject EmitDebugBox(string name, Box3d box, Colorf color, GameObject parent = null, bool bIsInWorldPos = true)
+        {
+            if (FPlatform.InMainThread() == false) {
+                ThreadMailbox.PostToMainThread(() => { DebugUtil.EmitDebugBox(name, box, color, parent, bIsInWorldPos); });
+                return null;
+            }
+            TrivialBox3Generator boxgen = new TrivialBox3Generator() { Box = box, NoSharedVertices = true, Clockwise = true };
+            boxgen.Generate();
+            DMesh3 mesh = boxgen.MakeDMesh();
+            fMeshGameObject fMeshGO = GameObjectFactory.CreateMeshGO(name, new fMesh(mesh), false, true);
+            fMeshGO.SetMaterial(MaterialUtil.CreateStandardMaterialF(color));
+            if (parent != null)
+                parent.AddChild(fMeshGO, bIsInWorldPos);
+            return fMeshGO;
+        }
+
+
+
         static public GameObject EmitDebugCursorSphere(string name, float diameter, Color color)
         {
             if (FContext.ActiveContext_HACK.MouseCameraController is VRMouseCursorController) {

@@ -221,7 +221,7 @@ namespace f3
                 // if hud setup fails we still want to keep going
                 DebugUtil.Log(2, "[Cockpit.Start] exception in initializer: {0}\nTrace:\n{1}", e.Message, e.StackTrace);
                 if (FPlatform.InUnityEditor())
-                    throw e;
+                    throw;
             }
 
             // position in front of camera
