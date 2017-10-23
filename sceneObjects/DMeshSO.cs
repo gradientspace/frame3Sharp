@@ -292,7 +292,8 @@ namespace f3
             // set new object frame
             SetLocalFrame(objFrame, CoordSpace.ObjectCoords);
 
-            fast_mesh_update();                
+            fast_mesh_update();
+            post_mesh_modified();
         }
 
 
