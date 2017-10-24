@@ -419,6 +419,9 @@ namespace f3
 
         public bool HandleShortcutKeys()
         {
+            if (FPlatformUI.IsConsumingMouseInput())
+                return false;
+
             foreach ( IShortcutKeyHandler h in vKeyHandlers ) {
                 if (h.HandleShortcuts())
                     return true;
