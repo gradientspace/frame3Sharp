@@ -72,6 +72,18 @@ namespace f3
         }
 
 
+        override public void AssignSOMaterial(SOMaterial m)
+        {
+            base.AssignSOMaterial(m);
+        }
+        override public void PushOverrideMaterial(fMaterial m)
+        {
+            base.PushOverrideMaterial(m);
+        }
+        override public void PopOverrideMaterial()
+        {
+            base.PopOverrideMaterial();
+        }
 
 
         public void NotifyMeshEdited(bool bVertexDeformation = false)
@@ -132,7 +144,7 @@ namespace f3
         {
             fMesh submesh = new fMesh(C.triangles, mesh, C.source_vertices, true, true, true);
             fMeshGameObject submesh_go = GameObjectFactory.CreateMeshGO("component", submesh, false);
-            submesh_go.SetMaterial(new fMaterial(CurrentMaterial));
+            submesh_go.SetMaterial(this.CurrentMaterial, true);
             submesh_go.SetLayer(parentGO.GetLayer());
             displayComponents.Add(new DisplayMeshComponent() {
                 go = submesh_go, source_vertices = C.source_vertices
