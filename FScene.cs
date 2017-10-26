@@ -175,9 +175,9 @@ namespace f3
             get { return currentTime; }
             set { SetCurrentTime(value); }
         }
-        public void SetCurrentTime(double time)
+        public void SetCurrentTime(double time, bool forceUpdate = false)
         {
-            if (currentTime != time) {
+            if (currentTime != time || forceUpdate) {
                 foreach (SceneObject so in vObjects)
                     so.SetCurrentTime(time);
                 currentTime = time;
