@@ -93,6 +93,17 @@ namespace f3
         }
 
 
+
+        public static Dropdown FindDropDownAndAddHandlers(string inputName, Func<int> getValue, Action<int> setValue) {
+            var dropdown = UnityUtil.FindGameObjectByName(inputName).GetComponent<Dropdown>();
+            dropdown.onValueChanged.AddListener((value) => {
+                setValue(value);
+                dropdown.value = getValue();
+            });
+            dropdown.value = getValue();
+            return dropdown;
+        }
+
         public static Dropdown FindDropDownAndAddHandlers(string inputName, Func<int> getValue, Action<int> setValue, int minValue, int maxValue)
         {
             var dropdown = UnityUtil.FindGameObjectByName(inputName).GetComponent<Dropdown>();
