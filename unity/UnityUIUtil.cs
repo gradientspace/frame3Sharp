@@ -69,10 +69,12 @@ namespace f3
         {
             var field = UnityUtil.FindGameObjectByName(inputName).GetComponent<InputField>();
             field.onValueChanged.AddListener((fieldString) => {
-                int value = int.Parse(fieldString);
-                if (value < minValue) value = minValue;
-                if (value > maxValue) value = maxValue;
-                setValue(value);
+                try {
+                    int value = int.Parse(fieldString);
+                    if (value < minValue) value = minValue;
+                    if (value > maxValue) value = maxValue;
+                    setValue(value);
+                } catch { return; }
             });
             field.text = getValue().ToString();
             return field;
@@ -83,10 +85,12 @@ namespace f3
         {
             var field = UnityUtil.FindGameObjectByName(inputName).GetComponent<InputField>();
             field.onValueChanged.AddListener((fieldString) => {
-                float value = float.Parse(fieldString);
-                if (value < minValue) value = minValue;
-                if (value > maxValue) value = maxValue;
-                setValue(value);
+                try {
+                    float value = float.Parse(fieldString);
+                    if (value < minValue) value = minValue;
+                    if (value > maxValue) value = maxValue;
+                    setValue(value);
+                } catch { return; }
             });
             field.text = getValue().ToString();
             return field;
