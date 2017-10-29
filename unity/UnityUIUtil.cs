@@ -33,7 +33,12 @@ namespace f3
             return button;
         }
 
-
+        public static void SetDisabledColor(Button button, Color color)
+        {
+            var newColorBlock = button.colors;
+            newColorBlock.disabledColor = color;
+            button.colors = newColorBlock;
+        }
 
 
 
