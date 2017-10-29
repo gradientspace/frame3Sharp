@@ -10,10 +10,29 @@ namespace f3
 {
     public static class UnityUIUtil
     {
+        public static Text FindTextAndSet(string textName, string newText)
+        {
+            var text = UnityUtil.FindGameObjectByName(textName).GetComponent<Text>();
+            text.text = newText;
+            return text;
+        }
+        public static Text FindTextAndSet(GameObject parentGO, string textName, string newText)
+        {
+            var text = UnityUtil.FindChildByName(parentGO, textName).GetComponent<Text>();
+            text.text = newText;
+            return text;
+        }
+
 
         public static Button FindButtonAndAddClickHandler(string buttonName, UnityAction handler)
         {
             var button = UnityUtil.FindGameObjectByName(buttonName).GetComponent<Button>();
+            button.onClick.AddListener(handler);
+            return button;
+        }
+        public static Button FindButtonAndAddClickHandler(GameObject parentGO, string buttonName, UnityAction handler)
+        {
+            var button = UnityUtil.FindChildByName(parentGO, buttonName).GetComponent<Button>();
             button.onClick.AddListener(handler);
             return button;
         }
@@ -61,6 +80,17 @@ namespace f3
             return toggle;
         }
 
+
+        public static InputField FindInput(string inputName)
+        {
+            var field = UnityUtil.FindGameObjectByName(inputName).GetComponent<InputField>();
+            return field;
+        }
+        public static InputField FindInput(GameObject parent, string inputName)
+        {
+            var field = UnityUtil.FindChildByName(parent, inputName).GetComponent<InputField>();
+            return field;
+        }
 
 
         public static InputField FindInputAndAddValueChangedHandler(string inputName, UnityAction<string> handler)
@@ -125,6 +155,18 @@ namespace f3
             dropdown.value = getValue();
             return dropdown;
         }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     }

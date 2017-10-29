@@ -779,5 +779,13 @@ namespace f3
 			return null;
 		}
 
+
+        public static GameObject FindChildByName(GameObject parent, string sName)
+        {
+            GameObject child = parent.FindChildByName(sName, true);
+            return child;
+        }
+
+
     }
 }
