@@ -33,6 +33,18 @@ namespace f3
 
 
 
+        public static string GameDataFolderPath() {
+            return Application.dataPath;
+        }
+        public static string PersistentDataPath() {
+            return Path.GetFullPath(Application.persistentDataPath);
+        }
+        public static string TemporaryDataPath() {
+            return Application.temporaryCachePath;
+        }
+
+
+
         private static float _last_realtime = 0;
         /// <summary> Return clock time since start of program. Can only be called from main thread !! </summary>
         static public float RealTime()
