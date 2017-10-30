@@ -257,8 +257,9 @@ namespace f3
 
             if (p == IntPtr.Zero)
                 return null;
-            else
-                return stringFromChar(p);
+
+            string s = stringFromChar(p);
+            return s;
 #else
             // [TODO] implement
             return null;
@@ -292,8 +293,9 @@ namespace f3
 
             if (p == IntPtr.Zero)
                 return null;
-            else
-                return stringFromChar(p);
+
+            string s = stringFromChar(p);
+            return s;
 #else
             // [TODO] implement
             return null;
@@ -311,6 +313,9 @@ namespace f3
         private static extern System.IntPtr GetActiveWindow();
 #endif
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX)
+
+        // NOTE: tinyfiledialogs is compiled with a flag that means it should output UTF8.
+        // However, seems like it only works if I interpret result with Marshal.PtrToStringAnsi()... ??
 
         [DllImport("tinyfiledialogs", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr tinyfd_inputBox(string aTitle, string aMessage, string aDefaultInput);

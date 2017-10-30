@@ -1042,6 +1042,9 @@ namespace f3 {
                 return activeTextTarget.OnLeftArrow();
             } else if (Input.GetKeyDown(KeyCode.RightArrow)) {
                 return activeTextTarget.OnRightArrow();
+            } else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.V)) {
+                if ( GUIUtility.systemCopyBuffer.Length > 0 )
+                    return activeTextTarget.OnCharacters(GUIUtility.systemCopyBuffer);
             } else if (Input.anyKeyDown) {
                 if (Input.inputString.Length > 0)
                     return activeTextTarget.OnCharacters(Input.inputString);
