@@ -150,7 +150,7 @@ namespace f3
         /// </summary>
         public OpStatus PushChange(IChangeOp op, bool bIsApplied = false)
         {
-            DebugUtil.Log(2, "ChangeHistory.PushChange: pushed {0}", op.Identifier());
+            DebugUtil.Log(2, "ChangeHistory.PushChange [{0}]: pushed {1}", iCurrent+1, op.Identifier());
 
             if (vHistory.Count > 0 && iCurrent < vHistory.Count)
                 TrimFuture();
@@ -204,7 +204,7 @@ namespace f3
                 return OpStatus.Success;        // weird but ok
 
             IChangeOp op = vHistory[iCurrent - 1];
-            DebugUtil.Log(2, "ChangeHistory.StepBack: reverting {0}", op.Identifier());
+            DebugUtil.Log(2, "ChangeHistory.StepBack [{0}/{1}]: reverting {2}", iCurrent-1, vHistory.Count, op.Identifier());
             OpStatus result = op.Revert();
             if (result.code != OpStatus.no_error) {
                 DebugUtil.Error("[ChangeHistory::StepBack] Revert() of ChangeOp {0} failed - result was code {1} message {2}",
@@ -257,7 +257,7 @@ namespace f3
                 return OpStatus.Success;
 
             IChangeOp op = vHistory[iCurrent];
-            DebugUtil.Log(2, "ChangeHistory.StepForward: applying {0}", op.Identifier());
+            DebugUtil.Log(2, "ChangeHistory.StepForward [{0}/{1}]: applying {2}", iCurrent, vHistory.Count, op.Identifier());
             OpStatus result = op.Apply();
             if (result.code != OpStatus.no_error) {
                 DebugUtil.Error("[ChangeHistory::StepForward] Apply() of ChangeOp {0} failed - result was code {1} message {2}",
