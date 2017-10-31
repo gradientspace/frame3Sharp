@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using g3;
 
 namespace f3
 {
@@ -60,6 +61,14 @@ namespace f3
         }
 
 
+        public static void SetColors(Button button, Color normalColor, Color disabledColor)
+        {
+            var newColorBlock = button.colors;
+            newColorBlock.normalColor = normalColor;
+            newColorBlock.highlightedColor = ColorMixer.Darken(normalColor, 0.9f);
+            newColorBlock.disabledColor = disabledColor;
+            button.colors = newColorBlock;
+        }
 
 
         public static Toggle FindToggleAndAddHandler(string toggleName, UnityAction<bool> handler)
@@ -79,6 +88,17 @@ namespace f3
             toggle.isOn = getValue();
             return toggle;
         }
+
+
+        public static void SetBackgroundColor(Toggle toggle, Color color)
+        {
+            var newColorBlock = toggle.colors;
+            newColorBlock.normalColor = color;
+            newColorBlock.highlightedColor = color;
+            toggle.colors = newColorBlock;
+        }
+
+
 
 
         public static InputField FindInput(string inputName)
@@ -129,6 +149,16 @@ namespace f3
             });
             field.text = getValue().ToString();
             return field;
+        }
+
+
+
+        public static void SetBackgroundColor(InputField field, Color color)
+        {
+            var newColorBlock = field.colors;
+            newColorBlock.normalColor = color;
+            newColorBlock.highlightedColor = color;
+            field.colors = newColorBlock;
         }
 
 
