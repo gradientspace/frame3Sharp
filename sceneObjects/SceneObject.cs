@@ -23,7 +23,8 @@ namespace f3
     /// </summary>
     public interface ITransformed
     {
-		Frame3f GetLocalFrame(CoordSpace eSpace);
+        fGameObject RootGameObject { get; }
+        Frame3f GetLocalFrame(CoordSpace eSpace);
         Vector3f GetLocalScale();
     }
 
@@ -55,9 +56,8 @@ namespace f3
     }
 
 
-	public interface SceneObject
-	{
-		fGameObject RootGameObject { get; }
+    public interface SceneObject : ITransformable
+    {
         SOParent Parent { get; set; }
 
         string UUID { get; }
@@ -98,10 +98,10 @@ namespace f3
 
     // should we just make scene object transformable??
     public delegate void TransformChangedEventHandler(TransformableSO so);
-	public interface TransformableSO : SceneObject, ITransformable
-	{
+    public interface TransformableSO : SceneObject
+    {
         event TransformChangedEventHandler OnTransformModified;
-	}
+    }
 
 
 

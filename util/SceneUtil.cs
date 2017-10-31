@@ -95,12 +95,22 @@ namespace f3
         public static Frame3f GetSOLocalFrame(SceneObject so, CoordSpace eSpace)
         {
             if (eSpace == CoordSpace.SceneCoords) {
-                Frame3f sceneW = UnityUtil.GetGameObjectFrame(so.GetScene().RootGameObject, CoordSpace.WorldCoords);
-                Frame3f objW = UnityUtil.GetGameObjectFrame(so.RootGameObject, CoordSpace.WorldCoords);
-                Frame3f result = sceneW.ToFrame(objW);
-                // world coords have scene scale applied, we don't want that in scene coords
-                if (so.GetScene().GetSceneScale() != 1.0f)
-                    result = result.Scaled(1.0f / so.GetScene().GetSceneScale());
+                // new code maps object frame up to scene
+                // [TODO] this is not the most efficient approach! can at least get the object
+                //   frame directly, and avoid first local-to-obj xform
+                Frame3f objF = Frame3f.Identity;
+                Frame3f result = SceneTransforms.ObjectToScene(so as TransformableSO, objF);
+
+                // [RMS] old code that mapped up to world, and then down to scene
+                //   Problem with this code is that it is unstable - if scene-to-world xform changes,
+                //   then scene frame will numerically change. Which is a problem.
+                //Frame3f sceneW = UnityUtil.GetGameObjectFrame(so.GetScene().RootGameObject, CoordSpace.WorldCoords);
+                //Frame3f objW = UnityUtil.GetGameObjectFrame(so.RootGameObject, CoordSpace.WorldCoords);
+                //Frame3f result = sceneW.ToFrame(objW);
+                //// world coords have scene scale applied, we don't want that in scene coords
+                //if (so.GetScene().GetSceneScale() != 1.0f)
+                //    result = result.Scaled(1.0f / so.GetScene().GetSceneScale());
+
                 return result;
             } else
                 return UnityUtil.GetGameObjectFrame(so.RootGameObject, eSpace);

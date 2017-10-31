@@ -26,6 +26,9 @@ namespace f3
         protected TransformableSO target;
         virtual public TransformableSO Target { get { return target; } }
 
+        virtual public fGameObject RootGameObject {
+            get { return Target.RootGameObject; }
+        }
 
         TransformGizmoChange curChange;
 
