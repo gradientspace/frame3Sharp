@@ -11,7 +11,7 @@ namespace f3
         public float TranslationSpeed = 1.0f;
         public float StickMoveSpeed = 0.1f;
 
-        public delegate void GrabEventHandler(object sender, TransformableSO target);
+        public delegate void GrabEventHandler(object sender, SceneObject target);
         public event GrabEventHandler OnBeginGrab;
         public event GrabEventHandler OnEndGrab;
 
@@ -27,7 +27,7 @@ namespace f3
 
         class GrabInfo
         {
-            public TransformableSO so;
+            public SceneObject so;
             public Cockpit cockpit;
             public Frame3f startObjFW;
             public Frame3f startObjRelF;
@@ -39,7 +39,7 @@ namespace f3
             public float StickSpeed = 0.1f;
 
             public TransformGizmoChange change;        // [TODO] shouldn't be using gizmo change for this?
-            public GrabInfo(Cockpit cockpit, TransformableSO so, Frame3f handF)
+            public GrabInfo(Cockpit cockpit, SceneObject so, Frame3f handF)
             {
                 this.cockpit = cockpit;
                 this.so = so;
@@ -134,7 +134,7 @@ namespace f3
             Ray3f useRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
             SORayHit rayHit;
             if (cockpit.Scene.FindSORayIntersection(useRay, out rayHit)) {
-                var tso = rayHit.hitSO as TransformableSO;
+                var tso = rayHit.hitSO;
                 if (tso != null) {
                     Frame3f handF = (eSide == CaptureSide.Left) ? input.LeftHandFrame : input.RightHandFrame;
                     if ( OnBeginGrab != null )

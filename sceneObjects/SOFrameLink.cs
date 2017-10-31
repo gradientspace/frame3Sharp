@@ -17,7 +17,7 @@ namespace f3
     {
         Frame3f relativeF;
 
-        public SOFrameLink(TransformableSO From, TransformableSO To) : base()
+        public SOFrameLink(SceneObject From, SceneObject To) : base()
         {
             Target = To;
             Source = From;
@@ -25,7 +25,7 @@ namespace f3
 
             To.OnTransformModified += OnTargetModified;
         }
-        public SOFrameLink(TransformableSO From, TransformableSO To, Frame3f setRelativeF)
+        public SOFrameLink(SceneObject From, SceneObject To, Frame3f setRelativeF)
         {
             Target = To;
             Source = From;
@@ -35,19 +35,15 @@ namespace f3
 
         void update_source()
         {
-            TransformableSO from = Source as TransformableSO;
-            Frame3f FrameS = from.GetLocalFrame(CoordSpace.SceneCoords);
-            TransformableSO to = Target as TransformableSO;
-            relativeF = SceneTransforms.SceneToObject(to, FrameS);
+            Frame3f FrameS = Source.GetLocalFrame(CoordSpace.SceneCoords);
+            relativeF = SceneTransforms.SceneToObject(Target, FrameS);
         }
 
-        private void OnTargetModified(TransformableSO so)
+        private void OnTargetModified(SceneObject so)
         {
             if (IsValid) {
-                TransformableSO from = Source as TransformableSO;
-                TransformableSO to = Target as TransformableSO;
-                Frame3f FrameS = SceneTransforms.ObjectToScene(to, relativeF);
-                from.SetLocalFrame(FrameS, CoordSpace.SceneCoords);
+                Frame3f FrameS = SceneTransforms.ObjectToScene(Target, relativeF);
+                Source.SetLocalFrame(FrameS, CoordSpace.SceneCoords);
             }
         }
 
@@ -59,8 +55,7 @@ namespace f3
 
         public override void Unlink()
         {
-            TransformableSO to = Target as TransformableSO;
-            to.OnTransformModified -= OnTargetModified;
+            Target.OnTransformModified -= OnTargetModified;
         }
     }
 
@@ -76,8 +71,8 @@ namespace f3
 
         public override string Identifier() { return "SOFrameLinkRemovedChangeOp"; }
         public override OpStatus Apply() {
-            TransformableSO target = Scene.FindByUUID(TargetUUID) as TransformableSO;
-            TransformableSO source = Scene.FindByUUID(SourceUUID) as TransformableSO;
+            SceneObject target = Scene.FindByUUID(TargetUUID);
+            SceneObject source = Scene.FindByUUID(SourceUUID);
             SOLink newLink = new SOFrameLink(source, target);
             Scene.LinkManager.AddLink(newLink);
             LinkUUID = newLink.UUID;
@@ -91,7 +86,7 @@ namespace f3
             return OpStatus.Success;
         }
 
-        public SOAddFrameLinkChangeOp(TransformableSO source, TransformableSO target) : base(false)
+        public SOAddFrameLinkChangeOp(SceneObject source, SceneObject target) : base(false)
         {
             Scene = source.GetScene();
             TargetUUID = target.UUID;
@@ -112,8 +107,8 @@ namespace f3
             return OpStatus.Success;
         }
         public override OpStatus Revert() {
-            TransformableSO target = Scene.FindByUUID(TargetUUID) as TransformableSO;
-            TransformableSO source = Scene.FindByUUID(SourceUUID) as TransformableSO;
+            SceneObject target = Scene.FindByUUID(TargetUUID);
+            SceneObject source = Scene.FindByUUID(SourceUUID);
             SOLink link = new SOFrameLink(source, target);
             Scene.LinkManager.AddLink(link);
             LinkUUID = link.UUID;

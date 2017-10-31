@@ -6,7 +6,7 @@ using g3;
 
 namespace f3
 {
-    public abstract class BaseSO : GameObjectSet, TransformableSO
+    public abstract class BaseSO : GameObjectSet, SceneObject
     {
         protected FScene parentScene;
         protected SOParent parent;

@@ -39,12 +39,12 @@ namespace f3
             // rotation around normal. 
             Frame3f hitF = TargetScene.SceneFrame;
             Vector3f targetAxis = hitF.GetAxis(1);
-            if (hit.hitSO is TransformableSO)
-                hitF = (hit.hitSO as TransformableSO).GetLocalFrame(CoordSpace.WorldCoords);
+            if (hit.hitSO is SceneObject)
+                hitF = hit.hitSO.GetLocalFrame(CoordSpace.WorldCoords);
             bool bUseLocal =
                 (TargetScene.Context.TransformManager.ActiveFrameType == FrameType.LocalFrame);
-            if (bUseLocal && hit.hitSO is TransformableSO) {
-                hitF = (hit.hitSO as TransformableSO).GetLocalFrame(CoordSpace.WorldCoords);
+            if (bUseLocal && hit.hitSO is SceneObject) {
+                hitF = hit.hitSO.GetLocalFrame(CoordSpace.WorldCoords);
                 targetAxis = hitF.GetAxis(1);
             }
             // if normal is parallel to target, this would become unstable, so use another axis

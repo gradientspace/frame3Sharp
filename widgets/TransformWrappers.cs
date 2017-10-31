@@ -12,7 +12,7 @@ namespace f3
         // returns true if changes were emitted
         bool DoneTransformation();
 
-        TransformableSO Target { get; }
+        SceneObject Target { get; }
     }
 
     public abstract class BaseTransformWrapper : ITransformWrapper
@@ -23,8 +23,8 @@ namespace f3
         abstract public void SetLocalFrame(Frame3f newFrame, CoordSpace eSpace);
         abstract public void SetLocalScale(Vector3f scale);
 
-        protected TransformableSO target;
-        virtual public TransformableSO Target { get { return target; } }
+        protected SceneObject target;
+        virtual public SceneObject Target { get { return target; } }
 
         virtual public fGameObject RootGameObject {
             get { return Target.RootGameObject; }
@@ -40,11 +40,11 @@ namespace f3
             curChange.parentScaleBefore = GetLocalScale();
 
             if (target.IsTemporary) {
-                curChange.childSOs = new List<TransformableSO>();
+                curChange.childSOs = new List<SceneObject>();
                 SceneUtil.FindAllPersistentTransformableChildren(target, curChange.childSOs);
                 curChange.before = new List<Frame3f>();
                 curChange.scaleBefore = new List<Vector3f>();
-                foreach (TransformableSO so in curChange.childSOs) {
+                foreach (SceneObject so in curChange.childSOs) {
                     curChange.before.Add(so.GetLocalFrame(CoordSpace.SceneCoords));
                     curChange.scaleBefore.Add(UnityUtil.GetFreeLocalScale(so.RootGameObject));
                 }
@@ -58,7 +58,7 @@ namespace f3
             if (target.IsTemporary) {
                 curChange.after = new List<Frame3f>();
                 curChange.scaleAfter = new List<Vector3f>();
-                foreach (TransformableSO so in curChange.childSOs) {
+                foreach (SceneObject so in curChange.childSOs) {
                     curChange.after.Add(so.GetLocalFrame(CoordSpace.SceneCoords));
                     curChange.scaleAfter.Add(UnityUtil.GetFreeLocalScale(so.RootGameObject));
                 }
@@ -72,7 +72,7 @@ namespace f3
 
     public class PassThroughWrapper : BaseTransformWrapper
     {
-        public PassThroughWrapper(TransformableSO target)
+        public PassThroughWrapper(SceneObject target)
         {
             this.target = target;
         }
@@ -117,7 +117,7 @@ namespace f3
     {
         FScene parentScene;
 
-        public SceneFrameWrapper(FScene scene, TransformableSO target)
+        public SceneFrameWrapper(FScene scene, SceneObject target)
         {
             this.parentScene = scene;
             this.target = target;

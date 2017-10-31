@@ -55,6 +55,7 @@ namespace f3
     {
     }
 
+    public delegate void TransformChangedEventHandler(SceneObject so);
 
     public interface SceneObject : ITransformable
     {
@@ -93,13 +94,7 @@ namespace f3
 
         AxisAlignedBox3f GetTransformedBoundingBox();
         AxisAlignedBox3f GetLocalBoundingBox();
-	}
 
-
-    // should we just make scene object transformable??
-    public delegate void TransformChangedEventHandler(TransformableSO so);
-    public interface TransformableSO : SceneObject
-    {
         event TransformChangedEventHandler OnTransformModified;
     }
 

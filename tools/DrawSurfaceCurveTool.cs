@@ -21,12 +21,12 @@ namespace f3
 
         public bool IsSupported(ToolTargetType type, List<SceneObject> targets)
         {
-            return (type == ToolTargetType.SingleObject && targets[0] is TransformableSO && targets[0].IsSurface);
+            return (type == ToolTargetType.SingleObject && targets[0].IsSurface);
         }
 
         public virtual ITool Build(FScene scene, List<SceneObject> targets)
         {
-            DrawSurfaceCurveTool tool = new_tool(scene, targets[0] as TransformableSO);
+            DrawSurfaceCurveTool tool = new_tool(scene, targets[0]);
             tool.SamplingRate = DefaultSamplingRate;
             tool.MinSamplingRate = Math.Min(tool.MinSamplingRate, DefaultSamplingRate * 0.1f);
             tool.SurfaceOffset = DefaultSurfaceOffset;
@@ -40,7 +40,7 @@ namespace f3
             return tool;
         }
 
-        protected virtual DrawSurfaceCurveTool new_tool(FScene scene, TransformableSO target)
+        protected virtual DrawSurfaceCurveTool new_tool(FScene scene, SceneObject target)
         {
             return new DrawSurfaceCurveTool(scene, target);
         }
@@ -160,14 +160,14 @@ namespace f3
         /// <summary>
         /// Target object you are drawing on.
         /// </summary>
-        public TransformableSO Target
+        public SceneObject Target
         {
             get { return target; }
         }
-        TransformableSO target;
+        SceneObject target;
 
 
-        public DrawSurfaceCurveTool(FScene scene, TransformableSO target)
+        public DrawSurfaceCurveTool(FScene scene, SceneObject target)
         {
             this.Scene = scene;
             this.target = target;
@@ -193,7 +193,7 @@ namespace f3
 
         private void Scene_SelectionChangedEvent(object sender, EventArgs e)
         {
-            List<TransformableSO> targets = Scene.FindSceneObjectsOfType<TransformableSO>();
+            List<SceneObject> targets = Scene.FindSceneObjectsOfType<SceneObject>();
             if (targets.Count == 1 && targets[0].IsSurface)
                 this.target = targets[0];
         }
@@ -440,7 +440,7 @@ namespace f3
                     // link ?
                     if (AttachCurveToSurface) {
                         Scene.History.PushChange(
-                            new SOAddFrameLinkChangeOp(CurveSO, Target as TransformableSO));
+                            new SOAddFrameLinkChangeOp(CurveSO, Target));
                     }
                          
                     Scene.History.PushInteractionCheckpoint();

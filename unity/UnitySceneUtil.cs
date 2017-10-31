@@ -13,7 +13,7 @@ namespace f3
         // converts input GameObject into a DMeshSO. Original GameObject is not used by DMeshSO,
         // so it can be destroyed.
         // [TODO] transfer materials!!
-        public static TransformableSO WrapMeshGameObject(GameObject wrapGO, FContext context, bool bDestroyOriginal, bool bPreserveColor = true)
+        public static SceneObject WrapMeshGameObject(GameObject wrapGO, FContext context, bool bDestroyOriginal, bool bPreserveColor = true)
         {
             SOMaterial overrideMaterial = null;
             if (bPreserveColor) {
@@ -35,7 +35,7 @@ namespace f3
 
         // embeds input GameObject in a GOWrapperSO, which provides some basic
         // F3 functionality for arbitrary game objects
-        public static TransformableSO WrapAnyGameObject(GameObject wrapGO, FContext context, bool bAllowMaterialChanges)
+        public static SceneObject WrapAnyGameObject(GameObject wrapGO, FContext context, bool bAllowMaterialChanges)
         {
             GOWrapperSO wrapperSO = new GOWrapperSO() {
                 AllowMaterialChanges = bAllowMaterialChanges
@@ -52,9 +52,9 @@ namespace f3
         // extracts MeshFilter object from input GameObject and passes it to a custom constructor
         // function MakeSOFunc (if null, creates basic MeshSO). Then optionally adds to Scene,
         // preserving existing 3D position if desired (default true)
-        public static TransformableSO ImportExistingUnityMesh(GameObject go, FScene scene, 
+        public static SceneObject ImportExistingUnityMesh(GameObject go, FScene scene, 
             bool bAddToScene = true, bool bKeepWorldPosition = true, bool bRecenterFrame = true,
-            Func<Mesh, SOMaterial, TransformableSO> MakeSOFunc = null )
+            Func<Mesh, SOMaterial, SceneObject> MakeSOFunc = null )
         {
             MeshFilter meshF = go.GetComponent<MeshFilter>();
             if (meshF == null)
@@ -77,7 +77,7 @@ namespace f3
                 useMesh.RecalculateBounds();
             }
 
-            TransformableSO newSO = (MakeSOFunc != null) ? 
+            SceneObject newSO = (MakeSOFunc != null) ? 
                 MakeSOFunc(useMesh, scene.DefaultMeshSOMaterial)
                 : new MeshSO().Create(useMesh, scene.DefaultMeshSOMaterial);
 
@@ -127,9 +127,9 @@ namespace f3
         // extracts all MeshFilter objects from input GameObject and appends them, then passes to
         // function MakeSOFunc (if null, creates basic MeshSO). Then optionally adds to Scene,
         // preserving existing 3D position if desired (default true)
-        public static TransformableSO ImportExistingUnityGO(GameObject go, FScene scene, 
+        public static SceneObject ImportExistingUnityGO(GameObject go, FScene scene, 
             bool bAddToScene = true, bool bKeepWorldPosition = true, bool bRecenterFrame = true,
-            Func<DMesh3, SOMaterial, TransformableSO> MakeSOFunc = null )
+            Func<DMesh3, SOMaterial, SceneObject> MakeSOFunc = null )
         {
             List<MeshFilter> filters = new List<MeshFilter>();
             List<GameObject> children = new List<GameObject>() { go };
@@ -162,7 +162,7 @@ namespace f3
                 MeshTransforms.Translate(CombineMesh, -bounds.Center.x, -bounds.Center.y, -bounds.Center.z);
             }
 
-            TransformableSO newSO = (MakeSOFunc != null) ? 
+            SceneObject newSO = (MakeSOFunc != null) ? 
                 MakeSOFunc(CombineMesh, scene.DefaultMeshSOMaterial)
                 : new DMeshSO().Create(CombineMesh, scene.DefaultMeshSOMaterial);
 

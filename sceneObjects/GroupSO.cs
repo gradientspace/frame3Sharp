@@ -14,12 +14,12 @@ namespace f3
     /// is not as well-tested as a flat scene of objects. So if you have weird
     /// bugs, try taking the objects out of the Group and see if it still happens!
     /// </summary>
-    public class GroupSO : TransformableSO, SOCollection, SOParent
+    public class GroupSO : SceneObject, SOCollection, SOParent
     {
         fGameObject parentGO;
         SOParent parent;
         protected string uuid;
-        List<TransformableSO> vChildren;
+        List<SceneObject> vChildren;
 
         FScene parentScene;
         bool defer_origin_update;
@@ -65,7 +65,7 @@ namespace f3
         public GroupSO()
         {
             uuid = System.Guid.NewGuid().ToString();
-            vChildren = new List<TransformableSO>();
+            vChildren = new List<SceneObject>();
             defer_origin_update = false;
         }
         ~GroupSO()
@@ -81,7 +81,7 @@ namespace f3
         }
 
 
-        public void AddChild(TransformableSO so, bool bMaintainOrigin = false)
+        public void AddChild(SceneObject so, bool bMaintainOrigin = false)
         {
             Util.gDevAssert(so != this);
             if (!vChildren.Contains(so)) {
@@ -97,17 +97,17 @@ namespace f3
                 //so.OnTransformModified += childTransformModified;
             }
         }
-        public void AddChildren(IEnumerable<TransformableSO> v, bool bMaintainOrigin = false)
+        public void AddChildren(IEnumerable<SceneObject> v, bool bMaintainOrigin = false)
         {
             defer_origin_update = true;
-            foreach (TransformableSO so in v)
+            foreach (SceneObject so in v)
                 AddChild(so);
             defer_origin_update = false;
             if ( ! bMaintainOrigin )
                 update_shared_origin();
         }
 
-        public void RemoveChild(TransformableSO so, bool bMaintainOrigin = false)
+        public void RemoveChild(SceneObject so, bool bMaintainOrigin = false)
         {
             if ( vChildren.Contains(so) ) {
                 //so.OnTransformModified -= childTransformModified;
@@ -148,14 +148,14 @@ namespace f3
             }
 
             Vector3f origin = Vector3f.Zero;
-            foreach (TransformableSO so in vChildren) {
+            foreach (SceneObject so in vChildren) {
                 origin += so.GetLocalFrame(CoordSpace.SceneCoords).Origin;
                 // remove from any existing parent
                 so.GetScene().ReparentSceneObject(so);
             }
             origin *= 1.0f / (float)vChildren.Count;
             SetLocalFrame(new Frame3f(origin), CoordSpace.SceneCoords);
-            foreach (TransformableSO so in vChildren) {
+            foreach (SceneObject so in vChildren) {
                 so.GetScene().AddSceneObjectToParentSO(so, this);
             }
         }
@@ -272,7 +272,7 @@ namespace f3
             return UnityUtil.GetBoundingBox(RootGameObject);
         }
         virtual public AxisAlignedBox3f GetLocalBoundingBox() {
-            return SceneUtil.GetLocalBoundingBox(vChildren.Cast<SceneObject>());
+            return SceneUtil.GetLocalBoundingBox(vChildren);
 
         }
 
@@ -290,7 +290,7 @@ namespace f3
 
 
         //
-        // TransformableSceneObject impl
+        // SceneObject impl
         //
 
         public event TransformChangedEventHandler OnTransformModified;
@@ -330,7 +330,7 @@ namespace f3
         //
         virtual public IEnumerable<SceneObject> GetChildren()
         {
-            return vChildren.Cast<SceneObject>();
+            return vChildren;
         }
     }
 }

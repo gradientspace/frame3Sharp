@@ -91,7 +91,7 @@ namespace f3
         private const int FILE_ATTRIBUTE_NORMAL = 0x80;
 
 
-        public static void Emit(this SceneSerializer s, IOutputStream o, TransformableSO so)
+        public static void EmitGenericSO(this SceneSerializer s, IOutputStream o, SceneObject so)
         {
             o.AddAttribute(IOStrings.ASOType, IOStrings.TypeUnknown);
             o.AddAttribute(IOStrings.ASOName, so.Name);
@@ -127,7 +127,7 @@ namespace f3
 
 
 
-        public static void EmitTransform(this SceneSerializer s, IOutputStream o, TransformableSO so)
+        public static void EmitTransform(this SceneSerializer s, IOutputStream o, SceneObject so)
         {
             o.BeginStruct(IOStrings.TransformStruct);
             Frame3f f = so.GetLocalFrame(CoordSpace.ObjectCoords);

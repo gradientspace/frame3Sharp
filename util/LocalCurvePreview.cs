@@ -6,7 +6,7 @@ namespace f3
 {
     public class LocalCurvePreview : CurvePreview
     {
-        public TransformableSO Target;
+        public SceneObject Target;
         //int target_timestamp;
 
         struct LocalVertexRef
@@ -16,7 +16,7 @@ namespace f3
         List<LocalVertexRef> SurfacePoints;
         
 
-        public LocalCurvePreview(TransformableSO targetSurf) : base()
+        public LocalCurvePreview(SceneObject targetSurf) : base()
         {
             Target = targetSurf;
             SurfacePoints = new List<LocalVertexRef>();

@@ -95,14 +95,14 @@ namespace f3
         }
 
 
-        public virtual TransformableSO BuildSO(Func<DCurve3,TransformableSO> SOBuilderF, SOMaterial material, float scale = 1.0f)
+        public virtual SceneObject BuildSO(Func<DCurve3,SceneObject> SOBuilderF, SOMaterial material, float scale = 1.0f)
         {
             // create shifted curve
             Vector3d vCenter = curve.GetBoundingBox().Center;
             DCurve3 shifted = bake_transform(-vCenter);
             Frame3f shiftedFrame = new Frame3f((Vector3f)vCenter, Quaternionf.Identity);
 
-            TransformableSO so = SOBuilderF(shifted);
+            SceneObject so = SOBuilderF(shifted);
             so.SetLocalFrame(shiftedFrame, CoordSpace.WorldCoords);
 
             return so;

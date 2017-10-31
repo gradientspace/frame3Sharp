@@ -8,19 +8,19 @@ namespace f3
 
     public interface ITransformGizmo : SceneUIElement
     {
-        List<TransformableSO> Targets { get; }
+        List<SceneObject> Targets { get; }
 
         bool SupportsFrameMode { get; }
         FrameType CurrentFrameMode { get; set; }
 
         bool SupportsReferenceObject { get; }
-        void SetReferenceObject(TransformableSO so);
+        void SetReferenceObject(SceneObject so);
     }
 
     public interface ITransformGizmoBuilder
     {
         bool SupportsMultipleObjects { get; }
-        ITransformGizmo Build(FScene scene, List<TransformableSO> targets);
+        ITransformGizmo Build(FScene scene, List<SceneObject> targets);
     }
 
 
@@ -45,7 +45,7 @@ namespace f3
         public const string NoGizmoType = "no_gizmo";
         public const string DefaultGizmoType = "default";
 
-        Func<TransformableSO, bool> SelectionFilterF = null;
+        Func<SceneObject, bool> SelectionFilterF = null;
 
 
         public TransformManager( ITransformGizmoBuilder defaultBuilder )
@@ -132,7 +132,7 @@ namespace f3
         }
 
 
-        public void SetSelectionFilter(Func<TransformableSO, bool> filterF)
+        public void SetSelectionFilter(Func<SceneObject, bool> filterF)
         {
             SelectionFilterF = filterF;
         }
@@ -189,7 +189,7 @@ namespace f3
         }
 
 
-        public void SetActiveReferenceObject(TransformableSO so)
+        public void SetActiveReferenceObject(SceneObject so)
         {
             if (activeGizmo != null && activeGizmo.SupportsReferenceObject)
                 activeGizmo.SetReferenceObject(so);
@@ -208,19 +208,19 @@ namespace f3
 
 
         // 
-        FrameType initial_frame_type(TransformableSO so)
+        FrameType initial_frame_type(SceneObject so)
         {
             return FrameType.LocalFrame;
         }
 
 
-        public void AddGizmo( List<TransformableSO> targets )
+        public void AddGizmo( List<SceneObject> targets )
         {
             ITransformGizmoBuilder useBuilder = activeBuilder;
             if (sOverrideGizmoType != null && sOverrideGizmoType != "")
                 useBuilder = GizmoTypes[sOverrideGizmoType]; 
 
-            List<TransformableSO> useTargets = new List<TransformableSO>(targets);
+            List<SceneObject> useTargets = new List<SceneObject>(targets);
             if (useTargets.Count > 0 && useBuilder.SupportsMultipleObjects == false)
                 useTargets.RemoveRange(1, useTargets.Count - 1);
 
@@ -279,9 +279,8 @@ namespace f3
         private void Scene_SelectionChangedEvent(object sender, EventArgs e)
         {
             FScene scene = Context.Scene;
-            List<TransformableSO> vSelected = new List<TransformableSO>();
-            foreach ( SceneObject so in scene.Selected ) {
-                TransformableSO tso = so as TransformableSO;
+            List<SceneObject> vSelected = new List<SceneObject>();
+            foreach ( SceneObject tso in scene.Selected ) {
                 if (tso != null) {
                     if ( SelectionFilterF == null || SelectionFilterF(tso) )
                         vSelected.Add(tso);
@@ -310,7 +309,7 @@ namespace f3
         public bool SupportsMultipleObjects {
             get { return true; }
         }
-        public ITransformGizmo Build(FScene scene, List<TransformableSO> targets)
+        public ITransformGizmo Build(FScene scene, List<SceneObject> targets)
         {
             return null;
         }

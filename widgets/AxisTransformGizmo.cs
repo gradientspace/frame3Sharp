@@ -12,7 +12,7 @@ namespace f3
     {
         public bool SupportsMultipleObjects { get { return true; } }
 
-        public ITransformGizmo Build(FScene scene, List<TransformableSO> targets)
+        public ITransformGizmo Build(FScene scene, List<SceneObject> targets)
         {
             var g = new AxisTransformGizmo();
             g.Create(scene, targets);
@@ -57,12 +57,12 @@ namespace f3
 
         TransientGroupSO internalGroupSO;
 
-        TransformableSO frameSourceSO;
+        SceneObject frameSourceSO;
         TransientXFormSO internalXFormSO;
 
         SceneUIParent parent;
 		FScene parentScene;
-        List<TransformableSO> targets;
+        List<SceneObject> targets;
 		ITransformWrapper targetWrapper;
 
 		Dictionary<GameObject, Standard3DWidget> Widgets;
@@ -124,7 +124,7 @@ namespace f3
 		public fGameObject RootGameObject {
 			get { return gizmo; }
 		}
-        public List<TransformableSO> Targets
+        public List<SceneObject> Targets
         {
             get { return targets; }
             set { Debug.Assert(false, "not implemented!"); }
@@ -204,7 +204,7 @@ namespace f3
             gizmo.SetLocalScale( new Vector3f(fScaling) );
         }
 
-        public virtual void Create(FScene parentScene, List<TransformableSO> targets) {
+        public virtual void Create(FScene parentScene, List<SceneObject> targets) {
 			this.parentScene = parentScene;
 			this.targets = targets;
 
@@ -330,7 +330,7 @@ namespace f3
                 parentScene.AddSceneObject(internalGroupSO);
                 internalGroupSO.AddChildren(targets);
             }
-            TransformableSO useSO = (targets.Count == 1) ? targets[0] : internalGroupSO;
+            SceneObject useSO = (targets.Count == 1) ? targets[0] : internalGroupSO;
 
             // construct the wrapper
             targetWrapper = InitializeTransformWrapper(useSO, eFrame);
@@ -347,7 +347,7 @@ namespace f3
 
         // you can override this to modify behavior. Note that this default
         // implementation currently uses some internal members for the relative-xform case
-        virtual protected ITransformWrapper InitializeTransformWrapper(TransformableSO useSO, FrameType eFrame)
+        virtual protected ITransformWrapper InitializeTransformWrapper(SceneObject useSO, FrameType eFrame)
         {
             if (frameSourceSO != null) {
                 internalXFormSO = new TransientXFormSO();
@@ -369,7 +369,7 @@ namespace f3
 
 
         public bool SupportsReferenceObject { get { return true;  } }
-        public void SetReferenceObject(TransformableSO sourceSO)
+        public void SetReferenceObject(SceneObject sourceSO)
         {
             if (sourceSO != null && frameSourceSO == sourceSO)
                 return;     // ignore repeats as this is kind of expensive
@@ -387,7 +387,7 @@ namespace f3
 
 
 
-        virtual protected void onTransformModified(TransformableSO so)
+        virtual protected void onTransformModified(SceneObject so)
         {
             // keep widget synced with object frame of target
             Frame3f widgetFrame = targetWrapper.GetLocalFrame(CoordSpace.ObjectCoords);

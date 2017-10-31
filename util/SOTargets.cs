@@ -8,9 +8,9 @@ namespace f3
 {
     public class SOWorldIntersectionTarget : IIntersectionTarget
     {
-        public TransformableSO Target;
+        public SceneObject Target;
 
-        public SOWorldIntersectionTarget(TransformableSO target)
+        public SOWorldIntersectionTarget(SceneObject target)
         {
             Target = target;
         }

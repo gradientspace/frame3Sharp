@@ -94,7 +94,7 @@ namespace f3
 
     public class TransformSOChange : BaseChangeOp
     {
-        public TransformableSO so;
+        public SceneObject so;
         public Frame3f before, after;
         public CoordSpace space;
 
@@ -103,13 +103,13 @@ namespace f3
         public TransformSOChange() {
             space = CoordSpace.SceneCoords;
         }
-        public TransformSOChange(TransformableSO target, Frame3f before, Frame3f after, CoordSpace coords) {
+        public TransformSOChange(SceneObject target, Frame3f before, Frame3f after, CoordSpace coords) {
             this.so = target;
             this.before = before;
             this.after = after;
             this.space = coords;
         }
-        public TransformSOChange(TransformableSO target, Frame3f newFrame, CoordSpace coords)
+        public TransformSOChange(SceneObject target, Frame3f newFrame, CoordSpace coords)
         {
             this.so = target;
             this.before = target.GetLocalFrame(coords);
@@ -140,7 +140,7 @@ namespace f3
         public Frame3f parentBefore, parentAfter;
         public Vector3f parentScaleBefore, parentScaleAfter;
 
-        public List<TransformableSO> childSOs;
+        public List<SceneObject> childSOs;
         public List<Frame3f> before, after;
         public List<Vector3f> scaleBefore, scaleAfter;
 
@@ -148,13 +148,19 @@ namespace f3
 
         public override OpStatus Apply()
         {
-            // [RMS] parentSO may not be GC'd immediately, but GO be null as
-            //   soon as Scene.RemoveSeceneObject() is called
-            if ( parentSO.IsAlive && (parentSO.Target as SceneObject).RootGameObject != null) {
-                TransformableSO tso = (parentSO.Target as TransformableSO);
-                tso.SetLocalFrame(parentAfter, CoordSpace.SceneCoords);
-                if (tso.SupportsScaling)
-                    tso.SetLocalScale(parentScaleAfter);
+            // [RMS] parentSO may not be GC'd immediately, but GO may be destroyed
+            //   soon as Scene.RemoveSceneObject() is called
+            SceneObject useParentSO = null;
+            if (parentSO.IsAlive) {
+                useParentSO = (parentSO.Target as SceneObject);
+                if (useParentSO == null || useParentSO.RootGameObject == null || useParentSO.RootGameObject.IsDestroyed == true)
+                    useParentSO = null;
+            }
+
+            if (useParentSO != null ) {
+                useParentSO.SetLocalFrame(parentAfter, CoordSpace.SceneCoords);
+                if (useParentSO.SupportsScaling)
+                    useParentSO.SetLocalScale(parentScaleAfter);
             } else {
                 for (int i = 0; i < childSOs.Count; ++i) {
                     childSOs[i].SetLocalFrame(after[i], CoordSpace.SceneCoords);
@@ -166,13 +172,19 @@ namespace f3
         }
         public override OpStatus Revert()
         {
-            // [RMS] parentSO may not be GC'd immediately, but GO be null as
-            //   soon as Scene.RemoveSeceneObject() is called
-            if (parentSO.IsAlive && (parentSO.Target as SceneObject).RootGameObject != null  ) {
-                TransformableSO tso = (parentSO.Target as TransformableSO);
-                tso.SetLocalFrame(parentBefore, CoordSpace.SceneCoords);
-                if (tso.SupportsScaling)
-                    tso.SetLocalScale(parentScaleBefore);
+            // [RMS] parentSO may not be GC'd immediately, but GO may be destroyed
+            //   soon as Scene.RemoveSceneObject() is called
+            SceneObject useParentSO = null;
+            if (parentSO.IsAlive) {
+                useParentSO = (parentSO.Target as SceneObject);
+                if (useParentSO == null || useParentSO.RootGameObject == null || useParentSO.RootGameObject.IsDestroyed == true)
+                    useParentSO = null;
+            }
+
+            if (useParentSO != null) {
+                useParentSO.SetLocalFrame(parentBefore, CoordSpace.SceneCoords);
+                if (useParentSO.SupportsScaling)
+                    useParentSO.SetLocalScale(parentScaleBefore);
             } else {
                 for (int i = 0; i < childSOs.Count; ++i) {
                     childSOs[i].SetLocalFrame(before[i], CoordSpace.SceneCoords);
@@ -197,7 +209,7 @@ namespace f3
     public class CreateGroupChange : BaseChangeOp
     {
         public FScene Scene;
-        public List<TransformableSO> Objects;
+        public List<SceneObject> Objects;
 
         // [RMS] ugh this is terrible....but how else do we hold refs to SOs??
         //  (Could we store UUID?)
@@ -234,13 +246,13 @@ namespace f3
     {
         public FScene Scene;
         public GroupSO Group;
-        public List<TransformableSO> Objects;
+        public List<SceneObject> Objects;
 
         public override string Identifier() { return "AddToGroupChange"; }
 
-        public AddToGroupChange(FScene scene, GroupSO group, TransformableSO so)
+        public AddToGroupChange(FScene scene, GroupSO group, SceneObject so)
         {
-            this.Scene = scene; this.Group = group; this.Objects = new List<TransformableSO>() { so };
+            this.Scene = scene; this.Group = group; this.Objects = new List<SceneObject>() { so };
         }
 
         public override OpStatus Apply() {
@@ -267,12 +279,12 @@ namespace f3
         public FScene Scene;
         public GroupSO Group;
 
-        List<TransformableSO> Objects;
+        List<SceneObject> Objects;
 
         public override string Identifier() { return "UnGroupChange"; }
 
         public override OpStatus Apply() {
-            Objects = new List<TransformableSO>(Group.GetChildren().Cast<TransformableSO>());
+            Objects = new List<SceneObject>(Group.GetChildren());
             Group.RemoveAllChildren();
             Scene.RemoveSceneObject(Group, false);
             return OpStatus.Success;

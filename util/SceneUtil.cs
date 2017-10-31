@@ -39,21 +39,6 @@ namespace f3
         }
 
 
-        // stupid but convenient
-        public static bool FindNearestRayIntersection(IEnumerable<TransformableSO> vSceneObjects, Ray ray, out SORayHit hit) {
-            hit = null;
-            foreach (var so in vSceneObjects) {
-                SORayHit soHit;
-                if (so.FindRayIntersection(ray, out soHit)) {
-                    if (hit == null || soHit.fHitDist < hit.fHitDist)
-                        hit = soHit;
-                }
-            }
-            return (hit != null);
-        }
-
-
-
 
 
 
@@ -77,17 +62,15 @@ namespace f3
 
 
         // descends parent/child SO hierarchy and finds the set of topmost non-temporary SOs
-        public static void FindAllPersistentTransformableChildren(SceneObject vParent, List<TransformableSO> children)
+        public static void FindAllPersistentTransformableChildren(SceneObject vParent, List<SceneObject> children)
         {
             if ( (vParent is SOCollection) == false )
                 return;
             foreach ( SceneObject so in (vParent as SOCollection).GetChildren() ) {
-                if ((so is TransformableSO) == false)
-                    continue;
                 if (so.IsTemporary)
                     FindAllPersistentTransformableChildren(so, children);
                 else
-                    children.Add(so as TransformableSO);
+                    children.Add(so);
             }
         }
 
@@ -99,7 +82,7 @@ namespace f3
                 // [TODO] this is not the most efficient approach! can at least get the object
                 //   frame directly, and avoid first local-to-obj xform
                 Frame3f objF = Frame3f.Identity;
-                Frame3f result = SceneTransforms.ObjectToScene(so as TransformableSO, objF);
+                Frame3f result = SceneTransforms.ObjectToScene(so, objF);
 
                 // [RMS] old code that mapped up to world, and then down to scene
                 //   Problem with this code is that it is unstable - if scene-to-world xform changes,
@@ -132,7 +115,7 @@ namespace f3
 
 
 
-        public static void TranslateInFrame(TransformableSO so, Vector3f translate, CoordSpace eSpace = CoordSpace.ObjectCoords)
+        public static void TranslateInFrame(SceneObject so, Vector3f translate, CoordSpace eSpace = CoordSpace.ObjectCoords)
         {
             Frame3f f = so.GetLocalFrame(eSpace);
             f.Origin += translate;
@@ -203,7 +186,7 @@ namespace f3
 
 
 
-        public static GroupSO CreateGroupSO(TransformableSO so1, TransformableSO so2)
+        public static GroupSO CreateGroupSO(SceneObject so1, SceneObject so2)
         {
             FScene scene = so1.GetScene();
             if (scene.IsSelected(so1))
