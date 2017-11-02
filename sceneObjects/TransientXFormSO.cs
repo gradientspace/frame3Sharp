@@ -193,7 +193,9 @@ namespace f3
 
         virtual public IEnumerable<SceneObject> GetChildren()
         {
-            return new List<SceneObject>() { target };
+            if ( target != null )
+                return new List<SceneObject>() { target };
+            return new List<SceneObject>();
         }
     }
 }
