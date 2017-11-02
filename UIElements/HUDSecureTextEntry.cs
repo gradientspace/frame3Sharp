@@ -25,9 +25,7 @@ namespace f3
         // by default HUDSecureTextEntry will capture text input on click (via Context.RequestTextEntry)
         public bool OverrideDefaultInputHandling { get; set; }
 
-        // set this to filter strings/etc. Arguments are old and new string,
-        // you return filtered string.
-        //public Func<string, string, string> TextValidatorF = null;
+        public Func<char, bool> CharacterValidatorF = null;
 
         Colorf text_color;
         public Colorf TextColor {
@@ -136,14 +134,25 @@ namespace f3
             base.Disconnect();
         }
 
-        public void AppendString(string s)
+        public bool AppendString(string s)
         {
+            if (CharacterValidatorF != null) {
+                for (int i = 0; i < s.Length; ++i) {
+                    if (CharacterValidatorF(s[i]) == false)
+                        return false;
+                }
+            }
+
             for (int i = 0; i < s.Length; ++i)
                 AppendCharacter(s[i]);
+            return true;
         }
 
-        public void AppendCharacter(char c)
+        public bool AppendCharacter(char c)
         {
+            if (CharacterValidatorF != null && CharacterValidatorF(c) == false)
+                return false;
+
             real_text.AppendChar(c);
             dummy_text += "*";
 
@@ -151,6 +160,7 @@ namespace f3
             cursor_position = MathUtil.Clamp(cursor_position+1, 0, dummy_text.Length);
 
             FUtil.SafeSendEvent(OnTextChanged, this, dummy_text);
+            return true;
         }
 
         public void PopCharacter()
