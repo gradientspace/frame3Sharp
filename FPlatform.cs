@@ -42,7 +42,9 @@ namespace f3
         public static string TemporaryDataPath() {
             return Application.temporaryCachePath;
         }
-
+        public static string GameExecutablePath() {
+            return Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+        }
 
 
         private static float _last_realtime = 0;
@@ -253,7 +255,11 @@ namespace f3
                 filterPatterns.Length, filterPatterns, sPatternDesc, 0);
 
             ShowingExternalPopup = false;
-            Directory.SetCurrentDirectory(curDirectory);
+            try {
+                Directory.SetCurrentDirectory(curDirectory);
+            } catch (Exception) {
+                // [RMS] sometimes this results in an exception? I am confused...
+            }
 
             if (p == IntPtr.Zero)
                 return null;
