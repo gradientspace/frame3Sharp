@@ -388,6 +388,7 @@ namespace f3
                 if (first) {
                     preview.AppendVertex(vPos);
                     preview.AppendVertex(vPos);
+                    OnAddedClickPoint(vPos, true);
                 } else {
                     // close curve if we are within close threshold
                     if ( preview.VertexCount > 2  &&  vPos.Distance((Vector3f)preview[0]) < CloseThreshold)
@@ -395,6 +396,7 @@ namespace f3
 
                     //preview[preview.VertexCount - 1] = vPos;
                     preview.AppendVertex(vPos);
+                    OnAddedClickPoint(vPos, false);
                 }
             }
 
@@ -465,6 +467,17 @@ namespace f3
             }
         }
 
+
+
+
+
+        /// <summary>
+        /// This is for subclasses to use, to respond to clicks in DrawMode==OnClick.
+        /// Is called from UpdateDraw_Ray_MultiClick()
+        /// </summary>
+        protected virtual void OnAddedClickPoint(Vector3d vNew, bool bFirst)
+        {
+        }
 
     }
 
