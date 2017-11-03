@@ -639,9 +639,7 @@ namespace f3
 
         override public Capture ForceEndCapture(InputState input, CaptureData data)
         {
-            DrawSurfaceCurveTool tool =
-                (context.ToolManager.ActiveRightTool as DrawSurfaceCurveTool);
-            tool.CancelDraw();
+            ownerTool.CancelDraw();
             return Capture.End;
         }
 
