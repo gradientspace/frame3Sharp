@@ -33,17 +33,28 @@ namespace f3
 
 
 
+        // argh unity can't even return paths to background thread?!?
+        static string app_dataPath = null;
+        static string persistent_dataPath = null;
+        static string temp_dataPath = null;
+
         public static string GameDataFolderPath() {
-            return Application.dataPath;
+            if (app_dataPath == null)
+                app_dataPath = Path.GetFullPath(Application.dataPath);
+            return app_dataPath;
         }
         public static string PersistentDataPath() {
-            return Path.GetFullPath(Application.persistentDataPath);
+            if (persistent_dataPath == null)
+                persistent_dataPath = Path.GetFullPath(Application.persistentDataPath);
+            return persistent_dataPath;
         }
         public static string TemporaryDataPath() {
-            return Application.temporaryCachePath;
+            if (temp_dataPath == null)
+                temp_dataPath = Path.GetFullPath(Application.temporaryCachePath);
+            return temp_dataPath;
         }
         public static string GameExecutablePath() {
-            return Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+            return Path.GetFullPath(Path.Combine(GameDataFolderPath(), ".."));
         }
 
 
@@ -193,6 +204,11 @@ namespace f3
         static public void InitializeMainThreadID()
         {
             _main_thread = Thread.CurrentThread;
+
+            // for some stupid reason Unity cannot return these paths in background threads, so we have to cache
+            GameDataFolderPath();
+            PersistentDataPath();
+            TemporaryDataPath();
         }
 
         static public bool InMainThread()
