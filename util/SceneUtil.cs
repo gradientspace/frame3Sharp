@@ -104,10 +104,11 @@ namespace f3
             if (eSpace == CoordSpace.SceneCoords) {
                 // scene frames should not be scaled by scene scale, but we want to set as world
                 // coords, so we need to apply it now
-                if (so.GetScene().GetSceneScale() != 1.0f)
-                    newFrame = newFrame.Scaled(so.GetScene().GetSceneScale());
-                Frame3f sceneW = UnityUtil.GetGameObjectFrame(so.GetScene().RootGameObject, CoordSpace.WorldCoords);
-                Frame3f objW = sceneW.FromFrame(newFrame);
+                //if (so.GetScene().GetSceneScale() != 1.0f)
+                //    newFrame = newFrame.Scaled(so.GetScene().GetSceneScale());
+                //Frame3f sceneW = UnityUtil.GetGameObjectFrame(so.GetScene().RootGameObject, CoordSpace.WorldCoords);
+                //Frame3f objW = sceneW.FromFrame(newFrame);
+                Frame3f objW = so.GetScene().ToWorldFrame(newFrame);
                 UnityUtil.SetGameObjectFrame(so.RootGameObject, objW, CoordSpace.WorldCoords);
             } else
                 UnityUtil.SetGameObjectFrame(so.RootGameObject, newFrame, eSpace);
