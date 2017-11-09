@@ -39,6 +39,10 @@ namespace f3
             behaviors = new InputBehaviorSet();
             behaviors.Add(
                 new BaseSurfacePointTool_2DBehavior(scene.Context, ObjectFilter) { Priority = 5 });
+            if (FPlatform.IsUsingVR()) {
+                behaviors.Add(
+                    new BaseSurfacePointTool_SpatialBehavior(scene.Context, ObjectFilter) { Priority = 5 });
+            }
         }
 
 
@@ -107,8 +111,6 @@ namespace f3
     {
         FContext context;
         Func<SceneObject, bool> ObjectFilterF;
-
-        Vector2d vStartDown;
         SceneObject targetSO;
 
         public BaseSurfacePointTool_2DBehavior(FContext s, Func<SceneObject, bool> filterF )
@@ -140,11 +142,9 @@ namespace f3
             bool bHit = context.Scene.FindSORayIntersection(WorldRay(input), out rayHit, ObjectFilterF);
             if (bHit) {
                 targetSO = rayHit.hitSO;
-                vStartDown = ClickPoint(input);
-
                 BaseSurfacePointTool tool =
                     (context.ToolManager.ActiveRightTool as BaseSurfacePointTool);
-                tool.Begin(targetSO, vStartDown, WorldRay(input));
+                tool.Begin(targetSO, ClickPoint(input), WorldRay(input));
 
                 return Capture.Begin(this);
             }
@@ -154,8 +154,6 @@ namespace f3
 
         override public Capture UpdateCapture(InputState input, CaptureData data)
         {
-            Vector2d vCurPos = ClickPoint(input);
-
             BaseSurfacePointTool tool =
                 (context.ToolManager.ActiveRightTool as BaseSurfacePointTool);
             if ( Released(input) ) {
@@ -165,7 +163,7 @@ namespace f3
                 SORayHit rayHit;
                 bool bHit = targetSO.FindRayIntersection(WorldRay(input), out rayHit);
                 if ( bHit )
-                    tool.Update(vCurPos, WorldRay(input));
+                    tool.Update(ClickPoint(input), WorldRay(input));
                 return Capture.Continue;
             }
         }
@@ -175,6 +173,90 @@ namespace f3
         {
             return Capture.End;
         }
+    }
+
+
+
+
+
+
+
+
+    class BaseSurfacePointTool_SpatialBehavior : StandardInputBehavior
+    {
+        FContext context;
+        Func<SceneObject, bool> ObjectFilterF;
+        SceneObject targetSO;
+
+        public BaseSurfacePointTool_SpatialBehavior(FContext s, Func<SceneObject, bool> filterF)
+        {
+            context = s;
+            ObjectFilterF = filterF;
+        }
+
+        override public InputDevice SupportedDevices {
+            get { return InputDevice.AnySpatialDevice; }
+        }
+
+        override public CaptureRequest WantsCapture(InputState input)
+        {
+            if (input.bLeftTriggerPressed ^ input.bRightTriggerPressed) {
+                CaptureSide eSide = (input.bLeftTriggerPressed) ? CaptureSide.Left : CaptureSide.Right;
+                ITool itool = context.ToolManager.GetActiveTool((int)eSide);
+                if (itool != null && itool is BaseSurfacePointTool) {
+                    Ray3f worldRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
+                    SORayHit rayHit;
+                    if (context.Scene.FindSORayIntersection(worldRay, out rayHit, ObjectFilterF)) {
+                        BaseSurfacePointTool tool = itool as BaseSurfacePointTool;
+                        if (tool.WantCapture(rayHit.hitSO, Vector2d.Zero, worldRay)) {
+                            return CaptureRequest.Begin(this, eSide);
+                        }
+                    }
+                }
+            }
+            return CaptureRequest.Ignore;
+        }
+
+        override public Capture BeginCapture(InputState input, CaptureSide eSide)
+        {
+            Ray3f worldRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
+            SORayHit rayHit;
+            bool bHit = context.Scene.FindSORayIntersection(worldRay, out rayHit, ObjectFilterF);
+            if (bHit) {
+                targetSO = rayHit.hitSO;
+                BaseSurfacePointTool tool = context.ToolManager.GetActiveTool((int)eSide) as BaseSurfacePointTool;
+                tool.Begin(targetSO, Vector2d.Zero, worldRay);
+
+                return Capture.Begin(this, eSide);
+            }
+            return Capture.Ignore;
+        }
+
+
+        override public Capture UpdateCapture(InputState input, CaptureData data)
+        {
+            BaseSurfacePointTool tool = context.ToolManager.GetActiveTool((int)data.which) as BaseSurfacePointTool;
+            Ray3f worldRay = (data.which == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
+            bool bReleased = (data.which == CaptureSide.Left) ? input.bLeftTriggerReleased : input.bRightTriggerReleased;
+
+            if (bReleased) {
+                tool.End();
+                return Capture.End;
+            } else {
+                SORayHit rayHit;
+                bool bHit = targetSO.FindRayIntersection(worldRay, out rayHit);
+                if (bHit)
+                    tool.Update(Vector2d.Zero, worldRay);
+                return Capture.Continue;
+            }
+        }
+
+
+        override public Capture ForceEndCapture(InputState input, CaptureData data)
+        {
+            return Capture.End;
+        }
+
     }
 
 }

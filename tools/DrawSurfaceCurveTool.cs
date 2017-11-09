@@ -9,9 +9,9 @@ namespace f3
     // [TODO] should take optional selection target...
     public class DrawSurfaceCurveToolBuilder : IToolBuilder
     {
-        public float DefaultSamplingRate = 0.25f;
-        public float DefaultSurfaceOffset = 0.05f;
-        public float DefaultCloseThreshold = 2.5f;
+        public float DefaultSamplingRateS = 0.25f;
+        public float DefaultSurfaceOffsetS = 0.05f;
+        public float DefaultCloseThresholdS = 2.5f;
         public bool Closed = false;
         public bool IsOverlayCurve = false;
         public bool AttachCurveToSurface = false;
@@ -27,10 +27,10 @@ namespace f3
         public virtual ITool Build(FScene scene, List<SceneObject> targets)
         {
             DrawSurfaceCurveTool tool = new_tool(scene, targets[0]);
-            tool.SamplingRate = DefaultSamplingRate;
-            tool.MinSamplingRate = Math.Min(tool.MinSamplingRate, DefaultSamplingRate * 0.1f);
-            tool.SurfaceOffset = DefaultSurfaceOffset;
-            tool.CloseThreshold = DefaultCloseThreshold;
+            tool.SamplingRateScene = DefaultSamplingRateS;
+            tool.MinSamplingRate = Math.Min(tool.MinSamplingRate, DefaultSamplingRateS * 0.1f);
+            tool.SurfaceOffsetScene = DefaultSurfaceOffsetS;
+            tool.CloseThresholdScene = DefaultCloseThresholdS;
             tool.Closed = Closed;
             tool.IsOverlayCurve = IsOverlayCurve;
             tool.EmitNewCurveF = EmitNewCurveF;
@@ -98,23 +98,23 @@ namespace f3
         public float MaxSamplingRate = 9999.0f;
 
         float sampling_rate = 0.25f;
-        virtual public float SamplingRate
+        virtual public float SamplingRateScene
         {
             get { return sampling_rate; }
             set { sampling_rate = MathUtil.Clamp(value, MinSamplingRate, MaxSamplingRate); }
         }
 
         float surface_offset = 0.05f;
-        virtual public float SurfaceOffset
+        virtual public float SurfaceOffsetScene
         {
             get { return surface_offset; }
             set { surface_offset = value; }
         }
 
-        float close_threshold = 0.5f;
-        virtual public float CloseThreshold {
-            get { return close_threshold; }
-            set { close_threshold = MathUtil.Clamp(value, 0.001f, 100000.0f); }
+        float close_threshold_s = 0.5f;
+        virtual public float CloseThresholdScene {
+            get { return close_threshold_s; }
+            set { close_threshold_s = MathUtil.Clamp(value, 0.001f, 100000.0f); }
         }
 
         /// <summary>
@@ -177,9 +177,10 @@ namespace f3
             // TODO is this where we should be doing this??
             behaviors.Add(
                 new DrawSurfaceCurveTool_2DBehavior(this, scene.Context) { Priority = 5 });
-            behaviors.Add(
-                new DrawSurfaceCurveTool_SpatialDeviceBehavior(scene.Context) { Priority = 5 });
-
+            if (FPlatform.IsUsingVR()) {
+                behaviors.Add(
+                    new DrawSurfaceCurveTool_SpatialDeviceBehavior(this, scene.Context) { Priority = 5 });
+            }
 
             // shut off transform gizmo
             scene.Context.TransformManager.PushOverrideGizmoType(TransformManager.NoGizmoType);
@@ -341,11 +342,10 @@ namespace f3
             if (!bHit)
                 throw new Exception("DrawSurfaceCurveTool.BeginDraw_Ray: how did we get here if no target hit???");
 
-            float offset = SurfaceOffset * Scene.GetSceneScale();
+            float offset = Scene.ToWorldDimension(SurfaceOffsetScene);
             Vector3f vHit = hit.hitPos + offset * hit.hitNormal;
             float fScale = Scene.GetSceneScale();
-            smooth_append(preview,
-                Scene.SceneFrame.ToFrameP(vHit) / fScale, dist_thresh(SamplingRate, fScale));
+            smooth_append(preview, Scene.ToSceneP(vHit), dist_thresh(SamplingRateScene, fScale));
         }
 
 
@@ -354,10 +354,10 @@ namespace f3
             SORayHit hit;
             bool bHit = target.FindRayIntersection(ray, out hit);
             if (bHit) {
-                float offset = SurfaceOffset * Scene.GetSceneScale();
+                float offset = Scene.ToWorldDimension(SurfaceOffsetScene);
                 Vector3f vHit = hit.hitPos + offset * hit.hitNormal;
                 float fScale = Scene.GetSceneScale();
-                smooth_append(preview, Scene.SceneFrame.ToFrameP(vHit) / fScale, dist_thresh(SamplingRate, fScale));
+                smooth_append(preview, Scene.ToSceneP(vHit), dist_thresh(SamplingRateScene, fScale));
             }
         }
 
@@ -377,10 +377,9 @@ namespace f3
             SORayHit hit;
             bool bHit = target.FindRayIntersection(ray, out hit);
             if (bHit) {
-                float offset = SurfaceOffset * Scene.GetSceneScale();
+                float offset = Scene.ToWorldDimension(SurfaceOffsetScene);
                 Vector3f vHit = hit.hitPos + offset * hit.hitNormal;
-                float fScale = Scene.GetSceneScale();
-                Vector3f vPos = Scene.SceneFrame.ToFrameP(vHit) / fScale;
+                Vector3f vPos = Scene.ToSceneP(vHit);
 
                 // the last vertex is the one we are repositioning in UpdateDrawPreview. So, on
                 // click we actaully want to freeze that vertex to this position and then add a new
@@ -391,7 +390,7 @@ namespace f3
                     OnAddedClickPoint(vPos, true);
                 } else {
                     // close curve if we are within close threshold
-                    if ( preview.VertexCount > 2  &&  vPos.Distance((Vector3f)preview[0]) < CloseThreshold)
+                    if ( preview.VertexCount > 2  &&  vPos.Distance((Vector3f)preview[0]) < CloseThresholdScene )
                         return false;
 
                     //preview[preview.VertexCount - 1] = vPos;
@@ -411,10 +410,10 @@ namespace f3
             SORayHit hit;
             bool bHit = target.FindRayIntersection(ray, out hit);
             if (bHit) {
-                float offset = SurfaceOffset * Scene.GetSceneScale();
+                float offset = Scene.ToWorldDimension(SurfaceOffsetScene);
                 Vector3f vHit = hit.hitPos + offset * hit.hitNormal;
-                float fScale = Scene.GetSceneScale();
-                preview[preview.VertexCount - 1] = Scene.SceneFrame.ToFrameP(vHit) / fScale;
+                Vector3f vPos = Scene.ToSceneP(vHit);
+                preview[preview.VertexCount - 1] = vPos;
             }
         }
 
@@ -426,7 +425,7 @@ namespace f3
             in_draw = false;
             if (preview == null)
                 return;
-            if (preview.Curve.VertexCount > 2 && preview.Curve.ArcLength > 2 * SamplingRate) {
+            if (preview.Curve.VertexCount > 2 && preview.Curve.ArcLength > 2 * SamplingRateScene) {
 
                 // update Closed state because in some cases we change this during drawing
                 // (ie when drawing multi-point curve, but closing at end)
@@ -492,11 +491,23 @@ namespace f3
 
     class DrawSurfaceCurveTool_SpatialDeviceBehavior : StandardInputBehavior
     {
+        DrawSurfaceCurveTool ownerTool;
         FContext context;
 
-        public DrawSurfaceCurveTool_SpatialDeviceBehavior(FContext s)
+        public DrawSurfaceCurveTool_SpatialDeviceBehavior(DrawSurfaceCurveTool tool, FContext s)
         {
+            ownerTool = tool;
             context = s;
+
+            // have to cancel capture if we are in multi-click mode and tool exits
+            s.ToolManager.OnToolActivationChanged += ToolManager_OnToolActivationChanged;
+        }
+
+        private void ToolManager_OnToolActivationChanged(ITool tool, ToolSide eSide, bool bActivated)
+        {
+            if (bActivated == false && tool == ownerTool) {
+                ownerTool.EndDraw();
+            }
         }
 
         override public InputDevice SupportedDevices
@@ -522,9 +533,14 @@ namespace f3
 
         override public Capture BeginCapture(InputState input, CaptureSide eSide)
         {
-            Ray3f sideRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
+            Ray3f worldRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
             DrawSurfaceCurveTool tool = context.ToolManager.GetActiveTool((int)eSide) as DrawSurfaceCurveTool;
-            tool.BeginDraw_Ray_Continuous(sideRay);
+
+            if (tool.InputMode == DrawSurfaceCurveTool.DrawMode.Continuous)
+                tool.BeginDraw_Ray_Continuous(worldRay);
+            else
+                tool.BeginDraw_Ray_MultiClick();
+
             return Capture.Begin(this, eSide);
         }
 
@@ -532,7 +548,7 @@ namespace f3
         override public Capture UpdateCapture(InputState input, CaptureData data)
         {
             DrawSurfaceCurveTool tool = context.ToolManager.GetActiveTool((int)data.which) as DrawSurfaceCurveTool;
-            Ray3f sideRay = (data.which == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
+            Ray3f worldRay = (data.which == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
 
             // [RMS] this is a hack for trigger+shoulder grab gesture...really need some way
             //   to interrupt captures!!
@@ -542,14 +558,35 @@ namespace f3
                 return Capture.End;
             }
 
-            tool.UpdateDraw_Ray_Continuous( sideRay );
+
+            // this happens if we exit tool while in draw (cts or multi-click). We need to fail gracefully in those cases.
+            if (tool == null) {
+                return Capture.End;
+            }
+            // this can happen if we called tool.EndDraw() somewhere else
+            if (tool.InDraw == false)
+                return Capture.End;
 
             bool bReleased = (data.which == CaptureSide.Left) ? input.bLeftTriggerReleased : input.bRightTriggerReleased;
-            if (bReleased) {
-                tool.EndDraw();
-                return Capture.End;
-            } else
+            if (tool.InputMode == DrawSurfaceCurveTool.DrawMode.OnClick) {
+                if (bReleased) {
+                    if (tool.UpdateDraw_Ray_MultiClick(worldRay) == false) {
+                        tool.EndDraw();
+                        return Capture.End;
+                    }
+                } else
+                    tool.UpdateDrawPreview_Ray_MultiClick(worldRay);
+
                 return Capture.Continue;
+
+            } else {
+                tool.UpdateDraw_Ray_Continuous(worldRay);
+                if (bReleased) {
+                    tool.EndDraw();
+                    return Capture.End;
+                } else
+                    return Capture.Continue;
+            }
         }
 
         override public Capture ForceEndCapture(InputState input, CaptureData data)
