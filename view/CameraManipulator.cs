@@ -183,11 +183,11 @@ namespace f3
             float fTargetDist = fw.Length;
             fw.Normalize();
 
-            float fMinTargetDist = 0.1f;
+            float fMinTargetDist = 0.1f*fScale;
             if (dz > 0 && fTargetDist - dz < fMinTargetDist)
                 dz = fTargetDist - fMinTargetDist;
 
-            Vector3f delta = dz * fScale * fw;
+            Vector3f delta = dz * fw;
             scene.RootGameObject.Translate(-delta, false);
             if ( bKeepTargetPos )
                 cam.SetTarget(cam.GetTarget() - delta);
@@ -206,7 +206,7 @@ namespace f3
                 Vector3f delta = curPos - newPos;
 
                 scene.RootGameObject.Translate(delta, false);
-                camera.SetTarget(focusPoint);
+                camera.SetTarget(focusPoint+delta);
                            
             } else
                 animator.PanFocus(focusPoint);

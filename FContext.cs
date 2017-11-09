@@ -806,7 +806,7 @@ namespace f3 {
 
 
         // remove all scene stuff and reset view to default
-        public void NewScene(bool bAnimated)
+        public void NewScene(bool bAnimated, bool bResetView = true)
         {
             if (InCameraManipulation)
                 return;     // not supported yet
@@ -826,7 +826,8 @@ namespace f3 {
 
             UniqueNames.Reset();
 
-            ResetView(bAnimated);
+            if (bResetView)
+                ResetView(bAnimated);
 
             // seems like a good time for this...
             FPlatform.SuggestGarbageCollection();
