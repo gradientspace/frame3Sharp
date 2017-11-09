@@ -119,7 +119,7 @@ namespace f3
             Vector3f dv = pos - Origin;
             dv.Normalize();
             float fAngleX = MathUtil.PlaneAngleSignedD(Vector3f.AxisZ, dv, 1);
-            float fAngleY = MathUtil.PlaneAngleSignedD(Vector3f.AxisZ, dv, 0);
+            float fAngleY = -MathUtil.PlaneAngleSignedD(Vector3f.AxisZ, dv, 0);
             return new Vector2f((fAngleX / 360.0f) * circ, (fAngleY / 360.0f) * circ);
         }
 
