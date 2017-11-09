@@ -47,13 +47,13 @@ namespace f3
         {
             child.transform.SetParent(go.transform, bKeepWorldPosition);
         }
-        public static void RemoveChild(this GameObject go, GameObject child)
+        public static void RemoveChild(this GameObject go, GameObject child, bool bKeepWorldPosition = true)
         {
-            child.transform.SetParent(null);
+            child.transform.SetParent(null, bKeepWorldPosition);
         }
-        public static void RemoveFromParent(this GameObject go)
+        public static void RemoveFromParent(this GameObject go, bool bKeepWorldPosition = true)
         {
-            go.transform.SetParent(null);
+            go.transform.SetParent(null, bKeepWorldPosition);
         }
 
         public static GameObject FindChildByName(this GameObject go, string sName, bool bRecurse)
