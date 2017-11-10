@@ -58,7 +58,7 @@ namespace f3
         }
 
 
-        override protected void Create_internal(Material useMaterial)
+        override protected void Create_internal(fMaterial useMaterial)
         {
             if (polygon == null) {
                 polygon = Polygon2d.MakeCircle(0.3f, 8);

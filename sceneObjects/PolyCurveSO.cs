@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using g3;
+
+// [RMS] still need this for LineRenderer
 using UnityEngine;
 
 namespace f3
@@ -61,7 +63,7 @@ namespace f3
             return copy;
         }
 
-        virtual protected void Create_internal(Material useMaterial)
+        virtual protected void Create_internal(fMaterial useMaterial)
         {
             // this is for children to subclass
         }
@@ -70,7 +72,7 @@ namespace f3
         {
             if (curve == null) {
                 LineGenerator gen = new LineGenerator() {
-                    Start = Vector3.zero, End = 10.0f * Vector3.up, StepSize = 0.1f
+                    Start = Vector3f.Zero, End = 10.0f * Vector3f.AxisY, StepSize = 0.1f
                 };
                 gen.Generate();
                 curve = new DCurve3();
@@ -87,7 +89,7 @@ namespace f3
             }
 
             AssignSOMaterial(defaultMaterial);       // need to do this to setup BaseSO material stack
-            Material useMaterial = CurrentMaterial;
+            fMaterial useMaterial = CurrentMaterial;
             Create_internal(useMaterial);
 
             UpdateGeometry();
@@ -98,7 +100,7 @@ namespace f3
         }
 
 
-        override protected void set_material_internal(Material m)
+        override protected void set_material_internal(fMaterial m)
         {
             base.set_material_internal(m);
 

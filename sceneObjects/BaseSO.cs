@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using g3;
 
 namespace f3
@@ -13,10 +12,10 @@ namespace f3
         protected string uuid;
 
         SOMaterial sceneMaterial;
-        Material displaySceneMaterial;
+        fMaterial displaySceneMaterial;
 
-        Material displayMaterial;
-        List<Material> vMaterialStack;
+        fMaterial displayMaterial;
+        List<fMaterial> vMaterialStack;
 
         int _timestamp = 0;
         protected void increment_timestamp() { _timestamp++; }
@@ -25,7 +24,7 @@ namespace f3
         {
             uuid = System.Guid.NewGuid().ToString();
             displayMaterial = null;
-            vMaterialStack = new List<Material>();
+            vMaterialStack = new List<fMaterial>();
         }
 
 
@@ -88,7 +87,7 @@ namespace f3
         }
 
 
-        virtual protected void set_material_internal(Material m)
+        virtual protected void set_material_internal(fMaterial m)
         {
             SetAllGOMaterials(m);
         }
@@ -96,7 +95,7 @@ namespace f3
 
         virtual public void AssignSOMaterial(SOMaterial m) {
             sceneMaterial = m;
-            displaySceneMaterial = MaterialUtil.ToUnityMaterial(m);
+            displaySceneMaterial = MaterialUtil.ToMaterialf(m);
             if (vMaterialStack.Count > 0) {
                 // material 0 is always our base material, higher levels of stack are
                 // temp materials that will be popped eventually
@@ -120,7 +119,7 @@ namespace f3
 
         virtual public void PopOverrideMaterial() {
             if (vMaterialStack.Count > 0) {
-                Material m = vMaterialStack.Last();
+                fMaterial m = vMaterialStack.Last();
                 vMaterialStack.RemoveAt(vMaterialStack.Count - 1);
                 displayMaterial = m;
                 set_material_internal(displayMaterial);
