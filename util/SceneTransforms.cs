@@ -97,8 +97,7 @@ namespace f3
                 return scene.ToWorldDimension(sceneDim);
 
             // only thing left is going from Scene to Object
-            //return SceneToObject(fromSO, sceneDim);
-            throw new NotImplementedException("SceneTransforms.TransformTo: transforming to object coordinates not supported yet");
+            return SceneToObject(fromSO, sceneDim);
         }
 
 
@@ -170,6 +169,18 @@ namespace f3
             return ApplyInverseTransform(so, SceneToObject(parent as SceneObject, sceneF));
         }
 
+
+        /// <summary>
+        /// Input ray is a frame in Scene, apply all intermediate inverse 
+        /// transforms to get it into local frame of a SO
+        /// </summary>
+        public static Ray3f SceneToObject(SceneObject so, Ray3f ray)
+        {
+            Frame3f f = new Frame3f(ray.Origin, ray.Direction);
+            Frame3f fO = SceneToObject(so, f);
+            return new Ray3f(fO.Origin, fO.Z);
+        }
+
         /// <summary>
         /// Input sceneF is a point in Scene, apply all intermediate inverse 
         /// transforms to get it into local point of a SO
@@ -194,6 +205,24 @@ namespace f3
             Frame3f f = new Frame3f(Vector3f.Zero, sceneN);
             Frame3f fO = SceneToObject(so, f);
             return fO.Z;
+        }
+
+        /// <summary>
+        /// input dimension is in scene coords of so, (recursively) apply all 
+        /// intermediate inverse-scales to get it to Scene coords
+        /// </summary>
+        public static float SceneToObject(SceneObject so, float sceneDim)
+        {
+            return inverse_scale_recursive(so, sceneDim);
+        }
+        static float inverse_scale_recursive(SceneObject so, float dim)
+        {
+            if (so.Parent is FScene)
+                return dim;
+            Vector3f scale = so.GetLocalScale();
+            Util.gDevAssert(IsUniformScale(scale));
+            float avgscale = ((scale.x + scale.y + scale.z) / 3.0f);   // yikes!
+            return inverse_scale_recursive(so.Parent as SceneObject, dim) / avgscale;
         }
 
 
@@ -250,6 +279,17 @@ namespace f3
             if (curSO == null)
                 DebugUtil.Error("SceneTransforms.TransformTo: found null parent SO!");
             return sceneF;
+        }
+
+        /// <summary>
+        /// input ray is in Object (local) coords of so, apply all intermediate 
+        /// transforms to get it to Scene coords
+        /// </summary>
+        public static Ray3f ObjectToSceneP(SceneObject so, Ray3f ray)
+        {
+            Frame3f f = new Frame3f(ray.Origin, ray.Direction);
+            Frame3f fS = ObjectToScene(so, f);
+            return new Ray3f(fS.Origin, fS.Z);
         }
 
 
