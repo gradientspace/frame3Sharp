@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,13 +7,21 @@ using UnityEngine;
 
 namespace f3
 {
-    public abstract class BaseSceneConfig : MonoBehaviour
+    public abstract class BaseSceneConfig : MonoBehaviour, FPlatform.CoroutineExecutor
     {
         public abstract FContext Context { get; }
 
 
         public bool AutoConfigVR = false;
 
+        public BaseSceneConfig()
+        {
+        }
+
+        public virtual void Awake()
+        {
+            FPlatform.CoroutineExec = this;
+        }
 
         // Update is called once per frame
         public virtual void Update()
@@ -32,6 +41,18 @@ namespace f3
             // let client decide what to do here
         }
 
+
+
+        /*
+         * FPlatform.CoroutineExecutor impl
+         */
+        public virtual void StartAnonymousCoroutine(IEnumerator func)
+        {
+            if (func != null)
+                StartCoroutine(func);
+            else
+                DebugUtil.Log("BaseSceneConfig.StartAnonymousCoroutine: tried to start null enumerator");
+        }
 
     }
 }

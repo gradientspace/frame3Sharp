@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Collections;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Threading;
@@ -217,6 +215,27 @@ namespace f3
                 throw new Exception("FPlatform.InMainThread: Must call InitializeMainThreadID() first!!");
             return Thread.CurrentThread == _main_thread;
         }
+
+
+
+
+
+        public interface CoroutineExecutor
+        {
+            void StartAnonymousCoroutine(IEnumerator routine);
+        }
+
+        /// <summary>
+        /// Global object you can use at any time to start a Coroutine. Generally set to
+        /// active BaseSceneConfig
+        /// </summary>
+        static public CoroutineExecutor CoroutineExec {
+            get { return coroutine_exec; }
+            set { coroutine_exec = value; }
+        }
+        static CoroutineExecutor coroutine_exec;
+
+
 
 
 
