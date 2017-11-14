@@ -73,58 +73,6 @@ namespace f3
 
 
 
-    public class RightMouseClickDragBehavior : StandardInputBehavior
-    {
-        public Func<InputState, bool> WantsCaptureF = (input) => { return true; };
-        public Action<InputState> BeginCaptureF = (input) => { };
-        public Action<InputState, InputState> UpdateCaptureF = (input, lastInput) => { };
-        public Action<InputState> EndCaptureF = (input) => { };
-
-
-        override public InputDevice SupportedDevices {
-            get { return InputDevice.Mouse; }
-        }
-
-        InputState lastInput;
-
-        public RightMouseClickDragBehavior()
-        {
-        }
-
-        override public CaptureRequest WantsCapture(InputState input)
-        {
-            if (input.bRightMousePressed) {
-                if (WantsCaptureF(input))
-                    return CaptureRequest.Begin(this);
-            }
-            return CaptureRequest.Ignore;
-        }
-
-        override public Capture BeginCapture(InputState input, CaptureSide eSide)
-        {
-            BeginCaptureF(input);
-            return Capture.Begin(this);
-        }
-
-
-        override public Capture UpdateCapture(InputState input, CaptureData data)
-        {
-            if (input.bRightMouseReleased) {
-                EndCaptureF(input);
-                lastInput = input;
-                return Capture.End;
-            } else {
-                UpdateCaptureF(input, lastInput);
-                return Capture.Continue;
-            }
-        }
-
-        override public Capture ForceEndCapture(InputState input, CaptureData data)
-        {
-            EndCaptureF(input);
-            return Capture.End;
-        }
-    }
 
 
 

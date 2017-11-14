@@ -136,6 +136,8 @@ namespace f3
             BoxModel.Translate(textMesh, Vector2f.Zero, toPos);
 
             AppendNewGO(textMesh, entry, false);
+
+            MaterialUtil.DisableShadows(RootGameObject);
         }
 
         void UpdateText()
