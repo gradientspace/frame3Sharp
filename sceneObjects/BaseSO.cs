@@ -5,7 +5,7 @@ using g3;
 
 namespace f3
 {
-    public abstract class BaseSO : GameObjectSet, SceneObject
+    public abstract class BaseSO : GameObjectSet, SceneObject, InputBehaviorSource
     {
         protected FScene parentScene;
         protected SOParent parent;
@@ -20,13 +20,15 @@ namespace f3
         int _timestamp = 0;
         protected void increment_timestamp() { _timestamp++; }
 
+        protected InputBehaviorSet inputBehaviours;
+
         public BaseSO()
         {
             uuid = System.Guid.NewGuid().ToString();
             displayMaterial = null;
             vMaterialStack = new List<fMaterial>();
+            inputBehaviours = new InputBehaviorSet();
         }
-
 
         //
         // SceneObject functions that subclass must implement
@@ -205,6 +207,19 @@ namespace f3
                 if (OnTransformModified != null)
                     OnTransformModified(this);
             }
+        }
+
+
+
+        /*
+         *  InputBehaviour bits
+         */
+        public virtual InputBehaviorSet InputBehaviors {
+            get { return inputBehaviours; }
+        }
+
+        protected virtual void initialize_behaviors()
+        {
         }
 
 

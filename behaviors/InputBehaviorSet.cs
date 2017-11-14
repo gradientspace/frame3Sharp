@@ -4,6 +4,13 @@ using System.Collections.Generic;
 
 namespace f3
 {
+    public interface InputBehaviorSource
+    {
+        InputBehaviorSet InputBehaviors { get; }
+    }
+
+
+
     public class InputBehaviorSet : IEnumerable<InputBehavior>
     {
         protected struct BehaviorInfo
@@ -25,6 +32,11 @@ namespace f3
 
         public delegate void SetChangedHandler(InputBehaviorSet set);
         public SetChangedHandler OnSetChanged;
+
+
+        public int Count {
+            get { return Behaviors.Count; }
+        }
 
 
         public void Add(InputBehavior behavior, object source = null, string group = "")

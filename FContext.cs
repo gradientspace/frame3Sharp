@@ -155,6 +155,8 @@ namespace f3 {
             GetScene();
             if (options.SceneInitializer != null)
                 options.SceneInitializer.Initialize(GetScene());
+            Scene.SelectionChangedEvent += OnSceneSelectionChanged;
+
 
             if (options.DefaultGizmoBuilder != null)
                 transformManager = new TransformManager(options.DefaultGizmoBuilder);
@@ -771,13 +773,46 @@ namespace f3 {
                 inputBehaviors.Remove(tool.InputBehaviors);
             }
         }
-
-
         void on_tool_behaviors_changed(InputBehaviorSet behaviors)
         {
             List<InputBehavior> removed = inputBehaviors.RemoveByGroup("active_tool");
             TerminateIfCapturing(removed, lastInputState);
         }
+
+
+
+        InputBehaviorSource activeSOBehaviourSource;
+
+        protected virtual void OnSceneSelectionChanged(object sender, EventArgs e)
+        {
+            InputBehaviorSource newSource = (Scene.Selected.Count == 1) ? Scene.Selected[0] as InputBehaviorSource : null;
+            if ( (newSource != null && newSource == activeSOBehaviourSource) || (newSource == null && activeSOBehaviourSource == null) )
+                return;   // did not actually change
+
+            // remove existing source that is no longer selected
+            if (newSource != activeSOBehaviourSource && activeSOBehaviourSource != null) {
+                activeSOBehaviourSource.InputBehaviors.OnSetChanged -= on_selected_so_behaviors_changed;
+                TerminateIfCapturing(activeSOBehaviourSource.InputBehaviors, lastInputState);
+                inputBehaviors.Remove(activeSOBehaviourSource.InputBehaviors);
+                activeSOBehaviourSource = null;
+            }
+
+            // if new selection has behaviors, register them
+            if (newSource != null) {
+                InputBehaviorSet newBehaviors = newSource.InputBehaviors;
+                if (newBehaviors.Count > 0) {
+                    inputBehaviors.Add(newBehaviors, "active_so");
+                    newBehaviors.OnSetChanged += on_selected_so_behaviors_changed;
+                    activeSOBehaviourSource = newSource;
+                }
+            }
+        }
+        void on_selected_so_behaviors_changed(InputBehaviorSet behaviors)
+        {
+            List<InputBehavior> removed = inputBehaviors.RemoveByGroup("active_so");
+            TerminateIfCapturing(removed, lastInputState);
+        }
+
         void on_cockpit_behaviors_changed(InputBehaviorSet behaviors)
         {
             activeCockpit.InputBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;

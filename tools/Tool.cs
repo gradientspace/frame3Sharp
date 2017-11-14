@@ -10,12 +10,13 @@ namespace f3
     }
 
 
-    public interface ITool
+    public interface ITool : InputBehaviorSource
     {
         string Name { get; }
         string TypeIdentifier { get; }
 
-        InputBehaviorSet InputBehaviors { get; }
+        // inherited from from InputBehaviorSource
+        //InputBehaviorSet InputBehaviors { get; }
 
         // called on per-frame Update()
         void PreRender();
