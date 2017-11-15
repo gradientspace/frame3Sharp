@@ -34,6 +34,10 @@ namespace f3
 
         // distance UI element is shifted in/out of standard UI plane/surface (negative is toward camera)
         public float DepthShift = 0;
+
+        // after 3D position is determined, we shift this far along each 3D axis. Useful for nudging, 
+        // and also planar sub-layout of elements positioned on curved surface
+        public Vector3f FrameAxesShift = Vector3f.Zero;
     }
 
 

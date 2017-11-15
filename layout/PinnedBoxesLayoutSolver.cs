@@ -18,7 +18,7 @@ namespace f3
     public abstract class PinnedBoxesLayoutSolver : BaseLayoutSolver, IDisposable
     {
         // must implement these
-        protected abstract void layout_item(SceneUIElement e);
+        protected abstract Vector3f layout_item(SceneUIElement e);
 
 
         BoxContainer container;
@@ -32,6 +32,13 @@ namespace f3
             public float fZ;
         };
         protected Dictionary<SceneUIElement, Pin> PinConstraints = new Dictionary<SceneUIElement, Pin>();
+
+
+        protected Dictionary<SceneUIElement, List<Action<SceneUIElement>> > PostTransforms = 
+            new Dictionary<SceneUIElement, List<Action<SceneUIElement>> >();
+
+        // 2.5D layout positions (ie that we computed)
+        protected Dictionary<SceneUIElement, Vector3f> LayoutPosition = new Dictionary<SceneUIElement, Vector3f>();
 
 
         /// <summary>
@@ -77,10 +84,20 @@ namespace f3
             base.AddLayoutItem(Element);
             PinConstraints.Add(Element, new Pin() { FromF = ElementPoint, ToF = PinTo, fZ = fZ });
 
-            if ( LayoutItemOnAdd )
-                layout_item(Element);
+            if (LayoutItemOnAdd) {
+                Vector3f result = layout_item(Element);
+                LayoutPosition[Element] = result;
+            }
         }
 
+
+        public void AddPostTransform(SceneUIElement e, Action<SceneUIElement> xform)
+        {
+            if (PostTransforms.ContainsKey(e))
+                PostTransforms[e].Add(xform);
+            else
+                PostTransforms[e] = new List<Action<SceneUIElement>>() { xform };
+        }
 
 
         public override bool RemoveLayoutItem(SceneUIElement element)
@@ -88,6 +105,12 @@ namespace f3
             bool bFound = base.RemoveLayoutItem(element);
             if (bFound)
                 PinConstraints.Remove(element);
+
+            if ( bFound ) {
+                PostTransforms.Remove(element);
+                LayoutPosition.Remove(element);
+            }
+
             return bFound;
         }
 
@@ -99,9 +122,18 @@ namespace f3
             AxisAlignedBox2f box = Container.Bounds2D;
 
             foreach (SceneUIElement e in LayoutItems) {
-                layout_item(e);
+                Vector3f result = layout_item(e);
+                LayoutPosition[e] = result;
             }
+        }
 
+
+        public Vector2f GetLayoutCenter(SceneUIElement e)
+        {
+            Vector3f pos;
+            if (LayoutPosition.TryGetValue(e, out pos))
+                return pos.xy;
+            return Vector2f.Zero;
         }
 
     }
@@ -124,9 +156,11 @@ namespace f3
         {
         }
 
-        protected override void layout_item(SceneUIElement e)
+        protected override Vector3f layout_item(SceneUIElement e)
         {
             AxisAlignedBox2f box = Container.Bounds2D;
+
+            Vector3f vNewPos3 = Vector3f.Zero;   // 2.5d center coordinate
 
             IBoxModelElement boxElem = e as IBoxModelElement;
             if (PinConstraints.ContainsKey(e)) {
@@ -134,14 +168,16 @@ namespace f3
 
                 Vector2f SourcePos = pin.FromF();
                 Vector2f PinToPos = pin.ToF();
-                BoxModel.SetObjectPosition(boxElem, SourcePos, PinToPos, pin.fZ);
+                vNewPos3 = BoxModel.SetObjectPosition(boxElem, SourcePos, PinToPos, pin.fZ);
 
             } else if (boxElem != null) {
-                BoxModel.SetObjectPosition(boxElem, BoxPosition.Center, box.Center, 0);
+                vNewPos3 = BoxModel.SetObjectPosition(boxElem, BoxPosition.Center, box.Center, 0);
 
             } else {
                 // do nothing?
             }
+
+            return vNewPos3;
         }
     }
 
@@ -164,15 +200,22 @@ namespace f3
         }
 
 
-        protected override void layout_item(SceneUIElement e)
+        protected override Vector3f layout_item(SceneUIElement e)
         {
             AxisAlignedBox2f box = Container.Bounds2D;
 
             IBoxModelElement boxElem = e as IBoxModelElement;
             IElementFrame eFramed = e as IElementFrame;
 
+            Vector3f vNewPos3 = Vector3f.Zero;   // 2.5d center coordinate
+
             if (PinConstraints.ContainsKey(e)) {
                 Pin pin = PinConstraints[e];
+
+                // [TODO] We have to xform the center of the object. But if we pin
+                //   a corner, we want to enforce the corner position in 3D (eg on curved surf).
+                //   Currently we pin the corner in 2D, but then conver that to a 2D-center
+                //   and then use that position. So on curved surf, things overlap, etc
 
                 // evaluate pin constraints in 2D box space
                 Vector2f SourcePos = pin.FromF();
@@ -180,12 +223,14 @@ namespace f3
 
                 // map center of object into box space
                 //  note: ignores orientation!
-                Frame3f objF = eFramed.GetObjectFrame();
-                Vector2f center2 = Region.To2DCoords(objF.Origin);
+                //Frame3f objF = eFramed.GetObjectFrame();
+                //Vector2f center2 = Region.To2DCoords(objF.Origin);
+                Vector2f center2 = Vector2f.Zero;
 
                 // construct new 2D position
                 Vector2f vOffset = SourcePos - center2;
                 Vector2f vNewPos = PinToPos - vOffset;
+                vNewPos3 = new Vector3f(vNewPos.x, vNewPos.y, pin.fZ);
 
                 // map 2D position back to 3D surface and orient object
                 Frame3f frame = Region.From2DCoords(vNewPos, pin.fZ);
@@ -193,14 +238,24 @@ namespace f3
 
             } else if (boxElem != null) {
 
+                Vector2f vNewPos = Vector2f.Zero;
+                vNewPos3 = new Vector3f(vNewPos.x, vNewPos.y, 0);
+
                 // position object at center of box region
-                Frame3f frame = Region.From2DCoords(Vector2f.Zero, 0);
+                Frame3f frame = Region.From2DCoords(vNewPos, 0);
                 eFramed.SetObjectFrame(frame);
 
 
             } else {
                 // do nothing?
             }
+
+            if (PostTransforms.ContainsKey(e)) {
+                foreach (var xform in PostTransforms[e])
+                    xform(e);
+            }
+
+            return vNewPos3;
         }
 
     }

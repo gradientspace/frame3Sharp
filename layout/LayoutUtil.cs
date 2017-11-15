@@ -83,6 +83,36 @@ namespace f3
 
 
         /// <summary>
+        /// Constructs func that returns 2D point in origin-centered box (rather than current position)
+        /// </summary>
+        public static Func<Vector2f> LocalBoxPointF(IBoxModelElement element, BoxPosition pos)
+        {
+            Func<Vector2f> f = () => {
+                Vector2f size = element.Size2D;
+                AxisAlignedBox2f box = new AxisAlignedBox2f(Vector2f.Zero, size.x*0.5f, size.y * 0.5f);
+                return BoxModel.GetBoxPosition(ref box, pos);
+            };
+            return f;
+        }
+
+
+        /// <summary>
+        /// constructs func that returns box point in 2D layout space of the passed solver
+        /// (eg if laying out on a 3D plane, for example)
+        /// </summary>
+        public static Func<Vector2f> InLayoutSpaceBoxPointF(IBoxModelElement element, BoxPosition pos, PinnedBoxesLayoutSolver solver, Vector2f vDelta)
+        {
+            Func<Vector2f> f = () => {
+                Vector2f solverPos = solver.GetLayoutCenter(element as SceneUIElement);
+                Vector2f size = element.Size2D;
+                AxisAlignedBox2f box = new AxisAlignedBox2f(solverPos, size.x * 0.5f, size.y * 0.5f);
+                return BoxModel.GetBoxPosition(ref box, pos) + vDelta;
+            };
+            return f;
+        }
+
+
+        /// <summary>
         /// constructs a Func that returns a 2D point
         /// </summary>
         public static Func<Vector2f> BoxPointSplitXYF(IBoxModelElement elementX, BoxPosition posX, IBoxModelElement elementY, BoxPosition posY, Vector2f vDelta) {

@@ -165,6 +165,16 @@ namespace f3
 
             Solver.AddLayoutItem(element, pinSourceF, pinTargetF, this.StandardDepth + options.DepthShift);
 
+            // if we want to shift result in its layout frame, do that via a post-transform
+            if (options.FrameAxesShift != Vector3f.Zero) {
+                Solver.AddPostTransform(element, (e) => {
+                    Frame3f f = (e as IElementFrame).GetObjectFrame();
+                    f.Translate(options.FrameAxesShift.x * f.X + options.FrameAxesShift.y * f.Y + options.FrameAxesShift.z * f.Z);
+                    (e as IElementFrame).SetObjectFrame(f);
+                });
+            }
+                
+
             // auto-show
             if ( (options.Flags & LayoutFlags.AnimatedShow) != 0 )
                 HUDUtil.AnimatedShow(element);
