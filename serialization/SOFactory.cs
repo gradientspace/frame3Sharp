@@ -70,6 +70,8 @@ namespace f3
                 return BuildPolyTubeSO(scene, attributes);
             } else if (typeIdentifier == IOStrings.TypeMesh) {
                 return BuildMeshSO(scene, attributes);
+            } else if (typeIdentifier == IOStrings.TypeDMesh) {
+                return BuildDMeshSO(scene, attributes);
             } else {
                 return null;
             }
@@ -136,6 +138,11 @@ namespace f3
         {
             PolyCurveSO so = new PolyCurveSO();
             so.Create(scene.DefaultSOMaterial);
+            RestorePolyCurveSOType(scene, attributes, so);
+            return so;
+        }
+        public virtual void RestorePolyCurveSOType(FScene scene, TypedAttribSet attributes, PolyCurveSO so)
+        {
             safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
             RestoreTransform(so, attributes);
             RestoreMaterial(so, attributes);
@@ -146,8 +153,6 @@ namespace f3
             }
             if (check_key_or_debug_print(attributes, IOStrings.APolyCurveClosed))
                 so.Curve.Closed = (bool)attributes[IOStrings.APolyCurveClosed];
-
-            return so;
         }
 
 
@@ -181,6 +186,21 @@ namespace f3
             SimpleMesh m = RestoreSimpleMesh(attributes, true);
 
             so.Create(m, scene.DefaultSOMaterial);
+            safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
+            RestoreTransform(so, attributes);
+            RestoreMaterial(so, attributes);
+
+            return so;
+        }
+
+
+        public virtual SceneObject BuildDMeshSO(FScene scene, TypedAttribSet attributes)
+        {
+            DMeshSO so = new DMeshSO();
+
+            DMesh3 mesh = RestoreDMesh(attributes);
+            so.Create(mesh, scene.DefaultSOMaterial);
+
             safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
             RestoreTransform(so, attributes);
             RestoreMaterial(so, attributes);
@@ -409,6 +429,87 @@ namespace f3
             m.Initialize(v, t, n, c, uv);
             return m;
         }
+
+
+
+
+
+
+
+        public virtual DMesh3 RestoreDMesh(TypedAttribSet attributes)
+        {
+            TypedAttribSet meshAttr = find_struct(attributes, IOStrings.BinaryDMeshStruct);
+            if (meshAttr == null)
+                throw new Exception("SOFactory.RestoreDMesh: DMesh binary struct not found!");
+
+            VectorArray3d v = null;
+            VectorArray3f n = null, c = null;
+            VectorArray2f uv = null;
+
+            VectorArray3i t = null;
+            int[] g = null;
+
+            IndexArray4i e = null;
+            short[] e_ref = null;
+
+            //o.AddAttribute(IOStrings.AMeshVertices3Binary, m.VerticesBuffer.GetBytes());
+            //if (m.HasVertexNormals)
+            //    o.AddAttribute(IOStrings.AMeshNormals3Binary, m.NormalsBuffer.GetBytes());
+            //if (m.HasVertexColors)
+            //    o.AddAttribute(IOStrings.AMeshColors3Binary, m.ColorsBuffer.GetBytes());
+            //if (m.HasVertexUVs)
+            //    o.AddAttribute(IOStrings.AMeshUVs2Binary, m.UVBuffer.GetBytes());
+            //o.AddAttribute(IOStrings.AMeshTrianglesBinary, m.TrianglesBuffer.GetBytes());
+            //if (m.HasTriangleGroups)
+            //    o.AddAttribute(IOStrings.AMeshTriangleGroupsBinary, m.GroupsBuffer.GetBytes());
+            //o.AddAttribute(IOStrings.AMeshEdgesBinary, m.EdgesBuffer.GetBytes());
+            //o.AddAttribute(IOStrings.AMeshEdgeRefCountsBinary, m.EdgesRefCounts.RawRefCounts.GetBytes());
+            //o.EndStruct();
+
+            if (check_key_or_debug_print(meshAttr, IOStrings.AMeshVertices3Binary))
+                v = meshAttr[IOStrings.AMeshVertices3Binary] as VectorArray3d;
+            if (check_key_or_debug_print(meshAttr, IOStrings.AMeshNormals3Binary))
+                n = meshAttr[IOStrings.AMeshNormals3Binary] as VectorArray3f;
+            if (check_key_or_debug_print(meshAttr, IOStrings.AMeshColors3Binary))
+                c = meshAttr[IOStrings.AMeshColors3Binary] as VectorArray3f;
+            if (check_key_or_debug_print(meshAttr, IOStrings.AMeshUVs2Binary))
+                uv = meshAttr[IOStrings.AMeshUVs2Binary] as VectorArray2f;
+
+            if (check_key_or_debug_print(meshAttr, IOStrings.AMeshTrianglesBinary))
+                t = meshAttr[IOStrings.AMeshTrianglesBinary] as VectorArray3i;
+            if (check_key_or_debug_print(meshAttr, IOStrings.AMeshTriangleGroupsBinary))
+                g = meshAttr[IOStrings.AMeshTriangleGroupsBinary] as int[];
+
+
+            if (check_key_or_debug_print(meshAttr, IOStrings.AMeshEdgesBinary))
+                e = meshAttr[IOStrings.AMeshEdgesBinary] as IndexArray4i;
+            if (check_key_or_debug_print(meshAttr, IOStrings.AMeshEdgeRefCountsBinary))
+                e_ref = meshAttr[IOStrings.AMeshEdgeRefCountsBinary] as short[];
+
+            if (v == null || t == null || e == null || e_ref == null)
+                return null;
+
+            DMesh3 m = new DMesh3();
+            m.VerticesBuffer = new DVector<double>(v);
+            if (n != null)
+                m.NormalsBuffer = new DVector<float>(n);
+            if (c != null)
+                m.ColorsBuffer = new DVector<float>(c);
+            if (uv != null)
+                m.UVBuffer = new DVector<float>(uv);
+            m.TrianglesBuffer = new DVector<int>(t);
+            if (g != null)
+                m.GroupsBuffer = new DVector<int>(g);
+            m.EdgesBuffer = new DVector<int>(e);
+            m.EdgesRefCounts = new RefCountVector(e_ref);
+
+            m.RebuildFromEdgeRefcounts();
+
+            return m;
+        }
+
+
+
 
 
 

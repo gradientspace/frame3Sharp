@@ -21,6 +21,7 @@ namespace f3
         public const string StructType = "Type";
         public const string StructIdentifier = "ID";
         public const string BinaryMeshStruct = "BinaryUEncodedMesh";
+        public const string BinaryDMeshStruct = "BinaryUEncodedDMesh";
         public const string AsciiMeshStruct = "AsciiMesh";
         public const string TransformStruct = "Transform";
         public const string MaterialStruct = "Material";
@@ -38,6 +39,7 @@ namespace f3
         public static readonly string TypeSphere = "Sphere";
         public static readonly string TypePivot = "Pivot";
         public static readonly string TypeMesh = "Mesh";
+        public static readonly string TypeDMesh = "DMesh";
         public static readonly string TypeGroup = "Group";
         public static readonly string TypeMeshReference = "MeshReference";
         public static readonly string TypePolyCurve = "PolyCurve";
@@ -46,6 +48,7 @@ namespace f3
         // NOTE: attribute prefix characters are used to determine type when parsing:
         //   sAttribName => string
         //   iAttribName => integer
+        //   jAttribName => short
         //   fAttribName => float
         //   vAttribName => Vector3f
         //   uAttribname => Vector2f
@@ -80,13 +83,16 @@ namespace f3
         public static readonly string AMeshVertices3 = "zd3MeshVertices";
         public static readonly string AMeshVertices3Binary = "xd3MeshVertices";
         public static readonly string AMeshNormals3 = "zf3MeshNormals";
-        public static readonly string AMeshNormals3Binary = "xd3MeshNormals";
+        public static readonly string AMeshNormals3Binary = "xf3MeshNormals";
         public static readonly string AMeshColors3 = "zf3MeshColors";
         public static readonly string AMeshColors3Binary = "xf3MeshColors";
         public static readonly string AMeshUVs2 = "zf2MeshUVs";
         public static readonly string AMeshUVs2Binary = "xf2MeshUVs";
         public static readonly string AMeshTriangles = "zi3MeshTriangles";
         public static readonly string AMeshTrianglesBinary = "xi3MeshTriangles";
+        public static readonly string AMeshTriangleGroupsBinary = "xiMeshTriangleGroups";
+        public static readonly string AMeshEdgesBinary = "xi4MeshEdges";
+        public static readonly string AMeshEdgeRefCountsBinary = "xjMeshEdgeRefCounts";
 
         // material attributes
         public static readonly string AMaterialName = "sMaterialName";
@@ -195,14 +201,27 @@ namespace f3
         {
         }
 
+        /// <summary>
+        /// You must set the SOFactory before calling Restore()
+        /// </summary>
         public ISceneObjectFactory SOFactory { get; set; }
 
+        /// <summary>
+        /// This must be set if you are storing MeshReferenceSO instances, which
+        /// will simply be storing a relative path to TargetFilePath
+        /// </summary>
         public string TargetFilePath { get; set; }
+
+
+        /// <summary>
+        /// Use this to filter out particular SOs from serialiaztion (return false to skip)
+        /// </summary>
+        public Func<SceneObject, bool> SOFilterF = (so) => { return true; };
+
 
         /*
          * Store
          */
-
 
         public void Store(IOutputStream o, FScene scene)
         {
@@ -211,6 +230,9 @@ namespace f3
             foreach (SceneObject so in scene.SceneObjects) {
                 if (so.IsTemporary)
                     continue;
+                if (SOFilterF(so) == false)
+                    continue;
+
 
                 o.BeginSceneObject();
 
@@ -237,6 +259,8 @@ namespace f3
                         this.Emit(o, so as PivotSO);
                     else if (so is MeshSO)
                         this.Emit(o, so as MeshSO);
+                    else if (so is DMeshSO)
+                        this.Emit(o, so as DMeshSO);
                     else if (so is MeshReferenceSO)
                         this.Emit(o, so as MeshReferenceSO);
 
@@ -486,14 +510,22 @@ namespace f3
             } else if (sName[0] == 'x') {
                 if (sName[1] == 'd' && sName[2] == '3')
                     CurAttribs.Pairs[sName] = restore_list3d_binary(sValue);
-                else if (sName[1] == 'f' && sName[2] == '3')
-                    CurAttribs.Pairs[sName] = restore_list3f_binary(sValue);
-                else if (sName[1] == 'i' && sName[2] == '3')
-                    CurAttribs.Pairs[sName] = restore_list3i_binary(sValue);
+                else if (sName[1] == 'd')
+                    CurAttribs.Pairs[sName] = restore_list1d_binary(sValue);
                 //else if (sName[1] == 'd' && sName[2] == '2')
                 //    CurAttribs.Pairs[sName] = restore_list2d_binary(sValue);
-                else if (sName[1] == 'f' && sName[2] == '2')
-                    CurAttribs.Pairs[sName] = restore_list2f_binary(sValue);
+                else if (sName[1] == 'f' && sName[2] == '3')
+                    CurAttribs.Pairs[sName] = restore_list3f_binary(sValue);
+                else if (sName[1] == 'f' )
+                    CurAttribs.Pairs[sName] = restore_list1f_binary(sValue);
+                else if (sName[1] == 'i' && sName[2] == '3')
+                    CurAttribs.Pairs[sName] = restore_list3i_binary(sValue);
+                else if (sName[1] == 'i' && sName[2] == '4')
+                    CurAttribs.Pairs[sName] = restore_list4i_binary(sValue);
+                else if (sName[1] == 'i' )
+                    CurAttribs.Pairs[sName] = restore_list1i_binary(sValue);
+                else if (sName[1] == 'j')
+                    CurAttribs.Pairs[sName] = restore_list1s_binary(sValue);
                 else
                     DebugUtil.Warning("[SceneSerializer.Restore_OnAttribute] - unknown binary format {0}", sName);
 
@@ -583,6 +615,19 @@ namespace f3
 
 
 
+        double[] restore_list1d_binary(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            int sz = sizeof(double);
+            int Nvals = buffer.Length / sz;
+            double[] v = new double[Nvals];
+            for (int i = 0; i < Nvals; i++) {
+                v[i] = BitConverter.ToDouble(buffer, i * sz);
+            }
+            return v;
+        }
+
         VectorArray3d restore_list3d_binary(String valueString)
         {
             char[] str = valueString.ToCharArray();
@@ -596,6 +641,20 @@ namespace f3
                 double y = BitConverter.ToDouble(buffer, (3 * i + 1) * sz);
                 double z = BitConverter.ToDouble(buffer, (3 * i + 2) * sz);
                 v.Set(i, x, y, z);
+            }
+            return v;
+        }
+
+
+        float[] restore_list1f_binary(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            int sz = sizeof(float);
+            int Nvals = buffer.Length / sz;
+            float[] v = new float[Nvals];
+            for (int i = 0; i < Nvals; i++) {
+                v[i] = BitConverter.ToSingle(buffer, i * sz);
             }
             return v;
         }
@@ -636,6 +695,34 @@ namespace f3
         }
 
 
+
+        int[] restore_list1i_binary(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            int sz = sizeof(int);
+            int Nvals = buffer.Length / sz;
+            int[] v = new int[Nvals];
+            for (int i = 0; i < Nvals; i++) {
+                v[i] = BitConverter.ToInt32(buffer, i * sz);
+            }
+            return v;
+        }
+        short[] restore_list1s_binary(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            int sz = sizeof(short);
+            int Nvals = buffer.Length / sz;
+            short[] v = new short[Nvals];
+            for (int i = 0; i < Nvals; i++) {
+                v[i] = BitConverter.ToInt16(buffer, i * sz);
+            }
+            return v;
+        }
+
+
+
         VectorArray3i restore_list3i_binary(String valueString)
         {
             char[] str = valueString.ToCharArray();
@@ -649,6 +736,25 @@ namespace f3
                 int y = BitConverter.ToInt32(buffer, (3 * i + 1) * sz);
                 int z = BitConverter.ToInt32(buffer, (3 * i + 2) * sz);
                 v.Set(i, x, y, z);
+            }
+            return v;
+        }
+
+
+        IndexArray4i restore_list4i_binary(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            int sz = sizeof(int);
+            int Nvals = buffer.Length / sz;
+            int Nvecs = Nvals / 4;
+            IndexArray4i v = new IndexArray4i(Nvecs);
+            for (int i = 0; i < Nvecs; i++) {
+                int a = BitConverter.ToInt32(buffer, (4 * i) * sz);
+                int b = BitConverter.ToInt32(buffer, (4 * i + 1) * sz);
+                int c = BitConverter.ToInt32(buffer, (4 * i + 2) * sz);
+                int d = BitConverter.ToInt32(buffer, (4 * i + 3) * sz);
+                v.Set(i, a, b, c, d);
             }
             return v;
         }

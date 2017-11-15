@@ -15,9 +15,12 @@ namespace f3
     {
 
 
-        public static void Emit(this SceneSerializer s, IOutputStream o, CylinderSO so)
-        {
+        public static void Emit(this SceneSerializer s, IOutputStream o, CylinderSO so) {
             o.AddAttribute(IOStrings.ASOType, IOStrings.TypeCylinder);
+            EmitCylinderSO(s, o, so);
+        }
+        public static void EmitCylinderSO(SceneSerializer s, IOutputStream o, CylinderSO so)
+        {
             o.AddAttribute(IOStrings.ASOName, so.Name);
             s.EmitTransform(o, so);
             o.AddAttribute(IOStrings.ARadius, so.Radius);
@@ -28,9 +31,14 @@ namespace f3
             s.EmitMaterial(o, so.GetAssignedSOMaterial());
         }
 
+
         public static void Emit(this SceneSerializer s, IOutputStream o, BoxSO so)
         {
             o.AddAttribute(IOStrings.ASOType, IOStrings.TypeBox);
+            EmitBoxSO(s, o, so);
+        }
+        public static void EmitBoxSO(SceneSerializer s, IOutputStream o, BoxSO so)
+        {
             o.AddAttribute(IOStrings.ASOName, so.Name);
             s.EmitTransform(o, so);
             o.AddAttribute(IOStrings.AWidth, so.Width);
@@ -39,27 +47,44 @@ namespace f3
             s.EmitMaterial(o, so.GetAssignedSOMaterial());
         }
 
+
+
         public static void Emit(this SceneSerializer s, IOutputStream o, SphereSO so)
         {
             o.AddAttribute(IOStrings.ASOType, IOStrings.TypeSphere);
+            EmitSphereSO(s, o, so);
+        }
+        public static void EmitSphereSO(SceneSerializer s, IOutputStream o, SphereSO so)
+        {
             o.AddAttribute(IOStrings.ASOName, so.Name);
             s.EmitTransform(o, so);
             o.AddAttribute(IOStrings.ARadius, so.Radius);
             s.EmitMaterial(o, so.GetAssignedSOMaterial());
         }
 
+
+
         public static void Emit(this SceneSerializer s, IOutputStream o, PivotSO so)
         {
             o.AddAttribute(IOStrings.ASOType, IOStrings.TypePivot);
+            EmitPivotSO(s, o, so);
+        }
+        public static void EmitPivotSO(SceneSerializer s, IOutputStream o, PivotSO so)
+        {
             o.AddAttribute(IOStrings.ASOName, so.Name);
             s.EmitTransform(o, so);
             s.EmitMaterial(o, so.GetAssignedSOMaterial());
         }
 
 
+
         public static void Emit(this SceneSerializer s, IOutputStream o, MeshSO so)
         {
             o.AddAttribute(IOStrings.ASOType, IOStrings.TypeMesh);
+            EmitMeshSO(s, o, so);
+        }
+        public static void EmitMeshSO(SceneSerializer s, IOutputStream o, MeshSO so)
+        {
             o.AddAttribute(IOStrings.ASOName, so.Name);
             s.EmitTransform(o, so);
             SimpleMesh m = so.GetSimpleMesh(true);
@@ -67,9 +92,30 @@ namespace f3
         }
 
 
+
+
+        public static void Emit(this SceneSerializer s, IOutputStream o, DMeshSO so)
+        {
+            o.AddAttribute(IOStrings.ASOType, IOStrings.TypeDMesh);
+            EmitDMeshSO(s, o, so);
+        }
+        public static void EmitDMeshSO(SceneSerializer s, IOutputStream o, DMeshSO so)
+        {
+            o.AddAttribute(IOStrings.ASOName, so.Name);
+            s.EmitTransform(o, so);
+            s.EmitMaterial(o, so.GetAssignedSOMaterial());
+            s.EmitDMeshBinary(so.Mesh, o);
+        }
+
+
+
         public static void Emit(this SceneSerializer s, IOutputStream o, MeshReferenceSO so)
         {
             o.AddAttribute(IOStrings.ASOType, IOStrings.TypeMeshReference);
+            EmitMeshReferenceSO(s, o, so);
+        }
+        public static void EmitMeshReferenceSO(SceneSerializer s, IOutputStream o, MeshReferenceSO so)
+        {
             o.AddAttribute(IOStrings.ASOName, so.Name);
             s.EmitTransform(o, so);
             // [TODO] be smarter about paths
@@ -82,6 +128,8 @@ namespace f3
                 o.AddAttribute(IOStrings.ARelReferencePath, rel_path.ToString());
             }
         }
+
+
 
         // PathRelativePathTo function is only on windows?
         [DllImport("shlwapi.dll", SetLastError = true)]
@@ -103,6 +151,10 @@ namespace f3
         public static void Emit(this SceneSerializer s, IOutputStream o, PolyCurveSO so)
         {
             o.AddAttribute(IOStrings.ASOType, IOStrings.TypePolyCurve);
+            EmitPolyCurveSO(s, o, so);
+        }
+        public static void EmitPolyCurveSO(SceneSerializer s, IOutputStream o, PolyCurveSO so)
+        {
             o.AddAttribute(IOStrings.ASOName, so.Name);
             s.EmitTransform(o, so);
             s.EmitMaterial(o, so.GetAssignedSOMaterial());
@@ -110,9 +162,14 @@ namespace f3
             o.AddAttribute(IOStrings.APolyCurveClosed, so.Curve.Closed);
         }
 
+
         public static void Emit(this SceneSerializer s, IOutputStream o, PolyTubeSO so)
         {
             o.AddAttribute(IOStrings.ASOType, IOStrings.TypePolyTube);
+            EmitPolyTubeSO(s, o, so);
+        }
+        public static void EmitPolyTubeSO(SceneSerializer s, IOutputStream o, PolyTubeSO so)
+        {
             o.AddAttribute(IOStrings.ASOName, so.Name);
             s.EmitTransform(o, so);
             s.EmitMaterial(o, so.GetAssignedSOMaterial());
@@ -124,9 +181,9 @@ namespace f3
 
 
 
-
-
-
+        /// <summary>
+        /// Emit a SceneObject transform as a TransformStruct (position, orientation, scale)
+        /// </summary>
         public static void EmitTransform(this SceneSerializer s, IOutputStream o, SceneObject so)
         {
             o.BeginStruct(IOStrings.TransformStruct);
@@ -137,6 +194,9 @@ namespace f3
             o.EndStruct();
         }
 
+        /// <summary>
+        /// Emit an SOMaterial as a MaterialStruct
+        /// </summary>
         public static void EmitMaterial(this SceneSerializer s, IOutputStream o, SOMaterial mat)
         {
             o.BeginStruct(IOStrings.MaterialStruct);
@@ -153,7 +213,9 @@ namespace f3
         }
 
 
-
+        /// <summary>
+        /// Emit a SimpleMesh as an AsciiMeshStruct
+        /// </summary>
         public static void EmitMeshAscii(this SceneSerializer s, SimpleMesh m, IOutputStream o)
         {
             o.BeginStruct(IOStrings.AsciiMeshStruct);
@@ -169,6 +231,9 @@ namespace f3
         }
 
 
+        /// <summary>
+        /// Emit a SimpleMesh as a BinaryMeshStruct
+        /// </summary>
         public static void EmitMeshBinary(this SceneSerializer s, SimpleMesh m, IOutputStream o)
         {
             // binary version - uuencoded byte buffers
@@ -189,6 +254,39 @@ namespace f3
         }
 
 
+
+        /// <summary>
+        /// Emit a DMesh3 as a BinaryDMeshStruct
+        /// </summary>
+        public static void EmitDMeshBinary(this SceneSerializer s, DMesh3 m, IOutputStream o)
+        {
+            // binary version - uuencoded byte buffers
+            //    - storing doubles uses roughly same mem as string, but string is only 8 digits precision
+            //    - storing floats saves roughly 50%
+            //    - storing triangles is worse until vertex count > 9999
+            //          - could store as byte or short in those cases...
+            //    - edges and edge ref counts are stored, then use mesh.RebuildFromEdgeRefcounts() to rebuild 3D mesh (same as gSerialization)
+            o.BeginStruct(IOStrings.BinaryDMeshStruct);
+            o.AddAttribute(IOStrings.AMeshVertices3Binary, m.VerticesBuffer.GetBytes());
+            if (m.HasVertexNormals)
+                o.AddAttribute(IOStrings.AMeshNormals3Binary, m.NormalsBuffer.GetBytes());
+            if (m.HasVertexColors)
+                o.AddAttribute(IOStrings.AMeshColors3Binary, m.ColorsBuffer.GetBytes());
+            if (m.HasVertexUVs)
+                o.AddAttribute(IOStrings.AMeshUVs2Binary, m.UVBuffer.GetBytes());
+            o.AddAttribute(IOStrings.AMeshTrianglesBinary, m.TrianglesBuffer.GetBytes());
+            if (m.HasTriangleGroups)
+                o.AddAttribute(IOStrings.AMeshTriangleGroupsBinary, m.GroupsBuffer.GetBytes());
+            o.AddAttribute(IOStrings.AMeshEdgesBinary, m.EdgesBuffer.GetBytes());
+            o.AddAttribute(IOStrings.AMeshEdgeRefCountsBinary, m.EdgesRefCounts.RawRefCounts.GetBytes());
+            o.EndStruct();
+        }
+
+
+
+        /// <summary>
+        /// Emit a keyframe sequence as a KeyframeListStruct
+        /// </summary>
         public static void EmitKeyframes(this SceneSerializer s, KeyframeSequence seq, IOutputStream o)
         {
             o.BeginStruct(IOStrings.KeyframeListStruct);
