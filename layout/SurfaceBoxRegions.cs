@@ -21,6 +21,47 @@ namespace f3
 
 
 
+
+
+
+    public class PlaneBoxRegion : ISurfaceBoxRegion
+    {
+        public Frame3f Frame;   // Z is normal
+        public AxisAlignedBox2f Dimensions;
+
+        public PlaneBoxRegion()
+        {
+            Frame = new Frame3f(Vector3f.Zero, -Vector3f.AxisZ);
+            Dimensions = new AxisAlignedBox2f(1.0f);
+        }
+
+        public virtual AxisAlignedBox2f Bounds2D {
+            get {
+                return Dimensions;
+            }
+        }
+
+        virtual public Vector2f To2DCoords(Vector3f pos)
+        {
+            Vector3f posF = Frame.ToFrameP(pos);
+            return posF.xy;
+        }
+
+        virtual public Frame3f From2DCoords(Vector2f pos, float fNormalOffset)
+        {
+            Frame3f f = new Frame3f(Frame);
+            f.Translate(pos.x * Frame.X + pos.y * Frame.Y + fNormalOffset * Frame.Z);
+            return f;
+        }
+    }
+
+
+
+
+
+
+
+
     public class CylinderBoxRegion : ISurfaceBoxRegion
     {
         public float Radius;
