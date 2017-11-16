@@ -38,9 +38,23 @@ namespace f3
             return button;
         }
 
+
+
+
         public static Button FindButtonAndAddToggleBehavior(string buttonName, Func<bool> getValue, Action<bool> setValue, Action<bool, Button> updateF)
         {
             var button = UnityUtil.FindGameObjectByName(buttonName).GetComponent<Button>();
+            AddToggleBehavior(button, getValue, setValue, updateF);
+            return button;
+        }
+        public static Button FindButtonAndAddToggleBehavior(GameObject parentGO, string buttonName, Func<bool> getValue, Action<bool> setValue, Action<bool, Button> updateF)
+        {
+            var button = UnityUtil.FindChildByName(parentGO, buttonName).GetComponent<Button>();
+            AddToggleBehavior(button, getValue, setValue, updateF);
+            return button;
+        }
+        public static void AddToggleBehavior(Button button, Func<bool> getValue, Action<bool> setValue, Action<bool, Button> updateF)
+        {
             button.onClick.AddListener(() => {
                 bool curState = getValue();
                 setValue(!curState);
@@ -50,8 +64,9 @@ namespace f3
 
             });
             updateF(getValue(), button);
-            return button;
         }
+
+
 
         public static void SetDisabledColor(Button button, Color color)
         {
@@ -163,6 +178,7 @@ namespace f3
 
 
 
+
         public static Dropdown FindDropDownAndAddHandlers(string inputName, Func<int> getValue, Action<int> setValue) {
             var dropdown = UnityUtil.FindGameObjectByName(inputName).GetComponent<Dropdown>();
             dropdown.onValueChanged.AddListener((value) => {
@@ -193,10 +209,15 @@ namespace f3
 
 
 
+#if F3_ENABLE_TEXT_MESH_PRO
 
-
-
-
+        public static void SetBackgroundColor(TMPro.TMP_InputField field, Color color) {
+            var newColorBlock = field.colors;
+            newColorBlock.normalColor = color;
+            newColorBlock.highlightedColor = color;
+            field.colors = newColorBlock;
+        }
+#endif
 
 
     }
