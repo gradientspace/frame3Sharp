@@ -47,8 +47,10 @@ namespace f3
 
         // NOTE: attribute prefix characters are used to determine type when parsing:
         //   sAttribName => string
+        //   bAttribName => boolean
         //   iAttribName => integer
         //   jAttribName => short
+        //   kAttribName => byte
         //   fAttribName => float
         //   vAttribName => Vector3f
         //   uAttribname => Vector2f
@@ -526,6 +528,8 @@ namespace f3
                     CurAttribs.Pairs[sName] = restore_list1i_binary(sValue);
                 else if (sName[1] == 'j')
                     CurAttribs.Pairs[sName] = restore_list1s_binary(sValue);
+                else if (sName[1] == 'k')
+                    CurAttribs.Pairs[sName] = restore_list1b_binary(sValue);
                 else
                     DebugUtil.Warning("[SceneSerializer.Restore_OnAttribute] - unknown binary format {0}", sName);
 
@@ -719,6 +723,12 @@ namespace f3
                 v[i] = BitConverter.ToInt16(buffer, i * sz);
             }
             return v;
+        }
+        byte[] restore_list1b_binary(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            return buffer;
         }
 
 

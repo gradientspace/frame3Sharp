@@ -21,13 +21,19 @@ namespace f3
 
         public void Restore()
         {
-            XmlNodeList scenes = xml.SelectNodes("/" + IOStrings.Scene);
+            XmlNodeList scenes = xml.SelectNodes("//" + IOStrings.Scene);
+            if ( scenes.Count == 0 )
+                scenes = xml.SelectNodes("//" + IOStrings.Scene_Old);       // try old variant
+
             foreach ( XmlNode scene in scenes ) {
                 if ( OnBeginScene != null )
                     OnBeginScene();
 
 
                 XmlNodeList sceneObjects = scene.SelectNodes(IOStrings.SceneObject);
+                if ( sceneObjects.Count == 0 )
+                    sceneObjects = scene.SelectNodes(IOStrings.SceneObject_Old);   // try old variant
+
                 foreach ( XmlNode so in sceneObjects ) {
                     if (OnBeginSceneObject != null)
                         OnBeginSceneObject();

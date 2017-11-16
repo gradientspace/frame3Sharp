@@ -197,17 +197,17 @@ namespace f3
         public virtual SceneObject BuildDMeshSO(FScene scene, TypedAttribSet attributes)
         {
             DMeshSO so = new DMeshSO();
-
+            RestoreDMeshSO(scene, attributes, so);
+            return so;
+        }
+        public virtual void RestoreDMeshSO(FScene scene, TypedAttribSet attributes, DMeshSO so)
+        {
             DMesh3 mesh = RestoreDMesh(attributes);
             so.Create(mesh, scene.DefaultSOMaterial);
-
             safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
             RestoreTransform(so, attributes);
             RestoreMaterial(so, attributes);
-
-            return so;
         }
-
 
 
         public virtual SceneObject BuildMeshReference(FScene scene, string sSceneFilePath, TypedAttribSet attributes)
