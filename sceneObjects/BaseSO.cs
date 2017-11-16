@@ -238,5 +238,14 @@ namespace f3
         }
 
 
+
+        // Need to be able to set UUID during restore. But don't use this. really.
+        public void __set_uuid(string new_uuid, string magic_key)
+        {
+            if (magic_key != "0xDEADBEEF")
+                throw new Exception("BaseSO.__set_uuid: are you sure you should be calling this function?");
+            uuid = new_uuid;
+        }
+
     }
 }

@@ -13,8 +13,12 @@ namespace f3
 
 
         // top-level object names
-        public static readonly string Scene = "Scene";
-        public static readonly string SceneObject = "SceneObject";
+        public static readonly string Scene = "F3Scene";
+        public static readonly string SceneObject = "F3SceneObject";
+
+        // old versions, keep for now for compatiblity
+        public static readonly string Scene_Old = "Scene";
+        public static readonly string SceneObject_Old = "SceneObject";
 
         // structs are collections of attributes inside scene/sceneobject
         public static readonly string Struct = "Struct";
@@ -31,6 +35,7 @@ namespace f3
         // standard scene object attributes
         public static readonly string ASOType = "SOType";
         public static readonly string ASOName = "SOName";
+        public static readonly string ASOUuid = "SOUuid";
 
         // scene object type names
         public static readonly string TypeUnknown = "Unknown";
@@ -289,6 +294,7 @@ namespace f3
         {
             o.AddAttribute(IOStrings.ASOType, IOStrings.TypeUnknown);
             o.AddAttribute(IOStrings.ASOName, so.Name);
+            o.AddAttribute(IOStrings.ASOUuid, so.UUID);
         }
 
 

@@ -90,7 +90,7 @@ namespace f3
             safe_set_property_f(attributes, IOStrings.ARadius, (f) => { so.Radius = f; });
             safe_set_property_f(attributes, IOStrings.AHeight, (f) => { so.Height = f; });
             so.Create(scene.DefaultSOMaterial);
-            safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
+            RestoreSOInfo(so, attributes);
             RestoreTransform(so, attributes);
             RestoreMaterial(so, attributes);
             return so;
@@ -104,7 +104,7 @@ namespace f3
             safe_set_property_f(attributes, IOStrings.AHeight, (f) => { so.Height = f; });
             safe_set_property_f(attributes, IOStrings.ADepth, (f) => { so.Depth = f; });
             so.Create(scene.DefaultSOMaterial);
-            safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
+            RestoreSOInfo(so, attributes);
             RestoreTransform(so, attributes);
             RestoreMaterial(so, attributes);
             return so;
@@ -116,7 +116,7 @@ namespace f3
             SphereSO so = new SphereSO();
             safe_set_property_f(attributes, IOStrings.ARadius, (f) => { so.Radius = f; });
             so.Create(scene.DefaultSOMaterial);
-            safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
+            RestoreSOInfo(so, attributes);
             RestoreTransform(so, attributes);
             RestoreMaterial(so, attributes);
             return so;
@@ -127,7 +127,7 @@ namespace f3
         {
             PivotSO so = new PivotSO();
             so.Create(scene.PivotSOMaterial, scene.FrameSOMaterial);
-            safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
+            RestoreSOInfo(so, attributes);
             RestoreTransform(so, attributes);
             RestoreMaterial(so, attributes);
             return so;
@@ -143,7 +143,7 @@ namespace f3
         }
         public virtual void RestorePolyCurveSOType(FScene scene, TypedAttribSet attributes, PolyCurveSO so)
         {
-            safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
+            RestoreSOInfo(so, attributes);
             RestoreTransform(so, attributes);
             RestoreMaterial(so, attributes);
 
@@ -160,7 +160,7 @@ namespace f3
         {
             PolyTubeSO so = new PolyTubeSO();
             so.Create(scene.DefaultSOMaterial);
-            safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
+            RestoreSOInfo(so, attributes);
             RestoreTransform(so, attributes);
             RestoreMaterial(so, attributes);
 
@@ -186,7 +186,7 @@ namespace f3
             SimpleMesh m = RestoreSimpleMesh(attributes, true);
 
             so.Create(m, scene.DefaultSOMaterial);
-            safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
+            RestoreSOInfo(so, attributes);
             RestoreTransform(so, attributes);
             RestoreMaterial(so, attributes);
 
@@ -204,7 +204,7 @@ namespace f3
         {
             DMesh3 mesh = RestoreDMesh(attributes);
             so.Create(mesh, scene.DefaultSOMaterial);
-            safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
+            RestoreSOInfo(so, attributes);
             RestoreTransform(so, attributes);
             RestoreMaterial(so, attributes);
         }
@@ -288,7 +288,7 @@ namespace f3
                 return null;
             }
             MeshReferenceSO refSO = import.GetMeshReference(scene.DefaultMeshSOMaterial);
-            safe_set_property_s(attributes, IOStrings.ASOName, (s) => { refSO.Name = s; });
+            RestoreSOInfo(refSO, attributes);
             RestoreTransform(refSO, attributes);
             return refSO;
         }
@@ -300,8 +300,16 @@ namespace f3
 
         // restore structs
 
-
-
+        public virtual void RestoreSOInfo(BaseSO so, TypedAttribSet attributes)
+        {
+            safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
+            safe_set_property_s(attributes, IOStrings.ASOUuid, (s) => { so.__set_uuid(s, "0xDEADBEEF"); });
+        }
+        public virtual void RestoreSOInfo(GroupSO so, TypedAttribSet attributes)
+        {
+            safe_set_property_s(attributes, IOStrings.ASOName, (s) => { so.Name = s; });
+            safe_set_property_s(attributes, IOStrings.ASOUuid, (s) => { so.__set_uuid(s, "0xDEADBEEF"); });
+        }
 
 
         public virtual void RestoreTransform(SceneObject so, TypedAttribSet attributes)

@@ -22,6 +22,7 @@ namespace f3
         public static void EmitCylinderSO(SceneSerializer s, IOutputStream o, CylinderSO so)
         {
             o.AddAttribute(IOStrings.ASOName, so.Name);
+            o.AddAttribute(IOStrings.ASOUuid, so.UUID);
             s.EmitTransform(o, so);
             o.AddAttribute(IOStrings.ARadius, so.Radius);
             o.AddAttribute(IOStrings.AHeight, so.Height);
@@ -40,6 +41,7 @@ namespace f3
         public static void EmitBoxSO(SceneSerializer s, IOutputStream o, BoxSO so)
         {
             o.AddAttribute(IOStrings.ASOName, so.Name);
+            o.AddAttribute(IOStrings.ASOUuid, so.UUID);
             s.EmitTransform(o, so);
             o.AddAttribute(IOStrings.AWidth, so.Width);
             o.AddAttribute(IOStrings.AHeight, so.Height);
@@ -57,6 +59,7 @@ namespace f3
         public static void EmitSphereSO(SceneSerializer s, IOutputStream o, SphereSO so)
         {
             o.AddAttribute(IOStrings.ASOName, so.Name);
+            o.AddAttribute(IOStrings.ASOUuid, so.UUID);
             s.EmitTransform(o, so);
             o.AddAttribute(IOStrings.ARadius, so.Radius);
             s.EmitMaterial(o, so.GetAssignedSOMaterial());
@@ -72,6 +75,7 @@ namespace f3
         public static void EmitPivotSO(SceneSerializer s, IOutputStream o, PivotSO so)
         {
             o.AddAttribute(IOStrings.ASOName, so.Name);
+            o.AddAttribute(IOStrings.ASOUuid, so.UUID);
             s.EmitTransform(o, so);
             s.EmitMaterial(o, so.GetAssignedSOMaterial());
         }
@@ -86,6 +90,7 @@ namespace f3
         public static void EmitMeshSO(SceneSerializer s, IOutputStream o, MeshSO so)
         {
             o.AddAttribute(IOStrings.ASOName, so.Name);
+            o.AddAttribute(IOStrings.ASOUuid, so.UUID);
             s.EmitTransform(o, so);
             SimpleMesh m = so.GetSimpleMesh(true);
             s.EmitMeshBinary(m, o);
@@ -102,6 +107,7 @@ namespace f3
         public static void EmitDMeshSO(SceneSerializer s, IOutputStream o, DMeshSO so)
         {
             o.AddAttribute(IOStrings.ASOName, so.Name);
+            o.AddAttribute(IOStrings.ASOUuid, so.UUID);
             s.EmitTransform(o, so);
             s.EmitMaterial(o, so.GetAssignedSOMaterial());
             s.EmitDMeshBinary(so.Mesh, o);
@@ -117,6 +123,7 @@ namespace f3
         public static void EmitMeshReferenceSO(SceneSerializer s, IOutputStream o, MeshReferenceSO so)
         {
             o.AddAttribute(IOStrings.ASOName, so.Name);
+            o.AddAttribute(IOStrings.ASOUuid, so.UUID);
             s.EmitTransform(o, so);
             // [TODO] be smarter about paths
             o.AddAttribute(IOStrings.AReferencePath, so.MeshReferencePath);
@@ -143,6 +150,7 @@ namespace f3
         {
             o.AddAttribute(IOStrings.ASOType, IOStrings.TypeUnknown);
             o.AddAttribute(IOStrings.ASOName, so.Name);
+            o.AddAttribute(IOStrings.ASOUuid, so.UUID);
             s.EmitTransform(o, so);
         }
 
@@ -156,6 +164,7 @@ namespace f3
         public static void EmitPolyCurveSO(SceneSerializer s, IOutputStream o, PolyCurveSO so)
         {
             o.AddAttribute(IOStrings.ASOName, so.Name);
+            o.AddAttribute(IOStrings.ASOUuid, so.UUID);
             s.EmitTransform(o, so);
             s.EmitMaterial(o, so.GetAssignedSOMaterial());
             o.AddAttribute(IOStrings.APolyCurve3, so.Curve.Vertices);
@@ -171,6 +180,7 @@ namespace f3
         public static void EmitPolyTubeSO(SceneSerializer s, IOutputStream o, PolyTubeSO so)
         {
             o.AddAttribute(IOStrings.ASOName, so.Name);
+            o.AddAttribute(IOStrings.ASOUuid, so.UUID);
             s.EmitTransform(o, so);
             s.EmitMaterial(o, so.GetAssignedSOMaterial());
             o.AddAttribute(IOStrings.APolyCurve3, so.Curve.Vertices );
