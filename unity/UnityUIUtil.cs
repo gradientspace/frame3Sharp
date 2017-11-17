@@ -206,9 +206,6 @@ namespace f3
 
 
 
-
-
-
 #if F3_ENABLE_TEXT_MESH_PRO
 
         public static void SetBackgroundColor(TMPro.TMP_InputField field, Color color) {
@@ -219,6 +216,29 @@ namespace f3
         }
 #endif
 
+
+
+
+
+
+
+
+        public class AutoSprite
+        {
+            string path;
+            Sprite sprite;
+            public AutoSprite(string resource_path)
+            {
+                path = resource_path;
+            }
+            public Sprite Sprite {
+                get {
+                    if (sprite == null)
+                        sprite = Resources.Load<Sprite>(path);
+                    return sprite;
+                }
+            }
+        }
 
     }
 }
