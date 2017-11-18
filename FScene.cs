@@ -453,17 +453,19 @@ namespace f3
             return vObjects.Find( (x) => { return x.UUID == uuid; } );
         }
 
-		public List<T> FindSceneObjectsOfType<T>() where T : class {
+		public List<T> FindSceneObjectsOfType<T>(bool bSelected = false) where T : class {
 			List<T> result = new List<T>();
-			foreach ( var so in SceneObjects ) {
+            List<SceneObject> source = (bSelected) ? vSelected : vObjects;
+            foreach ( var so in source ) {
 				if (so is T)
 					result.Add(so as T);
 			}
 			return result;
 		}
-        public IEnumerable<T> SceneObjectsOfType<T>() where T : class
+        public IEnumerable<T> SceneObjectsOfType<T>(bool bSelected = false) where T : class
         {
-			foreach ( var so in SceneObjects ) {
+            List<SceneObject> source = (bSelected) ? vSelected : vObjects;
+			foreach ( var so in source ) {
 				if (so is T)
 					yield return (so as T);
 			}

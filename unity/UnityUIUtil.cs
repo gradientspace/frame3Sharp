@@ -93,15 +93,25 @@ namespace f3
             return toggle;
         }
 
-        public static Toggle FindToggleAndConnectToSource(string toggleName, Func<bool> getValue, Action<bool> setValue)
-        {
+
+
+        public static Toggle FindToggleAndConnectToSource(string toggleName, Func<bool> getValue, Action<bool> setValue) {
             var toggle = UnityUtil.FindGameObjectByName(toggleName).GetComponent<Toggle>();
+            ToggleConnectToSource(toggle, getValue, setValue);
+            return toggle;
+        }
+        public static Toggle FindToggleAndConnectToSource(GameObject parentGO, string toggleName, Func<bool> getValue, Action<bool> setValue) {
+            var toggle = UnityUtil.FindChildByName(parentGO, toggleName).GetComponent<Toggle>();
+            ToggleConnectToSource(toggle, getValue, setValue);
+            return toggle;
+        }
+        public static void ToggleConnectToSource(Toggle toggle, Func<bool> getValue, Action<bool> setValue)
+        {
             toggle.onValueChanged.AddListener((b) => {
                 setValue(b);
                 toggle.isOn = getValue();
             });
             toggle.isOn = getValue();
-            return toggle;
         }
 
 
@@ -181,17 +191,28 @@ namespace f3
 
         public static Dropdown FindDropDownAndAddHandlers(string inputName, Func<int> getValue, Action<int> setValue) {
             var dropdown = UnityUtil.FindGameObjectByName(inputName).GetComponent<Dropdown>();
-            dropdown.onValueChanged.AddListener((value) => {
-                setValue(value);
-                dropdown.value = getValue();
-            });
-            dropdown.value = getValue();
+            DropDownAddHandlers(dropdown, getValue, setValue, int.MinValue, int.MaxValue);
+            return dropdown;
+        }
+        public static Dropdown FindDropDownAndAddHandlers(GameObject parentGO, string inputName, Func<int> getValue, Action<int> setValue) {
+            var dropdown = UnityUtil.FindChildByName(parentGO, inputName).GetComponent<Dropdown>();
+            DropDownAddHandlers(dropdown, getValue, setValue, int.MinValue, int.MaxValue);
             return dropdown;
         }
 
-        public static Dropdown FindDropDownAndAddHandlers(string inputName, Func<int> getValue, Action<int> setValue, int minValue, int maxValue)
-        {
+
+        public static Dropdown FindDropDownAndAddHandlers(string inputName, Func<int> getValue, Action<int> setValue, int minValue, int maxValue) {
             var dropdown = UnityUtil.FindGameObjectByName(inputName).GetComponent<Dropdown>();
+            DropDownAddHandlers(dropdown, getValue, setValue, minValue, maxValue);
+            return dropdown;
+        }
+        public static Dropdown FindDropDownAndAddHandlers(GameObject parentGO, string inputName, Func<int> getValue, Action<int> setValue, int minValue, int maxValue) {
+            var dropdown = UnityUtil.FindChildByName(parentGO, inputName).GetComponent<Dropdown>();
+            DropDownAddHandlers(dropdown, getValue, setValue, minValue, maxValue);
+            return dropdown;
+        }
+        public static void DropDownAddHandlers(Dropdown dropdown, Func<int> getValue, Action<int> setValue, int minValue, int maxValue)
+        {
             dropdown.onValueChanged.AddListener((value) => {
                 if (value < minValue) value = minValue;
                 if (value > maxValue) value = maxValue;
@@ -199,9 +220,7 @@ namespace f3
                 dropdown.value = getValue();
             });
             dropdown.value = getValue();
-            return dropdown;
         }
-
 
 
 
