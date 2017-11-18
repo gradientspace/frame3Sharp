@@ -231,26 +231,39 @@ namespace f3
             get { return true; }
         }
 
+        /// <summary>
+        /// Duplicate this DMeshSO. This will properly instantiate subtypes of DMeshSO,
+        /// but will not copy an data members you add...
+        /// </summary>
         override public SceneObject Duplicate()
         {
-            DMeshSO copy = new DMeshSO();
+            DMeshSO copy = (DMeshSO)Activator.CreateInstance(this.GetType());
             duplicate_to(copy);
             return copy;
         }
 
-        public T DuplicateSubtype<T>() where T: DMeshSO, new()
+        /// <summary>
+        /// explicitly duplicate to any subtype of DMeshSO
+        /// </summary>
+        virtual public T DuplicateSubtype<T>() where T: DMeshSO, new()
         {
             T copy = new T();
             duplicate_to(copy);
             return copy;
         }
 
-        void duplicate_to(DMeshSO copy) {
+        /// <summary>
+        /// called internally by Duplicate() and DuplicateSubtype(), 
+        /// override to add things you want to duplicate
+        /// </summary>
+        protected virtual void duplicate_to(DMeshSO copy) {
             DMesh3 copyMesh = new DMesh3(mesh);
             copy.Create(copyMesh, this.GetAssignedSOMaterial());
             copy.SetLocalFrame(
                 this.GetLocalFrame(CoordSpace.ObjectCoords), CoordSpace.ObjectCoords);
             copy.SetLocalScale(this.GetLocalScale());
+            copy.enable_shadows = this.enable_shadows;
+            copy.enable_spatial = this.enable_spatial;
         }
 
 
