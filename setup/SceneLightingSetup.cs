@@ -65,6 +65,8 @@ namespace f3 {
         int cur_shadow_dist = -1;
 
 
+        Frame3f lastSceneFrameW;
+
 
 		void Update () {
 
@@ -73,10 +75,15 @@ namespace f3 {
 
             // [TODO] need to consider camera distane here?
 
+
+            Frame3f sceneFrameW = Context.Scene.SceneFrame;
+            if (sceneFrameW.EpsilonEqual(lastSceneFrameW, 0.001f))
+                return;
+            lastSceneFrameW = sceneFrameW;
+
             // use vertical height of light to figure out appropriate shadow distance.
             // distance changes if we scale scene, and if we don't do this, shadow
             // map res gets very blurry.
-            Frame3f sceneFrameW = Context.Scene.SceneFrame;
             Vector3f thisW = lights[0].transform.position;
             float fHeight =
                 Vector3f.Dot(( thisW - sceneFrameW.Origin), sceneFrameW.Y);
