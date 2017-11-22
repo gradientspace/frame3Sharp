@@ -13,6 +13,13 @@ namespace f3
         // tumbling speed
         public float RotateSpeed = 2.0f;
 
+        public enum RotateModes
+        {
+            Turntable = 0,
+            CrazyCam = 1
+        }
+        public RotateModes RotationMode = RotateModes.Turntable;
+
         FContext Context;
 
         public MouseViewRotateBehavior(FContext context)
@@ -46,8 +53,14 @@ namespace f3
                 // do view manipuluation
                 float dx = input.vMouseDelta2D.x;
                 float dy = input.vMouseDelta2D.y;
-                Context.ActiveCamera.Manipulator().SceneOrbit(Context.Scene, Context.ActiveCamera,
-                    RotateSpeed * dx, RotateSpeed * dy);
+
+                if (RotationMode == RotateModes.Turntable) {
+                    Context.ActiveCamera.Manipulator().SceneOrbit(Context.Scene, Context.ActiveCamera,
+                        RotateSpeed * dx, RotateSpeed * dy);
+                } else {
+                    Context.ActiveCamera.Manipulator().SceneTumble(Context.Scene, Context.ActiveCamera,
+                    -RotateSpeed * dx, RotateSpeed * dy);
+                }
 
                 return Capture.Continue;
             } else {
