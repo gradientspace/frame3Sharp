@@ -164,7 +164,7 @@ namespace f3
 
         public Vector2f vSecondTouchPosDelta2D;
         public Vector2f vSecondTouchPosition2D;
-        //public Ray vSecondTouchWorldRay;      // don't have this right now...
+        public Ray3f vSecondTouchWorldRay;
 
 
         public void Initialize_MouseGamepad(FContext s)
@@ -334,6 +334,7 @@ namespace f3
                 Touch t2 = Input.touches[1];
                 get_touch(t2, ref bSecondTouchPressed, ref bSecondTouchDown, ref bSecondTouchReleased,
                     ref vSecondTouchPosition2D, ref vSecondTouchPosDelta2D);
+                vSecondTouchWorldRay = s.MouseController.SecondWorldRay();
             }
 
         }

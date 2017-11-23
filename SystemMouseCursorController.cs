@@ -22,6 +22,11 @@ namespace f3 {
             return CurrentUIRay;
         }
 
+        public bool HasSecondPosition { get { return false; } }
+        public Ray3f SecondWorldRay() {
+            throw new NotImplementedException("VRMouseCursorController.SecondWorldRay: not supported!");
+        }
+
         public SystemMouseCursorController(FContext context)
         {
 			this.context = context;

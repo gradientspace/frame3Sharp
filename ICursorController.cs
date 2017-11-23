@@ -19,5 +19,8 @@ namespace f3
 
         Ray3f CurrentCursorWorldRay();
         Ray3f CurrentCursorOrthoRay();
+
+        bool HasSecondPosition { get; }
+        Ray3f SecondWorldRay();
     }
 }

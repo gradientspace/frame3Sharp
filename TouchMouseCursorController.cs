@@ -23,6 +23,17 @@ namespace f3 {
         }
 
 
+        protected bool secondWorldRayValid;
+        protected Ray3f secondWorldRay;
+
+        public bool HasSecondPosition {
+            get { return secondWorldRayValid; }
+        }
+        public Ray3f SecondWorldRay()
+        {
+            return secondWorldRay;
+        }
+
         public TouchMouseCursorController(FContext context)
         {
 			this.context = context;
@@ -37,11 +48,19 @@ namespace f3 {
 		public void Update ()
         {
             // just convert current touch position into ray
-            if (Input.touchCount == 1) {
+            if (Input.touchCount > 0) {
                 Vector2f touchPos = Input.touches[0].position;
                 Vector3f touchPos3 = new Vector3f(touchPos.x, touchPos.y, 0);
                 CurrentWorldRay = ((Camera)context.ActiveCamera).ScreenPointToRay(touchPos3);
                 CurrentUIRay = ((Camera)context.OrthoUICamera).ScreenPointToRay(touchPos3);
+            }
+            if (Input.touchCount > 1) {
+                Vector2f touchPos = Input.touches[1].position;
+                Vector3f touchPos3 = new Vector3f(touchPos.x, touchPos.y, 0);
+                secondWorldRayValid = true;
+                secondWorldRay = ((Camera)context.ActiveCamera).ScreenPointToRay(touchPos3);
+            } else {
+                secondWorldRayValid = false;
             }
         }
 
