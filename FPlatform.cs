@@ -274,9 +274,13 @@ namespace f3
 
 
 
-        //! Show an open-file dialog and with the provided file types. 
-        //! Returns path to selected file, or null if Cancel is clicked.
-        //! Uses system file dialog if available, otherwise Mono cross-platform dialog
+        /// <summary>
+        /// Show an open-file dialog and with the provided file types. 
+        /// Returns path to selected file, or null if Cancel is clicked.
+        /// Uses system file dialog, via tinyfiledialogs.
+        /// filterPatterns specified like this: new string[] { "*.stl", "*.obj" }
+        /// Note that tinyfiledialogs does not support multiple save-types in save dialog
+        /// </summary>
         static public string GetOpenFileName(string sDialogTitle, string sInitialPathAndFile, 
                 string[] filterPatterns, string sPatternDesc)
         {
@@ -310,9 +314,13 @@ namespace f3
 
 
 
-        //! Show an open-file dialog and with the provided file types. 
-        //! Returns path to selected file, or null if Cancel is clicked.
-        //! Uses system file dialog if available, otherwise Mono cross-platform dialog
+        /// <summary>
+        /// Show a save-file dialog and with the provided file types. 
+        /// Returns path to selected file, or null if Cancel is clicked.
+        /// Uses system file dialog, via tinyfiledialogs.
+        /// filterPatterns specified like this: new string[] { "*.stl", "*.obj" }
+        /// Note that tinyfiledialogs does not support multiple save-types in save dialog
+        /// </summary>
         static public string GetSaveFileName(string sDialogTitle, string sInitialPathAndFile, 
                 string[] filterPatterns, string sPatternDesc)
         {

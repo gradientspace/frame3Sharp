@@ -184,6 +184,7 @@ namespace f3
                 verts[i] = (Vector3)curve[i];
             lr.positionCount = curve.Length;
             lr.SetPositions(verts);
+            lr.loop = bClosed;
             lr.useWorldSpace = (parent == null && bIsInWorldPos);
 
             if (parent != null)
