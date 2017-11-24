@@ -56,6 +56,20 @@ namespace f3
         }
 
 
+        public AutoLineGameObject(FContext context, Func<Vector3f> startF, Func<Vector3f> endF, Colorf color, float lineWidth = 1.0f, string Name = "AutoLine", fGameObject parentGO = null)
+        {
+            this.NameF = () => { return Name; };
+            this.ColorF = () => { return color; };
+            this.StartF = startF;
+            this.EndF = endF;
+            this.LineWidthF = () => { return lineWidth; };
+
+            context.RegisterNextFrameAction(() => {
+                this.InitOnMainThread(parentGO);
+            });
+        }
+
+
         void InitOnMainThread(fGameObject parentGO)
         {
             LineGO = GameObjectFactory.CreateLineGO(NameF(), ColorF(), LineWidthF(), LineWidthType.World);
