@@ -37,6 +37,8 @@ Shader "f3StandardVtxColor"
 
 		[Enum(UV0,0,UV1,1)] _UVSec ("UV Set for secondary textures", Float) = 0
 
+		// Backface Culling state, 0=Off (default), 1=Front, 2=Back
+		_Cull("Backface Culling", Int) = 0
 
 		// Blending state
 		[HideInInspector] _Mode ("__mode", Float) = 0.0
@@ -54,7 +56,7 @@ Shader "f3StandardVtxColor"
 		Tags { "RenderType"="Opaque" "PerformanceChecks"="False" }
 		LOD 300
 	
-		Cull Off
+		Cull [_Cull]
 
 
 		// ------------------------------------------------------------------
@@ -196,7 +198,7 @@ Shader "f3StandardVtxColor"
 			Name "META" 
 			Tags { "LightMode"="Meta" }
 
-			Cull Off
+			Cull [_Cull]
 
 			CGPROGRAM
 			#pragma vertex vert_meta
@@ -217,7 +219,7 @@ Shader "f3StandardVtxColor"
 		Tags { "RenderType"="Opaque" "PerformanceChecks"="False" }
 		LOD 150
 
-		Cull Off
+		Cull [_Cull]
 
 		// ------------------------------------------------------------------
 		//  Base forward pass (directional light, emission, lightmaps, ...)
@@ -320,7 +322,7 @@ Shader "f3StandardVtxColor"
 			Name "META" 
 			Tags { "LightMode"="Meta" }
 
-			Cull Off
+			Cull [_Cull]
 
 			CGPROGRAM
 			#pragma vertex vert_meta

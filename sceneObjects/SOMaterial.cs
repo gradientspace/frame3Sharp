@@ -31,6 +31,23 @@ namespace f3
         public virtual Texture2D MainTexture { get; set; }
 
 
+        public enum CullingModes
+        {
+            None = 0,
+            FrontFace = 1,
+            BackFace = 2
+        }
+
+        /// <summary>
+        /// Backface culling mode.
+        /// Currently only supported on PerVertexColor and FlatShadedPerVertexColor types!
+        /// </summary>
+        public CullingModes CullingMode { get; set; }
+
+        /// <summary>
+        /// Integer value added to Unity Material.renderQueue 
+        /// Can use to nudge objects up/down in rendering order (sometimes helps w/ transparency)
+        /// </summary>
         public virtual int RenderQueueShift { get; set; }
 
 
@@ -39,6 +56,7 @@ namespace f3
             Name = UniqueNames.GetNext("SOMaterial");
             Type = MaterialType.StandardRGBColor;
             RGBColor = Colorf.VideoWhite;
+            CullingMode = CullingModes.None;
         }
 
         // in some subclasses we don't want to do default constructor...
@@ -49,7 +67,8 @@ namespace f3
         public virtual SOMaterial Clone() {
             return new SOMaterial() {
                 Name = this.Name, Type = this.Type,
-                RGBColor = this.RGBColor, MainTexture = this.MainTexture
+                RGBColor = this.RGBColor, MainTexture = this.MainTexture,
+                CullingMode = this.CullingMode, RenderQueueShift = this.RenderQueueShift
             };
         }
 
@@ -74,6 +93,7 @@ namespace f3
             copy.Name += "_Tr";
             copy.Type = MaterialType.TransparentRGBColor;
             copy.RGBColor = new Colorf(copy.RGBColor, fAlpha);
+            copy.CullingMode = CullingModes.BackFace;
             return copy;
         }
 
