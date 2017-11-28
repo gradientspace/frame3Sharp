@@ -51,12 +51,22 @@ namespace f3
         public virtual int RenderQueueShift { get; set; }
 
 
+        [Flags]
+        public enum HintFlags
+        {
+            None = 0,
+            UseTransparentPass = 1
+        }
+        public HintFlags Hints { get; set; }
+
+
         public SOMaterial()
         {
             Name = UniqueNames.GetNext("SOMaterial");
             Type = MaterialType.StandardRGBColor;
             RGBColor = Colorf.VideoWhite;
             CullingMode = CullingModes.None;
+            Hints = HintFlags.None;
         }
 
         // in some subclasses we don't want to do default constructor...
@@ -68,7 +78,8 @@ namespace f3
             return new SOMaterial() {
                 Name = this.Name, Type = this.Type,
                 RGBColor = this.RGBColor, MainTexture = this.MainTexture,
-                CullingMode = this.CullingMode, RenderQueueShift = this.RenderQueueShift
+                CullingMode = this.CullingMode, RenderQueueShift = this.RenderQueueShift,
+                Hints = this.Hints
             };
         }
 

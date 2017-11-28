@@ -296,53 +296,53 @@ namespace f3
 
         public static Material ToUnityMaterial(SOMaterial m)
         {
+            Material unityMat = null;
+
             if (m.Type == SOMaterial.MaterialType.TextureMap) {
-                Material unityMat = new Material(Shader.Find("Standard"));
+                unityMat = new Material(Shader.Find("Standard"));
                 unityMat.SetName(m.Name);
                 unityMat.color = m.RGBColor;
                 //if (m.Alpha < 1.0f)
                 //    MaterialUtil.SetupMaterialWithBlendMode(unityMat, MaterialUtil.BlendMode.Transparent);
                 unityMat.mainTexture = m.MainTexture;
-                return unityMat;
 
             } else if (m.Type == SOMaterial.MaterialType.PerVertexColor) {
-                Material mat = MaterialUtil.CreateStandardVertexColorMaterial(m.RGBColor);
-                mat.renderQueue += m.RenderQueueShift;
-                mat.SetInt("_Cull", (int)m.CullingMode);
-                return mat;
+                unityMat = MaterialUtil.CreateStandardVertexColorMaterial(m.RGBColor);
+                unityMat.renderQueue += m.RenderQueueShift;
+                unityMat.SetInt("_Cull", (int)m.CullingMode);
 
             } else if (m.Type == SOMaterial.MaterialType.FlatShadedPerVertexColor) {
-                Material mat = MaterialUtil.CreateFlatShadedVertexColorMaterialF(m.RGBColor);
-                mat.renderQueue += m.RenderQueueShift;
-                mat.SetInt("_Cull", (int)m.CullingMode);
-                return mat;
+                unityMat = MaterialUtil.CreateFlatShadedVertexColorMaterialF(m.RGBColor);
+                unityMat.renderQueue += m.RenderQueueShift;
+                unityMat.SetInt("_Cull", (int)m.CullingMode);
 
             } else if (m.Type == SOMaterial.MaterialType.TransparentRGBColor) {
-                Material mat = MaterialUtil.CreateTransparentMaterial(m.RGBColor);
-                mat.renderQueue += m.RenderQueueShift;
-                return mat;
+                unityMat = MaterialUtil.CreateTransparentMaterial(m.RGBColor);
+                unityMat.renderQueue += m.RenderQueueShift;
 
             } else if (m.Type == SOMaterial.MaterialType.StandardRGBColor) {
-                Material mat = MaterialUtil.CreateStandardMaterial(m.RGBColor);
-                mat.renderQueue += m.RenderQueueShift;
-                return mat;
+                unityMat = MaterialUtil.CreateStandardMaterial(m.RGBColor);
+                unityMat.renderQueue += m.RenderQueueShift;
 
             } else if (m.Type == SOMaterial.MaterialType.UnlitRGBColor) {
-                Material mat = MaterialUtil.CreateFlatMaterial(m.RGBColor);
-                mat.renderQueue += m.RenderQueueShift;
-                return mat;
+                unityMat = MaterialUtil.CreateFlatMaterial(m.RGBColor);
+                unityMat.renderQueue += m.RenderQueueShift;
 
             } else if (m.Type == SOMaterial.MaterialType.DepthWriteOnly) {
-                Material mat = MaterialUtil.CreateDepthWriteOnly();
-                mat.renderQueue += m.RenderQueueShift;
-                return mat;
+                unityMat = MaterialUtil.CreateDepthWriteOnly();
+                unityMat.renderQueue += m.RenderQueueShift;
 
             } else if ( m is UnitySOMaterial ) {
-                return (m as UnitySOMaterial).unityMaterial;
+                unityMat = (m as UnitySOMaterial).unityMaterial;
 
             } else {
-                return MaterialUtil.CreateStandardMaterial(Color.black);
+                unityMat = MaterialUtil.CreateStandardMaterial(Color.black);
             }
+
+            if ( (m.Hints & SOMaterial.HintFlags.UseTransparentPass) != 0)
+                SetupMaterialWithBlendMode(unityMat, BlendMode.Transparent);
+
+            return unityMat;
         }
 
 
