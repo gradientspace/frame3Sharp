@@ -342,6 +342,10 @@ namespace f3
             if ( (m.Hints & SOMaterial.HintFlags.UseTransparentPass) != 0)
                 SetupMaterialWithBlendMode(unityMat, BlendMode.Transparent);
 
+            if ( m.MaterialCustomizerF != null ) {
+                m.MaterialCustomizerF(unityMat);
+            }
+
             return unityMat;
         }
 

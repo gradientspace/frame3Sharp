@@ -51,6 +51,14 @@ namespace f3
         public virtual int RenderQueueShift { get; set; }
 
 
+        /// <summary>
+        /// This function will be called when instantiating the SOMaterial as the platform-specific
+        /// material type (eg in unity, called when generating a UnityEngine.Material)
+        /// In Unity, the object will be a UnityEngine.Material
+        /// </summary>
+        public Action<object> MaterialCustomizerF = null;
+
+
         [Flags]
         public enum HintFlags
         {
