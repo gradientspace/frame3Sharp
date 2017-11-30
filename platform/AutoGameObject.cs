@@ -98,6 +98,15 @@ namespace f3
         }
 
 
+        public bool IsCreated {
+            get { return LineGO != null; }
+        }
+
+
+        public fGameObject RootGameObject {
+            get { return LineGO; }
+        }
+
 
     }
 }
