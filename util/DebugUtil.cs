@@ -230,6 +230,22 @@ namespace f3
 
 
 
+        static public fGameObject EmitDebugMesh(string name, DMesh3 meshIn, Colorf color, GameObject parent = null, bool bIsInWorldPos = true)
+        {
+            DMesh3 mesh = new DMesh3(meshIn);
+            if (FPlatform.InMainThread() == false) {
+                ThreadMailbox.PostToMainThread(() => { DebugUtil.EmitDebugMesh(name, mesh, color, parent, bIsInWorldPos); });
+                return null;
+            }
+            fMeshGameObject fMeshGO = GameObjectFactory.CreateMeshGO(name, new fMesh(mesh), false, true);
+            fMeshGO.SetMaterial(MaterialUtil.CreateStandardMaterialF(color));
+            if (parent != null)
+                parent.AddChild(fMeshGO, bIsInWorldPos);
+            return fMeshGO;
+        }
+
+
+
         static public GameObject EmitDebugCursorSphere(string name, float diameter, Color color)
         {
             if (FContext.ActiveContext_HACK.MouseCameraController is VRMouseCursorController) {
