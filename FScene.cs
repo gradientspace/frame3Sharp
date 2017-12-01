@@ -16,6 +16,9 @@ namespace f3
 	public delegate void SceneSelectionChangedHandler(object sender, EventArgs e);
     public delegate void TimeChangedHandler(object sender, EventArgs e);
 
+    public delegate void SceneSelectedHandler(SceneObject so);
+    public delegate void SceneDeselectedHandler(SceneObject so);
+
 
     public class FScene : SceneUIParent, SOParent
     {
@@ -193,6 +196,8 @@ namespace f3
         public event TimeChangedHandler TimeChangedEvent;
         public event SceneSelectionChangedHandler SelectionChangedEvent;
         public event SceneModifiedHandler ChangedEvent;
+        public event SceneSelectedHandler SelectedEvent;
+        public event SceneDeselectedHandler DeselectedEvent;
 
         protected virtual void OnSelectionChanged(EventArgs e) {
             FUtil.SafeSendEvent(SelectionChangedEvent, this, e);
@@ -396,13 +401,17 @@ namespace f3
                         foreach (var v in vSelected)
                             v.PopOverrideMaterial();
                     }
+                    var list = new List<SceneObject>(vSelected);
                     vSelected.Clear();
+                    foreach (var so in list)
+                        DeselectedEvent?.Invoke(so);
                 }
 
 				vSelected.Add(s);
                 if (DisableSelectionMaterial == false)
                     push_selection_material(s);
 
+                SelectedEvent?.Invoke(s);
                 OnSelectionChanged(EventArgs.Empty);
 
 				return true;
@@ -421,8 +430,9 @@ namespace f3
 
             if ( DisableSelectionMaterial == false )
                 s.PopOverrideMaterial();        // assume we only pushed once!
-			vSelected.Remove (s);
-			OnSelectionChanged (EventArgs.Empty);
+			vSelected.Remove(s);
+            DeselectedEvent?.Invoke(s);
+			OnSelectionChanged(EventArgs.Empty);
 		}
 
 		public void ClearSelection()
@@ -438,8 +448,11 @@ namespace f3
                 foreach (var v in vSelected)
                     v.PopOverrideMaterial();
             }
-			vSelected = new List<SceneObject> ();
-			OnSelectionChanged (EventArgs.Empty);
+            var list = vSelected;
+			vSelected = new List<SceneObject>();
+            foreach (var so in list)
+                DeselectedEvent?.Invoke(so);
+			OnSelectionChanged(EventArgs.Empty);
 		}
 
 

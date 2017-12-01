@@ -127,10 +127,14 @@ namespace f3
         {
             PivotSO so = new PivotSO();
             so.Create(scene.PivotSOMaterial, scene.FrameSOMaterial);
+            RestorePivotSOType(scene, attributes, so);
+            return so;
+        }
+        public virtual void RestorePivotSOType(FScene scene, TypedAttribSet attributes, PivotSO so)
+        {
             RestoreSOInfo(so, attributes);
             RestoreTransform(so, attributes);
             RestoreMaterial(so, attributes);
-            return so;
         }
 
 
@@ -369,6 +373,26 @@ namespace f3
             }
 
             so.AssignSOMaterial(mat);
+        }
+
+
+
+        public virtual Frame3f RestoreFrame(TypedAttribSet attributes, string structName)
+        {
+            TypedAttribSet transform = find_struct(attributes, structName);
+            if (transform == null)
+                throw new Exception("SOFactory.RestoreTransform: struct " + structName + " not found!");
+
+            Frame3f f = Frame3f.Identity;
+            if (check_key_or_debug_print(transform, IOStrings.APosition)) {
+                Vector3f vPosition = (Vector3f)transform[IOStrings.APosition];
+                f.Origin = vPosition;
+            }
+            if (check_key_or_debug_print(transform, IOStrings.AOrientation)) {
+                Quaternionf vRotation = (g3.Quaternionf)transform[IOStrings.AOrientation];
+                f.Rotation = vRotation;
+            }
+            return f;
         }
 
 

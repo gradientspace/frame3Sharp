@@ -224,6 +224,19 @@ namespace f3
 
 
         /// <summary>
+        /// Emit frame as a struct
+        /// </summary>
+        public static void EmitFrame(this SceneSerializer s, IOutputStream o, string structName, ref Frame3f frame)
+        {
+            o.BeginStruct(structName);
+            o.AddAttribute(IOStrings.APosition, frame.Origin);
+            o.AddAttribute(IOStrings.AOrientation, frame.Rotation);
+            o.EndStruct();
+        }
+
+
+
+        /// <summary>
         /// Emit a SimpleMesh as an AsciiMeshStruct
         /// </summary>
         public static void EmitMeshAscii(this SceneSerializer s, SimpleMesh m, IOutputStream o)
