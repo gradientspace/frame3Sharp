@@ -151,10 +151,13 @@ namespace f3
         /// <summary>
         /// This is very hacky.
         /// </summary>
-        public static void AddDropShadow(HUDStandardItem item, Colorf color, float falloffWidth, Vector2f offset, float fZShift)
+        public static void AddDropShadow(HUDStandardItem item, Cockpit cockpit, Colorf color, 
+            float falloffWidthPx, Vector2f offset, float fZShift, bool bTrackCockpitScaling = true)
         {
             if (item is IBoxModelElement == false)
                 throw new Exception("HUDUtil.AddDropShadow: can only add drop shadow to IBoxModelElement");
+
+            float falloffWidth = falloffWidthPx * cockpit.GetPixelScale();
 
             // [TODO] need interface that provides a HUDShape?
             var shape = item as IBoxModelElement;
@@ -169,9 +172,22 @@ namespace f3
             item.AppendNewGO(meshGO, item.RootGameObject, false);
             BoxModel.Translate(meshGO, offset, fZShift);
 
-            Vector3 posW = item.RootGameObject.PointToWorld(meshGO.GetLocalPosition());
-            ((Material)dropMat).SetVector("_Center", new Vector4(posW.x, posW.y, posW.z, 0));
-
+            if (bTrackCockpitScaling) {
+                PreRenderBehavior pb = meshGO.AddComponent<PreRenderBehavior>();
+                pb.ParentFGO = meshGO;
+                pb.AddAction(() => {
+                    Vector3 posW = item.RootGameObject.PointToWorld(meshGO.GetLocalPosition());
+                    ((Material)dropMat).SetVector("_Center", new Vector4(posW.x, posW.y, posW.z, 0));
+                    float curWidth = falloffWidthPx * cockpit.GetPixelScale();
+                    Vector2f origSize = shape.Size2D + falloffWidth * Vector2f.One;
+                    Vector2f size = cockpit.GetScaledDimensions(origSize);
+                    float ww = size.x;
+                    float hh = size.y;
+                    ((Material)dropMat).SetVector("_Extents", new Vector4(ww / 2, hh / 2, 0, 0));
+                    float newWidth = falloffWidthPx * cockpit.GetPixelScale();
+                    ((Material)dropMat).SetFloat("_FalloffWidth", newWidth);
+                });
+            }
         }
 
 

@@ -129,7 +129,7 @@ namespace f3
 
         public virtual AxisAlignedBox2f ContainerBounds
         {
-            get { return cockpit.GetOrthoViewBounds();  }
+            get { return cockpit.GetConstantSizeOrthoViewBounds();  }
         }
 
 

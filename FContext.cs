@@ -223,9 +223,10 @@ namespace f3 {
             FPlatform.IncrementFrameCounter();
 
             if (FPlatform.IsWindowResized()) {
-                // [TODO] to support fixed-size 2D UI, we would need to change OrthoCameraUI.orthographicSize here.
-                // Basically we want to keep orthosize/pixel_height constant. 
-                // This could possibly replace FPLatform.ValidScreenDimensionRange
+                ActiveCockpit.OnWindowResized();
+                // need to tell other cockpits about this...
+                foreach (Cockpit c in cockpitStack)
+                    c.OnWindowResized();
                 FUtil.SafeSendAnyEvent(OnWindowResized);
             }
 
@@ -717,8 +718,11 @@ namespace f3 {
 
             Cockpit c = new Cockpit(this);
             activeCockpit = c;
-            if ( Use2DCockpit )
+            if (Use2DCockpit) {
                 c.UIElementLayer = FPlatform.UILayer;
+                if (options.ConstantSize2DCockpit)
+                    c.EnableConstantSize2DCockpit();
+            }
             c.Start(initializer);
             if (trackingInitializer != null)
                 c.InitializeTracking(trackingInitializer);

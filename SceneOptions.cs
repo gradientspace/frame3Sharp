@@ -46,6 +46,8 @@ namespace f3
         // See Mouse2DCockpitUIBehavior for an example.
         public bool Use2DCockpit { get; set; }
 
+        public bool ConstantSize2DCockpit { get; set; }
+
         // this is called to set up the cockpit
         public ICockpitInitializer CockpitInitializer { get; set; }
 
@@ -77,6 +79,7 @@ namespace f3
             MouseCameraControls = null;
             UseSystemMouseCursor = false;
             Use2DCockpit = false;
+            ConstantSize2DCockpit = false;
             // default logging level is to be verbose in editor
             LogLevel = (Application.isEditor) ? 1 : 0;
         }

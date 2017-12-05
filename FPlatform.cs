@@ -86,6 +86,16 @@ namespace f3
         static public int ScreenHeight {
             get { return Screen.height; }
         }
+        static public float ScreenDPI {
+            get { return (Screen.dpi == 0) ? 96 : Screen.dpi; }
+        }
+
+        // multiplier on Cockpit.GetPixelScale() applied when *not* running in editor.
+        static public float PixelScaleFactor = 1.0f;
+
+        // multiplier on Cockpit.GetPixelScale() applied when running in editor.
+        static public float EditorPixelScaleFactor = 0.5f;
+
 
 
         // argh unity does not have a window resize event built-in ?!??
@@ -170,13 +180,6 @@ namespace f3
             return (GetDeviceType() & (fDeviceType.IPad | fDeviceType.IPhone | fDeviceType.AndroidPhone)) != 0 ;
         }
 
-
-        // pixel-scaled UI elements will (should) be scaled by this amount when
-        // running inside editor. Mainly via Cockpit.GetPixelScale()
-        static public float EditorUIScaleFactor = 1.0f;
-        // this is used when *not* in editor. Can globally scale UI with it,
-        // at least any UI that uses it...
-        static public float UIScaleFactor = 1.0f;
 
 
         static public bool IsUsingVR()

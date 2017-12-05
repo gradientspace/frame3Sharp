@@ -151,47 +151,138 @@ namespace f3
         }
 
 
-        // get bounds of current orthographic camera view, in world coordinates (ie
-        // box.Min is bottom-left corner of screen and box.Max is top-right
-        // [TODO] move this elsewhere?? 
+        /*
+         * 2D UI sizing.
+         * 
+         */
+
+        public virtual void OnWindowResized()
+        {
+            if (use_constant_scale)
+                constant_size_update();
+        }
+
+        bool use_constant_scale = false;
+        Vector2f start_pixel_scale = Vector2f.One;
+        Vector2f cur_pixel_scale = Vector2f.One;
+        Vector2f const_scale = Vector2f.One;
+
+        /// <summary>
+        /// Call this to turn on constant-size 2D cockpit scaling. This is a bit tricky. 
+        /// The orthographic size of the camera stays at height=1, width = aspect*height, regardless
+        /// of the screen size. So, we have to keep track of the scaling between ortho and pixel dims.
+        /// Then if the window size changes, the relative x/y initial/cur scalings give us a scaling factor that
+        /// we can apply to the cockpit itself. This maintains fixed size, but the 2D view bounds will stay
+        /// fixed, unless we also scale them up - this is what GetConstantSizeOrthoViewBounds() is for.
+        /// 2D layout containers use this function and then the 2D box gets bigger/smaller with the screen size.
+        /// </summary>
+        public virtual void EnableConstantSize2DCockpit()
+        {
+            AxisAlignedBox2f uiBounds = GetOrthoViewBounds();
+            AxisAlignedBox2f pixelBounds = GetPixelViewBounds_DpiIndependent();
+            start_pixel_scale = new Vector2f(
+                uiBounds.Width / pixelBounds.Width,
+                uiBounds.Height / pixelBounds.Height);
+            use_constant_scale = true;
+        }
+
+        // updates cockpit scaling to maintain constant size - call in OnWindowResized()
+        protected virtual void constant_size_update()
+        {
+            AxisAlignedBox2f uiBounds = GetOrthoViewBounds();
+            AxisAlignedBox2f pixelBounds = GetPixelViewBounds_DpiIndependent();
+            cur_pixel_scale = new Vector2f(
+                uiBounds.Width / pixelBounds.Width,
+                uiBounds.Height / pixelBounds.Height);
+
+            const_scale = cur_pixel_scale / start_pixel_scale;
+            this.RootGameObject.SetLocalScale(new Vector3f(const_scale.x, const_scale.y, 1));
+        }
+
+
+        /// <summary>
+        ///  get bounds of current orthographic camera view, in world coordinates 
+        ///  (ie box.Min is bottom-left corner of screen and box.Max is top-right
+        /// </summary>
         public virtual AxisAlignedBox2f GetOrthoViewBounds()
         {
             if (context.OrthoUICamera == null)
                 return AxisAlignedBox2f.Empty;
             float verticalSize = context.OrthoUICamera.OrthoHeight;
-            float horizontalSize = verticalSize * (float)FPlatform.ScreenWidth / (float)FPlatform.ScreenHeight;
+            float aspect = (float)FPlatform.ScreenWidth / (float)FPlatform.ScreenHeight;
+            float horizontalSize = verticalSize * aspect;
             return new AxisAlignedBox2f(-horizontalSize / 2, -verticalSize / 2, horizontalSize / 2, verticalSize / 2);
         }
 
-        public virtual AxisAlignedBox2f GetPixelViewBounds()
+        /// <summary>
+        /// GetOrthoViewBounds() inverse scaled by constant-size scaling factor,
+        /// so corners stay at corners of screen as cockpit is scaled
+        /// </summary>
+        public virtual AxisAlignedBox2f GetConstantSizeOrthoViewBounds()
+        {
+            AxisAlignedBox2f bounds = GetOrthoViewBounds();
+            return new AxisAlignedBox2f(bounds.Center, bounds.Width * 0.5f / const_scale.x, bounds.Height * 0.5f / const_scale.y);
+        }
+
+        /// <summary>
+        /// Pixel bounding box of 2D ortho viewport
+        /// </summary>
+        public virtual AxisAlignedBox2f GetPixelViewBounds_Absolute()
         {
             if (context.OrthoUICamera == null)
                 return AxisAlignedBox2f.Empty;
             return new AxisAlignedBox2f(0, 0, FPlatform.ScreenWidth, FPlatform.ScreenHeight);
         }
 
-        public float GetPixelScale()
+        /// <summary>
+        /// DPI-normalized "Pixel" bounding-box of 2D ortho viewport, 
+        /// (ie bounds will change depending on dpi)
+        /// </summary>
+        public virtual AxisAlignedBox2f GetPixelViewBounds_DpiIndependent()
+        {
+            if (context.OrthoUICamera == null)
+                return AxisAlignedBox2f.Empty;
+            float dpi_scale = GetDpiIndependentScale();
+            return new AxisAlignedBox2f(0, 0, FPlatform.ScreenWidth*dpi_scale, FPlatform.ScreenHeight*dpi_scale);
+        }
+
+        /// <summary>
+        /// scaling factor that normalizes for screen DPI (default is 96 DPI)
+        /// </summary>
+        public virtual float GetDpiIndependentScale() {
+            return FPlatform.ScreenDPI / 96.0f;
+        }
+
+        /// <summary>
+        /// Returns dpi-independent pixel scaling factor. Mainly intended to be used
+        /// for sizing UI elements. 
+        /// This function multiplies by FPlatform.PixelScaleFactor.
+        /// </summary>
+        public float GetPixelScale(bool bDpiIndependent = true)
         {
             AxisAlignedBox2f uiBounds = GetOrthoViewBounds();
-            AxisAlignedBox2f pixelBounds = GetPixelViewBounds();
-            Interval1i valid_range = FPlatform.ValidScreenDimensionRange;
-            float maxPixel = MathUtil.Clamp(pixelBounds.MaxDim, (float)valid_range.a, (float)valid_range.b);
+            AxisAlignedBox2f pixelBounds =
+                (bDpiIndependent) ? GetPixelViewBounds_DpiIndependent() : GetPixelViewBounds_Absolute();
+            float fScale = uiBounds.Height / pixelBounds.Height;
 
-            float fScale = uiBounds.MaxDim / maxPixel;
+            // use ValidScreenDimensionRange to manipulate scale here?
 
-#if UNITY_STANDALONE_OSX
-            if ( UnityEngine.Screen.dpi > 100.0f && FPlatform.InUnityEditor() == false )
-                fScale /= 2.0f;
-#endif
-#if UNITY_IOS || UNITY_ANDROID
-            if (FPlatform.GetDeviceType() != FPlatform.fDeviceType.IPad )
-                fScale *= 0.8f;
-#endif
             if (FPlatform.InUnityEditor())
-                fScale *= FPlatform.EditorUIScaleFactor;
+                fScale *= FPlatform.EditorPixelScaleFactor;
             else
-                fScale *= FPlatform.UIScaleFactor;
+                fScale *= FPlatform.PixelScaleFactor;
             return fScale;
+        }
+
+
+        /// <summary>
+        /// If cockpit is scaled (ie to maintain constant-pixel-size elements), 
+        /// then we need a way to get 'scaled' dimensions of things 
+        /// (what about positions...?)
+        /// </summary>
+        public Vector2f GetScaledDimensions(Vector2f v)
+        {
+            return v * const_scale;
         }
 
 
@@ -203,13 +294,6 @@ namespace f3
 
             onCameraGO = GameObjectFactory.CreateParentGO("cockpit_camera");
             gameobject.AddChild(onCameraGO, false);
-
-            // [RMS] probably can delete this code now?
-            //gameobject = GameObject.CreatePrimitive (PrimitiveType.Plane);
-			//gameobject.SetName("cockpit");
-			//MeshRenderer ren = gameobject.GetComponent<MeshRenderer> ();
-			//ren.enabled = false;
-			//gameobject.GetComponent<MeshCollider> ().enabled = false;
 
             // add hud animation controller
             gameobject.AddComponent<UnityPerFrameAnimationBehavior>().Animator = HUDAnimator;                
