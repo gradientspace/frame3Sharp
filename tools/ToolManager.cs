@@ -54,6 +54,15 @@ namespace f3
         }
 
 
+        public IToolBuilder FindToolTypeBuilder(string sType)
+        {
+            if (ToolTypes.ContainsKey(sType) == false)
+                return null;
+            return ToolTypes[sType];
+        }
+
+
+
 
         public ITool ActiveLeftTool {
             get { return activeTool[0]; }

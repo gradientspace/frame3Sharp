@@ -25,7 +25,7 @@ namespace f3
         public bool Closed
         {
             get { return closed; }
-            set { closed = value; if ( curve != null ) curve.Closed = closed; }
+            set { if (closed != value) { closed = value; if (curve != null) curve.Closed = closed; bUpdatePending = true; } }
         }
 
 
