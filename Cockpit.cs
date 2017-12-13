@@ -250,7 +250,7 @@ namespace f3
         /// scaling factor that normalizes for screen DPI (default is 96 DPI)
         /// </summary>
         public virtual float GetDpiIndependentScale() {
-            return FPlatform.ScreenDPI / 96.0f;
+            return 96.0f / FPlatform.ScreenDPI;
         }
 
         /// <summary>
