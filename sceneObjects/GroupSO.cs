@@ -206,6 +206,18 @@ namespace f3
             }
         }
 
+
+        virtual public void Connect(bool bRestore)
+        {
+            foreach (var so in vChildren)
+                so.Connect(bRestore);
+        }
+        virtual public void Disconnect(bool bDestroying)
+        {
+            foreach (var so in vChildren)
+                so.Disconnect(bDestroying);
+        }
+
         // not really sure what to do here...
         public virtual bool IsSurface {
             get { return true; }

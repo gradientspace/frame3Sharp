@@ -163,7 +163,7 @@ namespace f3
             }
             // same for xform
             if (internalXFormSO != null) {
-                internalXFormSO.Disconnect();
+                internalXFormSO.DisconnectTarget();
                 parentScene.RemoveSceneObject(internalXFormSO, true);
                 internalXFormSO = null;
             }
@@ -353,7 +353,7 @@ namespace f3
                 internalXFormSO = new TransientXFormSO();
                 internalXFormSO.Create();
                 parentScene.AddSceneObject(internalXFormSO);
-                internalXFormSO.Connect(frameSourceSO, useSO);
+                internalXFormSO.ConnectTarget(frameSourceSO, useSO);
                 return new PassThroughWrapper(internalXFormSO);
 
             } else  if (eFrame == FrameType.LocalFrame) {
@@ -375,7 +375,7 @@ namespace f3
                 return;     // ignore repeats as this is kind of expensive
 
             if (internalXFormSO != null) {
-                internalXFormSO.Disconnect();
+                internalXFormSO.DisconnectTarget();
                 parentScene.RemoveSceneObject(internalXFormSO, true);
                 internalXFormSO = null;
             }

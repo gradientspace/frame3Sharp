@@ -36,21 +36,27 @@ namespace f3
         static string persistent_dataPath = null;
         static string temp_dataPath = null;
 
+        /// <summary>
+        /// returns path to xyz_Data\ in builds, and path to Assets\ in editor
+        /// </summary>
         public static string GameDataFolderPath() {
             if (app_dataPath == null)
                 app_dataPath = Path.GetFullPath(Application.dataPath);
             return app_dataPath;
         }
+
         public static string PersistentDataPath() {
             if (persistent_dataPath == null)
                 persistent_dataPath = Path.GetFullPath(Application.persistentDataPath);
             return persistent_dataPath;
         }
+
         public static string TemporaryDataPath() {
             if (temp_dataPath == null)
                 temp_dataPath = Path.GetFullPath(Application.temporaryCachePath);
             return temp_dataPath;
         }
+
         public static string GameExecutablePath() {
             return Path.GetFullPath(Path.Combine(GameDataFolderPath(), ".."));
         }

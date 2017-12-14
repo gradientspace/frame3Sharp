@@ -62,6 +62,14 @@ namespace f3
         }
 
 
+        virtual public void Connect(bool bRestore)
+        {
+        }
+        virtual public void Disconnect(bool bDestroying)
+        {
+        }
+
+
         virtual public bool IsTemporary {
             get { return false; }
         }

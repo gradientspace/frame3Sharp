@@ -286,6 +286,8 @@ namespace f3
             so.Parent = this;
             so.SetCurrentTime(currentTime);
 
+            so.Connect(false);
+
             OnSceneChanged(so, SceneChangeType.Added);
         }
 
@@ -328,6 +330,7 @@ namespace f3
             }
             vObjects.Remove(so);
             OnSceneChanged(so, SceneChangeType.Removed);
+            so.Disconnect(bDestroy);
 
             if (so.RootGameObject != null) {
                 if (bDestroy) {
@@ -359,9 +362,12 @@ namespace f3
             so.RootGameObject.SetVisible(true);
             scene_objects.AddChild(so.RootGameObject, true);
             so.SetCurrentTime(currentTime);
+            so.Connect(true);
         }
         public void CullDeletedSceneObject(SceneObject so)
         {
+            so.Disconnect(true);
+
             if (vDeleted.Find((x) => x == so) == null)
                 return;
             vDeleted.Remove(so);
