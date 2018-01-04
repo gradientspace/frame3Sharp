@@ -132,6 +132,7 @@ namespace f3
             foreach (var comp in displayComponents) {
                 comp.go.Mesh.FastUpdateVertices(this.mesh, comp.source_vertices, false, false);
                 comp.go.Mesh.RecalculateNormals();
+                comp.go.Mesh.RecalculateBounds();  // otherwise frustum culling bounds are wrong!
             }
             on_mesh_changed(true, false);
             validate_decomp();
