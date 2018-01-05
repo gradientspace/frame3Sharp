@@ -889,7 +889,7 @@ namespace f3 {
                 resetAction();
         }
 
-        public void ScaleView(Vector3 vCenterW, float fRadiusW )
+        public void ScaleView(Vector3f vCenterW, float fMeterSizeW )
         {
             //Vector3f camTarget = ActiveCamera.GetTarget();
             //Vector3f localTarget = Scene.WorldFrame.ToFrameP(camTarget);
@@ -901,7 +901,7 @@ namespace f3 {
             float fCurScale = Scene.GetSceneScale();
 
             Frame3f cockpitF = ActiveCockpit.GetLevelViewFrame(CoordSpace.WorldCoords);
-            float fScale = 1.0f / fRadiusW;
+            float fScale = 1.0f / fMeterSizeW;
             vDeltaOrig *= fScale;
             Frame3f deskF = cockpitF.Translated(1.2f, 2).Translated(-0.5f, 1).Translated(-vDeltaOrig);
             Scene.SceneFrame = deskF;

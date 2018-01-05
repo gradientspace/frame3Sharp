@@ -29,6 +29,7 @@ namespace f3
 
         public abstract double WorldValue { get; }
         public abstract double SceneValue { get; }
+        public abstract fDimension Clone();
 
         public float WorldValuef {
             get { return (float)WorldValue; }
@@ -36,7 +37,6 @@ namespace f3
         public float SceneValuef {
             get { return (float)SceneValue; }
         }
-
 
         protected fDimension(DimensionType eType)
         {
@@ -46,6 +46,15 @@ namespace f3
 
         protected FScene ActiveScene {
             get { return FScene.Active; }       // [TODO] this is bad!!
+        }
+
+
+
+        public virtual void Add(fDimension dim) {
+            throw new NotImplementedException("fDimension.Add: must be implemented in subclass");
+        }
+        public virtual void Scale(double scale) {
+            throw new NotImplementedException("fDimension.Scale: must be implemented in subclass");
         }
 
 
@@ -68,6 +77,13 @@ namespace f3
         protected fConstantDimension(DimensionType eType, double fValue) : base(eType) {
             value = fValue;
         }
+
+        public override void Scale(double scale) {
+            value *= scale;
+        }
+
+        protected void add(double d) { value += d; }
+
     }
 
 
@@ -77,11 +93,19 @@ namespace f3
         {
         }
 
+        public override fDimension Clone() {
+            return new fWorldDimension(this.value);
+        }
+
         public override double WorldValue {
             get { return base.value; }
         }
         public override double SceneValue {
             get { return ActiveScene.ToSceneDimension((float)base.value); }
+        }
+
+        public override void Add(fDimension dim) {
+            base.add(dim.WorldValue);
         }
     }
 
@@ -96,6 +120,12 @@ namespace f3
             worldValueF = worldF;
         }
 
+        public override fDimension Clone()
+        {
+            return new fDynamicWorldDimension(this.worldValueF);
+        }
+
+
         public override double WorldValue {
             get { return worldValueF();}
         }
@@ -107,10 +137,16 @@ namespace f3
 
 
 
+
     public class fSceneDimension : fConstantDimension
     {
         public fSceneDimension(double fWorld) : base(DimensionType.SceneUnits, fWorld)
         {
+        }
+
+        public override fDimension Clone()
+        {
+            return new fSceneDimension(this.value);
         }
 
         public override double WorldValue {
@@ -119,7 +155,13 @@ namespace f3
         public override double SceneValue {
             get { return base.value; }
         }
+
+        public override void Add(fDimension dim) {
+            base.add(dim.SceneValue);
+        }
+
     }
+
 
 
     public class fDynamicSceneDimension : fDimension
@@ -130,6 +172,12 @@ namespace f3
         {
             sceneValueF = sceneF;
         }
+
+        public override fDimension Clone()
+        {
+            return new fDynamicWorldDimension(this.sceneValueF);
+        }
+
 
         public override double WorldValue {
             get { return ActiveScene.ToWorldDimension((float)sceneValueF()); }
@@ -151,6 +199,11 @@ namespace f3
         public fVisualAngleDimension(Vector3f position, double fValue) : base(DimensionType.VisualAngle, fValue)
         {
             this.position = position;
+        }
+
+        public override fDimension Clone()
+        {
+            return new fVisualAngleDimension(this.position, this.value);
         }
 
         public override double WorldValue {
@@ -180,6 +233,11 @@ namespace f3
             this.positionF = positionF;
         }
 
+        public override fDimension Clone()
+        {
+            return new fDynamicVisualAngleDimension(this.positionF, this.value);
+        }
+
         public override double WorldValue {
             get {
                 return VRUtil.GetVRRadiusForVisualAngle(Position,
@@ -203,6 +261,11 @@ namespace f3
         {
             this.Position = pos;
             this.AngleF = angleF;
+        }
+
+        public override fDimension Clone()
+        {
+            return new fPositionVisualAngleDimension(this.Position, this.AngleF);
         }
 
         public override double WorldValue {
