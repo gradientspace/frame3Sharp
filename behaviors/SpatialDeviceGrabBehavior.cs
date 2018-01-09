@@ -5,7 +5,8 @@ namespace f3
 {
     public class SpatialDeviceGrabBehavior : StandardInputBehavior
     {
-        Cockpit cockpit;
+        FContext context;
+        Func<SceneObject, bool> ObjectFilterF;
 
         public float RotationSpeed = 1.0f;
         public float TranslationSpeed = 1.0f;
@@ -15,9 +16,12 @@ namespace f3
         public event GrabEventHandler OnBeginGrab;
         public event GrabEventHandler OnEndGrab;
 
-        public SpatialDeviceGrabBehavior(Cockpit cockpit)
-        {
-            this.cockpit = cockpit;
+        public SpatialDeviceGrabBehavior(Cockpit cockpit) {
+            this.context = cockpit.Context;
+        }
+        public SpatialDeviceGrabBehavior(FContext context, Func<SceneObject, bool> filterF) {
+            this.context = context;
+            ObjectFilterF = filterF;
         }
 
         public override InputDevice SupportedDevices
@@ -28,7 +32,6 @@ namespace f3
         class GrabInfo
         {
             public SceneObject so;
-            public Cockpit cockpit;
             public Frame3f startObjFW;
             public Frame3f startObjRelF;
             public Frame3f startHandF;
@@ -39,9 +42,8 @@ namespace f3
             public float StickSpeed = 0.1f;
 
             public TransformGizmoChange change;        // [TODO] shouldn't be using gizmo change for this?
-            public GrabInfo(Cockpit cockpit, SceneObject so, Frame3f handF)
+            public GrabInfo(SceneObject so, Frame3f handF)
             {
-                this.cockpit = cockpit;
                 this.so = so;
                 this.startHandF = handF;
                 this.startObjFW = so.GetLocalFrame(CoordSpace.WorldCoords);
@@ -101,7 +103,7 @@ namespace f3
                 //fNew.Rotation = fNew.Rotation * stickY;
 
                 // shift in/out along hand-ray by Z
-                fNew.Origin += StickSpeed * stickDelta[1] * handF.Z * cockpit.Scene.GetSceneScale();
+                fNew.Origin += StickSpeed * stickDelta[1] * handF.Z * so.GetScene().GetSceneScale();
 
                 curHandTargetF = fNew;
                 curUseTargetF = new Frame3f(curHandTargetF);
@@ -133,14 +135,14 @@ namespace f3
         {
             Ray3f useRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
             SORayHit rayHit;
-            if (cockpit.Scene.FindSORayIntersection(useRay, out rayHit)) {
+            if (context.Scene.FindSORayIntersection(useRay, out rayHit, ObjectFilterF)) {
                 var tso = rayHit.hitSO;
                 if (tso != null) {
                     Frame3f handF = (eSide == CaptureSide.Left) ? input.LeftHandFrame : input.RightHandFrame;
                     if ( OnBeginGrab != null )
                         OnBeginGrab(this, tso);
                     return Capture.Begin(this, eSide,
-                        new GrabInfo(cockpit, tso, handF) {
+                        new GrabInfo(tso, handF) {
                             RotationSpeed = this.RotationSpeed, TranslationSpeed = this.TranslationSpeed, StickSpeed = this.StickMoveSpeed } );
                 }
             }
@@ -154,8 +156,8 @@ namespace f3
             gi.change.parentAfter = gi.so.GetLocalFrame(CoordSpace.SceneCoords);
             gi.change.parentScaleAfter = gi.so.GetLocalScale();
 
-            cockpit.Scene.History.PushChange(gi.change, true);
-            cockpit.Scene.History.PushInteractionCheckpoint();
+            context.Scene.History.PushChange(gi.change, true);
+            context.Scene.History.PushInteractionCheckpoint();
 
             return Capture.End;
         }
@@ -201,8 +203,8 @@ namespace f3
 
                 // if we do this afterwards, and don't push an interaction state, then when 
                 //   we undo/redo we don't end up sitting on top of a duplicate.
-                cockpit.Scene.History.PushChange(
-                    new AddSOChange() { scene = cockpit.Scene, so = copy, bKeepWorldPosition = false });
+                context.Scene.History.PushChange(
+                    new AddSOChange() { scene = context.Scene, so = copy, bKeepWorldPosition = false });
 
             }
 

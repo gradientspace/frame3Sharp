@@ -17,6 +17,7 @@ namespace f3 {
         // This distance determines how far away the lights are positioned from the objects.
         // May be too far (or too close) for your scene!
         public float LightDistance = 20.0f;
+        public bool AdjustShadowDistance = true;
 
         public float LightAltitudeAngle = 45.0f;
 
@@ -81,27 +82,30 @@ namespace f3 {
                 return;
             lastSceneFrameW = sceneFrameW;
 
-            // use vertical height of light to figure out appropriate shadow distance.
-            // distance changes if we scale scene, and if we don't do this, shadow
-            // map res gets very blurry.
-            Vector3f thisW = lights[0].transform.position;
-            float fHeight =
-                Vector3f.Dot(( thisW - sceneFrameW.Origin), sceneFrameW.Y);
-            float fShadowDist = fHeight * 1.5f;
+            if (AdjustShadowDistance) {
 
-            // lights need to be in-range
-            if (fShadowDist < LightDistance)
-                fShadowDist = LightDistance * 1.5f;
+                // use vertical height of light to figure out appropriate shadow distance.
+                // distance changes if we scale scene, and if we don't do this, shadow
+                // map res gets very blurry.
+                Vector3f thisW = lights[0].transform.position;
+                float fHeight =
+                    Vector3f.Dot((thisW - sceneFrameW.Origin), sceneFrameW.Y);
+                float fShadowDist = fHeight * 1.5f;
 
-            // need to be a multiple of eye distance
-            float fEyeDist = sceneFrameW.Origin.Distance(Camera.main.transform.position);
-            fShadowDist = Mathf.Max(fShadowDist, 1.5f * fEyeDist);
+                // lights need to be in-range
+                if (fShadowDist < LightDistance)
+                    fShadowDist = LightDistance * 1.5f;
 
-            int nShadowDist = (int)Snapping.SnapToIncrement(fShadowDist, 50);
+                // need to be a multiple of eye distance
+                float fEyeDist = sceneFrameW.Origin.Distance(Camera.main.transform.position);
+                fShadowDist = Mathf.Max(fShadowDist, 1.5f * fEyeDist);
 
-            if (cur_shadow_dist != nShadowDist) {
-                QualitySettings.shadowDistance = nShadowDist;
-                cur_shadow_dist = nShadowDist;
+                int nShadowDist = (int)Snapping.SnapToIncrement(fShadowDist, 50);
+
+                if (cur_shadow_dist != nShadowDist) {
+                    QualitySettings.shadowDistance = nShadowDist;
+                    cur_shadow_dist = nShadowDist;
+                }
             }
 		}
 	}

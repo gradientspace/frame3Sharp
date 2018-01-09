@@ -324,13 +324,20 @@ namespace f3
 
             tm.fontSizeYScale = GetYScale(tm);
             tm.SetTextSizeFromHeight(fTextHeight);
-            float fTextWidth = tm.GetTextScaleForHeight(fTextHeight) * size.x;
+            float fScale = tm.GetTextScaleForHeight(fTextHeight);
+            float fTextWidth = fScale * size.x;
 
             // set rendering queue (?)
             textGO.GetComponent<Renderer>().material.renderQueue = SceneGraphConfig.TextRendererQueue;
 
-            return new fTextGameObject(textGO, new fText(tm, TextType.TextMeshPro),
-                new Vector2f(fTextWidth, fTextHeight) );
+            fTextGameObject go = new fTextGameObject(textGO, new fText(tm, TextType.TextMeshPro),
+                new Vector2f(fTextWidth, fTextHeight));
+            if (fOffsetZ != 0) {
+                Vector3f pos = go.GetLocalPosition();
+                pos.z += fOffsetZ;
+                go.SetLocalPosition(pos);
+            }
+            return go;
         }
 
 
