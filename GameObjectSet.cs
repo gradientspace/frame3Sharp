@@ -160,7 +160,7 @@ namespace f3
         }
 
 
-		public virtual bool FindGORayIntersection (Ray ray, out GameObjectRayHit hit)
+		public virtual bool FindGORayIntersection (Ray ray, out GameObjectRayHit hit, Func<GameObject, bool> FilterF = null)
 		{
 			hit = new GameObjectRayHit();
 			RaycastHit hitInfo;
@@ -172,6 +172,9 @@ namespace f3
             //}
 
 			foreach (var go in vObjects) {
+                if ( FilterF != null && FilterF(go) == false)
+                    continue;
+
                 Collider collider = go.GetComponent<Collider>();
                 if (collider) {
                     collider.enabled = true;

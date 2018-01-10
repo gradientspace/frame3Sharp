@@ -504,9 +504,9 @@ namespace f3
 		}
 
 
-        enum InteractionMode
+        protected enum InteractionMode
         {
-            InHandleDrag, InPressDrag, InCustom
+            InHandleDrag, InPressDrag, InCustom, None
         }
         InteractionMode eInterMode;
 
@@ -534,54 +534,79 @@ namespace f3
 
         override public bool BeginCapture (InputEvent e)
 		{
+            eInterMode = InteractionMode.None;
+
             GameObjectRayHit hit;
             if (! FindGORayIntersection(e.ray, out hit) )
                 return false;       // this should not be possible...
             if ( custom_begin_capture(e, hit) ) {
                 eInterMode = InteractionMode.InCustom;
-            } else if ( handleGO.IsSameOrChild(hit.hitGO) ) {
+            } else {
+                standard_begin_capture(e, hit);
+            }
+
+            return (eInterMode != InteractionMode.None);
+		}
+        protected void standard_begin_capture(InputEvent e, GameObjectRayHit hit)
+        {
+            if (handleGO.IsSameOrChild(hit.hitGO)) {
                 onHandlePress(e, hit.hitPos);
                 eInterMode = InteractionMode.InHandleDrag;
                 vStartHitW = hit.hitPos;
                 vHandleStartW = handleGO.GetWorldFrame();
-            } else if ( backgroundGO.IsSameOrChild(hit.hitGO) ) {
+            } else if (backgroundGO.IsSameOrChild(hit.hitGO)) {
                 onSliderbarPress(e, hit.hitPos);
                 eInterMode = InteractionMode.InPressDrag;
                 vStartHitW = hit.hitPos;
                 vHandleStartW = handleGO.GetWorldFrame();
             }
-            return true;
-		}
+        }
 
 		override public bool UpdateCapture (InputEvent e)
 		{
             if ( eInterMode == InteractionMode.InCustom ) {
                 custom_update_capture(e);
+            } else {
+                standard_update_capture(e, eInterMode);
+            }
 
-            } else if ( eInterMode == InteractionMode.InPressDrag ) {
+            return true;
+		}
+        protected void standard_update_capture(InputEvent e, InteractionMode eMode)
+        {
+            if (eMode == InteractionMode.InPressDrag) {
                 Vector3f hitPos = vHandleStartW.RayPlaneIntersection(e.ray.Origin, e.ray.Direction, 1);
                 onSliderBarPressDrag(e, hitPos);
 
-            } else if ( eInterMode == InteractionMode.InHandleDrag ) {
+            } else if (eMode == InteractionMode.InHandleDrag) {
                 Vector3f hitPos = vHandleStartW.RayPlaneIntersection(e.ray.Origin, e.ray.Direction, 1);
                 Vector3f dv = hitPos - vStartHitW;
                 Vector3f vRelPos = vHandleStartW.Origin + dv;
                 onHandlePressDrag(e, vRelPos);
             }
-
-            return true;
-		}
+        }
 
 		override public bool EndCapture (InputEvent e)
 		{
             if ( eInterMode == InteractionMode.InCustom ) {
                 custom_end_capture(e);
 
-            } else if ( eInterMode == InteractionMode.InHandleDrag || eInterMode == InteractionMode.InPressDrag ) {
-                FUtil.SafeSendEvent(OnValueChangeEnd, this, snapped_value);
+            } else {
+                standard_end_capture(e, eInterMode);
             }
 			return true;
 		}
+        protected void standard_end_capture(InputEvent e, InteractionMode eMode)
+        {
+            if (eMode == InteractionMode.InHandleDrag || eMode == InteractionMode.InPressDrag) {
+                FUtil.SafeSendEvent(OnValueChangeEnd, this, snapped_value);
+            }
+        }
+
+
+        protected InteractionMode ActiveSliderInteraction {
+            get { return eInterMode; }
+        }
 
 		#endregion
 
