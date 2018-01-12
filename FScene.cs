@@ -278,7 +278,7 @@ namespace f3
         // add new SO to scene
         public void AddSceneObject(SceneObject so, bool bUseExistingWorldPos = false)
         {
-            DebugUtil.Log(1, "[Scene.AddSceneObject] adding {0}", so.Name);
+            DebugUtil.Log(4, "[Scene.AddSceneObject] adding {0}", so.Name);
 
             vObjects.Add(so);
             so.SetScene(this);
@@ -323,7 +323,7 @@ namespace f3
         // to internal Deleted set, so it can be recovered by undo.
         public void RemoveSceneObject(SceneObject so, bool bDestroy)
         {
-            DebugUtil.Log(1, "[Scene.AddSceneObject] removing {0} (destroy: {1})", so.Name, bDestroy);
+            DebugUtil.Log(4, "[Scene.AddSceneObject] removing {0} (destroy: {1})", so.Name, bDestroy);
 
             if (vSelected.Contains(so)) {
                 Deselect(so);
