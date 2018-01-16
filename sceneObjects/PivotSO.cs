@@ -69,6 +69,9 @@ namespace f3
             get { return shapeGO; }
         }
 
+        public DMesh3 GetPivotShapeMesh() {
+            return UnityUtil.UnityMeshToDMesh(shapeGO.GetSharedMesh(), false);
+        }
 
         override public void DisableShadows() {
             MaterialUtil.DisableShadows(shapeGO, true, true);

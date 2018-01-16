@@ -17,7 +17,7 @@ namespace f3
 
     public class ExportStatus
     {
-        public SceneMeshExporter Exporter;
+        public IExporter Exporter;
 
         // If IsComputing == true, then exporter is still working in background
         // threads. It will eventually go false and flags will be set.
@@ -33,7 +33,13 @@ namespace f3
     }
 
 
-    public class SceneMeshExporter
+    // [RMS] this is a dummy interface so that we can use ExportStatus with non-SceneMeshExporter objects
+    public interface IExporter
+    {
+    }
+
+
+    public class SceneMeshExporter : IExporter
     {
 
         public g3.IOCode LastWriteStatus { get; set; }
