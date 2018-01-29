@@ -139,8 +139,11 @@ namespace f3
 
         public virtual void SetAllGOMaterials(Material m) {
             foreach (var go in vObjects) {
-                if (go.GetComponent<IgnoreMaterialChanges>() == null)
-                    go.GetComponent<MeshRenderer>().material = m;
+                if (go.GetComponent<IgnoreMaterialChanges>() == null) {
+                    MeshRenderer ren = go.GetComponent<MeshRenderer>();
+                    if (ren != null)
+                        ren.material = m;
+                }
             }
 		}
 

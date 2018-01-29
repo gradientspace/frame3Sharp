@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using g3;
 
 namespace f3
@@ -241,7 +242,9 @@ namespace f3
 
 
 
-
+        /// <summary>
+        /// Load Sprite from path on-demand 
+        /// </summary>
         public class AutoSprite
         {
             string path;
@@ -258,6 +261,68 @@ namespace f3
                 }
             }
         }
+
+
+
+
+        /// <summary>
+        /// Utility class for tabbing between elements in a dialog. Add them in-order, then
+        /// use following code in Update()
+        /// 
+        /// if (Input.GetKeyDown(KeyCode.Tab)) {
+        ///     if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+        ///         tabber.Previous();
+        ///     else
+        ///         tabber.Next();
+        /// }
+        /// </summary>
+        public class DialogTabber
+        {
+            List<GameObject> tab_order = new List<GameObject>();
+
+            public void Add(GameObject go) {
+                tab_order.Add(go);
+            }
+
+            public void Next()
+            {
+                GameObject selectedObject = EventSystem.current.currentSelectedGameObject;
+                if (selectedObject != null) {
+                    for (int k = 0; k < tab_order.Count; k++) {
+                        if (tab_order[k] == selectedObject) {
+                            int next = (k + 1) % tab_order.Count;
+                            EventSystem.current.SetSelectedGameObject(tab_order[next]);
+                            return;
+                        }
+                    }
+                } else {
+                    EventSystem.current.SetSelectedGameObject(tab_order[0]);
+                    return;
+                }
+            }
+
+
+            public void Previous()
+            {
+                GameObject selectedObject = EventSystem.current.currentSelectedGameObject;
+                if (selectedObject != null) {
+                    for (int k = 0; k < tab_order.Count; k++) {
+                        if (tab_order[k] == selectedObject) {
+                            int prev = (k == 0) ? tab_order.Count - 1 : k - 1;
+                            EventSystem.current.SetSelectedGameObject(tab_order[prev]);
+                            return;
+                        }
+                    }
+                } else {
+                    EventSystem.current.SetSelectedGameObject(tab_order[tab_order.Count-1]);
+                    return;
+                }
+            }
+
+        }
+
+
+
 
     }
 }

@@ -285,7 +285,7 @@ namespace f3
         /// input ray is in Object (local) coords of so, apply all intermediate 
         /// transforms to get it to Scene coords
         /// </summary>
-        public static Ray3f ObjectToSceneP(SceneObject so, Ray3f ray)
+        public static Ray3f ObjectToScene(SceneObject so, Ray3f ray)
         {
             Frame3f f = new Frame3f(ray.Origin, ray.Direction);
             Frame3f fS = ObjectToScene(so, f);
