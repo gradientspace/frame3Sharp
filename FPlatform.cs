@@ -396,6 +396,43 @@ namespace f3
 
 
 
+
+
+
+        /*
+         * Preferences API wrapper
+         */
+
+        public static void DeletePrefsKey(string key) {
+            PlayerPrefs.DeleteKey(key);
+        }
+        public static bool HasPrefsKey(string key) {
+            return PlayerPrefs.HasKey(key);
+        }
+
+        public static float GetPrefsFloat(string key, float defaultValue) {
+            return PlayerPrefs.GetFloat(key, defaultValue);
+        }
+        public static int GetPrefsInt(string key, int defaultValue) {
+            return PlayerPrefs.GetInt(key, defaultValue);
+        }
+        public static string GetPrefsString(string key, string defaultValue) {
+            return PlayerPrefs.GetString(key, defaultValue);
+        }
+
+        public static void SetPrefsFloat(string key, float value) {
+            PlayerPrefs.SetFloat(key, value); PlayerPrefs.Save();
+        }
+        public static void SetPrefsInt(string key, int value) {
+            PlayerPrefs.SetInt(key, value); PlayerPrefs.Save();
+        }
+        public static void SetPrefsString(string key, string value) {
+            PlayerPrefs.SetString(key, value); PlayerPrefs.Save();
+        }
+
+
+
+
     }
 
 
