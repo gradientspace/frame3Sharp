@@ -432,12 +432,6 @@ namespace f3
 
 
 
-
-        public static Vector3 SwapLeftRight(Vector3 v) {
-            return new Vector3(-v.x, v.y, v.z);
-        }
-
-
         public static UnityEngine.Mesh SimpleMeshToUnityMesh(SimpleMesh m, bool bSwapLeftRight)
         {
             if (m.VertexCount > 65000 || m.TriangleCount > 65000) {

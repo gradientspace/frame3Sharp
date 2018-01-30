@@ -126,7 +126,7 @@ namespace f3
                     foreach (int vid in m.VertexIndices()) {
                         Vector3f v = (Vector3f)m.GetVertex(vid);
                         v = SceneTransforms.ObjectToSceneP(meshSO, v);
-                        v = UnityUtil.SwapLeftRight(v);
+                        v = MeshTransforms.FlipLeftRightCoordSystems(v);
                         m.SetVertex(vid, v);
                     }
                     m.ReverseOrientation();
@@ -228,13 +228,13 @@ namespace f3
                 v = filter.gameObject.transform.TransformPoint(v);
                 // world back to scene
                 v = scene.ToSceneP(v);
-                vi.v = UnityUtil.SwapLeftRight(v);
+                vi.v = MeshTransforms.FlipLeftRightCoordSystems(vi.v);
 
                 if (WriteNormals) {
                     Vector3 n = normals[i];
                     n = filter.gameObject.transform.TransformDirection(n);  // to world
                     n = scene.ToSceneN(n);  // to scene
-                    vi.n = UnityUtil.SwapLeftRight(n);
+                    vi.n = MeshTransforms.FlipLeftRightCoordSystems(vi.n);
                 }
                 if (WriteVertexColors)
                     vi.c = colors[i];
