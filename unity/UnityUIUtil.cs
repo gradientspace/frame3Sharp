@@ -6,6 +6,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+#if F3_ENABLE_TEXT_MESH_PRO
+using TMPro;
+#endif
+
 using g3;
 
 namespace f3
@@ -228,7 +232,26 @@ namespace f3
 
 #if F3_ENABLE_TEXT_MESH_PRO
 
-        public static void SetBackgroundColor(TMPro.TMP_InputField field, Color color) {
+
+        public static TMP_InputField FindTMPInputAndAddHandlers(GameObject parent, string inputName, UnityAction<string> editHandler)
+        {
+            var field = parent.FindChildByName(inputName, true).GetComponent<TMP_InputField>();
+            if (editHandler != null)
+                field.onEndEdit.AddListener(editHandler);
+            return field;
+        }
+
+        public static TMP_Dropdown FindTMPDropDownAndAddHandlers(GameObject parent, string inputName, UnityAction<int> valueChangeHandler)
+        {
+            var dropdown = parent.FindChildByName(inputName, true).GetComponent<TMP_Dropdown>();
+            if (valueChangeHandler != null)
+                dropdown.onValueChanged.AddListener(valueChangeHandler);
+            return dropdown;
+        }
+
+
+
+        public static void SetBackgroundColor(TMP_InputField field, Color color) {
             var newColorBlock = field.colors;
             newColorBlock.normalColor = color;
             newColorBlock.highlightedColor = color;
