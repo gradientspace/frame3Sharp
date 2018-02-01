@@ -77,6 +77,14 @@ namespace f3
         }
 
 
+        public static fDynamicTransparencyMaterial CreateDynamicTransparencyMaterialF(Colorf c)
+        {
+            Material m = SafeLoadMaterial(SceneGraphConfig.DefaultStandardMaterialPath);
+            m.color = c;
+            return new fDynamicTransparencyMaterial(m);
+        }
+
+
         public static Material CreateFlatMaterial(Colorf c, float alpha = 1.0f) {
             Material m = SafeLoadMaterial(SceneGraphConfig.DefaultUnlitTransparentMaterialPath);
             m.SetColor(MakeColor(c, c.a * alpha));
