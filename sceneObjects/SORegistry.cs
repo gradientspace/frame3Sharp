@@ -67,7 +67,7 @@ namespace f3
             new SOType("BoxSO", Type.GetType("f3.BoxSO"), SOType.TagPrimitive);
 
         static readonly public SOType Sphere = 
-            new SOType("SphereSO", Type.GetType("f3.BoxSO"), SOType.TagPrimitive);
+            new SOType("SphereSO", Type.GetType("f3.SphereSO"), SOType.TagPrimitive);
 
         static readonly public SOType Pivot =
             new SOType("PivotSO", Type.GetType("f3.PivotSO") );
