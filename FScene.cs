@@ -409,15 +409,17 @@ namespace f3
                     }
                     var list = new List<SceneObject>(vSelected);
                     vSelected.Clear();
-                    foreach (var so in list)
-                        DeselectedEvent?.Invoke(so);
+                    if (DeselectedEvent != null) {
+                        foreach (var so in list)
+                            DeselectedEvent(so);
+                    }
                 }
 
 				vSelected.Add(s);
                 if (DisableSelectionMaterial == false)
                     push_selection_material(s);
-
-                SelectedEvent?.Invoke(s);
+                if (SelectedEvent != null)
+                    SelectedEvent(s);
                 OnSelectionChanged(EventArgs.Empty);
 
 				return true;
@@ -437,7 +439,8 @@ namespace f3
             if ( DisableSelectionMaterial == false )
                 s.PopOverrideMaterial();        // assume we only pushed once!
 			vSelected.Remove(s);
-            DeselectedEvent?.Invoke(s);
+            if (DeselectedEvent != null)
+                DeselectedEvent(s);
 			OnSelectionChanged(EventArgs.Empty);
 		}
 
@@ -456,8 +459,10 @@ namespace f3
             }
             var list = vSelected;
 			vSelected = new List<SceneObject>();
-            foreach (var so in list)
-                DeselectedEvent?.Invoke(so);
+            if (DeselectedEvent != null) {
+                foreach (var so in list)
+                    DeselectedEvent(so);
+            }
 			OnSelectionChanged(EventArgs.Empty);
 		}
 
