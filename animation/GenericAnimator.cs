@@ -15,6 +15,8 @@ namespace f3
 
     public interface IAnimatable
     {
+        void Start();
+
         void Update();
 
         // if you return true, this animation is removed
@@ -34,6 +36,8 @@ namespace f3
             if (objects.Contains(a))
                 throw new Exception("GenericAnimator.Register: already contains object!!");
             objects.Add(a);
+
+            a.Start();
         }
 
 
@@ -94,8 +98,12 @@ namespace f3
             UpdateF = f;
         }
 
+        public virtual void Start()
+        {
+        }
 
-        public void Update()
+
+        public virtual void Update()
         {
             if (UpdateF())
                 deregister = true;
@@ -103,7 +111,7 @@ namespace f3
 
 
         // if you return true, this animation is removed
-        public bool DeregisterNextFrame {
+        public virtual bool DeregisterNextFrame {
             get { return deregister; }
         }
     }
