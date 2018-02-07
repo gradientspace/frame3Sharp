@@ -22,11 +22,14 @@ namespace f3 {
             t.TargetPoint = newTarget;
         }
 
-
-        // we attach this below
-        public static CameraManipulator Manipulator(this UnityEngine.Camera c)
+        public static Vector3f GetPosition(this UnityEngine.Camera c)
         {
-            return c.gameObject.GetComponent<CameraManipulator>();
+            return c.gameObject.transform.position;
+        }
+
+        public static Quaternionf GetOrientation(this UnityEngine.Camera c)
+        {
+            return c.gameObject.transform.rotation;
         }
     }
 

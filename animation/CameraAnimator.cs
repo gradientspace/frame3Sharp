@@ -70,6 +70,20 @@ namespace f3
         }
 
 
+        public void AnimateOrbitTo(float toAzimuth, float toAltitude, float duration = 0.25f)
+        {
+            StartCoroutine(
+                SmoothOrbitTo(toAzimuth, toAltitude, duration));
+        }
+
+
+        public void AnimateOrbitZoomFocusTo(float toAzimuth, float toAltitude, float toDistance, Vector3f toTargetS, float duration = 0.25f)
+        {
+            SmoothOrbitZoomFocusTo(toAzimuth, toAltitude, toDistance, toTargetS, duration);
+        }
+
+
+
 
         // set the view position and target location explicitly while also resetting the
         //  scene to be level (ie scene up is y axis), during a dip-to-black transition.
@@ -155,6 +169,45 @@ namespace f3
             mySequence.AppendInterval(duration / 2.0f);
             mySequence.Append(
                 ((Material)fadeObject.GetMaterial()).DOFade(0.0f, duration / 4.0f));
+        }
+
+
+
+        IEnumerator SmoothOrbitTo(float azimuth, float altitude, float duration)
+        {
+            yield return null;
+
+            var manip = UseCamera.Manipulator();
+            Vector2f target = new Vector2f(azimuth, altitude);
+
+            DOTween.To(() => { return new Vector2f(manip.TurntableAzimuthD, manip.TurntableAltitudeD); },
+                (v) => { manip.SceneOrbit(UseScene, UseCamera, v.x, v.y, true); },
+                target, duration);
+        }
+
+
+        void SmoothOrbitZoomFocusTo(float azimuth, float altitude, float distance, Vector3f targetS, float duration)
+        {
+            Vector3f startTargetS = UseScene.ToSceneP( UseCamera.GetTarget() );
+            float startAltitude = UseCamera.Manipulator().TurntableAltitudeD;
+            float startAzimuth = UseCamera.Manipulator().TurntableAzimuthD;
+
+            Action<float> tweenF = (t) => {
+                Vector3f newTargetS = Vector3f.Lerp(startTargetS, targetS, t);
+                Vector3f newTargetW = UseScene.ToWorldP(newTargetS);
+                UseCamera.Manipulator().ScenePanFocus(UseScene, UseCamera, newTargetW, false);
+
+                float alt = MathUtil.Lerp(startAltitude, altitude, t);
+                float az = MathUtil.Lerp(startAzimuth, azimuth, t);
+                UseCamera.Manipulator().SceneOrbit(UseScene, UseCamera, az, alt, true);
+
+                float curDist = UseCamera.GetPosition().Distance(UseCamera.GetTarget());
+                float toDist = MathUtil.SmoothInterp(curDist, distance, t);
+                float dolly = toDist - curDist;
+                UseCamera.Manipulator().SceneZoom(UseScene, UseCamera, -dolly);
+            };
+            TweenAnimator anim = new TweenAnimator(tweenF, duration);
+            UseScene.ObjectAnimator.Register(anim);
         }
 
 
