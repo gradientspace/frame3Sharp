@@ -147,11 +147,11 @@ namespace f3
         }
 
 
-        virtual public AxisAlignedBox3f GetTransformedBoundingBox() {
-            return UnityUtil.GetBoundingBox(RootGameObject);
+        virtual public Box3f GetBoundingBox(CoordSpace eSpace) {
+            return (target != null) ? target.GetBoundingBox(eSpace) : Box3f.Empty;
         }
         virtual public AxisAlignedBox3f GetLocalBoundingBox() {
-            return (target != null) ? target.GetLocalBoundingBox() : AxisAlignedBox3f.Zero;
+            return (target != null) ? target.GetLocalBoundingBox() : AxisAlignedBox3f.Empty;
         }
 
         public bool FindRayIntersection(Ray3f ray, out SORayHit hit)

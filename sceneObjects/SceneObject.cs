@@ -95,7 +95,7 @@ namespace f3
 
 		bool FindRayIntersection(Ray3f ray, out SORayHit hit);
 
-        AxisAlignedBox3f GetTransformedBoundingBox();
+        Box3f GetBoundingBox(CoordSpace eSpace);
         AxisAlignedBox3f GetLocalBoundingBox();
 
         event TransformChangedEventHandler OnTransformModified;

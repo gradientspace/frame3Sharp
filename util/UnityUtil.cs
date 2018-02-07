@@ -185,16 +185,13 @@ namespace f3
 
 
 
-        public static readonly AxisAlignedBox3f InvalidBounds = AxisAlignedBox3f.Infinite;
-                //new Bounds(Vector3.zero, new Vector3(-1.31337f, -1.31337f, -1.31337f));
-
         public static AxisAlignedBox3f GetBoundingBox(GameObject go)
         {
             Renderer r = go.GetComponent<Renderer>();
             if (r != null) {
                 return r.bounds;
             } else if ( go.HasChildren() ) {
-                AxisAlignedBox3f b = InvalidBounds; int i = 0;
+                AxisAlignedBox3f b = AxisAlignedBox3f.Empty; int i = 0;
                 foreach (GameObject child_go in go.Children()) {
                     if (i++ == 0)
                         b = GetBoundingBox(child_go);
@@ -208,9 +205,10 @@ namespace f3
         }
 
 
+
         public static AxisAlignedBox3f GetBoundingBox(List<fGameObject> objects) {
             if (objects.Count == 0)
-                return InvalidBounds;
+                return AxisAlignedBox3f.Empty;
             AxisAlignedBox3f b = GetBoundingBox(objects[0]);
             for (int i = 1; i < objects.Count; ++i)
                 b.Contain(GetBoundingBox(objects[i]));
@@ -223,38 +221,35 @@ namespace f3
         }
 
 
-        // will return InvalidBounds if GO doesn't have a mesh
-        public static AxisAlignedBox3f GetGeometryBoundingBox(GameObject obj) {
-            MeshFilter f = obj.GetComponent<MeshFilter>();
-            return (f != null) ? (AxisAlignedBox3f)f.mesh.bounds : InvalidBounds;
-        }
+        /// <summary>
+        /// Get MeshFilter bounding box of GO. If bIncludeChildren = true, descend
+        /// into children and return union of boxes
+        /// </summary>
+        public static AxisAlignedBox3f GetGeometryBoundingBox(GameObject go, bool bIncludeChildren = false) {
+            MeshFilter f = go.GetComponent<MeshFilter>();
+            AxisAlignedBox3f b = (f != null) ? (AxisAlignedBox3f)f.mesh.bounds : AxisAlignedBox3f.Empty;
 
-        // will return InvalidBounds if any element in list doesn't have a mesh
-        public static AxisAlignedBox3f GetGeometryBoundingBox(List<GameObject> objects)
-        {
-            if (objects.Count == 0)
-                return InvalidBounds;
-            AxisAlignedBox3f b = GetGeometryBoundingBox(objects[0]);
-            foreach ( GameObject go in objects ) 
-                b.Contain(GetGeometryBoundingBox(go));
+            if ( bIncludeChildren && go.HasChildren() ) {
+                foreach (GameObject child_go in go.Children()) {
+                    AxisAlignedBox3f child_b = GetGeometryBoundingBox(child_go, true);
+                    b.Contain(child_b);
+                }
+            }
+
             return b;
         }
 
-
-
-        // knows about our magic invalid value
-        public static AxisAlignedBox3f Combine(AxisAlignedBox3f b1, AxisAlignedBox3f b2)
+        
+        /// <summary>
+        /// get combined MeshFilter bounding box of objects
+        /// </summary>
+        public static AxisAlignedBox3f GetGeometryBoundingBox(List<fGameObject> objects, bool bIncludeChildren = false)
         {
-            if (b1 == InvalidBounds)
-                return b2;
-            else if (b2 == InvalidBounds)
-                return b1;
-            AxisAlignedBox3f r = b1;
-            r.Contain(b2);
-            return r;
+            AxisAlignedBox3f b = AxisAlignedBox3f.Empty;
+            foreach ( fGameObject go in objects ) 
+                b.Contain( GetGeometryBoundingBox(go, bIncludeChildren) );
+            return b;
         }
-
-
 
 
 

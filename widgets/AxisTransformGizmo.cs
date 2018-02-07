@@ -291,7 +291,7 @@ namespace f3
                 ScaleMultiplierF = () => { return 1.0f / parentScene.GetSceneScale(); }
             };
 
-            gizmoGeomBounds = UnityUtil.GetGeometryBoundingBox( new List<GameObject>()
+            gizmoGeomBounds = UnityUtil.GetGeometryBoundingBox( new List<fGameObject>()
                 { translate_x,translate_y,translate_z,rotate_x,rotate_y,rotate_z,translate_xy,translate_xz,translate_yz,uniform_scale} );
 
             // disable shadows on widget components

@@ -280,9 +280,20 @@ namespace f3
         }
 
 
-        virtual public AxisAlignedBox3f GetTransformedBoundingBox() {
-            return UnityUtil.GetBoundingBox(RootGameObject);
+
+        virtual public Box3f GetBoundingBox(CoordSpace eSpace)
+        {
+            Box3f box = new Box3f(GetLocalBoundingBox());
+            if (eSpace == CoordSpace.ObjectCoords) {
+                return box;
+            } else if (eSpace == CoordSpace.SceneCoords) {
+                return SceneTransforms.ObjectToScene(this, box);
+            } else {
+                box = SceneTransforms.ObjectToScene(this, box);
+                return GetScene().ToWorldBox(box);
+            }
         }
+
         virtual public AxisAlignedBox3f GetLocalBoundingBox() {
             return SceneUtil.GetLocalBoundingBox(vChildren);
 

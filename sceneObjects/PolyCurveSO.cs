@@ -204,11 +204,6 @@ namespace f3
         }
 
 
-
-        override public AxisAlignedBox3f GetTransformedBoundingBox()
-        {
-            throw new NotImplementedException("PolyCurveSO.GetTransformedBoundingBox");
-        }
         override public AxisAlignedBox3f GetLocalBoundingBox()
         {
             return new AxisAlignedBox3f((Vector3f)localBounds.Min, (Vector3f)localBounds.Max);

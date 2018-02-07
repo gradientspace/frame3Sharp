@@ -222,19 +222,34 @@ namespace f3
 
 
 
-        public AxisAlignedBox3f GetBoundingBox(bool bIncludeBoundsObjects)
+        /// <summary>
+        /// Compute AABB of scene in given space. Note that this will *not* be the same box
+        /// in world space as in scene space.
+        /// </summary>
+        public AxisAlignedBox3f GetBoundingBox(CoordSpace eSpace, bool bIncludeBoundsObjects)
         {
-            AxisAlignedBox3f b = UnityUtil.InvalidBounds;
+            if (eSpace == CoordSpace.ObjectCoords)
+                eSpace = CoordSpace.SceneCoords;
+
+            AxisAlignedBox3f b = AxisAlignedBox3f.Empty;
 
             foreach (SceneObject so in SceneObjects) {
-                b.Contain(so.GetTransformedBoundingBox());
+                Box3f sobox = so.GetBoundingBox(eSpace);
+                foreach (Vector3d v in sobox.VerticesItr())
+                    b.Contain(v);
             }
-            if (b == UnityUtil.InvalidBounds || bIncludeBoundsObjects)
-                UnityUtil.Combine(b, UnityUtil.GetBoundingBox(BoundsObjects));
-            if (b == UnityUtil.InvalidBounds) {
-                b.Contain(Vector3f.Zero);
-                b.Expand(1.0f);
+            if (bIncludeBoundsObjects) {
+                AxisAlignedBox3f sceneBounds =
+                    UnityUtil.GetGeometryBoundingBox(BoundsObjects, true);
+                if ( eSpace == CoordSpace.WorldCoords ) {
+                    for (int k = 0; k < 8; ++k)
+                        b.Contain(ToWorldP(sceneBounds.Corner(k)));
+                } else {
+                    b.Contain(sceneBounds);
+                }
             }
+            if ( b.Volume == 0 ) 
+                b = new AxisAlignedBox3f(1.0f);
             return b;
         }
 
@@ -725,7 +740,12 @@ namespace f3
             return SceneFrame.ToFrame(fWorldFrame).Scaled(1.0f / GetSceneScale());
         }
 
-
+        public Box3f ToWorldBox(Box3f box)
+        {
+            Frame3f f = new Frame3f(box.Center, box.AxisX, box.AxisY, box.AxisZ);
+            Frame3f fS = ToWorldFrame(f);
+            return new Box3f(fS.Origin, fS.X, fS.Y, fS.Z, GetSceneScale() * box.Extent);
+        }
 
 
 
