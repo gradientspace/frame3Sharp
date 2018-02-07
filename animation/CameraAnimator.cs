@@ -14,6 +14,8 @@ namespace f3
         public fCamera UseCamera { get; set; }
         public FScene UseScene { get; set; }
 
+        public bool ShowTargetDuringAnimations = true;
+
         public Vector3f CameraTarget
         {
             get { return UseCamera.GetTarget();  }
@@ -37,20 +39,105 @@ namespace f3
             fadeObject.SetLayer(FPlatform.HUDLayer);
         }
 
-        public void PanFocus(Vector3f v)
+        
+        // should not use this anymore...
+        public void PanFocus(Vector3f focusPoint, CoordSpace eSpace = CoordSpace.WorldCoords, float duration = 0.5f)
         {
+            Vector3f focusPointW = (eSpace == CoordSpace.WorldCoords) ? focusPoint : UseScene.ToWorldP(focusPoint);
+
             // figure out the pan that we would apply to camera, then apply the delta to the scene
             Vector3f curPos = UseCamera.GetPosition();
             Vector3f curDir = UseCamera.GetWorldFrame().Z;
-            float fDist = Vector3.Dot((v - curPos), curDir);
-            Vector3f newPos = v - fDist * curDir;
+            float fDist = Vector3.Dot((focusPointW - curPos), curDir);
+            Vector3f newPos = focusPointW - fDist * curDir;
             Vector3f delta = curPos - newPos;
 
             StartCoroutine(
-                SmoothTranslate(UseScene.RootGameObject.GetPosition() + delta, 0.5f));
+                SmoothTranslate(UseScene.RootGameObject.GetPosition() + delta, duration));
             StartCoroutine(
-                SmoothMoveTarget(v+delta, 0.1f));
+                SmoothMoveTarget(focusPointW + delta, duration / 10.0f));
         }
+
+
+
+        /// <summary>
+        /// Animate camera so that focusPoint moves to center of camera
+        /// Camera target is also set to focusPoint
+        /// </summary>
+        public void AnimatePanFocus(Vector3f focusPoint, CoordSpace eSpace, float duration)
+        {
+            if (ShowTargetDuringAnimations)
+                UseCamera.SetTargetVisible(true);
+
+            Vector3f focusPointS = (eSpace == CoordSpace.WorldCoords) ? UseScene.ToSceneP(focusPoint) : focusPoint;
+            Vector3f startFocusS = UseScene.ToSceneP(UseCamera.GetTarget());
+            Action<float> tweenF = (t) => {
+                Vector3f newTargetS = Vector3f.Lerp(startFocusS, focusPointS, t);
+                UseCamera.Manipulator().PanFocusOnScenePoint(UseScene, UseCamera, newTargetS);
+            };
+            TweenAnimator anim = new TweenAnimator(tweenF, duration) {
+                OnCompletedF = () => { UseCamera.SetTargetVisible(false); }
+            };
+            UseScene.ObjectAnimator.Register(anim);
+        }
+
+
+
+        /// <summary>
+        /// Animate camera so that focusPoint moves to center of camera, at distance distanceW along cam.Forward
+        /// Camera target is also set to focusPoint
+        /// </summary>
+        public void AnimatePanZoomFocus(Vector3f focusPoint, CoordSpace eSpace, float distanceW, float duration)
+        {
+            if (ShowTargetDuringAnimations)
+                UseCamera.SetTargetVisible(true);
+
+            Vector3f focusPointS = (eSpace == CoordSpace.WorldCoords) ? UseScene.ToSceneP(focusPoint) : focusPoint;
+            Vector3f startFocusS = UseScene.ToSceneP(UseCamera.GetTarget());
+
+            Action<float> tweenF = (t) => {
+                Vector3f newTargetS = Vector3f.Lerp(startFocusS, focusPointS, t);
+                UseCamera.Manipulator().PanFocusOnScenePoint(UseScene, UseCamera, newTargetS);
+
+                float curDist = UseCamera.GetPosition().Distance(UseCamera.GetTarget());
+                float toDist = MathUtil.SmoothInterp(curDist, distanceW, t);
+                float dolly = toDist - curDist;
+                UseCamera.Manipulator().SceneZoom(UseScene, UseCamera, -dolly);
+            };
+            TweenAnimator anim = new TweenAnimator(tweenF, duration) {
+                OnCompletedF = () => { UseCamera.SetTargetVisible(false); }
+            };
+            UseScene.ObjectAnimator.Register(anim);
+        }
+
+
+        /// <summary>
+        /// Animate camera so that centerPt moves to center of camera, and width is visible.
+        /// Camera target is also set to centerPt
+        /// </summary>
+        public void AnimateFitWidthToView(Vector3f centerPt, float width, CoordSpace eSpace, float duration)
+        {
+            if (eSpace != CoordSpace.WorldCoords)
+                width = UseScene.ToWorldDimension(width);
+            float fFitDistW = UseCamera.Manipulator().GetFitWidthCameraDistance(width);
+            Vector3f focusPointW = (eSpace == CoordSpace.WorldCoords) ? centerPt : UseScene.ToWorldP(centerPt);
+            AnimatePanZoomFocus(focusPointW, CoordSpace.WorldCoords, fFitDistW, duration);
+        }
+
+
+        /// <summary>
+        /// Animate camera so that centerPt moves to center of camera, and height is visible.
+        /// Camera target is also set to centerPt
+        /// </summary>
+        public void AnimateFitHeightToView(Vector3f centerPt, float height, CoordSpace eSpace, float duration)
+        {
+            if (eSpace != CoordSpace.WorldCoords)
+                height = UseScene.ToWorldDimension(height);
+            float fFitDistW = UseCamera.Manipulator().GetFitHeightCameraDistance(height);
+            Vector3f focusPointW = (eSpace == CoordSpace.WorldCoords) ? centerPt : UseScene.ToWorldP(centerPt);
+            AnimatePanZoomFocus(focusPointW, CoordSpace.WorldCoords, fFitDistW, duration);
+        }
+
 
 
         // set view position and target location explicitly, during a dip-to-black transition
@@ -77,9 +164,32 @@ namespace f3
         }
 
 
+        /// <summary>
+        /// Turntable-rotate to set azimuth/altitude, while also re-centering camera on target at given distance.
+        /// </summary>
         public void AnimateOrbitZoomFocusTo(float toAzimuth, float toAltitude, float toDistance, Vector3f toTargetS, float duration = 0.25f)
         {
-            SmoothOrbitZoomFocusTo(toAzimuth, toAltitude, toDistance, toTargetS, duration);
+            Vector3f startTargetS = UseScene.ToSceneP(UseCamera.GetTarget());
+            float startAltitude = UseCamera.Manipulator().TurntableAltitudeD;
+            float startAzimuth = UseCamera.Manipulator().TurntableAzimuthD;
+
+            Action<float> tweenF = (t) => {
+                Vector3f newTargetS = Vector3f.Lerp(startTargetS, toTargetS, t);
+                //Vector3f newTargetW = UseScene.ToWorldP(newTargetS);
+                //UseCamera.Manipulator().ScenePanFocus(UseScene, UseCamera, newTargetW, false);
+                UseCamera.Manipulator().PanFocusOnScenePoint(UseScene, UseCamera, newTargetS);
+
+                float alt = MathUtil.Lerp(startAltitude, toAltitude, t);
+                float az = MathUtil.Lerp(startAzimuth, toAzimuth, t);
+                UseCamera.Manipulator().SceneOrbit(UseScene, UseCamera, az, alt, true);
+
+                float curDist = UseCamera.GetPosition().Distance(UseCamera.GetTarget());
+                float toDist = MathUtil.SmoothInterp(curDist, toDistance, t);
+                float dolly = toDist - curDist;
+                UseCamera.Manipulator().SceneZoom(UseScene, UseCamera, -dolly);
+            };
+            TweenAnimator anim = new TweenAnimator(tweenF, duration);
+            UseScene.ObjectAnimator.Register(anim);
         }
 
 
@@ -184,32 +294,6 @@ namespace f3
                 (v) => { manip.SceneOrbit(UseScene, UseCamera, v.x, v.y, true); },
                 target, duration);
         }
-
-
-        void SmoothOrbitZoomFocusTo(float azimuth, float altitude, float distance, Vector3f targetS, float duration)
-        {
-            Vector3f startTargetS = UseScene.ToSceneP( UseCamera.GetTarget() );
-            float startAltitude = UseCamera.Manipulator().TurntableAltitudeD;
-            float startAzimuth = UseCamera.Manipulator().TurntableAzimuthD;
-
-            Action<float> tweenF = (t) => {
-                Vector3f newTargetS = Vector3f.Lerp(startTargetS, targetS, t);
-                Vector3f newTargetW = UseScene.ToWorldP(newTargetS);
-                UseCamera.Manipulator().ScenePanFocus(UseScene, UseCamera, newTargetW, false);
-
-                float alt = MathUtil.Lerp(startAltitude, altitude, t);
-                float az = MathUtil.Lerp(startAzimuth, azimuth, t);
-                UseCamera.Manipulator().SceneOrbit(UseScene, UseCamera, az, alt, true);
-
-                float curDist = UseCamera.GetPosition().Distance(UseCamera.GetTarget());
-                float toDist = MathUtil.SmoothInterp(curDist, distance, t);
-                float dolly = toDist - curDist;
-                UseCamera.Manipulator().SceneZoom(UseScene, UseCamera, -dolly);
-            };
-            TweenAnimator anim = new TweenAnimator(tweenF, duration);
-            UseScene.ObjectAnimator.Register(anim);
-        }
-
 
 
 

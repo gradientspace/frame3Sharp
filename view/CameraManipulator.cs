@@ -204,24 +204,47 @@ namespace f3
         }
 
 
-        public void ScenePanFocus(FScene scene, fCamera camera, Vector3f focusPoint, bool bAnimated)
+        [System.Obsolete("This function does not make sense. Use PanFocusOnScenePoint or Animator().AnimatePanFocus instead")]
+        public void ScenePanFocus(FScene scene, fCamera camera, Vector3f focusPointW, bool bAnimated)
         {
             CameraAnimator animator = camera.Animator();
             if (bAnimated == false || animator == null) {
                 // figure out the pan that we would apply to camera, then apply the delta to the scene
-                Vector3f curPos = camera.GetPosition();
-                Vector3f curDir = camera.GetWorldFrame().Z;
-                float fDist = Vector3.Dot((focusPoint - curPos), curDir);
-                Vector3f newPos = focusPoint - fDist * curDir;
-                Vector3f delta = curPos - newPos;
+                Vector3f camPosW = camera.GetPosition();
+                Vector3f camForward = camera.Forward();
+                float fDist = Vector3.Dot((focusPointW - camPosW), camForward);
+                Vector3f newCamPosW = focusPointW - fDist * camForward;
+                Vector3f delta = camPosW - newCamPosW;
 
                 scene.RootGameObject.Translate(delta, false);
-                camera.SetTarget(focusPoint+delta);
+                camera.SetTarget(focusPointW+delta);
                            
             } else
-                animator.PanFocus(focusPoint);
+                animator.PanFocus(focusPointW);
         }
 
+
+
+        /// <summary>
+        /// translates scene so that focusPointS lies on camera forward axis. Also updates
+        /// camera.Target to be at this point.
+        /// </summary>
+        public void PanFocusOnScenePoint(FScene scene, fCamera camera, Vector3f focusPointS)
+        {
+            Vector3f focusPointW = scene.ToWorldP(focusPointS);
+
+            // figure out the pan that we would apply to camera, then apply the delta to the scene
+            Vector3f camPosW = camera.GetPosition();
+            Vector3f camForward = camera.Forward();
+            float fDist = Vector3.Dot((focusPointW - camPosW), camForward);
+            if (fDist == 0)
+                fDist = 2.0f * ((Camera)camera).nearClipPlane;
+            Vector3f newCamPosW = focusPointW - fDist * camForward;
+            Vector3f delta = camPosW - newCamPosW;
+
+            scene.RootGameObject.Translate(delta, false);
+            camera.SetTarget(focusPointW + delta);
+        }
 
 
 
@@ -376,13 +399,25 @@ namespace f3
         }
 
 
-        public float FitToViewWidth(float fFitWidth)
+        /// <summary>
+        /// returns distance from camera such that a horizontal line of length fFitWidth
+        /// the origin will *just* be fully visible.
+        /// </summary>
+        public float GetFitWidthCameraDistance(float fFitWidth)
         {
             double tan_half_hfov = Math.Tan(Camera.HorzFieldOfViewDeg * 0.5 * MathUtil.Deg2Rad);
-            return fFitWidth / (float)tan_half_hfov;
+            return (fFitWidth*0.5f) / (float)tan_half_hfov;
         }
 
-
+        /// <summary>
+        /// returns distance from camera such that a verticfal line of length fFitHeight
+        /// the origin will *just* be fully visible.
+        /// </summary>
+        public float GetFitHeightCameraDistance(float fFitHeight)
+        {
+            double tan_half_vfov = Math.Tan(Camera.VertFieldOfViewDeg * 0.5 * MathUtil.Deg2Rad);
+            return (fFitHeight*0.5f) / (float)tan_half_vfov;
+        }
 
 
     }

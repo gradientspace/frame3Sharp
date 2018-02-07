@@ -21,6 +21,9 @@ namespace f3
         public Action<float> tweenF = (t) => { };
 
 
+        public Action OnCompletedF = null;
+
+
         public TweenAnimator() { }
         public TweenAnimator(Action<float> tweenF, float duration)
         {
@@ -48,6 +51,9 @@ namespace f3
             }
 
             tweenF(dt / Duration);
+
+            if (deregister && OnCompletedF != null)
+                OnCompletedF();
         }
 
 
