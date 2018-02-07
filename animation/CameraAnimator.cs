@@ -66,7 +66,7 @@ namespace f3
         /// </summary>
         public void AnimatePanFocus(Vector3f focusPoint, CoordSpace eSpace, float duration)
         {
-            if (ShowTargetDuringAnimations)
+            if (duration > 0 && ShowTargetDuringAnimations)
                 UseCamera.SetTargetVisible(true);
 
             Vector3f focusPointS = (eSpace == CoordSpace.WorldCoords) ? UseScene.ToSceneP(focusPoint) : focusPoint;
@@ -75,10 +75,14 @@ namespace f3
                 Vector3f newTargetS = Vector3f.Lerp(startFocusS, focusPointS, t);
                 UseCamera.Manipulator().PanFocusOnScenePoint(UseScene, UseCamera, newTargetS);
             };
-            TweenAnimator anim = new TweenAnimator(tweenF, duration) {
-                OnCompletedF = () => { UseCamera.SetTargetVisible(false); }
-            };
-            UseScene.ObjectAnimator.Register(anim);
+
+            if (duration > 0) {
+                TweenAnimator anim = new TweenAnimator(tweenF, duration) {
+                    OnCompletedF = () => { UseCamera.SetTargetVisible(false); }
+                };
+                UseScene.ObjectAnimator.Register(anim);
+            } else
+                tweenF(1.0f);
         }
 
 
@@ -89,7 +93,7 @@ namespace f3
         /// </summary>
         public void AnimatePanZoomFocus(Vector3f focusPoint, CoordSpace eSpace, float distanceW, float duration)
         {
-            if (ShowTargetDuringAnimations)
+            if (duration > 0 && ShowTargetDuringAnimations)
                 UseCamera.SetTargetVisible(true);
 
             Vector3f focusPointS = (eSpace == CoordSpace.WorldCoords) ? UseScene.ToSceneP(focusPoint) : focusPoint;
@@ -104,10 +108,14 @@ namespace f3
                 float dolly = toDist - curDist;
                 UseCamera.Manipulator().SceneZoom(UseScene, UseCamera, -dolly);
             };
-            TweenAnimator anim = new TweenAnimator(tweenF, duration) {
-                OnCompletedF = () => { UseCamera.SetTargetVisible(false); }
-            };
-            UseScene.ObjectAnimator.Register(anim);
+
+            if (duration > 0) {
+                TweenAnimator anim = new TweenAnimator(tweenF, duration) {
+                    OnCompletedF = () => { UseCamera.SetTargetVisible(false); }
+                };
+                UseScene.ObjectAnimator.Register(anim);
+            } else
+                tweenF(1.0f);
         }
 
 
@@ -169,6 +177,9 @@ namespace f3
         /// </summary>
         public void AnimateOrbitZoomFocusTo(float toAzimuth, float toAltitude, float toDistance, Vector3f toTargetS, float duration = 0.25f)
         {
+            if (duration > 0 && ShowTargetDuringAnimations)
+                UseCamera.SetTargetVisible(true);
+
             Vector3f startTargetS = UseScene.ToSceneP(UseCamera.GetTarget());
             float startAltitude = UseCamera.Manipulator().TurntableAltitudeD;
             float startAzimuth = UseCamera.Manipulator().TurntableAzimuthD;
@@ -188,8 +199,14 @@ namespace f3
                 float dolly = toDist - curDist;
                 UseCamera.Manipulator().SceneZoom(UseScene, UseCamera, -dolly);
             };
-            TweenAnimator anim = new TweenAnimator(tweenF, duration);
-            UseScene.ObjectAnimator.Register(anim);
+
+            if (duration > 0) {
+                TweenAnimator anim = new TweenAnimator(tweenF, duration) {
+                    OnCompletedF = () => { UseCamera.SetTargetVisible(false); }
+                };
+                UseScene.ObjectAnimator.Register(anim);
+            } else
+                tweenF(1.0f);
         }
 
 

@@ -124,9 +124,9 @@ namespace f3
         }
 
 
-        public static Bounds GetLocalBoundingBox(IEnumerable<SceneObject> vObjects) {
+        public static AxisAlignedBox3f GetLocalBoundingBox(IEnumerable<SceneObject> vObjects) {
             int i = 0;
-            AxisAlignedBox3f b = AxisAlignedBox3f.Infinite;
+            AxisAlignedBox3f b = AxisAlignedBox3f.Empty;
             foreach ( SceneObject so in vObjects ) {
                 if (i == 0)
                     b = so.GetLocalBoundingBox();

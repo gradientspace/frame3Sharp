@@ -225,6 +225,7 @@ namespace f3
         /// <summary>
         /// Compute AABB of scene in given space. Note that this will *not* be the same box
         /// in world space as in scene space.
+        /// This computation ignores SOs with zero volume.
         /// </summary>
         public AxisAlignedBox3f GetBoundingBox(CoordSpace eSpace, bool bIncludeBoundsObjects)
         {
@@ -235,17 +236,21 @@ namespace f3
 
             foreach (SceneObject so in SceneObjects) {
                 Box3f sobox = so.GetBoundingBox(eSpace);
-                foreach (Vector3d v in sobox.VerticesItr())
-                    b.Contain(v);
+                if (sobox.Volume > 0) {
+                    foreach (Vector3d v in sobox.VerticesItr())
+                        b.Contain(v);
+                }
             }
             if (bIncludeBoundsObjects) {
                 AxisAlignedBox3f sceneBounds =
                     UnityUtil.GetGeometryBoundingBox(BoundsObjects, true);
-                if ( eSpace == CoordSpace.WorldCoords ) {
-                    for (int k = 0; k < 8; ++k)
-                        b.Contain(ToWorldP(sceneBounds.Corner(k)));
-                } else {
-                    b.Contain(sceneBounds);
+                if (sceneBounds.Volume > 0) {
+                    if (eSpace == CoordSpace.WorldCoords) {
+                        for (int k = 0; k < 8; ++k)
+                            b.Contain(ToWorldP(sceneBounds.Corner(k)));
+                    } else {
+                        b.Contain(sceneBounds);
+                    }
                 }
             }
             if ( b.Volume == 0 ) 
