@@ -103,7 +103,6 @@ namespace f3
 
             sceneRoot = GameObjectFactory.CreateParentGO("Scene");
             // for animation playbacks
-            sceneRoot.AddComponent<SceneAnimator>().Scene = this;
             sceneRoot.AddComponent<UnityPerFrameAnimationBehavior>().Animator = ObjectAnimator;
 
             transient_objects = GameObjectFactory.CreateParentGO("transient");
@@ -187,11 +186,6 @@ namespace f3
                 FUtil.SafeSendAnyEvent(TimeChangedEvent, this, null);
             }
         }
-
-        public SceneAnimator AnimationController {
-            get { return sceneRoot.GetComponent<SceneAnimator>(); }
-        }
-
 
         public event TimeChangedHandler TimeChangedEvent;
         public event SceneSelectionChangedHandler SelectionChangedEvent;
