@@ -140,7 +140,7 @@ namespace f3
             if ( activeTool[nSide] != null ) 
                 DeactivateTool(eSide);
                 
-
+            // try to build tool for current selection
             List<SceneObject> selected = new List<SceneObject>(SceneManager.Scene.Selected);
             if (selected.Count > 1) {
                 if (activeBuilder[nSide].IsSupported(ToolTargetType.MultipleObject, selected))
@@ -150,9 +150,11 @@ namespace f3
                     activeTool[nSide] = activeBuilder[nSide].Build(SceneManager.Scene, selected);
             }
 
+            // if we did not get an active tool in above block, try starting Scene-level tool
             if ( activeTool[nSide] == null ) {
-                if ( activeBuilder[nSide].IsSupported(ToolTargetType.Scene, null) )
-                    activeTool[nSide] = activeBuilder[nSide].Build(SceneManager.Scene, null);
+                List<SceneObject> empty_list = new List<SceneObject>();
+                if ( activeBuilder[nSide].IsSupported(ToolTargetType.Scene, empty_list) )
+                    activeTool[nSide] = activeBuilder[nSide].Build(SceneManager.Scene, empty_list);
             }
 
             if (activeTool[nSide] != null) {
