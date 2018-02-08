@@ -1004,6 +1004,19 @@ namespace f3 {
 
 
 
+
+        /*
+         * per-frame actions. This is mainly intended for single-shot actions, like
+         * you need X to happen next frame. There is also every-frame actions, but
+         * they cannot currently be removed, so be careful. 
+         * 
+         * In the 'next frame', these functions run before input handling or PreRender().
+         * 
+         * Register functions below are all thread-safe. You can also safely
+         * add a next-frame-action from inside one, it still won't run until the next frame,
+         * or affect the actions being run on current frame.
+         */
+
         /// <summary>
         /// Add an Action that will be run once, in the next frame, and then discarded
         /// </summary>
@@ -1022,8 +1035,27 @@ namespace f3 {
             }
         }
 
+        /// <summary>
+        /// Add an Action that will be run in N frames. Particularly useful for the case
+        /// where you want to do something but you have to wait until after the next-frame's
+        /// update loop (ie N = 2)
+        /// </summary>
+        public void RegisterNthFrameAction(int nFrames, Action F) {
+            Action actionF = null;
+            actionF = () => {
+                if (--nFrames == 0)
+                    F();
+                else
+                    this.RegisterNextFrameAction(actionF);
+            };
+            RegisterNextFrameAction(actionF);
+        }
 
 
+        /// <summary>
+        /// Add an action that will be run every frame, until forever.
+        /// Currently no way to remove. 
+        /// </summary>
         public void RegisterEveryFrameAction(Action F) {
             lock (everyFrameActions) {
                 everyFrameActions.RegisterAction(F);
@@ -1033,7 +1065,14 @@ namespace f3 {
 
 
 
-        public bool RequestTextEntry(ITextEntryTarget target)
+
+        /*
+         * Only one thing can control the keyboard at a time. Currently managing
+         * this here. Maybe not the right place?
+         */
+
+
+       public bool RequestTextEntry(ITextEntryTarget target)
        {
             if ( activeTextTarget != null ) {
                 activeTextTarget.OnEndTextEntry();
