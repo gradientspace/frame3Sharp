@@ -239,7 +239,11 @@ namespace f3
         /// active BaseSceneConfig
         /// </summary>
         static public CoroutineExecutor CoroutineExec {
-            get { return coroutine_exec; }
+            get {
+                if (coroutine_exec == null)
+                    throw new Exception("FPlatform.CoroutineExec is null! Probably need to call BaseSceneConfig.Awake().");
+                return coroutine_exec;
+            }
             set { coroutine_exec = value; }
         }
         static CoroutineExecutor coroutine_exec;
