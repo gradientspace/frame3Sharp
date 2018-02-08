@@ -10,9 +10,14 @@ namespace f3
         public FScene scene;
         public SceneObject so;
 
+        public Action<SceneObject> OnAddedF = null;
+        public Action<SceneObject> OnRemovedF = null;
+
         public override string Identifier() { return "DeleteSOChange"; }
 
         public override OpStatus Apply() {
+            if (OnRemovedF != null)
+                OnRemovedF(so);
             // false here means we keep this GO around
             scene.RemoveSceneObject(so, false);
             return OpStatus.Success;        
@@ -20,6 +25,8 @@ namespace f3
 
         public override OpStatus Revert() {
             scene.RestoreDeletedSceneObject(so);
+            if (OnAddedF != null)
+                OnAddedF(so);
             return OpStatus.Success;
         }
 
@@ -41,6 +48,9 @@ namespace f3
         public SceneObject so;
         public bool bKeepWorldPosition = false;
 
+        public Action<SceneObject> OnAddedF = null;
+        public Action<SceneObject> OnRemovedF = null;
+
         public override string Identifier() { return "AddSOChange"; }
 
         public override OpStatus Apply() {
@@ -48,10 +58,14 @@ namespace f3
                 scene.RestoreDeletedSceneObject(so);
             else
                 scene.AddSceneObject(so, bKeepWorldPosition);
+            if (OnAddedF != null)
+                OnAddedF(so);
             return OpStatus.Success;
         }
 
         public override OpStatus Revert() {
+            if (OnRemovedF != null)
+                OnRemovedF(so);
             scene.RemoveSceneObject(so, false);
             return OpStatus.Success;
         }
