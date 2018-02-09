@@ -221,7 +221,7 @@ namespace f3
             Frame3f f2 = append.GetLocalFrame(CoordSpace.ObjectCoords);
             Vector3f scale2 = append.GetLocalScale();
 
-            DMesh3 mesh1 = appendTo.Mesh;
+            bool mesh1HasVtxNormals = appendTo.Mesh.HasVertexNormals;
 
             DMesh3 mesh2 = append.Mesh;
             foreach ( int vid in mesh2.VertexIndices() ) {
@@ -236,7 +236,7 @@ namespace f3
                 v2in1 /= scale1;
                 mesh2.SetVertex(vid, v2in1);
 
-                if (mesh1.HasVertexNormals && mesh2.HasVertexNormals) {
+                if (mesh1HasVtxNormals && mesh2.HasVertexNormals) {
                     Vector3f n = mesh2.GetVertexNormal(vid);
                     Vector3f ns = f2.FromFrameV(n);
                     Vector3f ns2 = f1.ToFrameV(ns);
@@ -244,10 +244,10 @@ namespace f3
                 }
             }
 
-            MeshEditor editor = new MeshEditor(mesh1);
-            editor.AppendMesh(mesh2);
-
-            appendTo.NotifyMeshEdited();
+            appendTo.EditAndUpdateMesh( (mesh1) => {
+                MeshEditor editor = new MeshEditor(mesh1);
+                editor.AppendMesh(mesh2);
+            }, GeometryEditTypes.ArbitraryEdit);
 
             // [TODO] change record!
 

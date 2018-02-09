@@ -9,6 +9,18 @@ namespace f3
     public delegate void DMeshChangedEventHandler(DMeshSO so);
 
 
+    public enum GeometryEditTypes
+    {
+        ArbitraryEdit,
+        VertexDeformation
+    }
+
+
+    /// <summary>
+    /// Fundamental SO wrapper around a DMesh3.
+    /// 
+    /// [TODO] currently using unity normal estimation. ick.
+    /// </summary>
     public class DMeshSO : BaseSO, IMeshComponentManager, SpatialQueryableSO
     {
         protected fGameObject parentGO;
@@ -21,6 +33,10 @@ namespace f3
         protected List<DisplayMeshComponent> displayComponents;
 
         DMesh3 mesh;
+        object mesh_write_lock = new object();     // in some cases we would like to directly access internal Mesh from
+                                                   // a background thread, to avoid making mesh copies. Functions that
+                                                   // internally modify .mesh will lock this first.
+
         MeshDecomposition decomp;
 
 
@@ -48,17 +64,23 @@ namespace f3
         }
 
 
-        // Currently do not support changing mesh after creation!!
-        public DMesh3 Mesh
-        {
-            get { return mesh; }
-        }
 
 
         /// <summary>
         /// Event will be called whenever our internal mesh changes
         /// </summary>
         public event DMeshChangedEventHandler OnMeshModified;
+
+
+
+        /// <summary>
+        /// Direct access to internal mesh. Safe for reading. **DO NOT** modify this mesh
+        /// unless you are very careful. Better alternatives: ReplaceMesh(), EditAndUpdateMesh().
+        /// If those are not sufficient, please use AcquireDangerousMeshLockForEditing()
+        /// </summary>
+        public DMesh3 Mesh {
+            get { return mesh; }
+        }
 
 
         public DMeshAABBTree3 Spatial
@@ -86,43 +108,100 @@ namespace f3
         }
 
 
-        public void NotifyMeshEdited(bool bVertexDeformation = false)
+
+
+        /// <summary>
+        /// This function returns an object that holds a lock on the .Mesh for writing.
+        /// You should only call like this:
+        /// 
+        /// using (var danger = meshSO.AcquireDangerousMeshLockForEditing(editType)) {
+        ///      ...do your thing to meshSO.Mesh
+        /// }
+        /// 
+        /// This will safely lock the mesh so that background mesh-read threads are blocked.
+        /// ***DO NOT*** hold onto this lock, or you will never be able to update the mesh again!
+        /// </summary>
+        DangerousExternalLock AcquireDangerousMeshLockForEditing(GeometryEditTypes editType)
         {
-            if (bVertexDeformation) {
-                fast_mesh_update();
-            } else {
-                on_mesh_changed();
-                validate_decomp();
-            }
-            post_mesh_modified();
+            return DangerousExternalLock.Lock(mesh_write_lock, 
+                () => { notify_mesh_edited(editType); } );
         }
 
 
+        /// <summary>
+        /// tell DMeshSO that you have modified .Mesh
+        /// </summary>
+        [System.Obsolete("This should no longer be used. Use EditAndUpdateMesh() or AcquireDangerousMeshLockForEditing()")]
+        public void NotifyMeshEdited(bool bVertexDeformation = false)
+        {
+            notify_mesh_edited(bVertexDeformation ?
+                GeometryEditTypes.VertexDeformation : GeometryEditTypes.ArbitraryEdit);
+        }
+
+
+        /// <summary>
+        /// Change mesh under lock. This safely allows mesh edits to happen in concert
+        /// with background threads reading from the mesh. 
+        /// 
+        /// Currently it is only safe to call this from the main thread!
+        /// </summary>
+        public void EditAndUpdateMesh(Action<DMesh3> EditF, GeometryEditTypes editType)
+        {
+            lock (mesh_write_lock) {
+                EditF(mesh);
+            }
+            notify_mesh_edited(editType);
+        }
+
+
+
+        /// <summary>
+        /// replace .Mesh with newMesh. By default, DMeshSO now "owns" this mesh.
+        /// Will make copy instead if you pass bTakeOwnership=false 
+        /// </summary>
         public void ReplaceMesh(DMesh3 newMesh, bool bTakeOwnership = true)
         {
-            if (bTakeOwnership)
-                this.mesh = newMesh;
-            else
-                this.mesh = new DMesh3(newMesh);
+            lock (mesh_write_lock) {
+                if (bTakeOwnership)
+                    this.mesh = newMesh;
+                else
+                    this.mesh = new DMesh3(newMesh);
+            }
 
             on_mesh_changed();
             validate_decomp();
             post_mesh_modified();
         }
 
+        /// <summary>
+        /// replace vertex positions of internal .Mesh
+        /// [TODO] This function is probably unnecessary...use NotifyMeshEdited(true) instead
+        /// </summary>
         public void UpdateVertexPositions(Vector3f[] vPositions) {
             if (vPositions.Length < mesh.MaxVertexID)
                 throw new Exception("DMeshSO.UpdateVertexPositions: not enough positions provided!");
-            foreach (int vid in mesh.VertexIndices())
-                mesh.SetVertex(vid, vPositions[vid]);
+
+            lock (mesh_write_lock) {
+                foreach (int vid in mesh.VertexIndices())
+                    mesh.SetVertex(vid, vPositions[vid]);
+            }
+
             fast_mesh_update();
             post_mesh_modified();
         }
+
+        /// <summary>
+        /// Double version of UpdateVertexPositions
+        /// </summary>
         public void UpdateVertexPositions(Vector3d[] vPositions) {
             if (vPositions.Length < mesh.MaxVertexID)
                 throw new Exception("DMeshSO.UpdateVertexPositions: not enough positions provided!");
-            foreach (int vid in mesh.VertexIndices())
-                mesh.SetVertex(vid, vPositions[vid]);
+
+            lock (mesh_write_lock) {
+                foreach (int vid in mesh.VertexIndices())
+                    mesh.SetVertex(vid, vPositions[vid]);
+            }
+
             fast_mesh_update();
             post_mesh_modified();
         }
@@ -137,6 +216,27 @@ namespace f3
             on_mesh_changed(true, false);
             validate_decomp();
         }
+
+
+        /// <summary>
+        /// Run ReadMeshF() and return result. This function write-locks the mesh
+        /// around the call to ReadMeshF, so you can call this from a background thread.
+        /// If ReadMeshF throws an Exception, the Exception is returned.
+        /// </summary>
+        public object SafeMeshRead(Func<DMesh3, object> ReadMeshF)
+        {
+            object result = null;
+            lock (mesh_write_lock) {
+                try {
+                    result = ReadMeshF(mesh);
+                } catch (Exception e) {
+                    result = e;
+                }
+            }
+            return result;
+        }
+
+
 
 
         #region IMeshComponentManager impl
@@ -175,6 +275,18 @@ namespace f3
         //
         // internals
         // 
+
+        public void notify_mesh_edited(GeometryEditTypes editType)
+        {
+            if (editType == GeometryEditTypes.VertexDeformation) {
+                fast_mesh_update();
+            } else {
+                on_mesh_changed();
+                validate_decomp();
+            }
+            post_mesh_modified();
+        }
+
         void on_mesh_changed(bool bInvalidateSpatial = true, bool bInvalidateDecomp = true)
         {
             if (bInvalidateSpatial) 
@@ -400,8 +512,6 @@ namespace f3
             }
             return false;
         }
-
-
 
     }
 }
