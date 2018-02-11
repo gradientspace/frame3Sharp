@@ -491,15 +491,35 @@ namespace f3
             return vObjects.Find( (x) => { return x.UUID == uuid; } );
         }
 
-		public List<T> FindSceneObjectsOfType<T>(bool bSelected = false) where T : class {
+        /// <summary>
+        /// Find SceneObjects of a given type. If bSelected == true, only considers selected
+        /// SOs. By default will descend into groups.
+        /// </summary>
+		public List<T> FindSceneObjectsOfType<T>(bool bSelected = false, bool bDescendGroups = true) where T : class {
 			List<T> result = new List<T>();
             List<SceneObject> source = (bSelected) ? vSelected : vObjects;
             foreach ( var so in source ) {
 				if (so is T)
 					result.Add(so as T);
+                if (bDescendGroups && so is SOCollection)
+                    collect_type_in_children(so as SOCollection, result);
 			}
 			return result;
 		}
+        private void collect_type_in_children<T>(SOCollection groupSO, List<T> collection) where T : class
+        {
+            foreach ( var child in groupSO.GetChildren() ) {
+                if (child is T)
+                    collection.Add(child as T);
+                if (child is SOCollection)
+                    collect_type_in_children(child as SOCollection, collection);
+            }
+        }
+
+        /// <summary>
+        /// Enumerable over SceneObjects of a specific type.
+        /// Note: this function does not descend into groups. Use FindSceneObjectsOfType() if that matters.
+        /// </summary>
         public IEnumerable<T> SceneObjectsOfType<T>(bool bSelected = false) where T : class
         {
             List<SceneObject> source = (bSelected) ? vSelected : vObjects;
