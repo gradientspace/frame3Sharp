@@ -38,10 +38,9 @@ namespace f3
 
         public virtual void OnApplicationQuit()
         {
-            // let client decide what to do here
+            // background threads should watch for this and suicide if it becomes true
+            FPlatform.ShutdownBackgroundThreadsOnQuit = true;
         }
-
-
 
         /*
          * FPlatform.CoroutineExecutor impl
