@@ -28,8 +28,12 @@ namespace f3
             return go.name;
         }
 
-        public static void SetLayer(this GameObject go, int layer) {
+        public static void SetLayer(this GameObject go, int layer, bool bSetOnChildren = false) {
             go.layer = layer;
+            if (bSetOnChildren) {
+                for (int k = 0; k < go.transform.childCount; ++k)
+                    go.transform.GetChild(k).gameObject.SetLayer(layer, true);
+            }
         }
         public static int GetLayer(this GameObject go) {
             return go.layer;
