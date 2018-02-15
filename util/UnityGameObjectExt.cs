@@ -180,6 +180,23 @@ namespace f3
         }
 
 
+        public static void EnableCollider(this GameObject go, bool bEnable = true)
+        {
+            MeshCollider c = go.GetComponent<MeshCollider>();
+            if (c != null) {
+                if (go.activeSelf == false) {
+                    go.SetActive(true);
+                    c.enabled = bEnable;
+                    go.SetActive(false);
+                } else {
+                    c.enabled = bEnable;
+                }
+            }
+        }
+        public static void DisableCollider(this GameObject go) {
+            go.EnableCollider(false);
+        }
+
 
         public static Vector3f GetLocalScale(this GameObject go)
         {

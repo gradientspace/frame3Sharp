@@ -16,7 +16,7 @@ namespace f3
             var gameObj = GameObject.CreatePrimitive(eType);
             if (bCollider) {
                 gameObj.AddComponent(typeof(MeshCollider));
-                gameObj.GetComponent<MeshCollider>().enabled = false;
+                gameObj.DisableCollider();
             }
             if ( setMaterial )
                 gameObj.GetComponent<MeshRenderer>().material = setMaterial;
@@ -33,8 +33,8 @@ namespace f3
             gameObj.AddComponent<MeshFilter>();
             gameObj.SetMesh(mesh);
             if (bCollider) {
-                gameObj.AddComponent(typeof(MeshCollider));
-                gameObj.GetComponent<MeshCollider>().enabled = false;
+                gameObj.AddComponent<MeshCollider>();
+                gameObj.DisableCollider();
             }
             if (setMaterial) {
                 (gameObj.AddComponent(typeof(MeshRenderer)) as MeshRenderer).material = setMaterial;
@@ -68,8 +68,8 @@ namespace f3
             gameObj.AddComponent<MeshFilter>();
             gameObj.SetMesh(mesh);
             if (bCollider) {
-                gameObj.AddComponent(typeof(MeshCollider));
-                gameObj.GetComponent<MeshCollider>().enabled = false;
+                gameObj.AddComponent<MeshCollider>();
+                gameObj.DisableCollider();
             }
             if (setMaterial) {
                 (gameObj.AddComponent(typeof(MeshRenderer)) as MeshRenderer).material = setMaterial;
@@ -169,7 +169,7 @@ namespace f3
                 return false;
 
             bool bIsEnabled = collider.enabled;
-            collider.enabled = true;
+            go.EnableCollider(true);
             RaycastHit hitInfo;
             if (collider.Raycast(ray, out hitInfo, Mathf.Infinity)) {
                 hit = new GameObjectRayHit();
@@ -178,7 +178,7 @@ namespace f3
                 hit.hitNormal = hitInfo.normal;
                 hit.hitGO = go;
             }
-            collider.enabled = bIsEnabled;
+            go.EnableCollider(bIsEnabled);
 
             return (hit != null);
         }
@@ -293,9 +293,7 @@ namespace f3
         public static void ToggleChildMeshColliders(GameObject root, bool bEnable)
         {
             foreach (GameObject go in root.Children()) {
-                MeshCollider collider = go.GetComponent<MeshCollider>();
-                if (collider)
-                    collider.enabled = bEnable;
+                go.EnableCollider(bEnable);
                 ToggleChildMeshColliders(go, bEnable);
             }
         }

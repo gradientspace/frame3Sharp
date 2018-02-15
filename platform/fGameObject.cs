@@ -205,8 +205,15 @@ namespace f3
         }
 
 
-        public virtual void SetActive(bool bActive)
-        {
+        public void EnableCollider(bool bEnable = true) {
+            go.EnableCollider(bEnable);
+        }
+        public void DisableCollider() {
+            go.EnableCollider(false);
+        }
+
+
+        public virtual void SetActive(bool bActive) {
             go.SetActive(bActive);
         }
 
@@ -451,8 +458,15 @@ namespace f3
         {
             set {
                 MeshCollider c = go.GetComponent<MeshCollider>();
-                if (c != null)
-                    c.enabled = value;
+                if (c != null) {
+                    if (go.activeSelf == false) {
+                        go.SetActive(true);
+                        c.enabled = value;
+                        go.SetActive(false);
+                    } else {
+                        c.enabled = value;
+                    }
+                }
             }
         }
 
