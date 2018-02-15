@@ -317,14 +317,14 @@ namespace f3
 
                 if ( labelinfo.go == null ) {
                     BoxPosition boxPos = BoxPosition.CenterTop;
-                    if (labelinfo.position == LabelPositionType.CenteredAbove)
+                    if (labelinfo.position == LabelPositionType.CenteredBelow)
                         boxPos = BoxPosition.CenterBottom;
                     else if (labelinfo.position == LabelPositionType.BelowLeftAligned)
                         boxPos = BoxPosition.TopLeft;
                     else if (labelinfo.position == LabelPositionType.BelowRightAligned)
                         boxPos = BoxPosition.TopRight;
 
-                    labelinfo.go = GameObjectFactory.CreateTextMeshGO("slider_label", labelinfo.text,
+                    labelinfo.go = GameObjectFactory.CreateTextMeshGO("sliderlabel_"+labelinfo.text, labelinfo.text,
                         labelinfo.color, LabelTextHeight, boxPos);
                     AppendNewGO(labelinfo.go, rootGO, false);
                 }
