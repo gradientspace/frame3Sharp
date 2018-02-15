@@ -53,7 +53,7 @@ namespace f3
 
         public void Disconnect() {
             if (bDestroyOnDisconnect)
-                GameObject.Destroy(dummyGO);
+                dummyGO.Destroy();
             FUtil.SafeSendEvent(OnDisconnected, this, EventArgs.Empty);
         }
         public event EventHandler OnDisconnected;

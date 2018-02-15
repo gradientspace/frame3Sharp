@@ -152,6 +152,14 @@ namespace f3
         }
 
 
+        public static void Destroy(this GameObject go)
+        {
+            if (go != null) {
+                GameObject.Destroy(go);
+            }
+        }
+
+
         public static void Hide(this GameObject go)
         {
             if (go.activeSelf == true)

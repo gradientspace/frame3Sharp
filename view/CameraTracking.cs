@@ -141,7 +141,7 @@ namespace f3 {
                 List<GameObject> children = new List<GameObject>(mainCameraObj.Children());
                 foreach (var child in children) {
                     mainCameraObj.RemoveChild(child);
-                    GameObject.Destroy(child);
+                    child.Destroy();
                 }
             }
 

@@ -399,7 +399,7 @@ namespace f3
             if (!UnityUtil.primitiveMeshes.ContainsKey(type)) {
                 GameObject gameObject = GameObject.CreatePrimitive(type);
                 Mesh mesh = gameObject.GetComponent<MeshFilter>().mesh;
-                GameObject.Destroy(gameObject);
+                gameObject.Destroy();
                 UnityUtil.primitiveMeshes[type] = mesh;
             }
             return new fMesh(Mesh.Instantiate(UnityUtil.primitiveMeshes[type]));

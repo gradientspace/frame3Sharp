@@ -291,7 +291,7 @@ namespace f3 {
             SpatialDevice h = (iSide == 0) ? Left : Right;
             if (h.HandIcon != null) {
                 h.HandIcon.transform.parent = null;
-                GameObject.Destroy(h.HandIcon);
+                h.HandIcon.Destroy();
             }
         }
 
@@ -300,7 +300,7 @@ namespace f3 {
             SpatialDevice h = (iSide == 0) ? Left : Right;
             if (h.HandIcon != null) {
                 h.HandIcon.transform.parent = null;
-                GameObject.Destroy(h.HandIcon);
+                h.HandIcon.Destroy();
             }
 
             h.HandIcon = 

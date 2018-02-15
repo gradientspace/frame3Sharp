@@ -90,7 +90,7 @@ namespace f3
             while (vUIElements.Count > 0)
                 RemoveUIElement(vUIElements[0], true);
             RootGameObject.SetParent(null);
-            UnityEngine.Object.Destroy(RootGameObject);
+            RootGameObject.Destroy();
         }
 
 
