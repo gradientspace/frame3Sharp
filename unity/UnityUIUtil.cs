@@ -249,14 +249,58 @@ namespace f3
             return dropdown;
         }
 
-
-
         public static void SetBackgroundColor(TMP_InputField field, Color color) {
             var newColorBlock = field.colors;
             newColorBlock.normalColor = color;
             newColorBlock.highlightedColor = color;
             field.colors = newColorBlock;
         }
+
+
+        public static void SetFloatNumberValidator(TMP_InputField field)
+        {
+            field.onValidateInput = (text, pos, ch) => {
+                return ValidateDecimal_TMP(text, pos, ch, field);
+            };
+        }
+
+
+        static char LocalDecimalSeparator {
+            get { return System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0]; }
+        }
+
+        /// <summary>
+        /// validator for decimal-number TMP_InputField that works with . and , decimal separators. Allows negative numbers. 
+        /// TMP_InputField.onValidateInput is passed placeholder text, even if character will replace that text.
+        /// Similarly if text is fully selected, ie if character will replace text, we still get current text.
+        /// So, we have to pass the inputfield, and special-case the situation where the number would be replaced.
+        /// </summary>
+        public static char ValidateDecimal_TMP(string text, int pos, char ch, TMP_InputField field)
+        {
+            if (Char.IsDigit(ch) == false && ch != '-' && ch != ',' && ch != '.') return '\0';
+            bool all_selected = Math.Abs(field.selectionFocusPosition - field.selectionAnchorPosition) == field.text.Length;
+            bool is_sep = (ch == '.' || ch == ',');
+            if (is_sep) {
+                char sep = LocalDecimalSeparator;
+                if (sep == '.' && ch == ',')
+                    return '\0';
+                if (sep == ',' && ch == '.')
+                    ch = ',';
+            }
+            if (all_selected)
+                return ch;
+
+            if (ch == '-' && pos != 0)        return '\0';
+            if (is_sep && text.Contains(ch))  return '\0';
+            if (text.Length == 1 && text[0] == '-' && is_sep)
+                return ch;
+
+            float f;
+            if (float.TryParse(text.Insert(pos, ch.ToString()), out f))
+                return ch;
+            return '\0';
+        }
+
 #endif
 
 
