@@ -317,7 +317,7 @@ namespace f3
 
                 if ( labelinfo.go == null ) {
                     BoxPosition boxPos = BoxPosition.CenterTop;
-                    if (labelinfo.position == LabelPositionType.CenteredBelow)
+                    if (labelinfo.position == LabelPositionType.CenteredAbove)
                         boxPos = BoxPosition.CenterBottom;
                     else if (labelinfo.position == LabelPositionType.BelowLeftAligned)
                         boxPos = BoxPosition.TopLeft;
