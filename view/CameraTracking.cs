@@ -65,7 +65,7 @@ namespace f3 {
         public void Update()
         {
             targetGO.transform.position = TargetPoint;
-            float fScaling = VRUtil.GetVRRadiusForVisualAngle(TargetPoint, gameObject.transform.position, 1.0f);
+            float fScaling = VRUtil.GetVRRadiusForVisualAngle(TargetPoint, gameObject.transform.position, SceneGraphConfig.CameraPivotVisualDegrees);
             targetGO.transform.localScale = fScaling * Vector3f.One; 
 
             if ( ShowTarget && SceneGraphConfig.EnableVisibleCameraPivot ) {

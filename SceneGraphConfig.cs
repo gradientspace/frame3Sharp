@@ -138,6 +138,7 @@ namespace f3
 
 
         public static bool EnableVisibleCameraPivot = true;
+        public static float CameraPivotVisualDegrees = 1.0f;
 
 
         // Default Z-offset for text relative to background rect, used in HUDLabel, HUDTextEntry, etc...

@@ -73,7 +73,7 @@ namespace f3
 
 
 
-        public static void SetDisabledColor(Button button, Color color)
+        public static void SetDisabledColor(Button button, Colorf color)
         {
             var newColorBlock = button.colors;
             newColorBlock.disabledColor = color;
@@ -81,7 +81,7 @@ namespace f3
         }
 
 
-        public static void SetColors(Button button, Color normalColor, Color disabledColor)
+        public static void SetColors(Button button, Colorf normalColor, Colorf disabledColor)
         {
             var newColorBlock = button.colors;
             newColorBlock.normalColor = normalColor;
