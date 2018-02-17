@@ -65,6 +65,28 @@ namespace f3
 
 
 
+        // To reduce memory usage, when we disconnect a DMeshSO we can
+        // discard temporary data structures. Also, when we destroy it,
+        // it doesn't necessarily get GC'd right away (and if we make mistakes,
+        // maybe never!). But we can manually free the mesh.
+        override public void Connect(bool bRestore)
+        {
+            if ( bRestore ) {
+                validate_decomp();
+            }
+        }
+        override public void Disconnect(bool bDestroying)
+        {
+            this.spatial = null;
+            this.ClearAllComponents();
+            decomp = null;
+            if ( bDestroying ) {
+                this.mesh = null;
+            }
+        }
+
+
+
 
         /// <summary>
         /// Event will be called whenever our internal mesh changes

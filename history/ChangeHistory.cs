@@ -340,6 +340,16 @@ namespace f3
 
 
 
+        public void Clear()
+        {
+            for (int i = 0; i < vHistory.Count; ++i)
+                vHistory[i].Cull();
+            vHistory = new List<IChangeOp>();
+            iCurrent = 0;
+            FPlatform.SuggestGarbageCollection();
+        }
+
+
 
 
         public void DebugPrint(string prefix = "HISTORY")

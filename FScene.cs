@@ -205,7 +205,7 @@ namespace f3
         // discard existing history
         public void ClearHistory()
         {
-            history = new ChangeHistory();
+            history.Clear();
         }
 
 
