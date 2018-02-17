@@ -195,19 +195,19 @@ namespace f3
 
 
 
-        static public void EmitDebugFrame(string name, Frame3f f, float fAxisLength, float diameter = 0.05f) {
+        static public GameObject EmitDebugFrame(string name, Frame3f f, float fAxisLength, float diameter = 0.05f, GameObject parent = null) {
             if (FPlatform.InMainThread() == false) {
                 ThreadMailbox.PostToMainThread(() => { DebugUtil.EmitDebugFrame(name, f, fAxisLength, diameter); });
-                return;
+                return null;
             }
 
-			GameObject frame = new GameObject (name);
-			GameObject x = EmitDebugLine (name+"_x", f.Origin, f.Origin + fAxisLength * f.X, diameter, Color.red);
-			x.transform.parent = frame.transform;
-			GameObject y = EmitDebugLine (name+"_y", f.Origin, f.Origin + fAxisLength * f.Y, diameter, Color.green);
-			y.transform.parent = frame.transform;
-			GameObject z = EmitDebugLine (name+"_z", f.Origin, f.Origin + fAxisLength * f.Z, diameter, Color.blue);
-			z.transform.parent = frame.transform;
+			GameObject frameObj = new GameObject (name);
+			GameObject x = EmitDebugLine (name+"_x", f.Origin, f.Origin + fAxisLength * f.X, diameter, Color.red, frameObj, false);
+			GameObject y = EmitDebugLine (name+"_y", f.Origin, f.Origin + fAxisLength * f.Y, diameter, Color.green, frameObj, false);
+			GameObject z = EmitDebugLine (name+"_z", f.Origin, f.Origin + fAxisLength * f.Z, diameter, Color.blue, frameObj, false);
+            if (parent != null)
+                frameObj.transform.SetParent(parent.transform, false);
+            return frameObj;
 		}
 
 

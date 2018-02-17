@@ -114,7 +114,7 @@ namespace f3
         public void Destroy()
         {
             meshObject.transform.parent = null;
-            GameObject.Destroy(meshObject);
+            meshObject.Destroy();
         }
 
 

@@ -294,7 +294,7 @@ namespace f3
         {
             so.RootGameObject.SetParent(null);
             so.SetScene(null);
-            UnityEngine.Object.Destroy(so.RootGameObject);
+            so.RootGameObject.Destroy();
         }
 
 

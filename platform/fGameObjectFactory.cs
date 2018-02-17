@@ -44,8 +44,8 @@ namespace f3
             }
             go.AddComponent<MeshRenderer>();
             if (bCollider) {
-                var collider = go.AddComponent<MeshCollider>();
-                collider.enabled = false;
+                go.AddComponent<MeshCollider>();
+                go.DisableCollider();
             }
         }
 

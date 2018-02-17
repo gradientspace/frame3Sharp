@@ -28,8 +28,12 @@ namespace f3
             return go.name;
         }
 
-        public static void SetLayer(this GameObject go, int layer) {
+        public static void SetLayer(this GameObject go, int layer, bool bSetOnChildren = false) {
             go.layer = layer;
+            if (bSetOnChildren) {
+                for (int k = 0; k < go.transform.childCount; ++k)
+                    go.transform.GetChild(k).gameObject.SetLayer(layer, true);
+            }
         }
         public static int GetLayer(this GameObject go) {
             return go.layer;
@@ -148,6 +152,14 @@ namespace f3
         }
 
 
+        public static void Destroy(this GameObject go)
+        {
+            if (go != null) {
+                GameObject.Destroy(go);
+            }
+        }
+
+
         public static void Hide(this GameObject go)
         {
             if (go.activeSelf == true)
@@ -167,6 +179,23 @@ namespace f3
             return (go.activeSelf == true);
         }
 
+
+        public static void EnableCollider(this GameObject go, bool bEnable = true)
+        {
+            MeshCollider c = go.GetComponent<MeshCollider>();
+            if (c != null) {
+                if (go.activeSelf == false) {
+                    go.SetActive(true);
+                    c.enabled = bEnable;
+                    go.SetActive(false);
+                } else {
+                    c.enabled = bEnable;
+                }
+            }
+        }
+        public static void DisableCollider(this GameObject go) {
+            go.EnableCollider(false);
+        }
 
 
         public static Vector3f GetLocalScale(this GameObject go)

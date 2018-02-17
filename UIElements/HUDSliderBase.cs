@@ -324,7 +324,7 @@ namespace f3
                     else if (labelinfo.position == LabelPositionType.BelowRightAligned)
                         boxPos = BoxPosition.TopRight;
 
-                    labelinfo.go = GameObjectFactory.CreateTextMeshGO("slider_label", labelinfo.text,
+                    labelinfo.go = GameObjectFactory.CreateTextMeshGO("sliderlabel_"+labelinfo.text, labelinfo.text,
                         labelinfo.color, LabelTextHeight, boxPos);
                     AppendNewGO(labelinfo.go, rootGO, false);
                 }

@@ -26,8 +26,8 @@ namespace f3
                             var useMaterial = (overrideMaterial != null) ? overrideMaterial : material;
                             return gso.Create(UnityUtil.UnityMeshToDMesh(mesh, false), useMaterial);
                         } );
-            if ( bDestroyOriginal )
-                GameObject.Destroy(wrapGO);
+            if (bDestroyOriginal)
+                wrapGO.Destroy();
             return wrapperSO;
         }
 

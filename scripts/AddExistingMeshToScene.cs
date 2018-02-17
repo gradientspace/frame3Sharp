@@ -23,7 +23,7 @@ namespace f3
 
                 Component.Destroy(this.gameObject.GetComponent<AddExistingMeshToScene>());
                 if (DeleteOriginal)
-                    GameObject.Destroy(this.gameObject);
+                    this.gameObject.Destroy();
             }
         }
     }

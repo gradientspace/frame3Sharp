@@ -29,7 +29,8 @@ namespace f3
             meshGO = new GameObject("mesh");
             meshGO.AddComponent<MeshFilter>();
             meshGO.SetMesh(mesh);
-            meshGO.AddComponent<MeshCollider>().enabled = false;
+            meshGO.AddComponent<MeshCollider>();
+            meshGO.DisableCollider();
             meshGO.AddComponent<MeshRenderer>().material = CurrentMaterial;
 
             AppendNewGO(meshGO, (GameObject)parentGO, true);
