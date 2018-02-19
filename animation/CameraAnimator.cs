@@ -212,6 +212,78 @@ namespace f3
 
 
 
+
+        /// <summary>
+        /// Tumble scene to given orientation, around current target point
+        /// [TODO] currently this does some weird stuff, because distance from target varies...
+        /// </summary>
+        public void AnimateTumbleTo(Quaternionf toOrientation, float duration = 0.25f)
+        {
+            if (duration > 0 && ShowTargetDuringAnimations)
+                UseCamera.SetTargetVisible(true);
+
+            Vector3f startTargetS = UseScene.ToSceneP(UseCamera.GetTarget());
+            Frame3f startF = UseScene.SceneFrame;
+
+            Action<float> tweenF = (t) => {
+                // update rotation
+                Quaternionf rot = Quaternion.Slerp(startF.Rotation, toOrientation, t);
+                UseScene.SceneFrame = new Frame3f(startF.Origin, rot);
+
+                // stay on target
+                UseCamera.Manipulator().PanFocusOnScenePoint(UseScene, UseCamera, startTargetS);
+            };
+
+            if (duration > 0) {
+                TweenAnimator anim = new TweenAnimator(tweenF, duration) {
+                    OnCompletedF = () => { UseCamera.SetTargetVisible(false); }
+                };
+                UseScene.ObjectAnimator.Register(anim);
+            } else
+                tweenF(1.0f);
+        }
+
+
+
+        /// <summary>
+        /// Tumble scene to given orientation, while also re-centering camera on target at given distance.
+        /// </summary>
+        public void AnimateTumbleZoomFocusTo(Quaternionf toOrientation, float toDistance, Vector3f toTargetS, float duration = 0.25f)
+        {
+            if (duration > 0 && ShowTargetDuringAnimations)
+                UseCamera.SetTargetVisible(true);
+
+            Vector3f startTargetS = UseScene.ToSceneP(UseCamera.GetTarget());
+            Frame3f startF = UseScene.SceneFrame;
+
+            Action<float> tweenF = (t) => {
+                Vector3f newTargetS = Vector3f.Lerp(startTargetS, toTargetS, t);
+                UseCamera.Manipulator().PanFocusOnScenePoint(UseScene, UseCamera, newTargetS);
+
+                Quaternionf rot = Quaternion.Slerp(startF.Rotation, toOrientation, t);
+                UseScene.RootGameObject.SetLocalRotation(rot);
+
+                float curDist = UseCamera.GetPosition().Distance(UseCamera.GetTarget());
+                float toDist = MathUtil.SmoothInterp(curDist, toDistance, t);
+                float dolly = toDist - curDist;
+                UseCamera.Manipulator().SceneZoom(UseScene, UseCamera, -dolly);
+            };
+
+            if (duration > 0) {
+                TweenAnimator anim = new TweenAnimator(tweenF, duration) {
+                    OnCompletedF = () => { UseCamera.SetTargetVisible(false); }
+                };
+                UseScene.ObjectAnimator.Register(anim);
+            } else
+                tweenF(1.0f);
+        }
+
+
+
+
+
+
+
         // set the view position and target location explicitly while also resetting the
         //  scene to be level (ie scene up is y axis), during a dip-to-black transition.
         //  Assumes that moveto and newtarget are lying in an xz-plane...
