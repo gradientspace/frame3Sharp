@@ -606,11 +606,14 @@ namespace f3
 
         public bool FindSORayIntersection_PivotPriority(Ray3f ray, out SORayHit hit, Func<SceneObject, bool> filter = null)
         {
-            bool bHitPivot = HUDUtil.FindNearestRayIntersection(VisibleSceneObjects, ray, out hit, (s) => { return s is PivotSO; });
+            bool bHitPivot = HUDUtil.FindNearestRayIntersection(VisibleSceneObjects, ray, out hit, is_priority_pivot);
             if (bHitPivot)
                 return true;
             return HUDUtil.FindNearestRayIntersection(VisibleSceneObjects, ray, out hit,
                                 (SelectionMask == null) ? filter : mask_filter(filter));
+        }
+        protected static bool is_priority_pivot(SceneObject so) {
+            return so is PivotSO && (so as PivotSO).IsOverlaySO;
         }
 
 

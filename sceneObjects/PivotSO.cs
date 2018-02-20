@@ -12,11 +12,32 @@ namespace f3
         SOMaterial frameMaterial;
 
         /// <summary>
+        /// set fixed size of this PivotSO. Changing the Size results in
+        /// scaling of the pivot in PreRender().
+        /// </summary>
+        public float Size {
+            get { return size; }
+            set { size = value; }
+        }
+        protected float creation_size = 0.0f;
+        protected float size = 0.9f;
+
+        /// <summary>
         /// A standard PivotSO is a "special" scene object, IE it is used more as a UI element.
         /// In that case we by default try to keep it the same "size" on-screen.
         /// Set to false to disable this behavior.
         /// </summary>
         public bool MaintainConsistentViewSize = true;
+
+
+        /// <summary>
+        /// Generally we use PivotSO as persistent objects in the scene, which are drawn "on top" of
+        /// other SOs, and hence clicking on one should select it before overlapping SO is selected.
+        /// If you set this to false, then FScene.FindSORayIntersection_PivotPriority() will not
+        /// prioritize selection of this PivotSO (eg in case where you are using a PivotSO to 
+        /// implement some other custom in-scene object type)
+        /// </summary>
+        public bool IsOverlaySO = true;
 
 
         public PivotSO()
@@ -34,6 +55,7 @@ namespace f3
 
             pivotGO = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("Pivot"));
 
+            creation_size = size;
             shapeGO = create_pivot_shape();
             AppendNewGO(shapeGO, pivotGO, false);
 
@@ -42,7 +64,7 @@ namespace f3
             if (frameMaterial != null) {
                 this.frameMaterial = frameMaterial;
 
-                frameGO = UnityUtil.CreateMeshGO("pivotFrame", "icon_meshes/axis_frame", 1.0f,
+                frameGO = UnityUtil.CreateMeshGO("pivotFrame", "icon_meshes/axis_frame", size,
                     UnityUtil.MeshAlignOption.NoAlignment, MaterialUtil.ToUnityMaterial(frameMaterial), false);
                 MaterialUtil.SetIgnoreMaterialChanges(frameGO);
                 MaterialUtil.DisableShadows(frameGO);
@@ -60,7 +82,7 @@ namespace f3
         protected virtual fGameObject create_pivot_shape()
         {
             fGameObject go = AppendUnityPrimitiveGO("pivotMesh", UnityEngine.PrimitiveType.Sphere, CurrentMaterial, null, true);
-            go.SetLocalScale(0.9f * Vector3f.One);
+            go.SetLocalScale(Size * Vector3f.One);
             return go;
         }
 
@@ -109,14 +131,20 @@ namespace f3
 
         public override void PreRender()
         {
+            float fixed_scale = size / creation_size;
+
+            float fScaling = 1.0f;
             if (MaintainConsistentViewSize) {
-                float fScaling = VRUtil.GetVRRadiusForVisualAngle(
+                fScaling = VRUtil.GetVRRadiusForVisualAngle(
                     pivotGO.GetPosition(),
                     parentScene.ActiveCamera.GetPosition(),
                     SceneGraphConfig.DefaultPivotVisualDegrees);
                 fScaling /= parentScene.GetSceneScale();
-                pivotGO.SetLocalScale(new Vector3f(fScaling, fScaling, fScaling));
+                fScaling *= fixed_scale;
+            } else {
+                fScaling = fixed_scale;
             }
+            pivotGO.SetLocalScale(new Vector3f(fScaling, fScaling, fScaling));
         }
 
 
