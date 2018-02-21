@@ -16,48 +16,88 @@ namespace f3
         }
 
 
-        public bool Pressed(InputState input)
+        bool using_mouse = true;
+        public bool CachedIsMouseInput {
+            get { return using_mouse; }
+        }
+
+
+        public bool Pressed(InputState input) {
+            return Pressed(ref input);
+        }
+        public bool Pressed(ref InputState input)
         {
-            if ( input.IsForDevice(InputDevice.Mouse) )
+            if (input.IsForDevice(InputDevice.Mouse)) {
+                using_mouse = true;
                 return input.bLeftMousePressed;
-            else if ( input.IsForDevice(InputDevice.TabletFingers) )
+            } else if (input.IsForDevice(InputDevice.TabletFingers)) {
+                using_mouse = false;
                 return input.bTouchPressed;
+            }
             return false;
         }
 
-        public bool Down(InputState input)
+
+        public bool Down(InputState input) {
+            return Down(ref input);
+        }
+        public bool Down(ref InputState input)
         {
-            if (input.IsForDevice(InputDevice.Mouse))
+            if (input.IsForDevice(InputDevice.Mouse)) {
+                using_mouse = true;
                 return input.bLeftMouseDown;
-            else if ( input.IsForDevice(InputDevice.TabletFingers) )
+            } else if (input.IsForDevice(InputDevice.TabletFingers)) {
+                using_mouse = false;
                 return input.bTouchDown;
+            }
             return false;
         }
 
-        public bool Released(InputState input)
+
+        public bool Released(InputState input) {
+            return Released(ref input);
+        }
+        public bool Released(ref InputState input)
         {
-            if (input.IsForDevice(InputDevice.Mouse))
+            if (input.IsForDevice(InputDevice.Mouse)) {
+                using_mouse = true;
                 return input.bLeftMouseReleased;
-            else if (input.IsForDevice(InputDevice.TabletFingers))
+            } else if (input.IsForDevice(InputDevice.TabletFingers)) {
+                using_mouse = false;
                 return input.bTouchReleased;
+            }
             return false;
         }
 
-        public Vector2f ClickPoint(InputState input)
+
+        public Vector2f ClickPoint(InputState input) {
+            return ClickPoint(ref input);
+        }
+        public Vector2f ClickPoint(ref InputState input)
         {
-            if (input.IsForDevice(InputDevice.Mouse))
+            if (input.IsForDevice(InputDevice.Mouse)) {
+                using_mouse = true;
                 return input.vMousePosition2D;
-            else if (input.IsForDevice(InputDevice.TabletFingers))
+            } else if (input.IsForDevice(InputDevice.TabletFingers)) {
+                using_mouse = false;
                 return input.vTouchPosition2D;
+            }
             return Vector2f.Zero;
         }
 
-        public Ray3f WorldRay(InputState input)
+
+        public Ray3f WorldRay(InputState input) {
+            return WorldRay(ref input);
+        }
+        public Ray3f WorldRay(ref InputState input)
         {
-            if (input.IsForDevice(InputDevice.Mouse))
+            if (input.IsForDevice(InputDevice.Mouse)) {
+                using_mouse = true;
                 return input.vMouseWorldRay;
-            else if (input.IsForDevice(InputDevice.TabletFingers))
+            } else if (input.IsForDevice(InputDevice.TabletFingers)) {
+                using_mouse = false;
                 return input.vTouchWorldRay;
+            }
             return new Ray3f(Vector3f.Zero, Vector3f.AxisY); ;
         }
     }
