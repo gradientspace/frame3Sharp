@@ -15,11 +15,10 @@ namespace f3
         public FScene Scene;
 
         // contains all links
-        public List<SOLink> Links = new List<SOLink>();
+        protected List<SOLink> Links = new List<SOLink>();
 
         // contains links by name - subset of Links
-        public Dictionary<string, SOLink> NamedLinks = new Dictionary<string, SOLink>();
-
+        protected Dictionary<string, SOLink> NamedLinks = new Dictionary<string, SOLink>();
 
 
         public SOLinkManager(FScene scene)
@@ -31,7 +30,7 @@ namespace f3
         private void Scene_ChangedEvent(object sender, SceneObject so, SceneChangeType type)
         {
             if ( type == SceneChangeType.Removed ) {
-                RemoveAllLinks(so);
+                RemoveAllLinksToSO(so);
             }
         }
 
@@ -58,32 +57,24 @@ namespace f3
         }
 
 
+        /// <summary>
+        /// Remove link
+        /// </summary>
         public bool RemoveLink(SOLink link)
         {
             bool bFound = Links.Remove(link);
             if ( bFound ) {
                 if (link.Name != null && NamedLinks.ContainsKey(link.Name))
                     NamedLinks.Remove(link.Name);
-
-                // We might be running this *in* a ChangeOp, in which case we
-                // do not want to push another one. ugly problem =\
-                if (Scene.History.InPastState) {
-                    link.Unlink();
-                } else {
-                    IChangeOp change = link.GetRemoveChange();
-                    if (change == null) {
-                        // we cannot undo this link removal
-                        link.Unlink();
-                    } else {
-                        Scene.History.PushChange(change, false);
-                    }
-                }
-
+                link.Unlink();
             }
             return bFound;
         }
 
 
+        /// <summary>
+        /// Remove link that has matching uuid
+        /// </summary>
         public bool RemoveLinkByUUID(string uuid)
         {
             SOLink found = FindLinkByUUID(uuid);
@@ -93,11 +84,29 @@ namespace f3
         }
 
 
-        void RemoveAllLinks(SceneObject so)
+        /// <summary>
+        /// Remove all named links where the name contains match string
+        /// </summary>
+        public void RemoveLinksByNameSubstring(string match)
+        {
+            List<SOLink> toRemove = new List<SOLink>();
+            foreach (SOLink link in NamedLinks.Values) {
+                if ( link.Name.Contains(match) )
+                    toRemove.Add(link);
+            }
+            foreach (SOLink link in toRemove)
+                RemoveLink(link);
+        }
+
+
+        /// <summary>
+        /// Remove all links where the Source or Target is SO
+        /// </summary>
+        public void RemoveAllLinksToSO(SceneObject so, bool bSources = true, bool bTargets = true)
         {
             List<SOLink> toRemove = new List<SOLink>();
             foreach ( SOLink link in Links ) {
-                if (link.Source == so || link.Target == so)
+                if ( (bSources && link.Source == so) || (bTargets && link.Target == so) )
                     toRemove.Add(link);
             }
             foreach (SOLink link in toRemove)

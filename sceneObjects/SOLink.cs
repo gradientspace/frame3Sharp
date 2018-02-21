@@ -38,7 +38,7 @@ namespace f3
         // remove connections
         void Unlink();
 
-        // you must implement this to support undo/redo for links
+        /// <summary> You must implement this for SOLinkManager to automatically emit changes </summary>
         IChangeOp GetRemoveChange();
     }
 

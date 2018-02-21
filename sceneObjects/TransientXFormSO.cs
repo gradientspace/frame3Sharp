@@ -5,12 +5,25 @@ using g3;
 
 namespace f3
 {
+    /// <summary>
+    /// This class is used by transform gizmos as a temporary SO. 
+    /// Previously this involved adding the SO you want to transform as
+    /// a child of this one. However now that we have SOFrameLink, that is
+    /// no longer necessary. Now we are just constructing a temporary link.
+    /// 
+    /// [TODO] do we need to use this at all anymore? Current usage:
+    ///    - in AxisTransformGizmo, if there is a FrameSource set (eg a pivot), then we use it.
+    ///      But we could just use an SOLink instead, now...
+    ///    - AF uses in FrameChangeGizmo as a temporary SO. Could just use a Pivot.
+    /// 
+    /// </summary>
     public class TransientXFormSO : SceneObject, SOCollection
     {
         GameObject gameObject;
         SceneObject target;
         protected SOParent parent;
-        //TransformableSceneObject source;
+
+        protected SOFrameLink link;
 
         FScene parentScene;
 
@@ -27,22 +40,24 @@ namespace f3
             increment_timestamp();
         }
 
-        public void ConnectTarget(SceneObject source, SceneObject target)
+        public void ConnectTarget(SceneObject frameSourceSO, SceneObject target)
         {
-            //this.source = source;
             this.target = target;
-            Frame3f sourceW = source.GetLocalFrame(CoordSpace.WorldCoords);
+
+            Frame3f sourceW = frameSourceSO.GetLocalFrame(CoordSpace.WorldCoords);
             this.SetLocalFrame(sourceW, CoordSpace.WorldCoords);
 
-            target.RootGameObject.SetParent(gameObject, true);
+            link = new SOFrameLink(target, this);
+            target.GetScene().LinkManager.AddLink(link);
 
             increment_timestamp();
         }
 
         public void DisconnectTarget()
         {
-            if ( target != null )
-                parentScene.ReparentSceneObject(target);
+            if (target != null)
+                target.GetScene().LinkManager.RemoveLink(link);
+
             increment_timestamp();
         }
 
