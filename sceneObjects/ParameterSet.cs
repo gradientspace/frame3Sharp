@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using g3;
 
 namespace f3
 {
@@ -16,6 +17,7 @@ namespace f3
         abstract public string TypeName();
     }
 
+
     public abstract class IParameter<T> : AnyParameter
     {
         public Func<T> getValue;
@@ -25,27 +27,76 @@ namespace f3
         virtual public void Reset() {
             setValue(defaultValue);
         }
+
+        abstract public T ClampToRange(T value);
     }
+
 
     public class FloatParameter : IParameter<float>
     {
+        Interval1d ValidRange;
+
         public FloatParameter()
         {
             name = "float_parameter";
             defaultValue = 0.0f;
+            ValidRange = new Interval1d(float.MinValue, float.MaxValue);
         }
         override public string TypeName() { return "float"; }
+
+        public void SetValidRange(float min, float max) {
+            ValidRange = new Interval1d(min, max);
+        }
+
+        override public float ClampToRange(float value) {
+            return MathUtil.Clamp(value, (float)ValidRange.a, (float)ValidRange.b);
+        }
     }
+
+
+    public class DoubleParameter : IParameter<double>
+    {
+        Interval1d ValidRange;
+
+        public DoubleParameter()
+        {
+            name = "double_parameter";
+            defaultValue = 0.0;
+            ValidRange = new Interval1d(double.MinValue, double.MaxValue);
+        }
+        override public string TypeName() { return "double"; }
+
+        public void SetValidRange(double min, double max) {
+            ValidRange = new Interval1d(min, max);
+        }
+
+        override public double ClampToRange(double value) {
+            return MathUtil.Clamp(value, ValidRange.a, ValidRange.b);
+        }
+    }
+
 
     public class IntParameter : IParameter<int>
     {
+        Interval1i ValidRange;
+
         public IntParameter()
         {
             name = "int_parameter";
             defaultValue = 0;
+            ValidRange = new Interval1i(int.MinValue, int.MaxValue);
         }
         override public string TypeName() { return "int"; }
+
+        public void SetValidRange(int min, int max) {
+            ValidRange = new Interval1i(min, max);
+        }
+
+        override public int ClampToRange(int value) {
+            return MathUtil.Clamp(value, ValidRange.a, ValidRange.b);
+        }
     }
+
 
     public class BoolParameter : IParameter<bool>
     {
@@ -55,6 +106,10 @@ namespace f3
             defaultValue = false;
         }
         override public string TypeName() { return "bool"; }
+
+        override public bool ClampToRange(bool value) {
+            return value;
+        }
     }
 
 
@@ -92,26 +147,40 @@ namespace f3
         }
 
 
-        public virtual bool Register(string sName, Func<float> getValue, Action<float> setValue, float defaultValue, bool isAlias = false) {
+        public virtual FloatParameter Register(string sName, Func<float> getValue, Action<float> setValue, float defaultValue, bool isAlias = false) {
             if (FindByName(sName) != null)
-                return false;
-            vParameters.Add(new FloatParameter() 
-                { name = sName, getValue = getValue, setValue = setValue, defaultValue = defaultValue, isAlias = isAlias });
-            return true;
+                throw new Exception("ParameterSet.Register: parameter named " + sName + " already registered!");
+            var param = new FloatParameter() 
+                { name = sName, getValue = getValue, setValue = setValue, defaultValue = defaultValue, isAlias = isAlias };
+            vParameters.Add(param);
+            return param;
         }
-        public virtual bool Register(string sName, Func<int> getValue, Action<int> setValue, int defaultValue, bool isAlias = false) {
+
+        public virtual DoubleParameter Register(string sName, Func<double> getValue, Action<double> setValue, double defaultValue, bool isAlias = false) {
             if (FindByName(sName) != null)
-                return false;
-            vParameters.Add(new IntParameter() 
-                { name = sName, getValue = getValue, setValue = setValue, defaultValue = defaultValue, isAlias = isAlias });
-            return true;
+                throw new Exception("ParameterSet.Register: parameter named " + sName + " already registered!");
+            var param = new DoubleParameter() 
+                { name = sName, getValue = getValue, setValue = setValue, defaultValue = defaultValue, isAlias = isAlias };
+            vParameters.Add(param);
+            return param;
         }
-        public virtual bool Register(string sName, Func<bool> getValue, Action<bool> setValue, bool defaultValue, bool isAlias = false) {
+
+        public virtual IntParameter Register(string sName, Func<int> getValue, Action<int> setValue, int defaultValue, bool isAlias = false) {
             if (FindByName(sName) != null)
-                return false;
-            vParameters.Add(new BoolParameter() 
-                { name = sName, getValue = getValue, setValue = setValue, defaultValue = defaultValue, isAlias = isAlias });
-            return true;
+                throw new Exception("ParameterSet.Register: parameter named " + sName + " already registered!");
+            var param = new IntParameter() 
+                { name = sName, getValue = getValue, setValue = setValue, defaultValue = defaultValue, isAlias = isAlias };
+            vParameters.Add(param);
+            return param;
+        }
+
+        public virtual BoolParameter Register(string sName, Func<bool> getValue, Action<bool> setValue, bool defaultValue, bool isAlias = false) {
+            if (FindByName(sName) != null)
+                throw new Exception("ParameterSet.Register: parameter named " + sName + " already registered!");
+            var param = new BoolParameter() 
+                { name = sName, getValue = getValue, setValue = setValue, defaultValue = defaultValue, isAlias = isAlias };
+            vParameters.Add(param);
+            return param;
         }
 
 
@@ -130,6 +199,15 @@ namespace f3
             if ((p is FloatParameter) == false)
                 throw new InvalidOperationException("ParameterSet.GetValue - parameter " + sName + " is of type + " + p.TypeName());
             return (p as FloatParameter).getValue();
+        }
+        public virtual double GetValueDouble(string sName)
+        {
+            AnyParameter p = FindByName(sName);
+            if (p == null)
+                throw new InvalidOperationException("ParameterSet.GetValue - parameter " + sName + " does not exist in this set");
+            if ((p is DoubleParameter) == false)
+                throw new InvalidOperationException("ParameterSet.GetValue - parameter " + sName + " is of type + " + p.TypeName());
+            return (p as DoubleParameter).getValue();
         }
         public virtual int GetValueInt(string sName) {
             AnyParameter p = FindByName(sName);
@@ -165,7 +243,9 @@ namespace f3
             AnyParameter p = FindByName(sName);
             if (p == null || (p is IParameter<T>) == false)
                 throw new InvalidOperationException("ParameterSet.GetValue - parameter " + sName + " is of type + " + p.TypeName());
-            (p as IParameter<T>).setValue(value);
+            IParameter<T> paramT = p as IParameter<T>;
+            T clamped_value = paramT.ClampToRange(value);
+            paramT.setValue(clamped_value);
             on_parameter_modified(sName);
         }
 
