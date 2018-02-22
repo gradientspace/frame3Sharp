@@ -505,6 +505,8 @@ namespace f3
         {
             if (FPlatformUI.IsConsumingMouseInput())
                 return false;
+            if (FPlatformUI.TextEntryFieldHasFocus())
+                return false;
 
             foreach ( IShortcutKeyHandler h in vKeyHandlers ) {
                 if (h.HandleShortcuts())

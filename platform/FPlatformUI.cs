@@ -14,5 +14,16 @@ namespace f3
             bool over_go = UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
             return over_go;
         }
+
+
+        public static bool TextEntryFieldHasFocus()
+        {
+            var focusObj = UnityEngine.EventSystems.EventSystem.current;
+            if (focusObj == null)
+                return false;
+            if (focusObj.GetComponent<UnityEngine.UI.InputField>() != null)
+                return true;
+            return false;
+        }
     }
 }
