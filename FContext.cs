@@ -713,7 +713,7 @@ namespace f3 {
                 activeCockpit.InputBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;
                 activeCockpit.OverrideBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;
                 cockpitStack.Push(activeCockpit);
-                activeCockpit.RootGameObject.SetActive(false);
+                activeCockpit.RootGameObject.SetVisible(false);
             }
 
             Cockpit c = new Cockpit(this);
@@ -745,7 +745,7 @@ namespace f3 {
                 overrideBehaviors.Remove(activeCockpit.OverrideBehaviors);
                 activeCockpit.InputBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;
                 activeCockpit.OverrideBehaviors.OnSetChanged -= on_cockpit_behaviors_changed;
-                activeCockpit.RootGameObject.SetActive(false);
+                activeCockpit.RootGameObject.SetVisible(false);
                 if (bDestroy)
                     activeCockpit.Destroy();
                 activeCockpit = null;
@@ -753,7 +753,7 @@ namespace f3 {
 
             activeCockpit = cockpitStack.Pop();
             if (activeCockpit != null) {
-                activeCockpit.RootGameObject.SetActive(true);
+                activeCockpit.RootGameObject.SetVisible(true);
                 inputBehaviors.Add(activeCockpit.InputBehaviors, "active_cockpit");
                 overrideBehaviors.Add(activeCockpit.OverrideBehaviors, "active_cockpit_override");
                 activeCockpit.InputBehaviors.OnSetChanged += on_cockpit_behaviors_changed;

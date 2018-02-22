@@ -100,9 +100,9 @@ namespace f3
         {
             entry = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDMultiLineLabel"));
 
-            bgMesh = new fGameObject(AppendMeshGO("background", HUDUtil.MakeBackgroundMesh(Shape),
+            bgMesh = AppendMeshGO("background", HUDUtil.MakeBackgroundMesh(Shape),
                 MaterialUtil.CreateFlatMaterialF(BackgroundColor),
-                entry));
+                entry);
             bgMesh.RotateD(Vector3f.AxisX, -90.0f);
 
 
@@ -111,8 +111,8 @@ namespace f3
                 borderShape.Radius += BorderWidth;
                 borderShape.Height += 2 * BorderWidth;
                 borderShape.Width += 2 * BorderWidth;
-                border = new fGameObject(AppendMeshGO("border", HUDUtil.MakeBackgroundMesh(borderShape),
-                    MaterialUtil.CreateFlatMaterialF(BorderColor), entry));
+                border = AppendMeshGO("border", HUDUtil.MakeBackgroundMesh(borderShape),
+                    MaterialUtil.CreateFlatMaterialF(BorderColor), entry);
                 border.RotateD(Vector3f.AxisX, -90.0f);
                 border.Translate(-0.001f * Vector3f.AxisY, true);
             }

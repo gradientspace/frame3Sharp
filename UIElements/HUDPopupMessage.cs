@@ -97,9 +97,9 @@ namespace f3
         {
             entry = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDPopupMessage"));
 
-            bgMesh = new fGameObject(AppendMeshGO("background", make_background_mesh(),
+            bgMesh = AppendMeshGO("background", make_background_mesh(),
                 MaterialUtil.CreateFlatMaterialF(BackgroundColor),
-                entry));
+                entry);
             bgMesh.RotateD(Vector3f.AxisX, -90.0f);
 
 

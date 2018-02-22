@@ -132,7 +132,7 @@ namespace f3
         public fLineGameObject(GameObject go, CurveRendererImplementation curveRenderer)
             : base(go, curveRenderer)
         {
-            LineRenderer r = go.GetComponent<LineRenderer>();
+            LineRenderer r = GetComponent<LineRenderer>();
             r.positionCount = 2;
         }
 
@@ -141,7 +141,7 @@ namespace f3
         {
             if (start != s) {
                 start = s;
-                LineRenderer r = go.GetComponent<LineRenderer>();
+                LineRenderer r = GetComponent<LineRenderer>();
                 r.SetPosition(0, start);
             }
         }
@@ -152,7 +152,7 @@ namespace f3
         {
             if (end != e) {
                 end = e;
-                LineRenderer r = go.GetComponent<LineRenderer>();
+                LineRenderer r = GetComponent<LineRenderer>();
                 r.SetPosition(1, end);
             }
         }

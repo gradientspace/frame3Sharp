@@ -89,7 +89,7 @@ namespace f3
         List<SceneObject> targets;
 		ITransformWrapper targetWrapper;
 
-		Dictionary<GameObject, Standard3DWidget> Widgets;
+		Dictionary<fGameObject, Standard3DWidget> Widgets;
         Standard3DWidget activeWidget;
         Standard3DWidget hoverWidget;
 
@@ -117,7 +117,7 @@ namespace f3
 
         public AxisTransformGizmo(IAxisGizmoWidgetFactory widgetFactory = null)
 		{
-			Widgets = new Dictionary<GameObject, Standard3DWidget> ();
+			Widgets = new Dictionary<fGameObject, Standard3DWidget> ();
             Factory = (widgetFactory != null) ? widgetFactory : new DefaultAxisGizmoWidgetFactory();
             //EnableDebugLogging = false;
         }
@@ -424,19 +424,19 @@ namespace f3
 
         void update_active()
         {
-            if (translate_x != null) translate_x.SetActive((eEnabledWidgets & AxisGizmoFlags.AxisTranslateX) != 0);
-            if (translate_y != null) translate_y.SetActive((eEnabledWidgets & AxisGizmoFlags.AxisTranslateY) != 0);
-            if (translate_z != null) translate_z.SetActive((eEnabledWidgets & AxisGizmoFlags.AxisTranslateZ) != 0);
+            if (translate_x != null) translate_x.SetVisible((eEnabledWidgets & AxisGizmoFlags.AxisTranslateX) != 0);
+            if (translate_y != null) translate_y.SetVisible((eEnabledWidgets & AxisGizmoFlags.AxisTranslateY) != 0);
+            if (translate_z != null) translate_z.SetVisible((eEnabledWidgets & AxisGizmoFlags.AxisTranslateZ) != 0);
 
-            if (rotate_x != null) rotate_x.SetActive((eEnabledWidgets & AxisGizmoFlags.AxisRotateX) != 0 );
-            if (rotate_y != null) rotate_y.SetActive((eEnabledWidgets & AxisGizmoFlags.AxisRotateY) != 0);
-            if (rotate_z != null) rotate_z.SetActive((eEnabledWidgets & AxisGizmoFlags.AxisRotateZ) != 0);
+            if (rotate_x != null) rotate_x.SetVisible((eEnabledWidgets & AxisGizmoFlags.AxisRotateX) != 0 );
+            if (rotate_y != null) rotate_y.SetVisible((eEnabledWidgets & AxisGizmoFlags.AxisRotateY) != 0);
+            if (rotate_z != null) rotate_z.SetVisible((eEnabledWidgets & AxisGizmoFlags.AxisRotateZ) != 0);
 
-            if (translate_yz != null) translate_yz.SetActive((eEnabledWidgets & AxisGizmoFlags.PlaneTranslateX) != 0);
-            if (translate_xz != null) translate_xz.SetActive((eEnabledWidgets & AxisGizmoFlags.PlaneTranslateY) != 0);
-            if (translate_xy != null) translate_xy.SetActive((eEnabledWidgets & AxisGizmoFlags.PlaneTranslateZ) != 0);
+            if (translate_yz != null) translate_yz.SetVisible((eEnabledWidgets & AxisGizmoFlags.PlaneTranslateX) != 0);
+            if (translate_xz != null) translate_xz.SetVisible((eEnabledWidgets & AxisGizmoFlags.PlaneTranslateY) != 0);
+            if (translate_xy != null) translate_xy.SetVisible((eEnabledWidgets & AxisGizmoFlags.PlaneTranslateZ) != 0);
 
-            if (uniform_scale != null) uniform_scale.SetActive((eEnabledWidgets & AxisGizmoFlags.UniformScale) != 0);
+            if (uniform_scale != null) uniform_scale.SetVisible((eEnabledWidgets & AxisGizmoFlags.UniformScale) != 0);
         }
 
 

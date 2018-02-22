@@ -27,7 +27,7 @@ namespace f3
     //
     public class fGameObject
     {
-        protected GameObject go;
+        private GameObject go;
 
         public fGameObject(GameObject go, FGOFlags flags = FGOFlags.NoFlags)
         {
@@ -164,18 +164,18 @@ namespace f3
         {
             go.GetComponent<MeshFilter>().mesh = m;
         }
-        public virtual void SetSharedMesh(Mesh m)
+        public virtual void SetSharedMesh(Mesh m, bool bUpdateCollider = false)
         {
-            go.GetComponent<MeshFilter>().sharedMesh = m;
+            go.SetSharedMesh(m, bUpdateCollider);
         }
 
-        public virtual void SetMesh(fMesh m)
+        public virtual void SetMesh(fMesh m, bool bUpdateCollider = false)
         {
-            go.GetComponent<MeshFilter>().mesh = m;
+            go.SetMesh(m, bUpdateCollider);
         }
-        public virtual void SetSharedMesh(fMesh m)
+        public virtual void SetSharedMesh(fMesh m, bool bUpdateCollider = false)
         {
-            go.GetComponent<MeshFilter>().sharedMesh = m;
+            go.SetSharedMesh(m, bUpdateCollider);
         }
 
         public virtual void SetMaterial(fMaterial mat, bool bShared = false)
@@ -208,17 +208,17 @@ namespace f3
 
         public virtual void Hide()
         {
-            SetVisible(false);
+            go.SetVisible(false);
         }
         public virtual void Show()
         {
-            SetVisible(true);
+            go.SetVisible(true);
         }
         public virtual void SetVisible(bool bVisible)
         {
             go.SetVisible(bVisible);
         }
-        public bool IsVisible()
+        public virtual bool IsVisible()
         {
             return go.IsVisible();
         }
@@ -230,12 +230,6 @@ namespace f3
         public void DisableCollider() {
             go.EnableCollider(false);
         }
-
-
-        public virtual void SetActive(bool bActive) {
-            go.SetActive(bActive);
-        }
-
 
 
 
@@ -521,12 +515,12 @@ namespace f3
         public bool EnableCollisions
         {
             set {
-                MeshCollider c = go.GetComponent<MeshCollider>();
+                MeshCollider c = GetComponent<MeshCollider>();
                 if (c != null) {
-                    if (go.activeSelf == false) {
-                        go.SetActive(true);
+                    if ( base.IsVisible() == false) {
+                        base.SetVisible(true);
                         c.enabled = value;
-                        go.SetActive(false);
+                        base.SetVisible(false);
                     } else {
                         c.enabled = value;
                     }
@@ -539,10 +533,10 @@ namespace f3
         {
             if (bShared) {
                 Mesh = m;
-                go.SetSharedMesh(m, bUpdateCollider);
+                base.SetSharedMesh(m, bUpdateCollider);
             } else {
-                go.SetMesh(m, bUpdateCollider);
-                Mesh = new fMesh(go.GetSharedMesh());
+                base.SetMesh(m, bUpdateCollider);
+                Mesh = new fMesh(base.GetSharedMesh());
             }
         }
     }
