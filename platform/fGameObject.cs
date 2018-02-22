@@ -47,6 +47,25 @@ namespace f3
         {
             this.go = go;
 
+            // Link the go to this fGameObject. Normally the fGameObjectRef would not already exist.
+            // But it can in two cases:
+            //   1) you created the input go by calling Instantiate() on an existing go which 
+            //      already had an fGameObjectRef. For example this happens at F3 startup with the Camera duplicates.
+            //      In that case, it will not be initialized, so fgo is null
+            //   2) you cast the input go to an fGameObject before you called this. In that case a default
+            //      fGameObject instance was already created that we no longer want. You should not do this!
+            //      (Eventually this will throw an Exception!!)
+            if (go.GetComponent<fGameObjectRef>() == null) {
+                go.AddComponent<fGameObjectRef>();
+            } else {
+                // [RMS] print error if duplicate FGO created for a GO. This is helpful.
+                // However currently CurveRendererImplementation requires an FGO be created
+                // *before* it can be passed to a fCurveGameObject =\
+                //if (go.GetComponent<fGameObjectRef>().fgo != null)
+                //    DebugUtil.Log("Duplicate fGameObject created for go " + go.name);
+            }
+            go.GetComponent<fGameObjectRef>().fgo = this;
+
             bool bEnablePreRender = (flags & FGOFlags.EnablePreRender) != 0;
             if (bEnablePreRender) {
                 if (go.GetComponent<PreRenderBehavior>() != null)
@@ -333,17 +352,62 @@ namespace f3
         }
 
 
+
+        /*
+         *  Casting support. We want to be able to transparently cast between GameObject
+         *  and fGameObject for the time being, because GameObject is still used frequently
+         *  inside F3. Eventually we will remove this and it will be necessary to explicitly
+         *  convert...
+         *  
+         *  FGO->GO is fine, but GO->FGO involves creating a new object. But if we *always*
+         *  just return a new FGO wrapper, then we cannot assume FGO == FGO for the same GO.
+         *  So, instead we attach a component to the GO that stores the FGO reference, then
+         *  we can (mostly) return the same FGO in the implicit cast.
+         *  
+         *  (Yes, this is a hack)
+         *  
+         *  The one caveat is if the GO will explicitly be wrapped in an FGO (eg by passing
+         *  it to an fGameObject-derived type). If you cast the GO to FGO before that, 
+         *  then there will be a temporary FGO that is created, and discarded in fGameObject.Initialize().
+         *  If you stored a reference to that FGO, then you have (FGO)GO != OLD_FGO
+         *  (Doing this will eventually result in a exception, but not yet, see fgo.Initialize() for details)
+         *  
+         */
+
         public static implicit operator UnityEngine.GameObject(fGameObject go)
         {
             return (go != null) ? go.go : null;
         }
         public static implicit operator fGameObject(UnityEngine.GameObject go)
         {
-            return (go != null) ? new fGameObject(go, FGOFlags.NoFlags) : null;
+            if (go == null)
+                return null;
+            fGameObjectRef f = go.GetComponent<fGameObjectRef>();
+            if (f == null) {
+                // this will automatically add the fGameObjectRef to the go
+                var tmp = new fGameObject(go, FGOFlags.NoFlags);
+                f = go.GetComponent<fGameObjectRef>();
+            }
+            return f.fgo;
         }
+
+        // MonoBehaviour that we attach to a GO to store the reference to its FGO
+        class fGameObjectRef : MonoBehaviour
+        {
+            public fGameObject fgo;
+        }
+
     }
 
 
+
+
+
+    /*
+     * 
+     *  fGameObject subtypes
+     * 
+     */
 
 
 
