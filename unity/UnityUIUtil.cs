@@ -150,35 +150,60 @@ namespace f3
             return field;
         }
 
+
+
         public static InputField FindInputAndAddIntHandlers(string inputName, Func<int> getValue, Action<int> setValue, int minValue, int maxValue)
         {
             var field = UnityUtil.FindGameObjectByName(inputName).GetComponent<InputField>();
-            field.onValueChanged.AddListener((fieldString) => {
+            AddIntHandlers(field, getValue, setValue, minValue, maxValue);
+            return field;
+        }
+        public static InputField FindInputAndAddIntHandlers(GameObject parentGO, string inputName, Func<int> getValue, Action<int> setValue, int minValue, int maxValue)
+        {
+            var field = UnityUtil.FindChildByName(parentGO, inputName).GetComponent<InputField>();
+            AddIntHandlers(field, getValue, setValue, minValue, maxValue);
+            return field;
+        }
+        public static void AddIntHandlers(InputField field, Func<int> getValue, Action<int> setValue, int minValue, int maxValue)
+        {
+            field.onEndEdit.AddListener((fieldString) => {
                 try {
                     int value = int.Parse(fieldString);
                     if (value < minValue) value = minValue;
                     if (value > maxValue) value = maxValue;
                     setValue(value);
+                    field.text = getValue().ToString();
                 } catch { return; }
             });
             field.text = getValue().ToString();
-            return field;
         }
+
 
 
         public static InputField FindInputAndAddFloatHandlers(string inputName, Func<float> getValue, Action<float> setValue, float minValue, float maxValue)
         {
             var field = UnityUtil.FindGameObjectByName(inputName).GetComponent<InputField>();
-            field.onValueChanged.AddListener((fieldString) => {
+            AddFloatHandlers(field, getValue, setValue, minValue, maxValue);
+            return field;
+        }
+        public static InputField FindInputAndAddFloatHandlers(GameObject parentGO, string inputName, Func<float> getValue, Action<float> setValue, float minValue, float maxValue)
+        {
+            var field = UnityUtil.FindChildByName(parentGO, inputName).GetComponent<InputField>();
+            AddFloatHandlers(field, getValue, setValue, minValue, maxValue);
+            return field;
+        }
+        public static void AddFloatHandlers(InputField field, Func<float> getValue, Action<float> setValue, float minValue, float maxValue)
+        {
+            field.onEndEdit.AddListener((fieldString) => {
                 try {
                     float value = float.Parse(fieldString);
                     if (value < minValue) value = minValue;
                     if (value > maxValue) value = maxValue;
                     setValue(value);
+                    field.text = getValue().ToString();
                 } catch { return; }
             });
             field.text = getValue().ToString();
-            return field;
         }
 
 
