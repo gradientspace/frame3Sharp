@@ -22,6 +22,26 @@ namespace f3
         {
         }
 
+
+        /// <summary>
+        /// Utility to add SO geometry to a parent GO, which would then be passed to Create()
+        /// </summary>
+        public static void AppendSOGeometry(fGameObject parentGO, SceneObject so, bool bAddMeshColliders)
+        {
+            fGameObject copy = GameObjectFactory.Duplicate(so.RootGameObject);
+
+            // if so is a DMeshSO, and it doesn't have a collider, add it
+            if (so is DMeshSO && bAddMeshColliders) {
+                foreach (var go in copy.Children()) {
+                    if (go.GetComponent<MeshFilter>() != null && go.GetComponent<MeshCollider>() == null)
+                        go.AddComponent<MeshCollider>();
+                }
+            }
+
+            parentGO.AddChild(copy, true);
+        }
+
+
         public GOWrapperSO Create(GameObject gameObj)
         {
             fMaterial unityMaterial = gameObj.GetMaterial();
@@ -42,7 +62,6 @@ namespace f3
 
             return this;
         }
-
 
 
         //

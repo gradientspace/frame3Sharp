@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using g3;
 
 namespace f3
@@ -12,7 +11,7 @@ namespace f3
 
 
 
-        public static bool FindNearestRayIntersection(IEnumerable<SceneObject> vSceneObjects, Ray ray, out SORayHit hit) {
+        public static bool FindNearestRayIntersection(IEnumerable<SceneObject> vSceneObjects, Ray3f ray, out SORayHit hit) {
             hit = null;
             foreach (var so in vSceneObjects) {
                 SORayHit soHit;
@@ -23,7 +22,7 @@ namespace f3
             }
             return (hit != null);
         }
-        public static bool FindNearestRayIntersection(IEnumerable<SceneObject> vSceneObjects, Func<SceneObject,bool> filter, Ray ray, out SORayHit hit)
+        public static bool FindNearestRayIntersection(IEnumerable<SceneObject> vSceneObjects, Func<SceneObject,bool> filter, Ray3f ray, out SORayHit hit)
         {
             hit = null;
             foreach (var so in vSceneObjects) {
@@ -149,27 +148,8 @@ namespace f3
                 scene.Deselect(s2);
 
             fGameObject parentGO = GameObjectFactory.CreateParentGO("combined");
-
-            fGameObject copy1 = GameObjectFactory.Duplicate(s1.RootGameObject);
-            fGameObject copy2 = GameObjectFactory.Duplicate(s2.RootGameObject);
-
-
-            // if inputs are DMeshSOs, they do not have colliders, which we will need...
-            if (s1 is DMeshSO) {
-                foreach (var go in copy1.Children()) {
-                    if (go.GetComponent<MeshFilter>() != null && go.GetComponent<MeshCollider>() == null)
-                        go.AddComponent<MeshCollider>();
-                }
-            }
-            if (s2 is DMeshSO) {
-                foreach (var go in copy2.Children()) {
-                    if (go.GetComponent<MeshFilter>() != null && go.GetComponent<MeshCollider>() == null)
-                        go.AddComponent<MeshCollider>();
-                }
-            }
-
-            parentGO.AddChild(copy1, true);
-            parentGO.AddChild(copy2, true);
+            GOWrapperSO.AppendSOGeometry(parentGO, s1, true);
+            GOWrapperSO.AppendSOGeometry(parentGO, s2, true);
 
             GOWrapperSO wrapperSO = new GOWrapperSO() { AllowMaterialChanges = false };
             wrapperSO.Create(parentGO);
@@ -345,7 +325,7 @@ namespace f3
 
 	public class GameObjectRayHit : RayHit
 	{
-		public GameObject hitGO;
+		public fGameObject hitGO;
 	}
 
 
@@ -364,7 +344,7 @@ namespace f3
 			hitSO = so;
 		}
         public SORayHit(AnyRayHit init) {
-            Debug.Assert(init.eType == HitType.SceneObjectHit);
+            Util.gDevAssert(init.eType == HitType.SceneObjectHit);
             hitPos = init.hitPos;
             hitNormal = init.hitNormal;
             fHitDist = init.fHitDist;
@@ -389,7 +369,7 @@ namespace f3
 		}
         public UIRayHit(AnyRayHit init)
         {
-            Debug.Assert(init.eType == HitType.SceneUIElementHit);
+            Util.gDevAssert(init.eType == HitType.SceneUIElementHit);
             hitPos = init.hitPos;
             hitNormal = init.hitNormal;
             fHitDist = init.fHitDist;
@@ -449,7 +429,7 @@ namespace f3
 		}
         public AnyRayHit(GameObjectRayHit init, HitType eType)
         {
-            Debug.Assert(eType == HitType.BoundsObjectHit);
+            Util.gDevAssert(eType == HitType.BoundsObjectHit);
             hitPos = init.hitPos;
             hitNormal = init.hitNormal;
             fHitDist = init.fHitDist;
