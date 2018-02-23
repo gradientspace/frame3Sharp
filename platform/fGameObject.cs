@@ -106,9 +106,13 @@ namespace f3
             return go.name;
         }
 
-        public virtual void SetLayer(int layer)
+        public virtual void SetLayer(int layer, bool bSetOnChildren = false)
         {
             go.layer = layer;
+            if (bSetOnChildren) {
+                foreach (var child in Children())
+                    child.SetLayer(layer, true);
+            }
         }
         public virtual int GetLayer()
         {
