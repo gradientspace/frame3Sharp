@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 using System.Collections.Generic;
 using g3;
 
@@ -123,8 +122,8 @@ namespace f3
         }
         ~AxisTransformGizmo()
         {
-            Debug.Assert(internalGroupSO == null);
-            Debug.Assert(internalXFormSO == null);
+            Util.gDevAssert(internalGroupSO == null);
+            Util.gDevAssert(internalXFormSO == null);
         }
 
 
@@ -148,7 +147,7 @@ namespace f3
         public List<SceneObject> Targets
         {
             get { return targets; }
-            set { Debug.Assert(false, "not implemented!"); }
+            set { Util.gDevAssert(false, "not implemented!"); }
         }
         public FScene Scene {
             get { return parentScene; }
@@ -229,7 +228,7 @@ namespace f3
 			this.parentScene = parentScene;
 			this.targets = targets;
 
-			root = new GameObject("TransformGizmo");
+			root = GameObjectFactory.CreateParentGO("TransformGizmo");
 
             var xMaterial = Factory.MakeMaterial(AxisGizmoFlags.AxisTranslateX);
             var xHoverMaterial = Factory.MakeHoverMaterial(AxisGizmoFlags.AxisTranslateX);
