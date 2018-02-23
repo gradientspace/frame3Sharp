@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System;
+using UnityEngine;
 
 namespace f3
 {
@@ -81,7 +81,7 @@ namespace f3
             Use2DCockpit = false;
             ConstantSize2DCockpit = false;
             // default logging level is to be verbose in editor
-            LogLevel = (Application.isEditor) ? 1 : 0;
+            LogLevel = FPlatform.InUnityEditor() ? 1 : 0;
         }
     }
 }

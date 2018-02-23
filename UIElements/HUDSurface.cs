@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 using g3;
 
 namespace f3
@@ -24,7 +23,7 @@ namespace f3
             Frame3f hudFrame = HUDUtil.GetSphereFrame(Radius, dx, dy);
             hudItem.SetObjectFrame(
                 initFrame.Translated(hudFrame.Origin)
-                .Rotated(Quaternion.FromToRotation(initFrame.Z, hudFrame.Z)));
+                .Rotated(Quaternionf.FromTo(initFrame.Z, hudFrame.Z)));
         }
     }
 
@@ -49,7 +48,7 @@ namespace f3
                 HUDUtil.GetCylinderFrameFromAngleHeight(Radius, dx, dy);
             hudItem.SetObjectFrame(
                 initFrame.Translated(hudFrame.Origin)
-                .Rotated(Quaternion.FromToRotation(initFrame.Z, hudFrame.Z)));
+                .Rotated(Quaternionf.FromTo(initFrame.Z, hudFrame.Z)));
         }
     }
 

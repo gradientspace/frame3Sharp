@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 using g3;
 
 namespace f3
@@ -13,7 +12,7 @@ namespace f3
 
         public virtual void Create()
         {
-            rootGO = new GameObject(UniqueNames.GetNext("HUDProgress"));
+            rootGO =  GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDProgress"));
         }
 
         public event ValueChangedHandler OnProgressChanged;

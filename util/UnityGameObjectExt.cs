@@ -88,11 +88,13 @@ namespace f3
 
         public static Mesh GetMesh(this GameObject go)
         {
-            return go.GetComponent<MeshFilter>().mesh;
+            var filter = go.GetComponent<MeshFilter>();
+            return (filter != null) ? filter.mesh : null;
         }
         public static Mesh GetSharedMesh(this GameObject go)
         {
-            return go.GetComponent<MeshFilter>().sharedMesh;
+            var filter = go.GetComponent<MeshFilter>();
+            return (filter != null) ? filter.sharedMesh: null;
         }
         public static void SetMesh(this GameObject go, Mesh m, bool bUpdateCollider = false) {
             go.GetComponent<MeshFilter>().mesh = m;

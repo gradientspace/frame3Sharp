@@ -2,30 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 using g3;
 
 namespace f3
 {
 
-
-    public class HUDUtil
+    // [RMS] this is partial because we have some things to add in platform componets
+    public partial class HUDUtil
     {
         // returns frame at ray-intersection point, with normal pointing *outwards*
         public static Frame3f GetSphereFrame(float fHUDRadius, float fHorzAngleDeg, float fVertAngleDeg)
         {
-            Ray r = VRUtil.MakeRayFromSphereCenter(fHorzAngleDeg, fVertAngleDeg);
+            Ray3f r = VRUtil.MakeRayFromSphereCenter(fHorzAngleDeg, fVertAngleDeg);
             float fRayT = 0.0f;
-            RayIntersection.Sphere(r.origin, r.direction, Vector3.zero, fHUDRadius, out fRayT);
-            Vector3 v = r.origin + fRayT * r.direction;
-            return new Frame3f(v, v.normalized);
+            RayIntersection.Sphere(r.Origin, r.Direction, Vector3f.Zero, fHUDRadius, out fRayT);
+            Vector3f v = r.Origin + fRayT * r.Direction;
+            return new Frame3f(v, v.Normalized);
         }
 
 
-        public static Frame3f GetSphereFrame(float fHUDRadius, Vector3 vHUDCenter, Vector3 vPosition, bool bInwards = false)
+        public static Frame3f GetSphereFrame(float fHUDRadius, Vector3f vHUDCenter, Vector3f vPosition, bool bInwards = false)
         {
-            Vector3 n = (vPosition - vHUDCenter).normalized;
-            Vector3 p = vHUDCenter + fHUDRadius * n;
+            Vector3f n = (vPosition - vHUDCenter).Normalized;
+            Vector3f p = vHUDCenter + fHUDRadius * n;
             return new Frame3f(p, (bInwards) ? -n : n);
         }
 
@@ -36,37 +35,37 @@ namespace f3
             Frame3f hudFrame = GetSphereFrame(fHUDRadius, fAngleHorz, fAngleVert);
             hudItem.SetObjectFrame(
                 initFrame.Translated(hudFrame.Origin)
-                .Rotated(Quaternion.FromToRotation(initFrame.Z, hudFrame.Z)));
+                .Rotated(Quaternionf.FromTo(initFrame.Z, hudFrame.Z)));
         }
 
-        public static void PlaceInSphereWithNormal(HUDStandardItem hudItem, float fHUDRadius, float fAngleHorz, float fAngleVert, Vector3 vPointDir)
+        public static void PlaceInSphereWithNormal(HUDStandardItem hudItem, float fHUDRadius, float fAngleHorz, float fAngleVert, Vector3f vPointDir)
         {
             Frame3f initFrame = hudItem.GetObjectFrame();
             Frame3f hudFrame = GetSphereFrame(fHUDRadius, fAngleHorz, fAngleVert);
             hudItem.SetObjectFrame(
                 initFrame.Translated(hudFrame.Origin)
-                .Rotated(Quaternion.FromToRotation(initFrame.Z, vPointDir)));
+                .Rotated(Quaternionf.FromTo(initFrame.Z, vPointDir)));
         }
 
 
-        public static void PlaceInSphere(HUDStandardItem hudItem, float fHUDRadius, Vector3 vHUDCenter, Vector3 vPlaceAt)
+        public static void PlaceInSphere(HUDStandardItem hudItem, float fHUDRadius, Vector3f vHUDCenter, Vector3f vPlaceAt)
         {
             Frame3f initFrame = hudItem.GetObjectFrame();
             Frame3f hudFrame = GetSphereFrame(fHUDRadius, vHUDCenter, vPlaceAt);
             hudItem.SetObjectFrame(
                 initFrame.Translated(hudFrame.Origin)
-                .Rotated(Quaternion.FromToRotation(initFrame.Z, hudFrame.Z)));
+                .Rotated(Quaternionf.FromTo(initFrame.Z, hudFrame.Z)));
         }
 
 
-        public static void PlaceInScene(HUDStandardItem hudItem, Vector3 vHUDCenter, Vector3 vPlaceAt)
+        public static void PlaceInScene(HUDStandardItem hudItem, Vector3f vHUDCenter, Vector3f vPlaceAt)
         {
             Frame3f initFrame = hudItem.GetObjectFrame();
-            Vector3 n = (vPlaceAt - vHUDCenter).normalized;
+            Vector3f n = (vPlaceAt - vHUDCenter).Normalized;
             Frame3f frame = new Frame3f(vPlaceAt, n);
             hudItem.SetObjectFrame(
                 initFrame.Translated(frame.Origin)
-                .Rotated(Quaternion.FromToRotation(initFrame.Z, frame.Z)));
+                .Rotated(Quaternionf.FromTo(initFrame.Z, frame.Z)));
         }
 
 
@@ -85,24 +84,24 @@ namespace f3
         // returns frame at ray-intersection point, with normal pointing *outwards*
         public static Frame3f GetCylinderFrameFromAngles(float fHUDRadius, float fHorzAngleDeg, float fVertAngleDeg)
         {
-            Ray r = VRUtil.MakeRayFromSphereCenter(fHorzAngleDeg, fVertAngleDeg);
+            Ray3f r = VRUtil.MakeRayFromSphereCenter(fHorzAngleDeg, fVertAngleDeg);
             float fRayT = 0.0f;
-            RayIntersection.InfiniteCylinder(r.origin, r.direction, Vector3f.Zero, Vector3f.AxisY, fHUDRadius, out fRayT);
-            Vector3 v = r.origin + fRayT * r.direction;
-            Vector3 n = new Vector3(v[0], 0, v[2]).normalized;
+            RayIntersection.InfiniteCylinder(r.Origin, r.Direction, Vector3f.Zero, Vector3f.AxisY, fHUDRadius, out fRayT);
+            Vector3f v = r.Origin + fRayT * r.Direction;
+            Vector3f n = new Vector3f(v[0], 0, v[2]).Normalized;
             return new Frame3f(v, n);
         }
 
 
         public static Frame3f GetCylinderFrameFromAngleHeight(float fHUDRadius, float fHorzAngleDeg, float fVertHeight)
         {
-            Ray r = VRUtil.MakeRayFromSphereCenter(fHorzAngleDeg, 0);
-            r.direction = fHUDRadius * r.direction + fVertHeight * Vector3.up;
-            r.direction.Normalize();
+            Ray3f r = VRUtil.MakeRayFromSphereCenter(fHorzAngleDeg, 0);
+            r.Direction = fHUDRadius * r.Direction + fVertHeight * Vector3f.AxisY;
+            r.Direction.Normalize();
             float fRayT = 0.0f;
-            RayIntersection.InfiniteCylinder(r.origin, r.direction, Vector3f.Zero, Vector3f.AxisY, fHUDRadius, out fRayT);
-            Vector3 v = r.origin + fRayT * r.direction;
-            Vector3 n = new Vector3(v[0], 0, v[2]).normalized;
+            RayIntersection.InfiniteCylinder(r.Origin, r.Direction, Vector3f.Zero, Vector3f.AxisY, fHUDRadius, out fRayT);
+            Vector3f v = r.Origin + fRayT * r.Direction;
+            Vector3f n = new Vector3f(v[0], 0, v[2]).Normalized;
             return new Frame3f(v, n);
         }
 
@@ -148,47 +147,7 @@ namespace f3
 
 
 
-        /// <summary>
-        /// This is very hacky.
-        /// </summary>
-        public static void AddDropShadow(HUDStandardItem item, Cockpit cockpit, Colorf color, 
-            float falloffWidthPx, Vector2f offset, float fZShift, bool bTrackCockpitScaling = true)
-        {
-            if (item is IBoxModelElement == false)
-                throw new Exception("HUDUtil.AddDropShadow: can only add drop shadow to IBoxModelElement");
 
-            float falloffWidth = falloffWidthPx * cockpit.GetPixelScale();
-
-            // [TODO] need interface that provides a HUDShape?
-            var shape = item as IBoxModelElement;
-            float w = shape.Size2D.x + falloffWidth;
-            float h = shape.Size2D.y + falloffWidth;
-
-            fRectangleGameObject meshGO = GameObjectFactory.CreateRectangleGO("shadow", w, h, color, false);
-            meshGO.RotateD(Vector3f.AxisX, -90.0f);
-            fMaterial dropMat = MaterialUtil.CreateDropShadowMaterial(color, w, h, falloffWidth);
-            meshGO.SetMaterial(dropMat);
-
-            item.AppendNewGO(meshGO, item.RootGameObject, false);
-            BoxModel.Translate(meshGO, offset, fZShift);
-
-            if (bTrackCockpitScaling) {
-                PreRenderBehavior pb = meshGO.AddComponent<PreRenderBehavior>();
-                pb.ParentFGO = meshGO;
-                pb.AddAction(() => {
-                    Vector3 posW = item.RootGameObject.PointToWorld(meshGO.GetLocalPosition());
-                    ((Material)dropMat).SetVector("_Center", new Vector4(posW.x, posW.y, posW.z, 0));
-                    float curWidth = falloffWidthPx * cockpit.GetPixelScale();
-                    Vector2f origSize = shape.Size2D + falloffWidth * Vector2f.One;
-                    Vector2f size = cockpit.GetScaledDimensions(origSize);
-                    float ww = size.x;
-                    float hh = size.y;
-                    ((Material)dropMat).SetVector("_Extents", new Vector4(ww / 2, hh / 2, 0, 0));
-                    float newWidth = falloffWidthPx * cockpit.GetPixelScale();
-                    ((Material)dropMat).SetFloat("_FalloffWidth", newWidth);
-                });
-            }
-        }
 
 
 
@@ -288,7 +247,7 @@ namespace f3
         }
 
 
-        public static bool FindNearestRayIntersection(IEnumerable<SceneObject> vObjects, Ray ray, out SORayHit hit, Func<SceneObject,bool> filter = null)
+        public static bool FindNearestRayIntersection(IEnumerable<SceneObject> vObjects, Ray3f ray, out SORayHit hit, Func<SceneObject,bool> filter = null)
         {
             hit = null;
 
@@ -305,7 +264,7 @@ namespace f3
         }
 
 
-        public static bool FindNearestRayIntersection(IEnumerable<SceneUIElement> vElements, Ray ray, out UIRayHit hit)
+        public static bool FindNearestRayIntersection(IEnumerable<SceneUIElement> vElements, Ray3f ray, out UIRayHit hit)
         {
             hit = null;
 
@@ -318,7 +277,7 @@ namespace f3
             }
             return (hit != null);
         }
-        public static bool FindNearestHoverRayIntersection(IEnumerable<SceneUIElement> vElements, Ray ray, out UIRayHit hit)
+        public static bool FindNearestHoverRayIntersection(IEnumerable<SceneUIElement> vElements, Ray3f ray, out UIRayHit hit)
         {
             hit = null;
 
@@ -343,103 +302,37 @@ namespace f3
     {
         public string Path { get; set; }
         public float Scale { get; set; }
-        public Vector3 Translate { get; set; }
-        public Quaternion Rotate { get; set; }
-        public Color Color { get; set; }
+        public Vector3f Translate { get; set; }
+        public Quaternionf Rotate { get; set; }
+        public Colorf Color { get; set; }
 
         public IconMeshGenerator()
         {
             Scale = 0.1f;
-            Translate = new Vector3(0, 0, 0);
-            Rotate = Quaternion.AngleAxis(120.0f, Vector3.up);
-            Color = Color.grey;
+            Translate = new Vector3f(0, 0, 0);
+            Rotate = Quaternionf.AxisAngleD(Vector3f.AxisY, 120.0f);
+            Color = Colorf.Grey;
         }
 
         public List<fGameObject> Generate()
         {
-            var gameObj = new GameObject("iconMesh");
-            var gameObjMesh = (MeshFilter)gameObj.AddComponent(typeof(MeshFilter));
-            gameObj.SetMesh((Mesh)Resources.Load(Path, typeof(Mesh)));
-            MeshRenderer ren = gameObj.AddComponent<MeshRenderer>();
-            ren.material = MaterialUtil.CreateStandardMaterial(this.Color);
+            fMesh mesh = FResources.LoadMesh(Path);
+            fMeshGameObject fMeshGO = GameObjectFactory.CreateMeshGO("iconMesh", mesh, false, true);
+            fMeshGO.SetMaterial(MaterialUtil.CreateStandardMaterial(this.Color), true);
 
             // apply orientation
-            gameObjMesh.transform.localScale = new Vector3(Scale, Scale, Scale);
-            gameObjMesh.transform.localPosition += Translate;
-            gameObjMesh.transform.localRotation = Rotate;
+            fMeshGO.SetLocalScale(new Vector3f(Scale, Scale, Scale));
+            fMeshGO.SetLocalPosition(fMeshGO.GetLocalPosition() + Translate);
+            fMeshGO.SetLocalRotation(Rotate);
 
             // ignore material changes when we add to GameObjectSet
-            gameObj.AddComponent<IgnoreMaterialChanges>();
+            fMeshGO.AddComponent<IgnoreMaterialChanges>();
 
-            return new List<fGameObject>() { gameObj };
+            return new List<fGameObject>() { fMeshGO };
         }
     }
 
 
 
-    // create text mesh
-    // [TODO] only used by HUDRadialMenu, can get rid of when
-    //   we replace that with fText...
-    public class TextLabelGenerator : IGameObjectGenerator
-    {
-        public string Text { get; set; }
-        public float Scale { get; set; }
-        public Vector3 Translate { get; set; }
-        public Color Color { get; set; }
-        public float ZOffset { get; set; }
-
-        public TextAlignment TextAlign { get; set; }
-
-        public enum Alignment
-        {
-            Default, HCenter, VCenter, HVCenter
-        }
-        public Alignment Align { get; set; }
-
-        public TextLabelGenerator()
-        {
-            Text = "(label)";
-            TextAlign = TextAlignment.Center;
-            Scale = 0.1f;
-            Translate = new Vector3(0, 0, 0);
-            Color = ColorUtil.make(10,10,10);
-            ZOffset = -1.0f;
-        }
-
-        public List<fGameObject> Generate()
-        {
-            var gameObj = new GameObject("label");
-
-            TextMesh tm = gameObj.AddComponent<TextMesh>();
-            tm.text = Text;
-            tm.color = Color;
-            tm.fontSize = 50;
-            tm.offsetZ = ZOffset;
-            tm.alignment = TextAlign;
-
-            // [RMS] this isn't quite right, on the vertical centering...
-            Vector2 size = UnityUtil.EstimateTextMeshDimensions(tm);
-            Vector3 vCenterShift = Vector3.zero;
-            if (Align == Alignment.HCenter || Align == Alignment.HVCenter)
-                vCenterShift.x -= size.x * 0.5f;
-            if (Align == Alignment.VCenter || Align == Alignment.HVCenter)
-                vCenterShift.y += size.y * 0.5f;
-
-            // apply orientation
-            float useScale = Scale;
-            tm.transform.localScale = new Vector3(useScale, useScale, useScale);
-            tm.transform.localPosition += useScale*vCenterShift;
-            tm.transform.localPosition += Translate;
-
-            // ignore material changes when we add to GameObjectSet
-            gameObj.AddComponent<IgnoreMaterialChanges>();
-
-            // use our textmesh material instead
-            // [TODO] can we share between texts?
-            MaterialUtil.SetTextMeshDefaultMaterial(tm);
-
-            return new List<fGameObject>() { gameObj };
-        }
-    }
 
 }

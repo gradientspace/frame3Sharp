@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 using System.Threading;
 using UnityEngine;
 using g3;
@@ -77,12 +74,10 @@ namespace f3
             if (so is DMeshSO) {
                 // handled separately
             } else { 
-                GameObject rootgo = so.RootGameObject;
+                fGameObject rootgo = so.RootGameObject;
                 foreach (GameObject childgo in rootgo.Children()) {
-                    MeshFilter filter = childgo.GetComponent<MeshFilter>();
-                    if (filter == null || filter.mesh == null)
-                        continue;
-                    vExports.Add(childgo);
+                    if ( childgo.GetSharedMesh() != null )
+                        vExports.Add(childgo);
                 }
             }
             return vExports;

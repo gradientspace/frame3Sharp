@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
+using g3;
 
 namespace f3
 {
@@ -49,7 +49,7 @@ namespace f3
                                      string icon,
                                      IGameObjectGenerator addGeometry = null)
         {
-            Material mat = MaterialUtil.CreateTransparentImageMaterial(icon);
+            fMaterial mat = MaterialUtil.CreateTransparentImageMaterialF(icon);
             HUDButton button = new HUDButton() { Shape = shape };
             button.Create(mat);
             if (addGeometry != null)
@@ -81,11 +81,11 @@ namespace f3
 
         public static HUDButton CreateGeometryIconClickButton(HUDShape shape,
                                      float fHUDRadius, float fAngleHorz, float fAngleVert,
-                                     Color bgColor,
+                                     Colorf bgColor,
                                      IGameObjectGenerator addGeometry = null)
         {
-            Material mat = (bgColor.a == 1.0f) ?
-                MaterialUtil.CreateStandardMaterial(bgColor) : MaterialUtil.CreateTransparentMaterial(bgColor);
+            fMaterial mat = (bgColor.a == 1.0f) ?
+                MaterialUtil.CreateStandardMaterialF(bgColor) : MaterialUtil.CreateTransparentMaterialF(bgColor);
             HUDButton button = new HUDButton() { Shape = shape };
             button.Create(mat);
             if (addGeometry != null)
@@ -97,13 +97,13 @@ namespace f3
 
 
         public static HUDButton CreateMeshClickButton(
-            fMesh mesh, Color color, float fMeshScale, Quaternion meshRotation,
+            fMesh mesh, Colorf color, float fMeshScale, Quaternionf meshRotation,
             float fHUDRadius, float fAngleHorz, float fAngleVert,
             IGameObjectGenerator addGeometry = null)
         {
-            Material mat = (color.a < 1.0f) ?
-                MaterialUtil.CreateTransparentMaterial(color, color.a) :
-                MaterialUtil.CreateStandardMaterial(color);
+            fMaterial mat = (color.a < 1.0f) ?
+                MaterialUtil.CreateTransparentMaterialF(color, color.a) :
+                MaterialUtil.CreateStandardMaterialF(color);
 
             HUDButton button = new HUDButton();
             button.Create(mesh, mat, fMeshScale, meshRotation);
@@ -117,13 +117,13 @@ namespace f3
 
 
         public static HUDButton CreateMeshClickButton(
-            fMesh mesh, Color color, float fMeshScale, Quaternion meshRotation,
+            fMesh mesh, Colorf color, float fMeshScale, Quaternionf meshRotation,
             HUDSurface hudSurf, float dx, float dy,
             IGameObjectGenerator addGeometry = null)
         {
-            Material mat = (color.a < 1.0f) ?
-                MaterialUtil.CreateTransparentMaterial(color, color.a) :
-                MaterialUtil.CreateStandardMaterial(color);
+            fMaterial mat = (color.a < 1.0f) ?
+                MaterialUtil.CreateTransparentMaterialF(color, color.a) :
+                MaterialUtil.CreateStandardMaterialF(color);
 
             HUDButton button = new HUDButton();
             button.Create(mesh, mat, fMeshScale, meshRotation);

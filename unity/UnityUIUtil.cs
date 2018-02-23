@@ -413,8 +413,76 @@ namespace f3
 
         }
 
-
-
-
     }
+
+
+
+
+
+
+    // create text mesh
+    // [TODO] only used by HUDRadialMenu, can get rid of when
+    //   we replace that with fText...
+    public class TextLabelGenerator : IGameObjectGenerator
+    {
+        public string Text { get; set; }
+        public float Scale { get; set; }
+        public Vector3 Translate { get; set; }
+        public Colorf Color { get; set; }
+        public float ZOffset { get; set; }
+
+        public TextAlignment TextAlign { get; set; }
+
+        public enum Alignment
+        {
+            Default, HCenter, VCenter, HVCenter
+        }
+        public Alignment Align { get; set; }
+
+        public TextLabelGenerator()
+        {
+            Text = "(label)";
+            TextAlign = TextAlignment.Center;
+            Scale = 0.1f;
+            Translate = new Vector3f(0, 0, 0);
+            Color = ColorUtil.make(10, 10, 10);
+            ZOffset = -1.0f;
+        }
+
+        public List<fGameObject> Generate()
+        {
+            var gameObj = new GameObject("label");
+
+            TextMesh tm = gameObj.AddComponent<TextMesh>();
+            tm.text = Text;
+            tm.color = Color;
+            tm.fontSize = 50;
+            tm.offsetZ = ZOffset;
+            tm.alignment = TextAlign;
+
+            // [RMS] this isn't quite right, on the vertical centering...
+            Vector2f size = UnityUtil.EstimateTextMeshDimensions(tm);
+            Vector3 vCenterShift = Vector3f.Zero;
+            if (Align == Alignment.HCenter || Align == Alignment.HVCenter)
+                vCenterShift.x -= size.x * 0.5f;
+            if (Align == Alignment.VCenter || Align == Alignment.HVCenter)
+                vCenterShift.y += size.y * 0.5f;
+
+            // apply orientation
+            float useScale = Scale;
+            tm.transform.localScale = new Vector3(useScale, useScale, useScale);
+            tm.transform.localPosition += useScale * vCenterShift;
+            tm.transform.localPosition += Translate;
+
+            // ignore material changes when we add to GameObjectSet
+            gameObj.AddComponent<IgnoreMaterialChanges>();
+
+            // use our textmesh material instead
+            // [TODO] can we share between texts?
+            MaterialUtil.SetTextMeshDefaultMaterial(tm);
+
+            return new List<fGameObject>() { gameObj };
+        }
+    }
+
 }
