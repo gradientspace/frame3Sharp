@@ -330,8 +330,12 @@ namespace f3
 
 
 
-
-
+        /// <summary>
+        /// fallback sprite for when things go wrong (red image)
+        /// </summary>
+        public static Sprite DefaultSprite {
+            get { return Resources.Load<Sprite>("icons/f3_default_sprite"); }
+        }
 
 
         /// <summary>
@@ -349,6 +353,8 @@ namespace f3
                 get {
                     if (sprite == null)
                         sprite = Resources.Load<Sprite>(path);
+                    if (sprite == null)
+                        sprite = DefaultSprite;
                     return sprite;
                 }
             }
