@@ -294,6 +294,7 @@ namespace f3
         /// filterPatterns specified like this: new string[] { "*.stl", "*.obj" }
         /// Note that tinyfiledialogs does not support multiple save-types in save dialog
         /// </summary>
+        [System.Obsolete("This blocks Unity main thread and in 2017.3 this causes disasters. Use GetOpenFileName_Async() instead.")]
         static public string GetOpenFileName(string sDialogTitle, string sInitialPathAndFile, 
                 string[] filterPatterns, string sPatternDesc)
         {
@@ -327,6 +328,62 @@ namespace f3
 
 
 
+
+
+
+        /// <summary>
+        /// Show an open-file dialog and with the provided file types. 
+        /// Returns path to selected file, or null if Cancel is clicked.
+        /// Uses system file dialog, via tinyfiledialogs.
+        /// filterPatterns specified like this: new string[] { "*.stl", "*.obj" }
+        /// Note that tinyfiledialogs does not support multiple save-types in save dialog
+        /// </summary>
+        static public void GetOpenFileName_Async(string sDialogTitle, string sInitialPathAndFile,
+                string[] filterPatterns, string sPatternDesc, Action<string> OnSelectedF, Action OnCanceledF = null )
+        {
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX)
+
+            ThreadPool.QueueUserWorkItem(delegate {
+
+                // tinyfd changes CWD (?), and this makes Unity unhappy
+                string curDirectory = Directory.GetCurrentDirectory();
+
+                IntPtr p = tinyfd_openFileDialog(sDialogTitle, sInitialPathAndFile,
+                    filterPatterns.Length, filterPatterns, sPatternDesc, 0);
+
+                try {
+                    Directory.SetCurrentDirectory(curDirectory);
+                } catch (Exception) {
+                    // [RMS] sometimes this results in an exception? I am confused...
+                }
+
+                if (p == IntPtr.Zero) {
+                    if (OnCanceledF != null)
+                        ThreadMailbox.PostToMainThread(OnCanceledF);
+                    return;
+                }
+
+                string s = stringFromChar(p);
+                ThreadMailbox.PostToMainThread(() => {
+                    OnSelectedF(s);
+                });
+            });
+
+#else
+            // [TODO] implement
+            return null;
+#endif
+        }
+
+
+
+
+
+
+
+
+
+
         /// <summary>
         /// Show a save-file dialog and with the provided file types. 
         /// Returns path to selected file, or null if Cancel is clicked.
@@ -334,6 +391,7 @@ namespace f3
         /// filterPatterns specified like this: new string[] { "*.stl", "*.obj" }
         /// Note that tinyfiledialogs does not support multiple save-types in save dialog
         /// </summary>
+        [System.Obsolete("This blocks Unity main thread and in 2017.3 this causes disasters. Use GetSaveFileName_Async() instead.")]
         static public string GetSaveFileName(string sDialogTitle, string sInitialPathAndFile, 
                 string[] filterPatterns, string sPatternDesc)
         {
@@ -358,6 +416,55 @@ namespace f3
 
             string s = stringFromChar(p);
             return s;
+#else
+            // [TODO] implement
+            return null;
+#endif
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// Show a save-file dialog and with the provided file types. 
+        /// Returns path to selected file, or null if Cancel is clicked.
+        /// Uses system file dialog, via tinyfiledialogs.
+        /// filterPatterns specified like this: new string[] { "*.stl", "*.obj" }
+        /// Note that tinyfiledialogs does not support multiple save-types in save dialog
+        /// </summary>
+        static public void GetSaveFileName_Async(string sDialogTitle, string sInitialPathAndFile,
+                string[] filterPatterns, string sPatternDesc, Action<string> OnSelectedF, Action OnCanceledF = null)
+        {
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX)
+
+            ThreadPool.QueueUserWorkItem(delegate {
+
+                // tinyfd changes CWD (?), and this makes Unity unhappy
+                string curDirectory = Directory.GetCurrentDirectory();
+
+                IntPtr p = tinyfd_saveFileDialog(sDialogTitle, sInitialPathAndFile,
+                    filterPatterns.Length, filterPatterns, sPatternDesc);
+
+                try {
+                    Directory.SetCurrentDirectory(curDirectory);
+                } catch (Exception) {
+                    // [RMS] sometimes this results in an exception? I am confused...
+                }
+
+                if (p == IntPtr.Zero) {
+                    if (OnCanceledF != null) 
+                        ThreadMailbox.PostToMainThread(OnCanceledF);
+                    return;
+                }
+
+                string s = stringFromChar(p);
+                ThreadMailbox.PostToMainThread(() => {
+                    OnSelectedF(s);
+                });
+            });
+
 #else
             // [TODO] implement
             return null;

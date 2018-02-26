@@ -682,7 +682,7 @@ namespace f3 {
 
                 if ( captureMouse != null || captureTouch != null || captureLeft != null || captureRight != null ) {
                     if ( FPlatform.ShowingExternalPopup ) {
-                        throw new Exception("TerminateCapture: Need to complete capture bhefore showing external popup dialog. Use Context.RegisterNextFrameAction()");
+                        throw new Exception("TerminateCapture: Need to complete capture before showing external popup dialog. Use Context.RegisterNextFrameAction()");
                     }
                 }
                 TerminateCaptures(lastInputState);
