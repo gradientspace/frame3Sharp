@@ -252,4 +252,23 @@ namespace f3
 
 
     }
+
+
+
+
+    /// <summary>
+    /// Wrapper for a bool that provides suitable interface for registering with ParameterSet
+    /// </summary>
+    public class BoolParameterData
+    {
+        bool bValue;
+
+        public BoolParameterData(bool initial) {
+            bValue = initial;
+        }
+
+        public bool getValue() { return bValue; }
+        public void setValue(bool value) { bValue = value; }
+    }
+
 }
