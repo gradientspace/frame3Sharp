@@ -234,6 +234,29 @@ namespace f3
 
 
 
+
+        /// <summary>
+        /// Cache the transform sequence from SO up to scene coordinates
+        /// </summary>
+        public static TransformSequence ObjectToSceneXForm(SceneObject so)
+        {
+            TransformSequence seq = new TransformSequence();
+            SceneObject curSO = so;
+            while (curSO != null) {
+                Frame3f curF = curSO.GetLocalFrame(CoordSpace.ObjectCoords);
+                Vector3f scale = curSO.GetLocalScale();
+                seq.AppendScale(scale);
+                seq.AppendFromFrame(curF);
+                SOParent parent = curSO.Parent;
+                if (parent is FScene)
+                    break;
+                curSO = (parent as SceneObject);
+            }
+            return seq;
+        }
+
+
+
         /// <summary>
         /// input dimension is in Object (local) coords of so, apply all intermediate 
         /// transform scaling to get it to Scene coords
