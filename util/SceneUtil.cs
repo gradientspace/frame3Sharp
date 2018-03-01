@@ -312,11 +312,13 @@ namespace f3
 	{
 		public Vector3f hitPos;
         public Vector3f hitNormal;
+        public int hitIndex;
 		public float fHitDist;
 
 		public RayHit() {
             fHitDist = float.PositiveInfinity;
-		}
+            hitIndex = -1;
+        }
 
 		public bool IsValid {
 			get { return fHitDist < float.PositiveInfinity; }
@@ -339,6 +341,7 @@ namespace f3
 		public SORayHit(GameObjectRayHit init, SceneObject so) {
 			hitPos = init.hitPos;
             hitNormal = init.hitNormal;
+            hitIndex = init.hitIndex;
 			fHitDist = init.fHitDist;
 			hitGO = init.hitGO;
 			hitSO = so;
@@ -347,6 +350,7 @@ namespace f3
             Util.gDevAssert(init.eType == HitType.SceneObjectHit);
             hitPos = init.hitPos;
             hitNormal = init.hitNormal;
+            hitIndex = init.hitIndex;
             fHitDist = init.fHitDist;
             hitGO = init.hitGO;
             hitSO = init.hitSO;
@@ -363,6 +367,7 @@ namespace f3
 		public UIRayHit(GameObjectRayHit init, SceneUIElement ui) {
 			hitPos = init.hitPos;
             hitNormal = init.hitNormal;
+            hitIndex = init.hitIndex;
             fHitDist = init.fHitDist;
 			hitGO = init.hitGO;
 			hitUI = ui;
@@ -372,6 +377,7 @@ namespace f3
             Util.gDevAssert(init.eType == HitType.SceneUIElementHit);
             hitPos = init.hitPos;
             hitNormal = init.hitNormal;
+            hitIndex = init.hitIndex;
             fHitDist = init.fHitDist;
             hitGO = init.hitGO;
             hitUI = init.hitUI;
@@ -398,6 +404,7 @@ namespace f3
 		public AnyRayHit(GameObjectRayHit init, SceneObject so) {
 			hitPos = init.hitPos;
             hitNormal = init.hitNormal;
+            hitIndex = init.hitIndex;
             fHitDist = init.fHitDist;
 			hitGO = init.hitGO;
 			eType = HitType.SceneObjectHit;
@@ -406,6 +413,7 @@ namespace f3
 		public AnyRayHit(SORayHit init) {
 			hitPos = init.hitPos;
             hitNormal = init.hitNormal;
+            hitIndex = init.hitIndex;
             fHitDist = init.fHitDist;
 			hitGO = init.hitGO;
 			eType = HitType.SceneObjectHit;
@@ -414,6 +422,7 @@ namespace f3
 		public AnyRayHit(GameObjectRayHit init, SceneUIElement ui) {
 			hitPos = init.hitPos;
             hitNormal = init.hitNormal;
+            hitIndex = init.hitIndex;
             fHitDist = init.fHitDist;
 			hitGO = init.hitGO;
 			eType = HitType.SceneUIElementHit;
@@ -422,6 +431,7 @@ namespace f3
 		public AnyRayHit(UIRayHit init) {
 			hitPos = init.hitPos;
             hitNormal = init.hitNormal;
+            hitIndex = init.hitIndex;
             fHitDist = init.fHitDist;
 			hitGO = init.hitGO;
 			eType = HitType.SceneUIElementHit;
@@ -432,6 +442,7 @@ namespace f3
             Util.gDevAssert(eType == HitType.BoundsObjectHit);
             hitPos = init.hitPos;
             hitNormal = init.hitNormal;
+            hitIndex = init.hitIndex;
             fHitDist = init.fHitDist;
             hitGO = init.hitGO;
             this.eType = eType;

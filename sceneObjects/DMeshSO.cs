@@ -459,8 +459,10 @@ namespace f3
 
 
 
-        // [RMS] this is not working right now...
-        override public bool FindRayIntersection(Ray3f ray, out SORayHit hit)
+        /// <summary>
+        /// Find intersection of *WORLD* ray with Mesh
+        /// </summary>
+        override public bool FindRayIntersection(Ray3f rayW, out SORayHit hit)
         {
             hit = null;
             if (enable_spatial == false)
@@ -472,7 +474,7 @@ namespace f3
             }
 
             // convert ray to local
-            Frame3f f = new Frame3f(ray.Origin, ray.Direction);
+            Frame3f f = new Frame3f(rayW.Origin, rayW.Direction);
             f = SceneTransforms.TransformTo(f, this, CoordSpace.WorldCoords, CoordSpace.ObjectCoords);
             Ray3d local_ray = new Ray3d(f.Origin, f.Z);
 
@@ -486,7 +488,8 @@ namespace f3
                 hit = new SORayHit();
                 hit.hitPos = hitF.Origin;
                 hit.hitNormal = hitF.Z;
-                hit.fHitDist = hit.hitPos.Distance(ray.Origin);    // simpler than transforming!
+                hit.hitIndex = hit_tid;
+                hit.fHitDist = hit.hitPos.Distance(rayW.Origin);    // simpler than transforming!
                 hit.hitGO = RootGameObject;
                 hit.hitSO = this;
                 return true;
