@@ -64,6 +64,7 @@ namespace f3
         //   zd2 => list of 2-element doubles (eg Vector2d)
         //   zd3 => list of 3-element doubles (eg Vector3d)
         //   x is same as z, but uuencoded binary buffer, instead of text elements
+        //   y is the same as z, but uuencoded zlib-compressed binary buffer, instead of text elements
 
         // transform attributes
         public static readonly string APosition = "vPosition";
@@ -629,13 +630,7 @@ namespace f3
         {
             char[] str = valueString.ToCharArray();
             byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
-            int sz = sizeof(double);
-            int Nvals = buffer.Length / sz;
-            double[] v = new double[Nvals];
-            for (int i = 0; i < Nvals; i++) {
-                v[i] = BitConverter.ToDouble(buffer, i * sz);
-            }
-            return v;
+            return BufferUtil.ToDouble(buffer);
         }
 
         VectorArray3d restore_list3d_binary(String valueString)
@@ -660,13 +655,7 @@ namespace f3
         {
             char[] str = valueString.ToCharArray();
             byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
-            int sz = sizeof(float);
-            int Nvals = buffer.Length / sz;
-            float[] v = new float[Nvals];
-            for (int i = 0; i < Nvals; i++) {
-                v[i] = BitConverter.ToSingle(buffer, i * sz);
-            }
-            return v;
+            return BufferUtil.ToFloat(buffer);
         }
 
 
@@ -710,25 +699,13 @@ namespace f3
         {
             char[] str = valueString.ToCharArray();
             byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
-            int sz = sizeof(int);
-            int Nvals = buffer.Length / sz;
-            int[] v = new int[Nvals];
-            for (int i = 0; i < Nvals; i++) {
-                v[i] = BitConverter.ToInt32(buffer, i * sz);
-            }
-            return v;
+            return BufferUtil.ToInt(buffer);
         }
         short[] restore_list1s_binary(String valueString)
         {
             char[] str = valueString.ToCharArray();
             byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
-            int sz = sizeof(short);
-            int Nvals = buffer.Length / sz;
-            short[] v = new short[Nvals];
-            for (int i = 0; i < Nvals; i++) {
-                v[i] = BitConverter.ToInt16(buffer, i * sz);
-            }
-            return v;
+            return BufferUtil.ToShort(buffer);
         }
         byte[] restore_list1b_binary(String valueString)
         {
