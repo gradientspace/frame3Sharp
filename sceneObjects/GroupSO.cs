@@ -331,7 +331,12 @@ namespace f3
 
         virtual public bool SupportsScaling
         {
-            get { return true; }
+            get {
+                foreach (var so in vChildren)
+                    if (so.SupportsScaling == false)
+                        return false;
+                return true;
+            }
         }
         virtual public Vector3f GetLocalScale()
         {

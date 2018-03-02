@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using g3;
 
 namespace f3
@@ -19,7 +18,7 @@ namespace f3
     /// </summary>
     public class TransientXFormSO : SceneObject, SOCollection
     {
-        GameObject gameObject;
+        fGameObject rootGO;
         SceneObject target;
         protected SOParent parent;
 
@@ -36,7 +35,7 @@ namespace f3
 
         public void Create()
         {
-            gameObject = new GameObject(UniqueNames.GetNext("TransientXForm"));
+            rootGO = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("TransientXForm"));
             increment_timestamp();
         }
 
@@ -67,7 +66,7 @@ namespace f3
 
         virtual public fGameObject RootGameObject
         {
-            get { return gameObject; }
+            get { return rootGO; }
         }
 
         virtual public SOParent Parent
@@ -82,8 +81,8 @@ namespace f3
 
         virtual public string Name
         {
-            get { return gameObject.GetName(); }
-            set { gameObject.SetName(value); increment_timestamp(); }
+            get { return rootGO.GetName(); }
+            set { rootGO.SetName(value); increment_timestamp(); }
         }
 
         // [RMS] not sure this is the right thing to do...
@@ -194,7 +193,7 @@ namespace f3
 
         virtual public bool SupportsScaling
         {
-            get { return true; }
+            get { return (target == null) ? false : target.SupportsScaling;  }
         }
         virtual public Vector3f GetLocalScale()
         {
