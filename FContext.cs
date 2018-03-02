@@ -310,6 +310,12 @@ namespace f3 {
                     cap = captureLeft.element.UpdateCapture(input, captureLeft.data);
                 }catch ( Exception e ) {
                     DebugUtil.Log(2, "FContext.HandleInput_SpaceControllers: exception in left UpdateCapture! " + e.Message);
+                    captureLeft.element.ForceEndCapture(input, captureLeft.data);
+                    captureLeft = null;
+                    if (captureRight == captureLeft)
+                        captureRight = null;        // dual-capture
+                    if (FPlatform.InUnityEditor())
+                        throw;
                 }
                 inCapturingObjectCall = false;
                 if (cap.state == CaptureState.Continue) {
@@ -331,6 +337,10 @@ namespace f3 {
                     cap = captureRight.element.UpdateCapture(input, captureRight.data);
                 } catch (Exception e) {
                     DebugUtil.Log(2, "FContext.HandleInput_SpaceControllers: exception in right UpdateCapture! " + e.Message);
+                    captureRight.element.ForceEndCapture(input, captureRight.data);
+                    captureRight = null;
+                    if (FPlatform.InUnityEditor())
+                        throw;
                 }
                 inCapturingObjectCall = false;
                 if (cap.state == CaptureState.Continue) {
@@ -454,6 +464,10 @@ namespace f3 {
                     cap = captureTouch.element.UpdateCapture(input, captureTouch.data);
                 } catch (Exception e) {
                     DebugUtil.Log(2, "FContext.HandleInput_Touch: exception in UpdateCapture! " + e.Message);
+                    captureTouch.element.ForceEndCapture(input, captureTouch.data);
+                    captureTouch = null;
+                    if (FPlatform.InUnityEditor())
+                        throw;
                 }
                 inCapturingObjectCall = false;
                 if (cap.state == CaptureState.Continue) {
@@ -559,6 +573,8 @@ namespace f3 {
                         cap = captureMouse.element.UpdateCapture(input, captureMouse.data);
                     } catch (Exception e) {
                         DebugUtil.Log(2, "FContext.HandleInput_MouseOrGamepad: exception in UpdateCapture! " + e.Message);
+                        captureMouse.element.ForceEndCapture(input, captureMouse.data);
+                        captureMouse = null;
                         if (FPlatform.InUnityEditor())
                             throw;
                     }

@@ -79,8 +79,10 @@ namespace f3
         public override Capture ForceEndCapture(InputState input, CaptureData data)
         {
             if (pCapturing != null) {
-                pCapturing.EndCapture(InputEvent.Mouse(input));
+                // if we don't do this, and EndCapture throws, we end up in a loop of exceptions!
+                var temp = pCapturing;
                 pCapturing = null;
+                temp.EndCapture(InputEvent.Mouse(input));
             }
             return Capture.End;
         }
