@@ -26,6 +26,7 @@ namespace f3
         public const string StructIdentifier = "ID";
         public const string BinaryMeshStruct = "BinaryUEncodedMesh";
         public const string BinaryDMeshStruct = "BinaryUEncodedDMesh";
+        public const string CompressedDMeshStruct = "CompressedUEncodedDMesh";
         public const string AsciiMeshStruct = "AsciiMesh";
         public const string TransformStruct = "Transform";
         public const string MaterialStruct = "Material";
@@ -90,17 +91,31 @@ namespace f3
         // for mesh
         public static readonly string AMeshVertices3 = "zd3MeshVertices";
         public static readonly string AMeshVertices3Binary = "xd3MeshVertices";
+        public static readonly string AMeshVertices3Compressed = "yd3MeshVertices";
         public static readonly string AMeshNormals3 = "zf3MeshNormals";
         public static readonly string AMeshNormals3Binary = "xf3MeshNormals";
+        public static readonly string AMeshNormals3Compressed = "yf3MeshNormals";
         public static readonly string AMeshColors3 = "zf3MeshColors";
         public static readonly string AMeshColors3Binary = "xf3MeshColors";
+        public static readonly string AMeshColors3Compressed = "yf3MeshColors";
         public static readonly string AMeshUVs2 = "zf2MeshUVs";
         public static readonly string AMeshUVs2Binary = "xf2MeshUVs";
+        public static readonly string AMeshUVs2Compressed = "yf2MeshUVs";
         public static readonly string AMeshTriangles = "zi3MeshTriangles";
         public static readonly string AMeshTrianglesBinary = "xi3MeshTriangles";
+        public static readonly string AMeshTrianglesCompressed = "yi3MeshTriangles";
         public static readonly string AMeshTriangleGroupsBinary = "xiMeshTriangleGroups";
+        public static readonly string AMeshTriangleGroupsCompressed = "yiMeshTriangleGroups";
         public static readonly string AMeshEdgesBinary = "xi4MeshEdges";
+        public static readonly string AMeshEdgesCompressed = "yi4MeshEdges";
         public static readonly string AMeshEdgeRefCountsBinary = "xjMeshEdgeRefCounts";
+        public static readonly string AMeshEdgeRefCountsCompressed = "yjMeshEdgeRefCounts";
+
+
+        public enum MeshStorageMode {
+            EdgeRefCounts = 1
+        }
+        public static readonly string AMeshStorageMode = "iMeshStorageMode";
 
         // material attributes
         public static readonly string AMaterialName = "sMaterialName";
@@ -225,6 +240,47 @@ namespace f3
         /// Use this to filter out particular SOs from serialiaztion (return false to skip)
         /// </summary>
         public Func<SceneObject, bool> SOFilterF = (so) => { return true; };
+
+
+        /*
+         * Configuration options for SceneSerializer.
+         */
+
+
+        public struct EmitOptions
+        {
+            public bool StoreMeshVertexColors;
+            public bool StoreMeshVertexNormals;
+            public bool StoreMeshVertexUVs;
+            public bool StoreMeshFaceGroups;
+            public bool FastCompression;
+
+            public static readonly EmitOptions Default = new EmitOptions() {
+                StoreMeshVertexColors = true,
+                StoreMeshVertexNormals = true,
+                StoreMeshVertexUVs = true,
+                StoreMeshFaceGroups = true,
+                FastCompression = true
+            };
+        }
+        List<EmitOptions> EmitOptionsStack = new List<EmitOptions>() { EmitOptions.Default };
+
+        public void PushEmitOptions(EmitOptions opt)
+        {
+            EmitOptionsStack.Add(opt);
+        }
+
+        public void PopEmitOptions()
+        {
+            if (EmitOptionsStack.Count == 1)
+                throw new Exception("[SceneSerializer.PopEmitOptions] unmatched push/pop!");
+            EmitOptionsStack.RemoveAt(EmitOptionsStack.Count - 1);
+        }
+
+        public EmitOptions CurrentOptions {
+            get { return EmitOptionsStack[EmitOptionsStack.Count - 1]; }
+        }
+
 
 
         /*
@@ -541,6 +597,32 @@ namespace f3
                     DebugUtil.Warning("[SceneSerializer.Restore_OnAttribute] - unknown binary format {0}", sName);
 
 
+
+            } else if (sName[0] == 'y') {
+                if (sName[1] == 'd' && sName[2] == '3')
+                    CurAttribs.Pairs[sName] = restore_list3d_compressed(sValue);
+                else if (sName[1] == 'd')
+                    CurAttribs.Pairs[sName] = restore_list1d_compressed(sValue);
+                //else if (sName[1] == 'd' && sName[2] == '2')
+                //    CurAttribs.Pairs[sName] = restore_list2d_compressed(sValue);
+                else if (sName[1] == 'f' && sName[2] == '3')
+                    CurAttribs.Pairs[sName] = restore_list3f_compressed(sValue);
+                else if (sName[1] == 'f')
+                    CurAttribs.Pairs[sName] = restore_list1f_compressed(sValue);
+                else if (sName[1] == 'i' && sName[2] == '3')
+                    CurAttribs.Pairs[sName] = restore_list3i_compressed(sValue);
+                else if (sName[1] == 'i' && sName[2] == '4')
+                    CurAttribs.Pairs[sName] = restore_list4i_compressed(sValue);
+                else if (sName[1] == 'i')
+                    CurAttribs.Pairs[sName] = restore_list1i_compressed(sValue);
+                else if (sName[1] == 'j')
+                    CurAttribs.Pairs[sName] = restore_list1s_compressed(sValue);
+                else if (sName[1] == 'k')
+                    CurAttribs.Pairs[sName] = restore_list1b_compressed(sValue);
+                else
+                    DebugUtil.Warning("[SceneSerializer.Restore_OnAttribute] - unknown compressed format {0}", sName);
+
+
             } else {
                 CurAttribs.Pairs[sName] = sValue;
             }
@@ -632,22 +714,24 @@ namespace f3
             byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
             return BufferUtil.ToDouble(buffer);
         }
+        double[] restore_list1d_compressed(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            return BufferUtil.ToDouble( BufferUtil.DecompressZLib(buffer) );
+        }
 
         VectorArray3d restore_list3d_binary(String valueString)
         {
             char[] str = valueString.ToCharArray();
             byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
-            int sz = sizeof(double);
-            int Nvals = buffer.Length / sz;
-            int Nvecs = Nvals / 3;
-            VectorArray3d v = new VectorArray3d(Nvecs);
-            for (int i = 0; i < Nvecs; i++) {
-                double x = BitConverter.ToDouble(buffer, (3 * i) * sz);
-                double y = BitConverter.ToDouble(buffer, (3 * i + 1) * sz);
-                double z = BitConverter.ToDouble(buffer, (3 * i + 2) * sz);
-                v.Set(i, x, y, z);
-            }
-            return v;
+            return BufferUtil.ToVectorArray3d(buffer);
+        }
+        VectorArray3d restore_list3d_compressed(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            return BufferUtil.ToVectorArray3d(BufferUtil.DecompressZLib(buffer));
         }
 
 
@@ -657,40 +741,40 @@ namespace f3
             byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
             return BufferUtil.ToFloat(buffer);
         }
+        float[] restore_list1f_compressed(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            return BufferUtil.ToFloat(BufferUtil.DecompressZLib(buffer));
+        }
 
 
         VectorArray3f restore_list3f_binary(String valueString)
         {
             char[] str = valueString.ToCharArray();
             byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
-            int sz = sizeof(float);
-            int Nvals = buffer.Length / sz;
-            int Nvecs = Nvals / 3;
-            VectorArray3f v = new VectorArray3f(Nvecs);
-            for (int i = 0; i < Nvecs; i++) {
-                float x = BitConverter.ToSingle(buffer, (3 * i) * sz);
-                float y = BitConverter.ToSingle(buffer, (3 * i + 1) * sz);
-                float z = BitConverter.ToSingle(buffer, (3 * i + 2) * sz);
-                v.Set(i, x, y, z);
-            }
-            return v;
+            return BufferUtil.ToVectorArray3f(buffer);
         }
+        VectorArray3f restore_list3f_compressed(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            return BufferUtil.ToVectorArray3f(BufferUtil.DecompressZLib(buffer));
+        }
+
 
 
         VectorArray2f restore_list2f_binary(String valueString)
         {
             char[] str = valueString.ToCharArray();
             byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
-            int sz = sizeof(float);
-            int Nvals = buffer.Length / sz;
-            int Nvecs = Nvals / 2;
-            VectorArray2f v = new VectorArray2f(Nvecs);
-            for (int i = 0; i < Nvecs; i++) {
-                float x = BitConverter.ToSingle(buffer, (2 * i) * sz);
-                float y = BitConverter.ToSingle(buffer, (2 * i + 1) * sz);
-                v.Set(i, x, y);
-            }
-            return v;
+            return BufferUtil.ToVectorArray2f(buffer);
+        }
+        VectorArray2f restore_list2f_compressed(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            return BufferUtil.ToVectorArray2f(BufferUtil.DecompressZLib(buffer));
         }
 
 
@@ -701,18 +785,40 @@ namespace f3
             byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
             return BufferUtil.ToInt(buffer);
         }
+        int[] restore_list1i_compressed(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            return BufferUtil.ToInt(BufferUtil.DecompressZLib(buffer));
+        }
+
         short[] restore_list1s_binary(String valueString)
         {
             char[] str = valueString.ToCharArray();
             byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
             return BufferUtil.ToShort(buffer);
         }
+        short[] restore_list1s_compressed(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            return BufferUtil.ToShort(BufferUtil.DecompressZLib(buffer));
+        }
+
         byte[] restore_list1b_binary(String valueString)
         {
             char[] str = valueString.ToCharArray();
             byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
             return buffer;
         }
+        byte[] restore_list1b_compressed(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            return BufferUtil.DecompressZLib(buffer);
+        }
+
+
 
 
 
@@ -720,17 +826,13 @@ namespace f3
         {
             char[] str = valueString.ToCharArray();
             byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
-            int sz = sizeof(int);
-            int Nvals = buffer.Length / sz;
-            int Nvecs = Nvals / 3;
-            VectorArray3i v = new VectorArray3i(Nvecs);
-            for (int i = 0; i < Nvecs; i++) {
-                int x = BitConverter.ToInt32(buffer, (3 * i) * sz);
-                int y = BitConverter.ToInt32(buffer, (3 * i + 1) * sz);
-                int z = BitConverter.ToInt32(buffer, (3 * i + 2) * sz);
-                v.Set(i, x, y, z);
-            }
-            return v;
+            return BufferUtil.ToVectorArray3i(buffer);
+        }
+        VectorArray3i restore_list3i_compressed(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            return BufferUtil.ToVectorArray3i(BufferUtil.DecompressZLib(buffer));
         }
 
 
@@ -738,18 +840,13 @@ namespace f3
         {
             char[] str = valueString.ToCharArray();
             byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
-            int sz = sizeof(int);
-            int Nvals = buffer.Length / sz;
-            int Nvecs = Nvals / 4;
-            IndexArray4i v = new IndexArray4i(Nvecs);
-            for (int i = 0; i < Nvecs; i++) {
-                int a = BitConverter.ToInt32(buffer, (4 * i) * sz);
-                int b = BitConverter.ToInt32(buffer, (4 * i + 1) * sz);
-                int c = BitConverter.ToInt32(buffer, (4 * i + 2) * sz);
-                int d = BitConverter.ToInt32(buffer, (4 * i + 3) * sz);
-                v.Set(i, a, b, c, d);
-            }
-            return v;
+            return BufferUtil.ToIndexArray4i(buffer);
+        }
+        IndexArray4i restore_list4i_compressed(String valueString)
+        {
+            char[] str = valueString.ToCharArray();
+            byte[] buffer = Convert.FromBase64CharArray(str, 0, str.Length);
+            return BufferUtil.ToIndexArray4i(BufferUtil.DecompressZLib(buffer));
         }
 
 
