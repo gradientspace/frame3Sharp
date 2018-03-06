@@ -17,11 +17,21 @@ namespace f3
 
         public static void PostToMainThread(Action a)
         {
+            if (a == null) {
+                DebugUtil.Log("ThreadMailbox.PostToMainThread: tried to post null action!");
+                return;
+            }
+
             PostToThread(MainThreadName, a);
         }
         public static void PostToThread(string threadName, Action a)
         {
-            lock(Directory) {
+            if (a == null) {
+                DebugUtil.Log("ThreadMailbox.PostToMainThread: tried to post null action!");
+                return;
+            }
+
+            lock (Directory) {
                 Mailbox box = _locked_get_mailbox(threadName);
                 box.PendingActions.Add(a);
             }
