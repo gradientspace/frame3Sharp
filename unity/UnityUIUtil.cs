@@ -73,6 +73,18 @@ namespace f3
 
 
 
+        public static void SetButtonText(Button button, string newLabel)
+        {
+            Text text = button.GetComponentInChildren<Text>();
+            if (text != null)
+                text.text = newLabel;
+            else
+                DebugUtil.Log("SetButtonText: button " + button.name + " has no Text component!");
+        }
+
+
+
+
         public static void SetDisabledColor(Button button, Colorf color)
         {
             var newColorBlock = button.colors;
