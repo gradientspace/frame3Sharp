@@ -42,7 +42,12 @@ namespace f3
             button.onClick.AddListener(handler);
             return button;
         }
-
+        public static Button GetButtonAndAddClickHandler(GameObject parentGO, UnityAction handler)
+        {
+            var button = parentGO.GetComponent<Button>();
+            button.onClick.AddListener(handler);
+            return button;
+        }
 
 
 
@@ -267,6 +272,7 @@ namespace f3
 
 
 
+
 #if F3_ENABLE_TEXT_MESH_PRO
 
 
@@ -339,6 +345,55 @@ namespace f3
         }
 
 #endif
+
+
+
+
+
+
+        /*
+         * RectTransform manipulation
+         */
+
+
+
+        public static AxisAlignedBox2f GetBounds2D(GameObject go)
+        {
+            RectTransform rectT = go.GetComponent<RectTransform>();
+            AxisAlignedBox2f box = rectT.rect;
+            box.Translate(rectT.anchoredPosition);
+            return box;
+        }
+        public static AxisAlignedBox2f GetBounds2D(RectTransform rectT)
+        {
+            AxisAlignedBox2f box = rectT.rect;
+            box.Translate(rectT.anchoredPosition);
+            return box;
+        }
+
+        public static void Translate(RectTransform rectT, Vector2f translate)
+        {
+            rectT.anchoredPosition = (Vector2f)rectT.anchoredPosition + translate;
+        }
+
+
+        public static void PositionRelative2D(GameObject setGO, BoxPosition setBoxPos, GameObject relativeToGO, BoxPosition relBoxPos, Vector2f offset)
+        {
+            RectTransform setRectT = setGO.GetComponent<RectTransform>();
+            AxisAlignedBox2f setBox = GetBounds2D(setRectT);
+            Vector2f fromPos = BoxModel.GetBoxPosition(ref setBox, setBoxPos);
+
+            AxisAlignedBox2f relBox = GetBounds2D(relativeToGO);
+            Vector2f toPos = BoxModel.GetBoxPosition(ref relBox, relBoxPos);
+
+            Vector2f dv = toPos - fromPos + offset;
+
+            Translate(setRectT, dv);
+        }
+
+
+
+
 
 
 
