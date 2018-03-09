@@ -100,6 +100,23 @@ namespace f3
             }
             return new Ray3f(Vector3f.Zero, Vector3f.AxisY); ;
         }
+
+
+        public Ray3f SceneRay(InputState input, FScene scene) {
+            return SceneRay(ref input, scene);
+        }
+        public Ray3f SceneRay(ref InputState input, FScene scene)
+        {
+            if (input.IsForDevice(InputDevice.Mouse)) {
+                using_mouse = true;
+                return scene.ToSceneRay(input.vMouseWorldRay);
+            } else if (input.IsForDevice(InputDevice.TabletFingers)) {
+                using_mouse = false;
+                return scene.ToSceneRay(input.vTouchWorldRay);
+            }
+            return new Ray3f(Vector3f.Zero, Vector3f.AxisY); ;
+        }
+
     }
 
 

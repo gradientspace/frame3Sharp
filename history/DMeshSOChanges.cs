@@ -45,6 +45,68 @@ namespace f3
 
 
 
+
+    /// <summary>
+    /// Removes a set of triangles. You *must* initialize this change by calling
+    /// ApplyInitialize(), which will compute the internal RemoveTrianglesMeshChange
+    /// as it removes the triangles from the mesh. 
+    /// </summary>
+    public class RemoveTrianglesChange : BaseChangeOp
+    {
+        public override string Identifier() { return "RemoveTrianglesChange"; }
+
+        public DMeshSO Target;
+        public RemoveTrianglesMeshChange MeshChange;
+
+        public RemoveTrianglesChange(DMeshSO target)
+        {
+            Target = target;
+        }
+
+        public void ApplyInitialize(IEnumerable<int> triangles)
+        {
+            MeshChange = new RemoveTrianglesMeshChange();
+            Target.EditAndUpdateMesh(
+                (mesh) => { MeshChange.Initialize(mesh, triangles); },
+                GeometryEditTypes.ArbitraryEdit
+            );
+        }
+
+        public override OpStatus Apply()
+        {
+            if (MeshChange == null)
+                throw new Exception("RemoveTrianglesChange.Apply: Must call ApplyInitialize first!!");
+            Target.EditAndUpdateMesh(
+                (mesh) => { MeshChange.Apply(mesh); },
+                GeometryEditTypes.ArbitraryEdit
+            );
+            return OpStatus.Success;
+        }
+        public override OpStatus Revert()
+        {
+            if (MeshChange == null)
+                throw new Exception("RemoveTrianglesChange.Revert: Must call ApplyInitialize first!!");
+            Target.EditAndUpdateMesh(
+                (mesh) => { MeshChange.Revert(mesh); },
+                GeometryEditTypes.ArbitraryEdit
+            );
+            return OpStatus.Success;
+        }
+
+        public override OpStatus Cull()
+        {
+            Target = null;
+            MeshChange = null;
+            return OpStatus.Success;
+        }
+    }
+
+
+
+
+
+
+
     /// <summary>
     /// Undoable call to DMeshSO.RepositionPivot
     /// </summary>
