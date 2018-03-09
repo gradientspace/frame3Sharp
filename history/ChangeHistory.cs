@@ -275,6 +275,7 @@ namespace f3
         public OpStatus StepForwardToAfterNextTag(string tag)
         {
             bool bContinue = true;
+            bool bFound = false;
             while (bContinue) {
                 OpStatus result = StepForward();
                 if (result.code != OpStatus.no_error)
@@ -283,10 +284,16 @@ namespace f3
                     bContinue = false;
                 } else {
                     IChangeOp op = vHistory[iCurrent];
-                    if (op.HasTags && op.Tags.Contains(tag))
+                    if (op.HasTags && op.Tags.Contains(tag)) {
                         bContinue = false;
+                        bFound = true;
+                    }
                 }
             }
+            // step to *after* this node, otherwise if we push a new node we will replace this one!
+            // [TODO] this is maybe a bit weird...?
+            if (bFound)
+                StepForward();
             return OpStatus.Success;
         }
 
