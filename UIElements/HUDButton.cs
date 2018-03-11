@@ -10,12 +10,17 @@ namespace f3
         protected fGameObject button;
         protected fGameObject buttonMesh;
         protected fGameObject iconMesh;  // only for buttons w/ mesh icon
-        protected fMaterial standard_mat, disabled_mat;
+        protected fMaterial standard_mat, disabled_mat, hover_mat;
 
         public fMaterial StandardMaterial
         {
             get { return standard_mat; }
             set { standard_mat = value;  update_material(); }
+        }
+
+        public fMaterial HoverMaterial {
+            get { return hover_mat; }
+            set { hover_mat = value; update_material(); }
         }
 
         public fMaterial DisabledMaterial
@@ -35,16 +40,18 @@ namespace f3
 
 
         // creates a button in the desired geometry shape
-		public void Create( fMaterial defaultMaterial, fMaterial disabledMaterial = null ) {
+		public void Create( fMaterial defaultMaterial, fMaterial disabledMaterial = null, fMaterial hoverMaterial = null ) {
             button = GameObjectFactory.CreateParentGO(UniqueNames.GetNext("HUDButton"));
 			buttonMesh = AppendMeshGO ("shape", HUDUtil.MakeBackgroundMesh(this.Shape),
                 defaultMaterial, button);
             buttonMesh.RotateD(Vector3f.AxisX, -90.0f); // ??
             MaterialUtil.DisableShadows(buttonMesh);
 
-            standard_mat = new fMaterial(defaultMaterial);
+            standard_mat = defaultMaterial;
             if (disabledMaterial != null)
-                disabled_mat = new fMaterial(disabledMaterial);
+                disabled_mat = disabledMaterial;
+            if (hoverMaterial != null)
+                hover_mat = hoverMaterial;
         }
 
         // creates a button with a floating primitive in front of the button shape
@@ -130,9 +137,9 @@ namespace f3
         protected void update_material()
         {
             if ( Enabled == false && DisabledMaterial != null )
-                MaterialUtil.SetMaterial(buttonMesh, DisabledMaterial);
+                buttonMesh.SetMaterial(DisabledMaterial, true);
             else
-                MaterialUtil.SetMaterial(buttonMesh, StandardMaterial);
+                buttonMesh.SetMaterial(StandardMaterial, true);
         }
 
 
@@ -209,12 +216,31 @@ namespace f3
 			return true;
 		}
 
-		#endregion
+
+
+        public override bool EnableHover { get { return Enabled && HoverMaterial != null; } }
+
+        public override void UpdateHover(Ray3f ray, UIRayHit hit)
+        {
+            if ( Enabled && HasGO(hit.hitGO) ) {
+                buttonMesh.SetMaterial(HoverMaterial, true);
+            } else {
+                buttonMesh.SetMaterial(StandardMaterial, true);
+            }
+        }
+        public override void EndHover(Ray3f ray)
+        {
+            buttonMesh.SetMaterial(StandardMaterial, true);
+        }
+
+
+
+        #endregion
 
 
 
 
-       #region IBoxModelElement implementation
+        #region IBoxModelElement implementation
 
 
         public Vector2f Size2D {
