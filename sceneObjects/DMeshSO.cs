@@ -437,14 +437,14 @@ namespace f3
             // map vertices to new frame
             foreach (int vid in mesh.VertexIndices()) {
                 Vector3f v = (Vector3f)mesh.GetVertex(vid);
-                v = curFrame.FromFrameP(v);   // 
-                v = objFrame.ToFrameP(v);
+                v = curFrame.FromFrameP(ref v);   // 
+                v = objFrame.ToFrameP(ref v);
                 mesh.SetVertex(vid, v);
 
                 if ( bNormals ) {
                     Vector3f n = mesh.GetVertexNormal(vid);
-                    n = curFrame.FromFrameV(n);
-                    n = objFrame.ToFrameV(n);
+                    n = curFrame.FromFrameV(ref n);
+                    n = objFrame.ToFrameV(ref n);
                     mesh.SetVertexNormal(vid, n);
                 }
             }

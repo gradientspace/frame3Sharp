@@ -139,7 +139,7 @@ namespace f3
         public static Frame3f ApplyTransform(ITransformed transform, Frame3f frameIn )
         {
             Frame3f result = frameIn.Scaled(transform.GetLocalScale());
-            return transform.GetLocalFrame(CoordSpace.ObjectCoords).FromFrame(result);
+            return transform.GetLocalFrame(CoordSpace.ObjectCoords).FromFrame(ref result);
         }
 
 
@@ -148,7 +148,7 @@ namespace f3
         /// </summary>
         public static Frame3f ApplyInverseTransform(ITransformed transform, Frame3f frameIn )
         {
-            Frame3f result = transform.GetLocalFrame(CoordSpace.ObjectCoords).ToFrame(frameIn);
+            Frame3f result = transform.GetLocalFrame(CoordSpace.ObjectCoords).ToFrame(ref frameIn);
             Vector3f scale = transform.GetLocalScale();
             Util.gDevAssert(IsUniformScale(scale));
             result.Scale(1.0f / scale);
@@ -293,7 +293,7 @@ namespace f3
                 Vector3f scale = curSO.GetLocalScale();
                 Util.gDevAssert(IsUniformScale(scale));
                 sceneF.Scale(scale);
-                sceneF = curF.FromFrame(sceneF);
+                sceneF = curF.FromFrame(ref sceneF);
                 SOParent parent = curSO.Parent;
                 if (parent is FScene)
                     return sceneF;
@@ -371,7 +371,7 @@ namespace f3
                 Frame3f curF = curSO.GetLocalFrame(CoordSpace.ObjectCoords);
                 Vector3f scale = curSO.GetLocalScale();
                 sceneV *= scale;
-                sceneV = curF.FromFrameV(sceneV);
+                sceneV = curF.FromFrameV(ref sceneV);
                 SOParent parent = curSO.Parent;
                 if (parent is FScene)
                     return sceneV;
