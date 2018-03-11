@@ -4,11 +4,6 @@ using System.Collections.Generic;
 namespace f3
 {
 
-    public interface FMaterial
-    {
-
-    }
-
 
     public enum LineWidthType
     {

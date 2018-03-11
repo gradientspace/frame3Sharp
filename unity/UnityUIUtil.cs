@@ -33,19 +33,22 @@ namespace f3
         public static Button FindButtonAndAddClickHandler(string buttonName, UnityAction handler)
         {
             var button = UnityUtil.FindGameObjectByName(buttonName).GetComponent<Button>();
-            button.onClick.AddListener(handler);
+            if ( handler != null )
+                button.onClick.AddListener(handler);
             return button;
         }
         public static Button FindButtonAndAddClickHandler(GameObject parentGO, string buttonName, UnityAction handler)
         {
             var button = UnityUtil.FindChildByName(parentGO, buttonName).GetComponent<Button>();
-            button.onClick.AddListener(handler);
+            if ( handler != null )
+                button.onClick.AddListener(handler);
             return button;
         }
         public static Button GetButtonAndAddClickHandler(GameObject parentGO, UnityAction handler)
         {
             var button = parentGO.GetComponent<Button>();
-            button.onClick.AddListener(handler);
+            if ( handler != null )
+                button.onClick.AddListener(handler);
             return button;
         }
 
