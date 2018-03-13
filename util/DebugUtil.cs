@@ -13,6 +13,7 @@ namespace f3
 		}
 
         static int __log_level = 0;
+        static bool __show_thread_id = false;
 
         static public int LogLevel
         {
@@ -20,31 +21,43 @@ namespace f3
             set { __log_level = value; }
         }
 
+        static public bool ShowThreadID {
+            get { return __show_thread_id; }
+            set { __show_thread_id = value; }
+        }
+
+        static string log_prefix {
+            get {
+                if (__show_thread_id)
+                    return System.Threading.Thread.CurrentThread.ManagedThreadId.ToString() + ": ";
+                else return "";
+            }
+        }
 
         // Log prints if the nLevel param is <= LogLevel
         static public void Log(int nLevel, string sMessage) {
             if ( nLevel <= LogLevel )
-                Debug.Log(sMessage);
+                Debug.Log(log_prefix + sMessage);
         }
         static public void Log(int nLevel, string text, object arg0) {
             if (nLevel <= LogLevel)
-                Debug.Log(string.Format(text, arg0));
+                Debug.Log(log_prefix + string.Format(text, arg0));
         }
         static public void Log(int nLevel, string text, object arg0, object arg1) {
             if (nLevel <= LogLevel)
-                Debug.Log(string.Format(text, arg0, arg1));
+                Debug.Log(log_prefix + string.Format(text, arg0, arg1));
         }
         static public void Log(int nLevel, string text, params object[] args) {
             if (nLevel <= LogLevel)
-                Debug.Log(string.Format(text, args));
+                Debug.Log(log_prefix + string.Format(text, args));
         }
         static public void Log(string text, params object[] args) {
-            Debug.Log(string.Format(text, args));
+            Debug.Log(log_prefix + string.Format(text, args));
         }
 
         // Warning always prints
         static public void Warning(string sMessage) {
-            Debug.Log(sMessage);
+            Debug.Log(log_prefix + sMessage);
         }
         static public void Warning(string text, params object[] args) {
             Warning(string.Format(text, args));
@@ -52,7 +65,7 @@ namespace f3
 
         // Error always prints and then throws an exception
         static public void Error(string sMessage) {
-            Debug.Log(sMessage);
+            Debug.Log(log_prefix + sMessage);
             throw new SystemException("[DebugUtil.Error] " + sMessage);
         }
         static public void Error(string text, params object[] args) {
