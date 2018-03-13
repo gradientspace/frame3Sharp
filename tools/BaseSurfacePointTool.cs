@@ -43,6 +43,9 @@ namespace f3
                 behaviors.Add(
                     new BaseSurfacePointTool_SpatialBehavior(scene.Context, ObjectFilter) { Priority = 5 });
             }
+
+            // shut off transform gizmo
+            Scene.Context.TransformManager.PushOverrideGizmoType(TransformManager.NoGizmoType);
         }
 
 
@@ -69,6 +72,8 @@ namespace f3
 
         virtual public void Shutdown()
         {
+            // shut off transform gizmo
+            Scene.Context.TransformManager.PopOverrideGizmoType();
         }
 
 
