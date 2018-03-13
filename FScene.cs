@@ -94,26 +94,7 @@ namespace f3
             history = new ChangeHistory();
             TypeRegistry = new SORegistry();
 
-            vObjects = new List<SceneObject>();
-            vSelected = new List<SceneObject>();
-            vUIElements = new List<SceneUIElement>();
-            vBoundsObjects = new List<fGameObject>();
-            ObjectAnimator = new GenericAnimator();
-            LinkManager = new SOLinkManager(this);
-
-            sceneRoot = GameObjectFactory.CreateParentGO("Scene");
-            // for animation playbacks
-            sceneRoot.AddComponent<UnityPerFrameAnimationBehavior>().Animator = ObjectAnimator;
-
-            transient_objects = GameObjectFactory.CreateParentGO("transient");
-            sceneRoot.AddChild(transient_objects, false);
-
-            scene_objects = GameObjectFactory.CreateParentGO("scene_objects");
-            sceneRoot.AddChild(scene_objects, false);
-
-            deleted_objects = GameObjectFactory.CreateParentGO("deleted_objects");
-            sceneRoot.AddChild(deleted_objects, false);
-            vDeleted = new List<SceneObject>();
+            initialize_scene_root();
 
             // initialize materials
             DefaultSOMaterial = new SOMaterial() {
@@ -151,6 +132,31 @@ namespace f3
 
             defaultPrimitiveType = SOTypes.Cylinder;
         }
+        void initialize_scene_root()
+        {
+            vObjects = new List<SceneObject>();
+            vSelected = new List<SceneObject>();
+            vUIElements = new List<SceneUIElement>();
+            vBoundsObjects = new List<fGameObject>();
+            ObjectAnimator = new GenericAnimator();
+            LinkManager = new SOLinkManager(this);
+            vDeleted = new List<SceneObject>();
+
+            sceneRoot = GameObjectFactory.CreateParentGO("Scene");
+            // for animation playbacks
+            sceneRoot.AddComponent<UnityPerFrameAnimationBehavior>().Animator = ObjectAnimator;
+
+            transient_objects = GameObjectFactory.CreateParentGO("transient");
+            sceneRoot.AddChild(transient_objects, false);
+
+            scene_objects = GameObjectFactory.CreateParentGO("scene_objects");
+            sceneRoot.AddChild(scene_objects, false);
+
+            deleted_objects = GameObjectFactory.CreateParentGO("deleted_objects");
+            sceneRoot.AddChild(deleted_objects, false);
+        }
+
+
 
         public FContext Context {
             get { return this.context; }
@@ -200,6 +206,33 @@ namespace f3
             FUtil.SafeSendAnyEvent(ChangedEvent, this, so, type);
         }
 
+
+
+        public void Reset()
+        {
+            ClearHistory();
+
+            ClearSelection();
+            RemoveAllSceneObjects();
+            foreach ( var so in vDeleted ) {
+                so.Disconnect(true);
+                so.RootGameObject.Destroy();
+            }
+            vDeleted.Clear();
+
+            RemoveAllUIElements();
+
+            LinkManager.RemoveAllLinks();
+
+            SetCurrentTime(0);
+            SelectionMask = null;
+
+            // make sure we get rid of any cruft
+            sceneRoot.Destroy();
+
+            // rebuild scene
+            initialize_scene_root();
+        }
 
 
         // discard existing history

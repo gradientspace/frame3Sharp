@@ -114,5 +114,19 @@ namespace f3
         }
 
 
+        /// <summary>
+        /// Remove all links
+        /// </summary>
+        public void RemoveAllLinks()
+        {
+            foreach (var link in Links)
+                link.Unlink();
+            foreach (var link in NamedLinks.Values)
+                link.Unlink();
+            Links.Clear();
+            NamedLinks.Clear();
+        }
+
+
     }
 }

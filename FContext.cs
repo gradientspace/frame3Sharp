@@ -872,12 +872,7 @@ namespace f3 {
             if (ToolManager.HasActiveTool(ToolSide.Right))
                 ToolManager.DeactivateTool(ToolSide.Right);
 
-            Scene.ClearHistory();
-            Scene.ClearSelection();
-            Scene.RemoveAllSceneObjects();
-            Scene.RemoveAllUIElements();
-            Scene.SetCurrentTime(0);
-            Scene.SelectionMask = null;
+            Scene.Reset();
 
             UniqueNames.Reset();
 
