@@ -234,7 +234,9 @@ namespace f3
             o.AddAttribute(IOStrings.AOrientation, frame.Rotation);
             o.EndStruct();
         }
-
+        public static void EmitFrame(this SceneSerializer s, IOutputStream o, string structName, Frame3f frame) {
+            EmitFrame(s, o, structName, ref frame);
+        }
 
 
         /// <summary>

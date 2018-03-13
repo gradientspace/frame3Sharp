@@ -1070,15 +1070,21 @@ namespace f3 {
 
         /// <summary>
         /// Add an action that will be run every frame, until forever.
-        /// Currently no way to remove. 
         /// </summary>
-        public void RegisterEveryFrameAction(Action F) {
+        public void RegisterEveryFrameAction(string name, Action F) {
             lock (everyFrameActions) {
-                everyFrameActions.RegisterAction(F);
+                everyFrameActions.RegisterAction(name, F);
             }
         }
 
-
+        /// <summary>
+        /// remove an Every Frame Action
+        /// </summary>
+        public void DeregisterEveryFrameAction(string name) {
+            lock (everyFrameActions) {
+                everyFrameActions.RemoveAction(name);
+            }
+        }
 
 
 
