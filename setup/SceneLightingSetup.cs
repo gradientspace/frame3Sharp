@@ -60,7 +60,7 @@ namespace f3 {
             }
 
             // parent lights to Scene so they move with it
-            Context.GetScene().RootGameObject.AddChild(this.gameObject);
+            Context.GetScene().LightingObjectsParent.AddChild(this.gameObject, false);
 		}
 
         int cur_shadow_dist = -1;

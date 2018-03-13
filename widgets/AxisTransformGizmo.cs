@@ -587,6 +587,7 @@ namespace f3
     public class DefaultAxisGizmoWidgetFactory : IAxisGizmoWidgetFactory
     {
         public float Alpha = 0.5f;
+        public int OverrideRenderQueue = -1;
 
         public virtual bool Supports(AxisGizmoFlags widget) {
             return true;
@@ -604,27 +605,39 @@ namespace f3
                 case AxisGizmoFlags.AxisRotateX:
                 case AxisGizmoFlags.AxisTranslateX:
                 case AxisGizmoFlags.PlaneTranslateX:
-                    if (XMaterial == null)
+                    if (XMaterial == null) {
                         XMaterial = MaterialUtil.CreateTransparentMaterial(Colorf.VideoRed, Alpha);
+                        if (OverrideRenderQueue != -1)
+                            XMaterial.renderQueue = OverrideRenderQueue;
+                    }
                     return XMaterial;
 
                 case AxisGizmoFlags.AxisRotateY:
                 case AxisGizmoFlags.AxisTranslateY:
                 case AxisGizmoFlags.PlaneTranslateY:
-                    if (YMaterial == null)
+                    if (YMaterial == null) {
                         YMaterial = MaterialUtil.CreateTransparentMaterial(Colorf.VideoGreen, Alpha);
+                        if (OverrideRenderQueue != -1)
+                            YMaterial.renderQueue = OverrideRenderQueue;
+                    }
                     return YMaterial;
 
                 case AxisGizmoFlags.AxisRotateZ:
                 case AxisGizmoFlags.AxisTranslateZ:
                 case AxisGizmoFlags.PlaneTranslateZ:
-                    if (ZMaterial == null)
+                    if (ZMaterial == null) { 
                         ZMaterial = MaterialUtil.CreateTransparentMaterial(Colorf.VideoBlue, Alpha);
+                        if (OverrideRenderQueue != -1)
+                            ZMaterial.renderQueue = OverrideRenderQueue;
+                    }
                     return ZMaterial;
 
                 case AxisGizmoFlags.UniformScale:
-                    if (AllMaterial == null)
+                    if (AllMaterial == null) {
                         AllMaterial = MaterialUtil.CreateTransparentMaterial(Colorf.VideoWhite, Alpha);
+                        if (OverrideRenderQueue != -1)
+                            AllMaterial.renderQueue = OverrideRenderQueue;
+                    }
                     return AllMaterial;
 
                 default:

@@ -56,6 +56,8 @@ namespace f3
         fGameObject sceneRoot;
         fGameObject scene_objects;
         fGameObject transient_objects;
+        fGameObject lighting_objects;
+        fGameObject bounds_objects;
 
 
         List<SceneObject> vObjects;
@@ -149,6 +151,12 @@ namespace f3
             transient_objects = GameObjectFactory.CreateParentGO("transient");
             sceneRoot.AddChild(transient_objects, false);
 
+            lighting_objects = GameObjectFactory.CreateParentGO("lighting_objects");
+            sceneRoot.AddChild(lighting_objects, false);
+
+            bounds_objects = GameObjectFactory.CreateParentGO("bounds_objects");
+            sceneRoot.AddChild(bounds_objects, false);
+
             scene_objects = GameObjectFactory.CreateParentGO("scene_objects");
             sceneRoot.AddChild(scene_objects, false);
 
@@ -175,6 +183,13 @@ namespace f3
         /// </summary>
         public fGameObject TransientObjectsParent {
             get { return transient_objects; }
+        }
+
+        /// <summary>
+        /// parent for lights that should move with scene
+        /// </summary>
+        public fGameObject LightingObjectsParent {
+            get { return lighting_objects; }
         }
 
 
@@ -208,7 +223,7 @@ namespace f3
 
 
 
-        public void Reset(bool bKeepBoundsObjects = true)
+        public void Reset(bool bKeepBoundsObjects = true, bool bKeepLighting = true)
         {
             ClearHistory();
 
@@ -229,10 +244,21 @@ namespace f3
 
             // save bounds objects
             var save_bounds = vBoundsObjects;
+            fGameObject boundsGO = null;
             if (bKeepBoundsObjects) {
-                foreach (var o in save_bounds)
-                    o.SetParent(null, true);
+                boundsGO = bounds_objects;
+                boundsGO.SetParent(null, true);
             }
+
+            // save lighting objects
+            fGameObject lightingGO = null;
+            if ( bKeepLighting ) {
+                lightingGO = lighting_objects;
+                lightingGO.SetParent(null, true);
+            }
+
+            // save camera
+            CameraState camera_state = ActiveCamera.Manipulator().GetCurrentState(this);
 
             // make sure we get rid of any cruft
             sceneRoot.Destroy();
@@ -240,11 +266,22 @@ namespace f3
             // rebuild scene
             initialize_scene_root();
 
+            // restore camera
+            ActiveCamera.Manipulator().SetCurrentSceneState(this, camera_state);
+
             // restore bounds objects
             if (bKeepBoundsObjects) {
-                foreach (var o in save_bounds)
-                    o.SetParent(scene_objects, true);
+                bounds_objects.Destroy();
+                boundsGO.SetParent(sceneRoot, true);
+                bounds_objects = boundsGO;
                 vBoundsObjects = save_bounds;
+            }
+
+            // restore lighting objects
+            if ( bKeepLighting ) {
+                lighting_objects.Destroy();
+                lightingGO.SetParent(sceneRoot, true);
+                lighting_objects = lightingGO;
             }
         }
 
@@ -314,7 +351,7 @@ namespace f3
         public void AddWorldBoundsObject(fGameObject obj)
         {
             vBoundsObjects.Add(obj);
-            obj.SetParent(scene_objects, false);
+            obj.SetParent(bounds_objects, false);
         }
         public void RemoveWorldBoundsObject(fGameObject obj)
         {
