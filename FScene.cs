@@ -208,7 +208,7 @@ namespace f3
 
 
 
-        public void Reset()
+        public void Reset(bool bKeepBoundsObjects = true)
         {
             ClearHistory();
 
@@ -227,11 +227,25 @@ namespace f3
             SetCurrentTime(0);
             SelectionMask = null;
 
+            // save bounds objects
+            var save_bounds = vBoundsObjects;
+            if (bKeepBoundsObjects) {
+                foreach (var o in save_bounds)
+                    o.SetParent(null, true);
+            }
+
             // make sure we get rid of any cruft
             sceneRoot.Destroy();
 
             // rebuild scene
             initialize_scene_root();
+
+            // restore bounds objects
+            if (bKeepBoundsObjects) {
+                foreach (var o in save_bounds)
+                    o.SetParent(scene_objects, true);
+                vBoundsObjects = save_bounds;
+            }
         }
 
 
