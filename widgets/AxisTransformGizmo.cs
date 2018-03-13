@@ -655,27 +655,39 @@ namespace f3
                 case AxisGizmoFlags.AxisRotateX:
                 case AxisGizmoFlags.AxisTranslateX:
                 case AxisGizmoFlags.PlaneTranslateX:
-                    if (XHover == null)
+                    if (XHover == null) {
                         XHover = MaterialUtil.CreateTransparentMaterial(Colorf.VideoRed);
+                        if (OverrideRenderQueue != -1)
+                            XHover.renderQueue = OverrideRenderQueue;
+                    }
                     return XHover;
 
                 case AxisGizmoFlags.AxisRotateY:
                 case AxisGizmoFlags.AxisTranslateY:
                 case AxisGizmoFlags.PlaneTranslateY:
-                    if (YHover == null)
+                    if (YHover == null) {
                         YHover = MaterialUtil.CreateTransparentMaterial(Colorf.VideoGreen);
+                        if (OverrideRenderQueue != -1)
+                            YHover.renderQueue = OverrideRenderQueue;
+                    }
                     return YHover;
 
                 case AxisGizmoFlags.AxisRotateZ:
                 case AxisGizmoFlags.AxisTranslateZ:
                 case AxisGizmoFlags.PlaneTranslateZ:
-                    if (ZHover == null)
+                    if (ZHover == null) {
                         ZHover = MaterialUtil.CreateTransparentMaterial(Colorf.VideoBlue);
+                        if (OverrideRenderQueue != -1)
+                            ZHover.renderQueue = OverrideRenderQueue;
+                    }
                     return ZHover;
 
                 case AxisGizmoFlags.UniformScale:
-                    if (AllHover == null)
+                    if (AllHover == null) {
                         AllHover = MaterialUtil.CreateTransparentMaterial(Colorf.VideoWhite);
+                        if (OverrideRenderQueue != -1)
+                            AllHover.renderQueue = OverrideRenderQueue;
+                    }
                     return AllHover;
 
                 default:
