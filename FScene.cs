@@ -464,10 +464,9 @@ namespace f3
         }
         public void CullDeletedSceneObject(SceneObject so)
         {
-            so.Disconnect(true);
-
             if (vDeleted.Find((x) => x == so) == null)
                 return;
+            so.Disconnect(true);
             vDeleted.Remove(so);
             so.RootGameObject.SetParent(null);
             so.RootGameObject.Destroy();

@@ -31,7 +31,8 @@ namespace f3
         }
 
         public override OpStatus Cull() {
-            scene.CullDeletedSceneObject(so);
+            if (scene.HasDeletedSceneObject(so))
+                scene.CullDeletedSceneObject(so);
             return OpStatus.Success;
         }
     }
@@ -248,7 +249,8 @@ namespace f3
             return OpStatus.Success;
         }
         public override OpStatus Cull() {
-            Scene.CullDeletedSceneObject(created_group);
+            if (Scene.HasDeletedSceneObject(created_group))
+                Scene.CullDeletedSceneObject(created_group);
             return OpStatus.Success;
         }
     }
