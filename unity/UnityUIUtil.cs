@@ -16,6 +16,12 @@ namespace f3
 {
     public static class UnityUIUtil
     {
+
+        public static Text FindText(GameObject parentGO, string textName) {
+            return UnityUtil.FindChildByName(parentGO, textName).GetComponent<Text>();
+        }
+
+
         public static Text FindTextAndSet(string textName, string newText)
         {
             var text = UnityUtil.FindGameObjectByName(textName).GetComponent<Text>();
