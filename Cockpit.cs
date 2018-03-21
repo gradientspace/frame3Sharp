@@ -503,8 +503,8 @@ namespace f3
 
         public bool HandleShortcutKeys()
         {
-            if (FPlatformUI.IsConsumingMouseInput())
-                return false;
+            //if (FPlatformUI.IsConsumingMouseInput())
+            //    return false;
             if (FPlatformUI.TextEntryFieldHasFocus())
                 return false;
 
