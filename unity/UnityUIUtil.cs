@@ -66,13 +66,17 @@ namespace f3
             AddToggleBehavior(button, getValue, setValue, updateF);
             return button;
         }
-        public static Button FindButtonAndAddToggleBehavior(GameObject parentGO, string buttonName, Func<bool> getValue, Action<bool> setValue, Action<bool, Button> updateF)
+        public static Button FindButtonAndAddToggleBehavior(GameObject parentGO, string buttonName, 
+            Func<bool> getValue, Action<bool> setValue, Action<bool, Button> updateF,
+            bool bWatchForUpdates = false)
         {
             var button = UnityUtil.FindChildByName(parentGO, buttonName).GetComponent<Button>();
-            AddToggleBehavior(button, getValue, setValue, updateF);
+            AddToggleBehavior(button, getValue, setValue, updateF, bWatchForUpdates);
             return button;
         }
-        public static void AddToggleBehavior(Button button, Func<bool> getValue, Action<bool> setValue, Action<bool, Button> updateF)
+        public static void AddToggleBehavior(Button button, 
+            Func<bool> getValue, Action<bool> setValue, Action<bool, Button> updateF,
+            bool bWatchForUpdates = false)
         {
             button.onClick.AddListener(() => {
                 bool curState = getValue();
@@ -83,7 +87,33 @@ namespace f3
 
             });
             updateF(getValue(), button);
+            if (bWatchForUpdates) {
+                var watcher = button.gameObject.AddComponent<ToggleButtonWatcher>();
+                watcher.button = button;
+                watcher.getValueF = getValue;
+                watcher.updateF = updateF;
+                watcher.cur_value = getValue();
+            }
         }
+
+        class ToggleButtonWatcher : MonoBehaviour
+        {
+            public Button button;
+            public Func<bool> getValueF;
+            public Action<bool, Button> updateF;
+
+            public bool cur_value = false;
+
+            public void Update()
+            {
+                if ( getValueF() != cur_value ) {
+                    cur_value = getValueF();
+                    updateF(cur_value, button);
+                }
+            }
+        }
+
+
 
 
 
