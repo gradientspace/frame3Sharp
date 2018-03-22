@@ -60,7 +60,8 @@ namespace f3
         public void Create(SOMaterial useMaterial, GameObject parent, float fMinDimension)
         {
             meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            meshObject.GetComponent<MeshRenderer>().material = MaterialUtil.ToUnityMaterial(useMaterial);
+            fMaterial mat = MaterialUtil.ToMaterialf(useMaterial);
+            meshObject.SetMaterial(mat, true);
             bUpdatePending = true;
 
             meshObject.transform.SetParent(parent.transform, false);

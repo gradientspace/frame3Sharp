@@ -130,7 +130,7 @@ namespace f3
 
             SelectedMaterial = MaterialUtil.CreateStandardMaterial(ColorUtil.SelectionGold);
             FrameMaterial = MaterialUtil.CreateStandardMaterial(ColorUtil.DarkGrey);
-            PivotMaterial = MaterialUtil.ToUnityMaterial(PivotSOMaterial);
+            PivotMaterial = MaterialUtil.ToMaterialf(PivotSOMaterial);
 
             defaultPrimitiveType = SOTypes.Cylinder;
         }

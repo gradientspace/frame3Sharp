@@ -64,8 +64,9 @@ namespace f3
             if (frameMaterial != null) {
                 this.frameMaterial = frameMaterial;
 
+                fMaterial mat = MaterialUtil.ToMaterialf(frameMaterial);
                 frameGO = UnityUtil.CreateMeshGO("pivotFrame", "icon_meshes/axis_frame", size,
-                    UnityUtil.MeshAlignOption.NoAlignment, MaterialUtil.ToUnityMaterial(frameMaterial), false);
+                    UnityUtil.MeshAlignOption.NoAlignment, mat, false);
                 MaterialUtil.SetIgnoreMaterialChanges(frameGO);
                 MaterialUtil.DisableShadows(frameGO);
                 AppendNewGO(frameGO, pivotGO, false);
