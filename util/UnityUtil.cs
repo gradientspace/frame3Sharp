@@ -468,15 +468,17 @@ namespace f3
 
 
 
-        public static fMesh DMeshToUnityMesh(DMesh3 m, bool bSwapLeftRight)
+        public static fMesh DMeshToUnityMesh(DMesh3 m, bool bSwapLeftRight, bool bAllowLargeMeshes = false)
         {
             if (bSwapLeftRight)
                 throw new Exception("[RMSNOTE] I think this conversion is wrong, see MeshTransforms.SwapLeftRight. Just want to know if this code is ever hit.");
 
 
-            if (m.VertexCount > 65000 || m.TriangleCount > 65000) {
-                Debug.Log("[UnityUtil.DMeshToUnityMesh] attempted to import object larger than 65000 verts/tris, not supported by Unity!");
-                return null;
+            if (bAllowLargeMeshes == false) {
+                if (m.VertexCount > 65000 || m.TriangleCount > 65000) {
+                    Debug.Log("[UnityUtil.DMeshToUnityMesh] attempted to import object larger than 65000 verts/tris, not supported by Unity!");
+                    return null;
+                }
             }
 
             Mesh unityMesh = new Mesh();

@@ -146,10 +146,16 @@ namespace f3
         }
 
 
+        virtual public bool ShadowsEnabled {
+            get { return false; }
+        }
         virtual public void DisableShadows() {
             throw new NotImplementedException("BaseSO.DisableShadows: must be implemented by subclasses");
         }
 
+        virtual public int Layer {
+            get { return RootGameObject.GetLayer(); }
+        }
         virtual public void SetLayer(int nLayer)
         {
             RootGameObject.SetLayer(nLayer);
