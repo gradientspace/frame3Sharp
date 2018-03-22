@@ -421,7 +421,15 @@ namespace f3
         // to internal Deleted set, so it can be recovered by undo.
         public void RemoveSceneObject(SceneObject so, bool bDestroy)
         {
-            DebugUtil.Log(4, "[Scene.AddSceneObject] removing {0} (destroy: {1})", so.Name, bDestroy);
+            if ( so.RootGameObject.IsDestroyed ) {
+                DebugUtil.Log(4, "[Scene.RemoveSceneObject] tried to remove SO but it is already destroyed.");
+                if (vSelected.Contains(so)) {
+                    Deselect(so);
+                }
+                vObjects.Remove(so);
+                return;
+            }
+            DebugUtil.Log(4, "[Scene.RemoveSceneObject] removing {0} (destroy: {1})", so.Name, bDestroy);
 
             if (vSelected.Contains(so)) {
                 Deselect(so);
