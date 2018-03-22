@@ -15,28 +15,52 @@ namespace f3
     /// </summary>
     public class fMaterial
     {
-        protected Material unitymaterial;
-
+        protected Material unityMat;
 
         public fMaterial(UnityEngine.Material m)
         {
-            unitymaterial = m;
+            unityMat = m;
         }
 
-        public virtual Colorf color
-        {
-            get { return unitymaterial.color; }
-            set { unitymaterial.color = value; }
+        public virtual string name {
+            get { return unityMat.name; }
+            set { unityMat.name = value; }
         }
 
-        public int renderQueue {
-            get { return unitymaterial.renderQueue; }
-            set { unitymaterial.renderQueue = value; }
+        public virtual Colorf color {
+            get { return unityMat.color; }
+            set { unityMat.color = value; }
         }
+
+        public virtual Texture mainTexture {
+            get { return unityMat.mainTexture; }
+            set { unityMat.mainTexture = value; }
+        }
+
+        public virtual int renderQueue {
+            get { return unityMat.renderQueue; }
+            set { unityMat.renderQueue = value; }
+        }
+
+
+        public virtual void SetInt(string identifier, int value) {
+            unityMat.SetInt(identifier, value);
+        }
+        public virtual int GetInt(string identifier) {
+            return unityMat.GetInt(identifier);
+        }
+
+        public virtual void SetFloat(string identifier, float value) {
+            unityMat.SetFloat(identifier, value);
+        }
+        public virtual float GetFloat(string identifier) {
+            return unityMat.GetFloat(identifier);
+        }
+
 
         public static implicit operator UnityEngine.Material(fMaterial mat)
         {
-            return mat.unitymaterial;
+            return mat.unityMat;
         }
         public static implicit operator fMaterial(UnityEngine.Material mat)
         {
@@ -64,19 +88,19 @@ namespace f3
         }
 
         public override Colorf color {
-            get { return unitymaterial.color; }
+            get { return unityMat.color; }
             set {
-                bool alpha_change = (value.a == 1.0f && unitymaterial.color.a != 1.0f) ||
-                                    (value.a != 1.0f && unitymaterial.color.a == 1.0f);
-                unitymaterial.color = value;
+                bool alpha_change = (value.a == 1.0f && unityMat.color.a != 1.0f) ||
+                                    (value.a != 1.0f && unityMat.color.a == 1.0f);
+                unityMat.color = value;
                 if (alpha_change) {
                     DebugUtil.Log(2, "changing alpha to {0}", value.a);
                     if (value.a == 1) {
-                        MaterialUtil.SetupMaterialWithBlendMode(unitymaterial, MaterialUtil.BlendMode.Opaque);
-                        unitymaterial.renderQueue = OpaqueRenderQueue;
+                        MaterialUtil.SetupMaterialWithBlendMode(unityMat, MaterialUtil.BlendMode.Opaque);
+                        unityMat.renderQueue = OpaqueRenderQueue;
                     } else {
-                        MaterialUtil.SetupMaterialWithBlendMode(unitymaterial, MaterialUtil.BlendMode.Transparent);
-                        unitymaterial.renderQueue = TransparentRenderQueue;
+                        MaterialUtil.SetupMaterialWithBlendMode(unityMat, MaterialUtil.BlendMode.Transparent);
+                        unityMat.renderQueue = TransparentRenderQueue;
                     }
                 }
             }

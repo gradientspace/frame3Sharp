@@ -50,6 +50,13 @@ namespace f3
         }
 
 
+        public static fMeshMaterial CreateStandardMeshMaterial(Colorf c)
+        {
+            fMeshMaterial m = new fMeshMaterial(SafeLoadMaterial("StandardMaterials/standard_mesh"));
+            m.color = c;
+            return m;
+        }
+
 
         public static Material CreateTransparentMaterial(Colorf c)
         {
@@ -340,6 +347,11 @@ namespace f3
                 unityMat = MaterialUtil.CreateDepthWriteOnly();
                 unityMat.renderQueue += m.RenderQueueShift;
 
+            } else if ( m.Type == SOMaterial.MaterialType.StandardMesh ) {
+                fMeshMaterial meshMat = MaterialUtil.CreateStandardMeshMaterial(m.RGBColor);
+                unityMat.renderQueue += m.RenderQueueShift;
+                
+
             } else if ( m is UnitySOMaterial ) {
                 unityMat = (m as UnitySOMaterial).unityMaterial;
 
@@ -361,7 +373,67 @@ namespace f3
 
         public static fMaterial ToMaterialf(SOMaterial m)
         {
-            return new fMaterial(ToUnityMaterial(m));
+            fMaterial unityMat = null;
+
+            if (m.Type == SOMaterial.MaterialType.TextureMap) {
+                unityMat = new Material(Shader.Find("Standard"));
+                unityMat.name = m.Name;
+                unityMat.color = m.RGBColor;
+                //if (m.Alpha < 1.0f)
+                //    MaterialUtil.SetupMaterialWithBlendMode(unityMat, MaterialUtil.BlendMode.Transparent);
+                unityMat.mainTexture = m.MainTexture;
+
+            } else if (m.Type == SOMaterial.MaterialType.PerVertexColor) {
+                unityMat = MaterialUtil.CreateStandardVertexColorMaterial(m.RGBColor);
+                unityMat.renderQueue += m.RenderQueueShift;
+                unityMat.SetInt("_Cull", (int)m.CullingMode);
+
+            } else if (m.Type == SOMaterial.MaterialType.FlatShadedPerVertexColor) {
+                unityMat = MaterialUtil.CreateFlatShadedVertexColorMaterialF(m.RGBColor);
+                unityMat.renderQueue += m.RenderQueueShift;
+                unityMat.SetInt("_Cull", (int)m.CullingMode);
+
+            } else if (m.Type == SOMaterial.MaterialType.TransparentRGBColor) {
+                unityMat = MaterialUtil.CreateTransparentMaterial(m.RGBColor);
+                unityMat.renderQueue += m.RenderQueueShift;
+
+            } else if (m.Type == SOMaterial.MaterialType.StandardRGBColor) {
+                unityMat = MaterialUtil.CreateStandardMaterial(m.RGBColor);
+                unityMat.renderQueue += m.RenderQueueShift;
+
+            } else if (m.Type == SOMaterial.MaterialType.UnlitRGBColor) {
+                unityMat = MaterialUtil.CreateFlatMaterial(m.RGBColor);
+                unityMat.renderQueue += m.RenderQueueShift;
+
+            } else if (m.Type == SOMaterial.MaterialType.DepthWriteOnly) {
+                unityMat = MaterialUtil.CreateDepthWriteOnly();
+                unityMat.renderQueue += m.RenderQueueShift;
+
+            } else if (m.Type == SOMaterial.MaterialType.StandardMesh) {
+                fMeshMaterial meshMat = MaterialUtil.CreateStandardMeshMaterial(m.RGBColor);
+                meshMat.renderQueue += m.RenderQueueShift;
+                if ( m is SOMeshMaterial )
+                    meshMat.InitializeFromSOMaterial(m as SOMeshMaterial);
+                unityMat = meshMat;
+
+            } else if (m is UnitySOMaterial) {
+                unityMat = (m as UnitySOMaterial).unityMaterial;
+
+            } else if (m is UnitySOMeshMaterial) {
+                unityMat = (m as UnitySOMeshMaterial).meshMaterial;
+
+            } else {
+                unityMat = MaterialUtil.CreateStandardMaterial(Color.black);
+            }
+
+            if ((m.Hints & SOMaterial.HintFlags.UseTransparentPass) != 0)
+                SetupMaterialWithBlendMode(unityMat, BlendMode.Transparent);
+
+            if (m.MaterialCustomizerF != null) {
+                m.MaterialCustomizerF(unityMat);
+            }
+
+            return unityMat;
         }
 
     }

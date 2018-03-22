@@ -21,6 +21,8 @@ namespace f3
             DepthWriteOnly,
             FlatShadedPerVertexColor,
 
+            StandardMesh,
+
             Custom
         };
         public virtual MaterialType Type { get; set; }
@@ -121,5 +123,11 @@ namespace f3
             return new SOMaterial() { Name = sName, Type = MaterialType.FlatShadedPerVertexColor, RGBColor = color };
         }
 
+        public static SOMaterial CreateMesh(string sName, Colorf color) {
+            return new SOMeshMaterial() { Name = sName, RGBColor = color };
+        }
     }
+
+
+
 }

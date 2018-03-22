@@ -43,6 +43,59 @@ namespace f3
             Material copyM = UnityEngine.Object.Instantiate<Material>(unityMaterial);
             return new UnitySOMaterial(copyM);
         }
+    }
+
+
+
+
+
+
+
+    // wrap unity fMeshMaterial (which wraps unity Material) in an SOMaterial
+    public class UnitySOMeshMaterial : SOMeshMaterial
+    {
+        public fMeshMaterial meshMaterial;
+
+        public UnitySOMeshMaterial(fMeshMaterial wrapMaterial) : base(false)
+        {
+            meshMaterial = wrapMaterial;
+        }
+
+        public override string Name {
+            get { return meshMaterial.name; }
+            set { meshMaterial.name = value; }
+        }
+
+        public override MaterialType Type {
+            get { return SOMaterial.MaterialType.Custom; }
+            set { throw new NotImplementedException("UnitySOMeshMaterial: cannot set type!"); }
+        }
+
+        public override Colorf RGBColor {
+            get { return meshMaterial.color; }
+            set { meshMaterial.color = value; }
+        }
+
+        public override Texture2D MainTexture {
+            get { return meshMaterial.mainTexture as Texture2D; }
+            set { meshMaterial.mainTexture = value; }
+        }
+
+        public override bool EnableWireframe {
+            get { return meshMaterial.EnableWireframe; }
+            set { meshMaterial.EnableWireframe = value; }
+        }
+
+        public override SOMaterial Clone()
+        {
+            Material copyM = UnityEngine.Object.Instantiate<Material>(meshMaterial);
+            fMeshMaterial meshM = new fMeshMaterial(copyM);
+            return new UnitySOMeshMaterial(meshM);
+        }
 
     }
+
+
+
+
 }
