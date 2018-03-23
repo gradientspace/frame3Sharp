@@ -473,7 +473,6 @@ namespace f3
             if (bSwapLeftRight)
                 throw new Exception("[RMSNOTE] I think this conversion is wrong, see MeshTransforms.SwapLeftRight. Just want to know if this code is ever hit.");
 
-
             if (bAllowLargeMeshes == false) {
                 if (m.VertexCount > 65000 || m.TriangleCount > 65000) {
                     Debug.Log("[UnityUtil.DMeshToUnityMesh] attempted to import object larger than 65000 verts/tris, not supported by Unity!");
@@ -485,17 +484,6 @@ namespace f3
 
             Vector3[] vertices = dvector_to_vector3(m.VerticesBuffer);
             Vector3[] normals = (m.HasVertexNormals) ? dvector_to_vector3(m.NormalsBuffer) : null;
-            if (bSwapLeftRight) {
-                int nV = vertices.Length;
-                for (int i = 0; i < nV; ++i) {
-                    vertices[i].x = -vertices[i].x;
-                    vertices[i].z = -vertices[i].z;
-                    if (normals != null) {
-                        normals[i].x = -normals[i].x;
-                        normals[i].z = -normals[i].z;
-                    }
-                }
-            }
 
             unityMesh.vertices = vertices;
             if (m.HasVertexNormals)
@@ -504,6 +492,8 @@ namespace f3
                 unityMesh.colors = dvector_to_color(m.ColorsBuffer);
             if (m.HasVertexUVs)
                 unityMesh.uv = dvector_to_vector2(m.UVBuffer);
+            if (bAllowLargeMeshes)
+                unityMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
             unityMesh.triangles = dvector_to_int(m.TrianglesBuffer);
 
             if (m.HasVertexNormals == false)
