@@ -474,7 +474,7 @@ namespace f3
                 throw new Exception("[RMSNOTE] I think this conversion is wrong, see MeshTransforms.SwapLeftRight. Just want to know if this code is ever hit.");
 
             if (bAllowLargeMeshes == false) {
-                if (m.VertexCount > 65000 || m.TriangleCount > 65000) {
+                if (m.MaxVertexID > 65000 || m.MaxTriangleID > 65000) {
                     Debug.Log("[UnityUtil.DMeshToUnityMesh] attempted to import object larger than 65000 verts/tris, not supported by Unity!");
                     return null;
                 }
@@ -492,9 +492,27 @@ namespace f3
                 unityMesh.colors = dvector_to_color(m.ColorsBuffer);
             if (m.HasVertexUVs)
                 unityMesh.uv = dvector_to_vector2(m.UVBuffer);
-            if (bAllowLargeMeshes)
+
+            if (bAllowLargeMeshes && (m.MaxVertexID > 65000 || m.TriangleCount > 65000) )
                 unityMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-            unityMesh.triangles = dvector_to_int(m.TrianglesBuffer);
+
+            if (m.IsCompactT) {
+                unityMesh.triangles = dvector_to_int(m.TrianglesBuffer);
+            } else {
+                int[] triangles = new int[m.TriangleCount*3];
+                int ti = 0;
+                for (int k = 0; k < m.MaxTriangleID; ++k ) {
+                    if ( m.IsTriangle(k) ) {
+                        Index3i t = m.GetTriangle(k);
+                        int j = 3 * ti;
+                        triangles[j] = t.a;
+                        triangles[j + 1] = t.b;
+                        triangles[j + 2] = t.c;
+                        ti++;
+                    }
+                }
+                unityMesh.triangles = triangles;
+            }
 
             if (m.HasVertexNormals == false)
                 unityMesh.RecalculateNormals();
