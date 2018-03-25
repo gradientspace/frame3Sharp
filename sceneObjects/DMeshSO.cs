@@ -413,7 +413,12 @@ namespace f3
         }
 
 
-
+        /// <summary>
+        /// Set the position of the object frame for this SO without moving the mesh in the scene.
+        /// The input frame is the new object frame, so it is in **scene** cordinates, unless
+        /// this object has a non-scene parent.
+        /// TODO: specify frame coordpace as input argument?
+        /// </summary>
         public void RepositionPivot(Frame3f objFrame)
         {
             if (Parent is FScene == false)
