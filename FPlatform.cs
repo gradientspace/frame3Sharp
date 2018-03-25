@@ -100,7 +100,7 @@ namespace f3
         static public float PixelScaleFactor = 1.0f;
 
         // multiplier on Cockpit.GetPixelScale() applied when running in editor.
-        static public float EditorPixelScaleFactor = 0.5f;
+        static public float EditorPixelScaleFactor = 1.0f;
 
 
 
