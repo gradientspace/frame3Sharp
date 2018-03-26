@@ -51,6 +51,7 @@ Shader "f3/StandardMeshShader"
 
 		// emission color is multiplied by its own alpha before adding to output color
 		_EmissionColor("Emission Color", Color) = (0,0,0,0)
+		_BackfaceEmissionColor("Backface Emission", Color) = (1,1,1,0.2)
 
 
 		[Header(FaceGroup Color Settings)]
@@ -60,7 +61,6 @@ Shader "f3/StandardMeshShader"
 
 		[NoScaleOffset] _FaceIndexMap("Face Index Map", 2D) = "black" {}
 		[NoScaleOffset] _GroupColorMap("Group Color Map", 2D) = "white" {}
-
 
 		// Blending state
 		[HideInInspector] _Mode("__mode", Float) = 0.0
@@ -110,13 +110,13 @@ Shader "f3/StandardMeshShader"
 			#pragma multi_compile_fog
 
 			#pragma vertex vertForwardBase_f3VC
-			#pragma geometry geom_test
+			#pragma geometry geomForwardBase
 			#pragma fragment fragForwardBase_f3VC
 			#include "UnityStandardCoreForward.cginc"
 			#include "f3StandardMeshShader.cginc"
 
             [maxvertexcount(3)]
-            void geom_test(triangle VertexOutputForwardBase_f3VC input[3], uint pid : SV_PrimitiveID, inout TriangleStream<VertexOutputForwardBase_f3VC> OutputStream)
+            void geomForwardBase(triangle VertexOutputForwardBase_f3VC input[3], uint pid : SV_PrimitiveID, inout TriangleStream<VertexOutputForwardBase_f3VC> OutputStream)
             {
 				// for flat-shading, we rewrite normal
 				float3 p0 = IN_WORLDPOS(input[0]);
@@ -188,12 +188,12 @@ Shader "f3/StandardMeshShader"
 			// [RMS] also need to do geom shader here if we want specular highlights...
 
 			#pragma vertex vertAdd
-			#pragma geometry geom_test_Add
+			#pragma geometry geomForwardAdd
 			#pragma fragment fragAdd
 			#include "UnityStandardCoreForward.cginc"
 
 			[maxvertexcount(3)]
-			void geom_test_Add(triangle VertexOutputForwardAdd input[3], inout TriangleStream<VertexOutputForwardAdd> OutputStream)
+			void geomForwardAdd(triangle VertexOutputForwardAdd input[3], inout TriangleStream<VertexOutputForwardAdd> OutputStream)
 			{
 				float3 p0 = IN_WORLDPOS_FWDADD(input[0]);
 				float3 p1 = IN_WORLDPOS_FWDADD(input[1]);

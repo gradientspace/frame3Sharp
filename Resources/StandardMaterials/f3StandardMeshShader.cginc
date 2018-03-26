@@ -12,6 +12,7 @@ half4 _BackFaceColor2;
 float _Wireframe;
 half4 _WireColor;
 float _WireWidth;
+half4 _BackfaceEmissionColor;
 
 
 // [RMS] use separate texture/state so that we can get "nearest" sampling
@@ -283,7 +284,8 @@ half4 fragForwardBaseInternal_f3VC (VertexOutputForwardBase_f3VC i)
 	half4 c = UNITY_BRDF_PBS(s.diffColor, s.specColor, s.oneMinusReflectivity, s.smoothness, s.normalWorld, -s.eyeVec, gi.light, gi.indirect);
 
 	// add emission
-	c.rgb += _EmissionColor.rgb * _EmissionColor.a;
+	half4 emission = lerp(_EmissionColor, _BackfaceEmissionColor, backface_t);
+	c.rgb += emission.rgb * emission.a;
 
 	// apply fog
 	UNITY_APPLY_FOG(i.fogCoord, c.rgb);
