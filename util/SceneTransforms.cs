@@ -156,6 +156,19 @@ namespace f3
         }
 
 
+
+        /// <summary>
+        /// Cache the transform sequence from scene coordinates down to SO-local coordinates
+        /// </summary>
+        public static TransformSequence SceneToObjectXForm(SceneObject so)
+        {
+            // [TODO] could be more efficient?
+            return ObjectToSceneXForm(so).MakeInverse();
+        }
+
+
+
+
         /// <summary>
         /// Input sceneF is a frame in Scene, apply all intermediate inverse 
         /// transforms to get it into local frame of a SO
