@@ -314,6 +314,11 @@ namespace f3
 
 #if F3_ENABLE_TEXT_MESH_PRO
 
+        public static TMP_Text FindTMPText(GameObject parent, string textName)
+        {
+            var field = parent.FindChildByName(textName, true).GetComponent<TMP_Text>();
+            return field;
+        }
 
         public static TMP_InputField FindTMPInputAndAddHandlers(GameObject parent, string inputName, UnityAction<string> editHandler)
         {

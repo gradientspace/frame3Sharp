@@ -61,7 +61,7 @@ namespace f3
                 return;
 
             fMesh unityMesh = UnityUtil.DMeshToUnityMesh(mesh, false, true);
-            viewMeshGO = GameObjectFactory.CreateMeshGO("component", unityMesh, false);
+            viewMeshGO = GameObjectFactory.CreateMeshGO("component", unityMesh, false, true);
             viewMeshGO.SetMaterial(SourceSO.CurrentMaterial, true);
             viewMeshGO.SetLayer(SourceSO.RootGameObject.GetLayer());
             if (SourceSO.ShadowsEnabled == false)
