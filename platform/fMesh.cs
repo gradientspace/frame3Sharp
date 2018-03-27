@@ -71,7 +71,7 @@ namespace f3
 
         public void FastUpdateVertices(DMesh3 source, bool bCopyNormals = false, bool bCopyColors = false)
         {
-            int NV = source.VertexCount;
+            int NV = source.MaxVertexID;
             Vector3[] vertices = new Vector3[NV];
             for (int i = 0; i < NV; ++i) {
                 if ( source.IsVertex(i) )
