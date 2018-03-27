@@ -82,6 +82,9 @@ namespace f3
         public bool HasActiveTool(int nSide) {
             return activeTool[nSide] != null;
         }
+        public bool HasActiveTool() {
+            return activeTool[0] != null || activeTool[1] != null;
+        }
         public ToolSide FindSide(ITool tool)
         {
             if (activeTool[0] == tool)
