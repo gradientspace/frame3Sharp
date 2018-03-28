@@ -14,6 +14,11 @@ half4 _WireColor;
 float _WireWidth;
 half4 _BackfaceEmissionColor;
 
+float _EnableClipPlane;
+half4 _ClipPlaneColor;
+float4 _ClipPlaneEquation;
+
+float4 _SceneOriginWorld;
 
 // [RMS] use separate texture/state so that we can get "nearest" sampling
 //  (alternately can configure this state in texture)
@@ -217,19 +222,53 @@ uint3 int_to_intuv(uint index, float4 texel_size) {
 }
 
 
+
+float3 ray_plane_intersect(float3 ray_origin, float3 ray_direction, float3 plane_normal, float plane_d)
+{
+	float div = dot(ray_direction, plane_normal);
+	float t = -( dot(ray_origin, plane_normal) - plane_d) / div;
+	return ray_origin + t * ray_direction;
+}
+
+
+
 // [RMS] added multiply by color & alpha
 half4 fragForwardBaseInternal_f3VC (VertexOutputForwardBase_f3VC i)
 {
 	// if we are back-facing, flip normal immediately, so that 
 	// flipped normal goes into all the unity shading code
 	half3 normal = i.tangentToWorldAndPackedData[2].xyz;
-	float side = sign(dot(normal, i.eyeVec));
+	float side = sign(dot(normal, i.eyeVec));	// positive is backface...
 	normal = -side * normal;
 	float backface_t = (side + 1.0) * 0.5;
 
 	// these are inputs
 	float3 posWorld = IN_WORLDPOS(i);
 	half3 color = _Color;
+
+	UnityLight mainLight = MainLight();
+
+	// if we have clip plane, 
+	if (_EnableClipPlane > 0) {
+		float d = dot(posWorld.xyz, _ClipPlaneEquation.xyz);
+		if (d > _ClipPlaneEquation.w) {
+			discard;
+		}
+		if (_EnableClipPlane > 1 && backface_t > 0) {
+			normal = _ClipPlaneEquation.xyz;
+			float diffuse = dot(normal, mainLight.dir);
+			// [RMS] this gives a alternating-lines effect, but it slides around because
+			// we aren't actually transforming back to scene, just relative to origin
+			//float3 raydir = normalize(posWorld - _WorldSpaceCameraPos);
+			//float3 planePos = ray_plane_intersect(_WorldSpaceCameraPos, raydir, normal, _ClipPlaneEquation.w);
+			//planePos -= _SceneOriginWorld.xyz;
+			//diffuse *= abs(sin(2 * planePos.x)) < 0.5 ? 1 : 0.8;
+
+			half4 clipcolor = _ClipPlaneColor;
+			clipcolor.rgb *= diffuse;
+			return clipcolor;
+		}
+	}
 
 	// replace color with vertex color
 #ifdef _ENABLE_VERTEX_COLOR
@@ -265,7 +304,6 @@ half4 fragForwardBaseInternal_f3VC (VertexOutputForwardBase_f3VC i)
 	UNITY_SETUP_INSTANCE_ID(i);
 	UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
 
-	UnityLight mainLight = MainLight ();
 	UNITY_LIGHT_ATTENUATION(atten, i, s.posWorld);
 
 	// (end of standard unity stuff)
@@ -309,6 +347,98 @@ half4 fragForwardBase_f3VC (VertexOutputForwardBase_f3VC i) : SV_Target	// backw
 {
 	return fragForwardBaseInternal_f3VC(i);
 }
+
+
+
+
+/*
+ * Forward Additive pass
+ *  [TODO] need to get rid of all the stuff we aren't using...
+ */
+
+// [RMS] don't think I added anything here...
+VertexOutputForwardAdd vertForwardAdd_f3VC(VertexInput v)
+{
+	UNITY_SETUP_INSTANCE_ID(v);
+	VertexOutputForwardAdd o;
+	UNITY_INITIALIZE_OUTPUT(VertexOutputForwardAdd, o);
+	UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+
+	float4 posWorld = mul(unity_ObjectToWorld, v.vertex);
+	o.pos = UnityObjectToClipPos(v.vertex);
+
+	o.tex = TexCoords(v);
+	o.eyeVec = NormalizePerVertexNormal(posWorld.xyz - _WorldSpaceCameraPos);
+	o.posWorld = posWorld.xyz;
+	float3 normalWorld = UnityObjectToWorldNormal(v.normal);
+#ifdef _TANGENT_TO_WORLD
+	float4 tangentWorld = float4(UnityObjectToWorldDir(v.tangent.xyz), v.tangent.w);
+
+	float3x3 tangentToWorld = CreateTangentToWorldPerVertex(normalWorld, tangentWorld.xyz, tangentWorld.w);
+	o.tangentToWorldAndLightDir[0].xyz = tangentToWorld[0];
+	o.tangentToWorldAndLightDir[1].xyz = tangentToWorld[1];
+	o.tangentToWorldAndLightDir[2].xyz = tangentToWorld[2];
+#else
+	o.tangentToWorldAndLightDir[0].xyz = 0;
+	o.tangentToWorldAndLightDir[1].xyz = 0;
+	o.tangentToWorldAndLightDir[2].xyz = normalWorld;
+#endif
+	//We need this for shadow receiving
+	UNITY_TRANSFER_SHADOW(o, v.uv1);
+
+	float3 lightDir = _WorldSpaceLightPos0.xyz - posWorld.xyz * _WorldSpaceLightPos0.w;
+#ifndef USING_DIRECTIONAL_LIGHT
+	lightDir = NormalizePerVertexNormal(lightDir);
+#endif
+	o.tangentToWorldAndLightDir[0].w = lightDir.x;
+	o.tangentToWorldAndLightDir[1].w = lightDir.y;
+	o.tangentToWorldAndLightDir[2].w = lightDir.z;
+
+#ifdef _PARALLAXMAP
+	TANGENT_SPACE_ROTATION;
+	o.viewDirForParallax = mul(rotation, ObjSpaceViewDir(v.vertex));
+#endif
+
+	UNITY_TRANSFER_FOG(o, o.pos);
+	return o;
+}
+
+
+half4 fragForwardAdd_f3VC(VertexOutputForwardAdd i) : SV_Target
+{
+	UNITY_APPLY_DITHER_CROSSFADE(i.pos.xy);
+
+	FRAGMENT_SETUP_FWDADD(s)
+
+	// if we are back-facing, flip normal immediately, so that 
+	// flipped normal goes into all the unity shading code
+	float side = sign(dot(s.normalWorld, s.eyeVec));	// positive is backface...
+	if (side > 0) {
+		s.normalWorld = -s.normalWorld;
+		//discard;
+	}
+	// handle clipping plane
+	if (_EnableClipPlane > 0) {
+		float d = dot(s.posWorld.xyz, _ClipPlaneEquation.xyz);
+		if (d > _ClipPlaneEquation.w) {
+			discard;
+		}
+		if (_EnableClipPlane > 1 && side > 0) {
+			discard;		// in fill mode, just skip additive pass, too hard to set up
+		}
+	}
+
+	UNITY_LIGHT_ATTENUATION(atten, i, s.posWorld)
+	UnityLight light = AdditiveLight(IN_LIGHTDIR_FWDADD(i), atten);
+	UnityIndirect noIndirect = ZeroIndirect();
+
+	half4 c = UNITY_BRDF_PBS(s.diffColor, s.specColor, s.oneMinusReflectivity, s.smoothness, s.normalWorld, -s.eyeVec, light, noIndirect);
+
+	UNITY_APPLY_FOG_COLOR(i.fogCoord, c.rgb, half4(0, 0, 0, 0)); // fog towards black in additive pass
+	return OutputForward(c, s.alpha);
+}
+
+
 
 
 

@@ -20,12 +20,13 @@ namespace f3
         public void InitializeFromSOMaterial(SOMeshMaterial mat)
         {
             EnableWireframe = mat.EnableWireframe;
+            ClipPlaneMode = (ClipPlaneModes)(int)mat.ClipPlaneMode;
         }
 
 
         public bool EnableWireframe {
             get {
-                return GetFloat("__Wireframe") == 0 ? false : true;
+                return GetFloat("_Wireframe") == 0 ? false : true;
             }
             set {
                 if (value) {
@@ -37,5 +38,24 @@ namespace f3
                 }
             }
         }
+
+
+        public enum ClipPlaneModes
+        {
+            NoClip = 0,
+            Clip = 1,
+            ClipAndFill = 2
+        }
+
+        public ClipPlaneModes ClipPlaneMode {
+            get {
+                return (ClipPlaneModes)(int)GetFloat("_EnableClipPlane");
+            }
+            set {
+                float f = MathUtil.Clamp((int)value, 0, 2);
+                SetFloat("_EnableClipPlane", f);
+            }
+        }
+
     }
 }

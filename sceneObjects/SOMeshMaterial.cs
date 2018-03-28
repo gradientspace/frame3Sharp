@@ -14,7 +14,17 @@ namespace f3
     /// </summary>
     public class SOMeshMaterial : SOMaterial
     {
+        public enum ClipPlaneModes
+        {
+            NoClip = 0,
+            Clip = 1,
+            ClipAndFill = 2
+        }
+
+
         public virtual bool EnableWireframe { get; set; }
+
+        public virtual ClipPlaneModes ClipPlaneMode { get; set; }
 
 
         public SOMeshMaterial()
@@ -25,6 +35,7 @@ namespace f3
             CullingMode = CullingModes.None;
             Hints = HintFlags.None;
             EnableWireframe = false;
+            ClipPlaneMode = ClipPlaneModes.NoClip;
         }
 
         protected SOMeshMaterial(bool do_nothing) : base(do_nothing)
@@ -39,7 +50,8 @@ namespace f3
                 CullingMode = this.CullingMode,
                 RenderQueueShift = this.RenderQueueShift,
                 Hints = this.Hints,
-                EnableWireframe = this.EnableWireframe
+                EnableWireframe = this.EnableWireframe,
+                ClipPlaneMode = this.ClipPlaneMode
             };
         }
 

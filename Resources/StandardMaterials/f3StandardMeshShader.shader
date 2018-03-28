@@ -40,6 +40,13 @@ Shader "f3/StandardMeshShader"
 		_WireColor("Wire Color", Color) = (0,0,0,1)
 		_WireWidth("Wire Width", Range(0.0,10.0)) = 1.0
 
+
+		[Header(Clip Plane Settings)]
+
+		[KeywordEnum(Off, Clip, ClipFill)] _EnableClipPlane("Enable Clip Plane", Float) = 0
+		_ClipPlaneColor("Clip Fill Color", Color) = (1,1,0,1)
+		//_ClipPlaneEquation("ClipPlane", Vector) = (0,1,0,-9999)
+
 		[Header(Material Properties)]
 
 		_Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
@@ -67,6 +74,7 @@ Shader "f3/StandardMeshShader"
 		[HideInInspector] _SrcBlend("__src", Float) = 1.0
 		[HideInInspector] _DstBlend("__dst", Float) = 0.0
 		[HideInInspector] _ZWrite("__zw", Float) = 1.0
+
 	}
 
 		CGINCLUDE
@@ -187,10 +195,11 @@ Shader "f3/StandardMeshShader"
 
 			// [RMS] also need to do geom shader here if we want specular highlights...
 
-			#pragma vertex vertAdd
+			#pragma vertex vertForwardAdd_f3VC
 			#pragma geometry geomForwardAdd
-			#pragma fragment fragAdd
+			#pragma fragment fragForwardAdd_f3VC
 			#include "UnityStandardCoreForward.cginc"
+			#include "f3StandardMeshShader.cginc"
 
 			[maxvertexcount(3)]
 			void geomForwardAdd(triangle VertexOutputForwardAdd input[3], inout TriangleStream<VertexOutputForwardAdd> OutputStream)
@@ -228,10 +237,14 @@ Shader "f3/StandardMeshShader"
 			#pragma shader_feature _ _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON
 			#pragma multi_compile_shadowcaster
 
-			#pragma vertex vertShadowCaster
-			#pragma fragment fragShadowCaster
+			#pragma vertex vertShadowCaster_f3VC
+			#pragma fragment fragShadowCaster_f3VC
+			
+			// [RMS] have to define this to get extra variables in shader??
+			#define UNITY_STANDARD_USE_SHADOW_OUTPUT_STRUCT
 
 			#include "UnityStandardShadow.cginc"
+			#include "f3StandardMeshShader_Shadow.cginc"
 
 			ENDCG
 		}
