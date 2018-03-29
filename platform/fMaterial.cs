@@ -57,6 +57,13 @@ namespace f3
             return unityMat.GetFloat(identifier);
         }
 
+        public virtual void SetVector(string identifier, Vector4f value) {
+            unityMat.SetVector(identifier, value);
+        }
+        public virtual Vector4f GetVector(string identifier) {
+            return unityMat.GetVector(identifier);
+        }
+
 
         public static implicit operator UnityEngine.Material(fMaterial mat)
         {

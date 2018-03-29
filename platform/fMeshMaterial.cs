@@ -57,5 +57,22 @@ namespace f3
             }
         }
 
+
+
+        Frame3f clip_plane_pos = Frame3f.Identity;
+        public Frame3f ClipPlanePos {
+            get {
+                Vector4f v = GetVector("_ClipPlaneEquation");
+                Vector3f z = new Vector3f(v.x, v.y, v.z);
+                Vector3f o = v.w * z;
+                return new Frame3f(o, z);
+            }
+            set {
+                Vector3f z = value.Z, o = value.Origin;
+                SetVector("_ClipPlaneEquation", new Vector4f(z.x, z.y, z.z, z.Dot(o)));
+
+            }
+        }
+
     }
 }

@@ -25,7 +25,7 @@ namespace f3
         public virtual bool EnableWireframe { get; set; }
 
         public virtual ClipPlaneModes ClipPlaneMode { get; set; }
-
+        public virtual Frame3f ClipPlanePos { get; set; }
 
         public SOMeshMaterial()
         {
@@ -36,6 +36,7 @@ namespace f3
             Hints = HintFlags.None;
             EnableWireframe = false;
             ClipPlaneMode = ClipPlaneModes.NoClip;
+            ClipPlanePos = Frame3f.Identity;
         }
 
         protected SOMeshMaterial(bool do_nothing) : base(do_nothing)
@@ -51,7 +52,8 @@ namespace f3
                 RenderQueueShift = this.RenderQueueShift,
                 Hints = this.Hints,
                 EnableWireframe = this.EnableWireframe,
-                ClipPlaneMode = this.ClipPlaneMode
+                ClipPlaneMode = this.ClipPlaneMode,
+                ClipPlanePos = this.ClipPlanePos
             };
         }
 

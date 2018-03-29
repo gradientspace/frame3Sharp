@@ -91,6 +91,12 @@ namespace f3
             set { meshMaterial.ClipPlaneMode = (fMeshMaterial.ClipPlaneModes)(int)value; }
         }
 
+        public override Frame3f ClipPlanePos {
+            get { return meshMaterial.ClipPlanePos; }
+            set { meshMaterial.ClipPlanePos = value; }
+        }
+
+
         public override SOMaterial Clone()
         {
             Material copyM = UnityEngine.Object.Instantiate<Material>(meshMaterial);
