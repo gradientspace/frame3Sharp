@@ -797,6 +797,8 @@ namespace f3 {
         {
             List<InputBehavior> removed = inputBehaviors.RemoveByGroup("active_tool");
             TerminateIfCapturing(removed, lastInputState);
+
+            inputBehaviors.Add(behaviors, "active_tool");
         }
 
 
