@@ -31,6 +31,7 @@ namespace f3
 
 
         ChangeHistory history;
+        List<ChangeHistory> history_stack;
         public ChangeHistory History { get { return history; } }
 
         public SORegistry TypeRegistry { get; set; }
@@ -94,6 +95,7 @@ namespace f3
             this.context = context;
 
             history = new ChangeHistory();
+            history_stack = new List<ChangeHistory>();
             TypeRegistry = new SORegistry();
 
             initialize_scene_root();
@@ -286,13 +288,38 @@ namespace f3
         }
 
 
-        // discard existing history
-        public void ClearHistory()
+        /// <summary>
+        /// Discard current history
+        /// </summary>
+        public void ClearHistory(bool bAllStacks = true)
         {
             history.Clear();
+            history_stack.Clear();
+        }
+
+        /// <summary>
+        /// Add new history sequence to stack
+        /// </summary>
+        public void PushHistoryStream()
+        {
+            history_stack.Add(history);
+            history = new ChangeHistory();
         }
 
 
+        /// <summary>
+        /// Pop history sequence stack
+        /// </summary>
+        public void PopHistoryStream()
+        {
+            if (history_stack.Count == 0)
+                throw new InvalidOperationException("Scene.PopHistoryStream: history stack is empty!");
+            // discard current history
+            history.Clear();
+            // take from stack
+            history = history_stack[history_stack.Count - 1];
+            history_stack.RemoveAt(history_stack.Count - 1);
+        }
 
 
         public SOType DefaultPrimitiveType
