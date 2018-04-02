@@ -47,8 +47,9 @@ namespace f3
 
 
     /// <summary>
-    /// Removes a set of triangles. You *must* initialize this change by calling
-    /// ApplyInitialize(), which will compute the internal RemoveTrianglesMeshChange
+    /// Removes a set of triangles. You can initialize this in two ways, either
+    /// by constructing your own remove change, or by calling ApplyInitialize(),
+    /// which will compute the internal RemoveTrianglesMeshChange
     /// as it removes the triangles from the mesh. 
     /// </summary>
     public class RemoveTrianglesChange : BaseChangeOp
@@ -63,11 +64,19 @@ namespace f3
             Target = target;
         }
 
+        public RemoveTrianglesChange(DMeshSO target, RemoveTrianglesMeshChange change)
+        {
+            Target = target;
+            MeshChange = change;
+        }
+
         public void ApplyInitialize(IEnumerable<int> triangles)
         {
+            if (MeshChange != null)
+                throw new Exception("RemoveTrianglesChange.ApplyInitialize: change is already initialized!");
             MeshChange = new RemoveTrianglesMeshChange();
             Target.EditAndUpdateMesh(
-                (mesh) => { MeshChange.Initialize(mesh, triangles); },
+                (mesh) => { MeshChange.InitializeFromApply(mesh, triangles); },
                 GeometryEditTypes.ArbitraryEdit
             );
         }
@@ -101,6 +110,104 @@ namespace f3
         }
     }
 
+
+
+
+
+
+    /// <summary>
+    /// Adds a set of triangles. 
+    /// </summary>
+    public class AddTrianglesChange : BaseChangeOp
+    {
+        public override string Identifier() { return "AddTrianglesChange"; }
+
+        public DMeshSO Target;
+        public AddTrianglesMeshChange MeshChange;
+
+        public AddTrianglesChange(DMeshSO target, AddTrianglesMeshChange change)
+        {
+            Target = target;
+            MeshChange = change;
+        }
+
+        public override OpStatus Apply()
+        {
+            Target.EditAndUpdateMesh(
+                (mesh) => { MeshChange.Apply(mesh); },
+                GeometryEditTypes.ArbitraryEdit
+            );
+            return OpStatus.Success;
+        }
+        public override OpStatus Revert()
+        {
+            Target.EditAndUpdateMesh(
+                (mesh) => { MeshChange.Revert(mesh); },
+                GeometryEditTypes.ArbitraryEdit
+            );
+            return OpStatus.Success;
+        }
+
+        public override OpStatus Cull()
+        {
+            Target = null;
+            MeshChange = null;
+            return OpStatus.Success;
+        }
+    }
+
+
+
+
+    /// <summary>
+    /// Replaces a set of triangles. 
+    /// </summary>
+    public class ReplaceTrianglesChange : BaseChangeOp
+    {
+        public override string Identifier() { return "ReplaceTrianglesChange"; }
+
+        public DMeshSO Target;
+        public RemoveTrianglesMeshChange RemoveChange;
+        public AddTrianglesMeshChange AddChange;
+
+        public ReplaceTrianglesChange(DMeshSO target, RemoveTrianglesMeshChange remove, AddTrianglesMeshChange add)
+        {
+            RemoveChange = remove;
+            AddChange = add;
+            Target = target;
+        }
+
+        public override OpStatus Apply()
+        {
+            Target.EditAndUpdateMesh(
+                (mesh) => {
+                    RemoveChange.Apply(mesh);
+                    AddChange.Apply(mesh);
+                },
+                GeometryEditTypes.ArbitraryEdit
+            );
+            return OpStatus.Success;
+        }
+        public override OpStatus Revert()
+        {
+            Target.EditAndUpdateMesh(
+                (mesh) => {
+                    AddChange.Revert(mesh);
+                    RemoveChange.Revert(mesh);
+                },
+                GeometryEditTypes.ArbitraryEdit
+            );
+            return OpStatus.Success;
+        }
+
+        public override OpStatus Cull()
+        {
+            Target = null;
+            RemoveChange = null;
+            AddChange = null;
+            return OpStatus.Success;
+        }
+    }
 
 
 
