@@ -221,8 +221,8 @@ namespace f3
         }
 
         /// <summary>
-        /// input dimension is in scene coords of so, (recursively) apply all 
-        /// intermediate inverse-scales to get it to Scene coords
+        /// input dimension is in scene coords, (recursively) apply all 
+        /// intermediate inverse-scales to get it into local coords of SO.
         /// </summary>
         public static float SceneToObject(SceneObject so, float sceneDim)
         {
@@ -230,12 +230,13 @@ namespace f3
         }
         static float inverse_scale_recursive(SceneObject so, float dim)
         {
-            if (so.Parent is FScene)
-                return dim;
             Vector3f scale = so.GetLocalScale();
             Util.gDevAssert(IsUniformScale(scale));
             float avgscale = ((scale.x + scale.y + scale.z) / 3.0f);   // yikes!
-            return inverse_scale_recursive(so.Parent as SceneObject, dim) / avgscale;
+            if (so.Parent is FScene)
+                return dim / avgscale;
+            else
+                return inverse_scale_recursive(so.Parent as SceneObject, dim) / avgscale;
         }
 
 
