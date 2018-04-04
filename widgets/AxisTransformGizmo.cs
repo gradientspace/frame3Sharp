@@ -12,9 +12,14 @@ namespace f3
         public bool SupportsMultipleObjects { get { return true; } }
         public IAxisGizmoWidgetFactory Factory = null;
 
+        public float TranslateSpeed = 1.0f;
+        public float ScaleSpeed = 1.0f;
+
         public ITransformGizmo Build(FScene scene, List<SceneObject> targets)
         {
             var g = new AxisTransformGizmo(Factory);
+            g.ScaleSpeed = this.ScaleSpeed;
+            g.TranslateSpeed = this.TranslateSpeed;
             g.Create(scene, targets);
             return g;
         }
@@ -111,6 +116,8 @@ namespace f3
             set { eEnabledWidgets = value; update_active(); }
         }
 
+        public float ScaleSpeed = 1.0f;
+        public float TranslateSpeed = 1.0f;
 
         //bool EnableDebugLogging;
 
@@ -297,7 +304,7 @@ namespace f3
                 case AxisGizmoFlags.AxisTranslateZ:
                     widget = new AxisTranslationWidget(nAxis) {
                         RootGameObject = go, StandardMaterial = useMaterial, HoverMaterial = useHoverMaterial,
-                        TranslationScaleF = () => { return 1.0f / parentScene.GetSceneScale(); }
+                        TranslationScaleF = () => { return TranslateSpeed / parentScene.GetSceneScale(); }
                     };
                     break;
 
@@ -314,14 +321,14 @@ namespace f3
                 case AxisGizmoFlags.PlaneTranslateZ:
                     widget = new PlaneTranslationWidget(nAxis) {
                         RootGameObject = go, StandardMaterial = useMaterial, HoverMaterial = useHoverMaterial,
-                        TranslationScaleF = () => { return 1.0f / parentScene.GetSceneScale(); }
+                        TranslationScaleF = () => { return TranslateSpeed / parentScene.GetSceneScale(); }
                     };
                     break;
 
                 case AxisGizmoFlags.UniformScale:
                     widget = new UniformScaleWidget(parentScene.ActiveCamera) {
                         RootGameObject = go, StandardMaterial = useMaterial, HoverMaterial = useHoverMaterial,
-                        ScaleMultiplierF = () => { return 1.0f / parentScene.GetSceneScale(); }
+                        ScaleMultiplierF = () => { return ScaleSpeed / parentScene.GetSceneScale(); }
                     };
                     break;
 
