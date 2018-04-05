@@ -55,6 +55,12 @@ namespace f3
         {
             curChange.parentAfter = GetLocalFrame(CoordSpace.SceneCoords);
             curChange.parentScaleAfter = GetLocalScale();
+
+            // discard this transformation if nothing happened
+            if (curChange.parentBefore.EpsilonEqual(curChange.parentAfter, MathUtil.ZeroTolerancef) &&
+                 curChange.parentScaleBefore.EpsilonEqual(curChange.parentScaleAfter, MathUtil.ZeroTolerancef))
+                return false;
+
             if (target.IsTemporary) {
                 curChange.after = new List<Frame3f>();
                 curChange.scaleAfter = new List<Vector3f>();
