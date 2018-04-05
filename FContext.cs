@@ -201,6 +201,9 @@ namespace f3 {
             if ( FPlatform.IsUsingVR() || options.UseSystemMouseCursor == false )
 			    Cursor.lockState = CursorLockMode.Locked;
 
+            // initialize line rendering manager
+            LineRenderingManager.Initialize();
+
             // set hacky hackenstein global
             ActiveContext_HACK = this;
 
