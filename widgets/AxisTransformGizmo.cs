@@ -117,6 +117,7 @@ namespace f3
 		ITransformWrapper targetWrapper;
 
 		Dictionary<fGameObject, Standard3DTransformWidget> Widgets;
+        List<fGameObject> enabledWidgetGOs = new List<fGameObject>();
         Standard3DTransformWidget activeWidget;
         Standard3DTransformWidget hoverWidget;
 
@@ -239,10 +240,8 @@ namespace f3
             set { is_interactive = value; }
         }
 
-        // [TODO] why isn't this in GameObjectSet?
         virtual public void SetLayer(int nLayer) {
-            foreach (var go in GameObjects)
-                go.SetLayer(nLayer);
+            SetAllGOLayer(nLayer);
         }
 
 
@@ -264,9 +263,10 @@ namespace f3
             if (DynamicVisibilityFiltering && targetWrapper != null) {
                 Frame3f frameW = targetWrapper.GetLocalFrame(CoordSpace.WorldCoords);
                 Vector3d camPosW = parentScene.ActiveCamera.GetPosition();
-                foreach (var widget in Widgets) {
-                    bool visible = widget.Value.CheckVisibility(ref frameW, ref camPosW);
-                    widget.Key.SetVisible(visible);
+                foreach (var go in enabledWidgetGOs) {
+                    Standard3DTransformWidget widget = Widgets[go];
+                    bool visible = widget.CheckVisibility(ref frameW, ref camPosW);
+                    go.SetVisible(visible);
                 }
             }
 
@@ -418,8 +418,7 @@ namespace f3
             onTransformModified(null);
 
             // configure gizmo
-            if (uniform_scale != null)
-                uniform_scale.SetVisible( targetWrapper.SupportsScaling && (eEnabledWidgets & AxisGizmoFlags.UniformScale) != 0);
+            update_active();
 		}
 
 
@@ -476,19 +475,31 @@ namespace f3
 
         void update_active()
         {
-            if (translate_x != null) translate_x.SetVisible((eEnabledWidgets & AxisGizmoFlags.AxisTranslateX) != 0);
-            if (translate_y != null) translate_y.SetVisible((eEnabledWidgets & AxisGizmoFlags.AxisTranslateY) != 0);
-            if (translate_z != null) translate_z.SetVisible((eEnabledWidgets & AxisGizmoFlags.AxisTranslateZ) != 0);
+            foreach (var go in Widgets.Keys)
+                go.SetVisible(false);
+            enabledWidgetGOs.Clear();
 
-            if (rotate_x != null) rotate_x.SetVisible((eEnabledWidgets & AxisGizmoFlags.AxisRotateX) != 0 );
-            if (rotate_y != null) rotate_y.SetVisible((eEnabledWidgets & AxisGizmoFlags.AxisRotateY) != 0);
-            if (rotate_z != null) rotate_z.SetVisible((eEnabledWidgets & AxisGizmoFlags.AxisRotateZ) != 0);
+            if (translate_x != null && (eEnabledWidgets & AxisGizmoFlags.AxisTranslateX) != 0)  enabledWidgetGOs.Add(translate_x);
+            if (translate_y != null && (eEnabledWidgets & AxisGizmoFlags.AxisTranslateY) != 0)  enabledWidgetGOs.Add(translate_y);
+            if (translate_z != null && (eEnabledWidgets & AxisGizmoFlags.AxisTranslateZ) != 0)  enabledWidgetGOs.Add(translate_z);
 
-            if (translate_yz != null) translate_yz.SetVisible((eEnabledWidgets & AxisGizmoFlags.PlaneTranslateX) != 0);
-            if (translate_xz != null) translate_xz.SetVisible((eEnabledWidgets & AxisGizmoFlags.PlaneTranslateY) != 0);
-            if (translate_xy != null) translate_xy.SetVisible((eEnabledWidgets & AxisGizmoFlags.PlaneTranslateZ) != 0);
+            if (rotate_x != null && (eEnabledWidgets & AxisGizmoFlags.AxisRotateX) != 0) enabledWidgetGOs.Add(rotate_x);
+            if (rotate_y != null && (eEnabledWidgets & AxisGizmoFlags.AxisRotateY) != 0) enabledWidgetGOs.Add(rotate_y);
+            if (rotate_z != null && (eEnabledWidgets & AxisGizmoFlags.AxisRotateZ) != 0) enabledWidgetGOs.Add(rotate_z);
 
-            if (uniform_scale != null) uniform_scale.SetVisible((eEnabledWidgets & AxisGizmoFlags.UniformScale) != 0);
+            if (translate_yz != null && (eEnabledWidgets & AxisGizmoFlags.PlaneTranslateX) != 0) enabledWidgetGOs.Add(translate_yz);
+            if (translate_xz != null && (eEnabledWidgets & AxisGizmoFlags.PlaneTranslateY) != 0) enabledWidgetGOs.Add(translate_xz);
+            if (translate_xy != null && (eEnabledWidgets & AxisGizmoFlags.PlaneTranslateZ) != 0) enabledWidgetGOs.Add(translate_xy);
+
+            if (uniform_scale != null) {
+                if ( (eEnabledWidgets & AxisGizmoFlags.UniformScale) != 0)
+                    enabledWidgetGOs.Add(uniform_scale);
+                if (targetWrapper != null && targetWrapper.SupportsScaling == false)
+                    enabledWidgetGOs.Remove(uniform_scale);
+            }
+
+            foreach (var widget in enabledWidgetGOs)
+                widget.SetVisible(true);
         }
 
 
