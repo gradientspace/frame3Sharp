@@ -450,7 +450,7 @@ namespace f3 {
             // [RMS] not sure if this is 100% correct thing to do. We need to allow Platform UI
             // layer (eg like Unity ui) to consume mouse events before we see them. However this
             // only applies if they are "on top". It is a bit tricky...
-            if (FPlatformUI.IsConsumingMouseInput()) {
+            if (FPlatformUI.IsConsumingMouseInput() && captureTouch == null ) {
                 return;
             }
 
@@ -543,7 +543,7 @@ namespace f3 {
             // [RMS] not sure if this is 100% correct thing to do. We need to allow Platform UI
             // layer (eg like Unity ui) to consume mouse events before we see them. However this
             // only applies if they are "on top". It is a bit tricky...
-            if ( FPlatformUI.IsConsumingMouseInput()) { 
+            if ( FPlatformUI.IsConsumingMouseInput() && captureMouse == null ) { 
                 return;
             }
 
