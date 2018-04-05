@@ -14,12 +14,18 @@ namespace f3
 
         public float TranslateSpeed = 1.0f;
         public float ScaleSpeed = 1.0f;
+        public bool DynamicVisibilityFiltering = true;
+        public bool EnableRotationSnapping = true;
+        public float RotationSnapStepSizeDeg = 5.0f;
 
         public ITransformGizmo Build(FScene scene, List<SceneObject> targets)
         {
             var g = new AxisTransformGizmo(Factory);
             g.ScaleSpeed = this.ScaleSpeed;
             g.TranslateSpeed = this.TranslateSpeed;
+            g.DynamicVisibilityFiltering = this.DynamicVisibilityFiltering;
+            g.EnableRotationSnapping = this.EnableRotationSnapping;
+            g.RotationSnapStepSizeDeg = this.RotationSnapStepSizeDeg;
             g.Create(scene, targets);
             return g;
         }
@@ -62,6 +68,22 @@ namespace f3
 
 
 
+    public abstract class Standard3DTransformWidget : Standard3DWidget
+    {
+        protected float gizmoInitialRadius = 1.0f;
+        public virtual void SetGizmoInitialRadius(float gizmoRadius) {
+            this.gizmoInitialRadius = gizmoRadius;
+        }
+
+        protected float gizmoRadiusW = 1.0f;
+        public virtual void UpdateGizmoWorldSize(float gizmoRadiusW) {
+            this.gizmoRadiusW = gizmoRadiusW;
+        }
+
+        public abstract bool CheckVisibility(ref Frame3f curFrameW, ref Vector3d eyePosW);
+    }
+
+
     /// <summary>
     /// 3D transformation gizmo
     ///    - axis translate and rotate
@@ -82,6 +104,7 @@ namespace f3
 		fGameObject translate_xy, translate_xz, translate_yz;
         fGameObject uniform_scale;
         AxisAlignedBox3f gizmoGeomBounds;
+        float initialGizmoRadius;
 
         TransientGroupSO internalGroupSO;
 
@@ -93,9 +116,9 @@ namespace f3
         List<SceneObject> targets;
 		ITransformWrapper targetWrapper;
 
-		Dictionary<fGameObject, Standard3DWidget> Widgets;
-        Standard3DWidget activeWidget;
-        Standard3DWidget hoverWidget;
+		Dictionary<fGameObject, Standard3DTransformWidget> Widgets;
+        Standard3DTransformWidget activeWidget;
+        Standard3DTransformWidget hoverWidget;
 
         bool is_interactive = true;
 
@@ -118,12 +141,15 @@ namespace f3
 
         public float ScaleSpeed = 1.0f;
         public float TranslateSpeed = 1.0f;
+        public bool DynamicVisibilityFiltering = true;
+        public bool EnableRotationSnapping = true;
+        public float RotationSnapStepSizeDeg = 5.0f;
 
         //bool EnableDebugLogging;
 
         public AxisTransformGizmo(IAxisGizmoWidgetFactory widgetFactory = null)
 		{
-			Widgets = new Dictionary<fGameObject, Standard3DWidget> ();
+			Widgets = new Dictionary<fGameObject, Standard3DTransformWidget> ();
             Factory = (widgetFactory != null) ? widgetFactory : new DefaultAxisGizmoWidgetFactory();
             //EnableDebugLogging = false;
         }
@@ -178,6 +204,9 @@ namespace f3
             // changes. in that case we need to terminate gracefully.
             if (activeWidget != null)
                 EndCapture(null);
+            foreach (var w in Widgets)
+                w.Value.Disconnect();
+            Widgets.Clear();
 
             if (targetWrapper != null)
                 targetWrapper.Target.OnTransformModified -= onTransformModified;
@@ -221,14 +250,26 @@ namespace f3
         virtual public void PreRender() {
             root.Show();
 
-            float fScaling = VRUtil.GetVRRadiusForVisualAngle(
+            float fWorldSize = VRUtil.GetVRRadiusForVisualAngle(
                root.GetPosition(),
                parentScene.ActiveCamera.GetPosition(),
                SceneGraphConfig.DefaultAxisGizmoVisualDegrees);
-            fScaling /= parentScene.GetSceneScale();
-            float fGeomDim = gizmoGeomBounds.DiagonalLength;
-            fScaling /= fGeomDim;
-            root.SetLocalScale( new Vector3f(fScaling) );
+            float fSceneSize = fWorldSize / parentScene.GetSceneScale();
+            float fGeomScale = fSceneSize / gizmoGeomBounds.DiagonalLength;
+            root.SetLocalScale( new Vector3f(fGeomScale) );
+
+            foreach (var widget in Widgets)
+                widget.Value.UpdateGizmoWorldSize(fWorldSize);
+
+            if (DynamicVisibilityFiltering && targetWrapper != null) {
+                Frame3f frameW = targetWrapper.GetLocalFrame(CoordSpace.WorldCoords);
+                Vector3d camPosW = parentScene.ActiveCamera.GetPosition();
+                foreach (var widget in Widgets) {
+                    bool visible = widget.Value.CheckVisibility(ref frameW, ref camPosW);
+                    widget.Key.SetVisible(visible);
+                }
+            }
+
         }
 
         public virtual void Create(FScene parentScene, List<SceneObject> targets) {
@@ -269,6 +310,9 @@ namespace f3
                 uniform_scale = append_widget(AxisGizmoFlags.UniformScale, 0, "uniform_scale", null, null);
 
             gizmoGeomBounds = UnityUtil.GetGeometryBoundingBox(root, true);
+            initialGizmoRadius = gizmoGeomBounds.DiagonalLength; // Math.Max(gizmoGeomBounds.Max.Length, gizmoGeomBounds.Min.Length);
+            foreach (var widget in Widgets)
+                widget.Value.SetGizmoInitialRadius(initialGizmoRadius);
 
             // disable shadows on widget components
             foreach ( var go in GameObjects )
@@ -297,7 +341,7 @@ namespace f3
                 ? Factory.MakeHoverMaterial(widgetType) : hoverMaterial;
             var go = AppendMeshGO(name, Factory.MakeGeometry(widgetType), useMaterial, RootGameObject, true);
 
-            Standard3DWidget widget = null;
+            Standard3DTransformWidget widget = null;
             switch (widgetType) {
                 case AxisGizmoFlags.AxisTranslateX:
                 case AxisGizmoFlags.AxisTranslateY:
@@ -312,7 +356,9 @@ namespace f3
                 case AxisGizmoFlags.AxisRotateY:
                 case AxisGizmoFlags.AxisRotateZ:
                     widget = new AxisRotationWidget(nAxis) {
-                        RootGameObject = go, StandardMaterial = useMaterial, HoverMaterial = useHoverMaterial
+                        RootGameObject = go, StandardMaterial = useMaterial, HoverMaterial = useHoverMaterial,
+                        EnableSnapping = EnableRotationSnapping,
+                        SnapIncrementDeg = RotationSnapStepSizeDeg
                     };
                     break;
 
@@ -515,7 +561,7 @@ namespace f3
 			// if the hit gameobject has a widget attached to it, begin capture & transformation
 			// TODO maybe wrapper class should have Begin/Update/End capture functions, then we do not need BeginTransformation/EndTransformation ?
 			if (Widgets.ContainsKey (e.hit.hitGO)) {
-                Standard3DWidget w = Widgets [e.hit.hitGO];
+                Standard3DTransformWidget w = Widgets [e.hit.hitGO];
 				if (w.BeginCapture (targetWrapper, e.ray, e.hit.toUIHit() )) {
                     MaterialUtil.SetMaterial(w.RootGameObject, w.HoverMaterial);
                     targetWrapper.BeginTransformation ();
@@ -543,6 +589,7 @@ namespace f3
         virtual public bool EndCapture(InputEvent e)
 		{
 			if (activeWidget != null) {
+                activeWidget.EndCapture(targetWrapper);
                 MaterialUtil.SetMaterial(activeWidget.RootGameObject, activeWidget.StandardMaterial);
 
                 // tell wrapper we are done with capture, so it should bake transform/etc

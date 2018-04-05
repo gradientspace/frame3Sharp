@@ -7,7 +7,7 @@ namespace f3
     //
     // this Widget implements uniform scaling
     // 
-    public class UniformScaleWidget : Standard3DWidget
+    public class UniformScaleWidget : Standard3DTransformWidget
     {
         // scaling distance along axis multiplied by this value. 
         // By default click-point stays under cursor (ie direct manipulation), but 
@@ -68,6 +68,15 @@ namespace f3
 
         public override bool EndCapture(ITransformable target)
         {
+            return true;
+        }
+
+        public override void Disconnect()
+        {
+            RootGameObject.Destroy();
+        }
+
+        public override bool CheckVisibility(ref Frame3f curFrameW, ref Vector3d eyePos) {
             return true;
         }
     }

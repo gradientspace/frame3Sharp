@@ -7,7 +7,7 @@ namespace f3
 	//
 	// this Widget implements translation constrained to a plane
 	// 
-	public class PlaneTranslationWidget : Standard3DWidget
+	public class PlaneTranslationWidget : Standard3DTransformWidget
     {
         // scaling distance along axis multiplied by this value. 
         // By default click-point stays under cursor (ie direct manipulation), but 
@@ -76,6 +76,23 @@ namespace f3
         {
             return true;
         }
+
+        public override void Disconnect()
+        {
+            RootGameObject.Destroy();
+        }
+
+        static double VisibilityThresh = Math.Cos(65 * MathUtil.Deg2Rad);
+        public override bool CheckVisibility(ref Frame3f curFrameW, ref Vector3d eyePosW)
+        {
+            Vector3d axis = curFrameW.GetAxis(nTranslationPlaneNormal);
+            Vector3d eyevec = (eyePosW - curFrameW.Origin).Normalized;
+            double dot = axis.Dot(eyevec);
+            return Math.Abs(dot) > VisibilityThresh;
+        }
+
+
+
     }
 }
 

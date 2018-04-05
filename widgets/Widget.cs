@@ -5,6 +5,8 @@ namespace f3
 {
 	public interface Widget
 	{
+        void Disconnect();
+
 		bool BeginCapture(ITransformable target, Ray3f worldRay, UIRayHit hit);
 		bool UpdateCapture(ITransformable target, Ray3f worldRay);
         bool EndCapture(ITransformable target);
@@ -23,6 +25,7 @@ namespace f3
 
         }
 
+        public abstract void Disconnect();
         public abstract bool BeginCapture(ITransformable target, Ray3f worldRay, UIRayHit hit);
         public abstract bool UpdateCapture(ITransformable target, Ray3f worldRay);
         public abstract bool EndCapture(ITransformable target);

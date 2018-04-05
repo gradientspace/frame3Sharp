@@ -7,7 +7,7 @@ namespace f3
 	//
 	// this Widget implements translation constrained to an axis
 	// 
-	public class AxisTranslationWidget : Standard3DWidget
+	public class AxisTranslationWidget : Standard3DTransformWidget
     {
         // scaling distance along axis multiplied by this value. 
         // By default click-point stays under cursor (ie direct manipulation), but 
@@ -81,6 +81,22 @@ namespace f3
         {
             return true;
         }
+
+        public override void Disconnect()
+        {
+            RootGameObject.Destroy();
+        }
+
+
+        static Interval1d CosVisibilityRange = new Interval1d(
+            -Math.Cos(45 * MathUtil.Deg2Rad), Math.Cos(15 * MathUtil.Deg2Rad));
+        public override bool CheckVisibility(ref Frame3f curFrameW, ref Vector3d eyePosW) {
+            Vector3d axis = curFrameW.GetAxis(nTranslationAxis);
+            Vector3d eyevec = (eyePosW - curFrameW.Origin).Normalized;
+            double dot = axis.Dot(eyevec);
+            return CosVisibilityRange.Contains(dot);
+        }
+
     }
 }
 
