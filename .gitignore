@@ -33,5 +33,6 @@ sysinfo.txt
 *.meta
 # but don't ignore these ones because otherwise shader association is lost!!
 !/Resources/StandardMaterials/*.meta
+!/Resources/StandardMaterials/line_shaders/*.meta
 !/Resources/StandardMaterials/defaults/*.meta
 
