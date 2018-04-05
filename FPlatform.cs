@@ -371,7 +371,6 @@ namespace f3
 
 #else
             // [TODO] implement
-            return null;
 #endif
         }
 
@@ -467,7 +466,6 @@ namespace f3
 
 #else
             // [TODO] implement
-            return null;
 #endif
         }
 
