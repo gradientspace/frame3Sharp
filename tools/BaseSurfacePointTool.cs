@@ -28,6 +28,9 @@ namespace f3
             set { behaviors = value; }
         }
 
+        ParameterSet parameters = new ParameterSet();
+        public ParameterSet Parameters { get { return parameters; } }
+
         public virtual bool AllowSelectionChanges { get { return false; } }
 
 
