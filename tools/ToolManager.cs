@@ -155,9 +155,9 @@ namespace f3
 
             // if we did not get an active tool in above block, try starting Scene-level tool
             if ( activeTool[nSide] == null ) {
-                List<SceneObject> empty_list = new List<SceneObject>();
-                if ( activeBuilder[nSide].IsSupported(ToolTargetType.Scene, empty_list) )
-                    activeTool[nSide] = activeBuilder[nSide].Build(SceneManager.Scene, empty_list);
+                var all_objects = new List<SceneObject>(SceneManager.Scene.SceneObjects);
+                if ( activeBuilder[nSide].IsSupported(ToolTargetType.Scene, all_objects) )
+                    activeTool[nSide] = activeBuilder[nSide].Build(SceneManager.Scene, all_objects);
             }
 
             if (activeTool[nSide] != null) {
