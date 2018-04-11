@@ -1,5 +1,6 @@
 ﻿using System;
 
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -17,8 +18,14 @@ namespace f3
             // [RMS] this works?
             if (EventSystem.current == null)
                 return false;
-            bool over_go = EventSystem.current.IsPointerOverGameObject();
-            return over_go;
+			if (EventSystem.current.IsPointerOverGameObject())
+				return true;
+			// https://answers.unity.com/questions/1115464/ispointerovergameobject-not-working-with-touch-inp.html
+			if (Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began) {
+				if (EventSystem.current.IsPointerOverGameObject(Input.touches[0].fingerId))
+					return true;
+			}	
+            return false;
         }
 
 
