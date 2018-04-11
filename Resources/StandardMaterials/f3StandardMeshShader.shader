@@ -241,7 +241,9 @@ Shader "f3/StandardMeshShader"
 			#pragma fragment fragShadowCaster_f3VC
 			
 			// [RMS] have to define this to get extra variables in shader??
+            #ifdef SHADER_API_D3D11
 			#define UNITY_STANDARD_USE_SHADOW_OUTPUT_STRUCT
+            #endif
 
 			#include "UnityStandardShadow.cginc"
 			#include "f3StandardMeshShader_Shadow.cginc"

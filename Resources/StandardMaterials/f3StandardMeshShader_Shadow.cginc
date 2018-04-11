@@ -94,12 +94,14 @@ half4 fragShadowCaster_f3VC (UNITY_POSITION(vpos)
 {
 
 	// [RMS] all the additions here are just so we can do this discard test!
+    #ifdef SHADER_API_D3D11
 	if (_EnableClipPlane > 0) {
 		float d = dot(i.posWorld.xyz, _ClipPlaneEquation.xyz);
 		if (d > _ClipPlaneEquation.w) {
 			discard;
 		}
 	}
+    #endif
 
 	// [RMS] everything after here is standard unity
     #if defined(UNITY_STANDARD_USE_SHADOW_UVS)
