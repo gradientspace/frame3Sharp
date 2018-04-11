@@ -35,4 +35,5 @@ sysinfo.txt
 !/Resources/StandardMaterials/*.meta
 !/Resources/StandardMaterials/line_shaders/*.meta
 !/Resources/StandardMaterials/defaults/*.meta
+!/unity/scripts/*.meta
 
