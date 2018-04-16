@@ -58,6 +58,15 @@ namespace f3
         }
 
 
+        public static fTubeMaterial CreateStandardTubeMaterial(Colorf c, float radius)
+        {
+            fTubeMaterial m = new fTubeMaterial(SafeLoadMaterial("StandardMaterials/default_tube_material"));
+            m.color = c;
+            m.Radius = radius;
+            return m;
+        }
+
+
         public static Material CreateTransparentMaterial(Colorf c)
         {
             Material m = SafeLoadMaterial(SceneGraphConfig.DefaultTransparentMaterialPath);
