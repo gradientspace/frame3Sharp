@@ -199,6 +199,32 @@ namespace f3
         }
 
 
+
+
+
+        static void initialize_graphgo(GameObject go, fGraph graph, bool bShared)
+        {
+            go.AddComponent<MeshFilter>();
+            if (graph != null) {
+                if (bShared)
+                    go.SetSharedMesh(graph);
+                else
+                    go.SetMesh(graph);
+            }
+            go.AddComponent<MeshRenderer>();
+        }
+
+        public static fGraphGameObject CreateGraphGO(string sName, fGraph graph, bool bShared = false)
+        {
+            GameObject go = new GameObject(sName);
+            initialize_graphgo(go, graph, bShared);
+            return new fGraphGameObject(go, new fGraph(go.GetSharedMesh()), FGOFlags.NoFlags);
+        }
+
+
+
+
+
         public static fBoxGameObject CreateBoxGO(string sName, float fWidth, float fHeight, float fDepth, fMaterial material, bool bShareMaterial, bool bCollider)
         {
             GameObject go = new GameObject(sName);

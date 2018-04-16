@@ -550,6 +550,57 @@ namespace f3
 
 
 
+
+    public class fGraphGameObject : fGameObject
+    {
+        public fGraph Graph;
+
+        public fGraphGameObject() : base()
+        {
+        }
+
+        public fGraphGameObject(fGraph graph, bool bCreate = true) : base()
+        {
+            Graph = graph;
+            if (bCreate) {
+                GameObject go = new GameObject();
+                go.AddComponent<MeshFilter>();
+                go.AddComponent<MeshRenderer>();
+                Initialize(go, FGOFlags.NoFlags);
+                UpdateGraph(Graph, true);
+            }
+        }
+
+        public fGraphGameObject(GameObject go, fGraph graph, FGOFlags flags)
+            : base(go, flags)
+        {
+            Graph = graph;
+        }
+
+        public virtual void Initialize(GameObject go, fGraph graph, FGOFlags flags)
+        {
+            base.Initialize(go, flags);
+            Graph = graph;
+        }
+
+        public void UpdateGraph(fGraph m, bool bShared)
+        {
+            if (bShared) {
+                Graph = m;
+                base.SetSharedMesh(m, false);
+            } else {
+                base.SetMesh(m);
+                Graph = new fGraph(base.GetSharedMesh());
+            }
+        }
+    }
+
+
+
+
+
+
+
     public class fDiscGameObject : fMeshGameObject
     {
         float radius = 1;
