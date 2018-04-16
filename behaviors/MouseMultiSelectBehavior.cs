@@ -17,6 +17,12 @@ namespace f3
         /// </summary>
         public bool SelectPivotsFirst = true;
 
+        /// <summary>
+        /// set this to filter out objects
+        /// </summary>
+        public Func<SceneObject, bool> SelectionFilterF = null;
+
+
         public MouseMultiSelectBehavior(FContext scene)
         {
             this.scene = scene;
@@ -81,8 +87,8 @@ namespace f3
         protected bool FindSORayIntersection(Ray3f ray, out SORayHit hit)
         {
             return (SelectPivotsFirst) ?
-                scene.Scene.FindSORayIntersection_PivotPriority(ray, out hit) :
-                scene.Scene.FindSORayIntersection(ray, out hit);
+                scene.Scene.FindSORayIntersection_PivotPriority(ray, out hit, SelectionFilterF) :
+                scene.Scene.FindSORayIntersection(ray, out hit, SelectionFilterF);
         }
     }
 }
