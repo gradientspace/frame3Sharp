@@ -165,6 +165,7 @@ namespace f3
             SceneObject newSO = (MakeSOFunc != null) ? 
                 MakeSOFunc(CombineMesh, scene.DefaultMeshSOMaterial)
                 : new DMeshSO().Create(CombineMesh, scene.DefaultMeshSOMaterial);
+            newSO.Name = go.name;
 
             if ( bAddToScene )
                 scene.AddSceneObject(newSO, false);

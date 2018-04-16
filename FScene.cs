@@ -496,6 +496,7 @@ namespace f3
             scene_objects.AddChild(so.RootGameObject, true);
             so.SetCurrentTime(currentTime);
             so.Connect(true);
+            OnSceneChanged(so, SceneChangeType.Added);
         }
         public void CullDeletedSceneObject(SceneObject so)
         {
