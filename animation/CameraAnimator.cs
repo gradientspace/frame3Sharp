@@ -98,13 +98,15 @@ namespace f3
 
             Vector3f focusPointS = (eSpace == CoordSpace.WorldCoords) ? UseScene.ToSceneP(focusPoint) : focusPoint;
             Vector3f startFocusS = UseScene.ToSceneP(UseCamera.GetTarget());
+            float startDistW = UseCamera.GetPosition().Distance(UseCamera.GetTarget());
 
             Action<float> tweenF = (t) => {
-                Vector3f newTargetS = Vector3f.Lerp(startFocusS, focusPointS, t);
+                float smooth_t = MathUtil.WyvillRise01(t);
+                Vector3f newTargetS = Vector3f.Lerp(startFocusS, focusPointS, smooth_t);
                 UseCamera.Manipulator().PanFocusOnScenePoint(UseScene, UseCamera, newTargetS);
 
                 float curDist = UseCamera.GetPosition().Distance(UseCamera.GetTarget());
-                float toDist = MathUtil.SmoothInterp(curDist, distanceW, t);
+                float toDist = MathUtil.Lerp(startDistW, distanceW, smooth_t);
                 float dolly = toDist - curDist;
                 UseCamera.Manipulator().SceneZoom(UseScene, UseCamera, -dolly);
             };
