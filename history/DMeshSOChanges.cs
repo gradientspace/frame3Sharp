@@ -233,6 +233,7 @@ namespace f3
 
             Target = target;
             toFrame = toPivot;
+            this.space = space;
             if ( space == CoordSpace.ObjectCoords )
                 initialFrame = Target.GetLocalFrame(CoordSpace.ObjectCoords);
             else 
