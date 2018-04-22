@@ -415,14 +415,16 @@ namespace f3
 
         /// <summary>
         /// Set the position of the object frame for this SO without moving the mesh in the scene.
-        /// The input frame is the new object frame, so it is in **scene** cordinates, unless
-        /// this object has a non-scene parent.
+        /// The input frame is the new object frame. So, this is a frame "in scene coordinates" unless
+        /// this object has a parent SceneObject (ie is not a child of Scene directly). In that case
+        /// the frame needs to be specified relative to that SO. An easy way to do this is to via
+        ///   obj_pivot = GetLocalFrame(Object).FromFrame( SceneTransforms.SceneToObject(pivot_in_scene) )
         /// TODO: specify frame coordpace as input argument?
         /// </summary>
         public void RepositionPivot(Frame3f objFrame)
         {
-            if (Parent is FScene == false)
-                throw new NotSupportedException("DMeshSO.RepositionMeshFrame: have not tested this!");
+            //if (Parent is FScene == false)
+            //    throw new NotSupportedException("DMeshSO.RepositionMeshFrame: have not tested this!");
 
             Frame3f curFrame = this.GetLocalFrame(CoordSpace.ObjectCoords);
             bool bNormals = mesh.HasVertexNormals;
@@ -430,7 +432,7 @@ namespace f3
             // map vertices to new frame
             foreach (int vid in mesh.VertexIndices()) {
                 Vector3f v = (Vector3f)mesh.GetVertex(vid);
-                v = curFrame.FromFrameP(ref v);   // 
+                v = curFrame.FromFrameP(ref v); 
                 v = objFrame.ToFrameP(ref v);
                 mesh.SetVertex(vid, v);
 

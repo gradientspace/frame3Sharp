@@ -225,22 +225,40 @@ namespace f3
 
         Frame3f initialFrame;
         Frame3f toFrame;
+        CoordSpace space;
 
-        public RepositionPivotChangeOp(Frame3f toPivot, DMeshSO target)
+        public RepositionPivotChangeOp(Frame3f toPivot, DMeshSO target, CoordSpace space = CoordSpace.ObjectCoords)
         {
+            Util.gDevAssert(space != CoordSpace.WorldCoords);       // not supported for now
+
             Target = target;
             toFrame = toPivot;
-            initialFrame = Target.GetLocalFrame(CoordSpace.ObjectCoords);
+            if ( space == CoordSpace.ObjectCoords )
+                initialFrame = Target.GetLocalFrame(CoordSpace.ObjectCoords);
+            else 
+                initialFrame = Target.GetLocalFrame(CoordSpace.SceneCoords);
         }
 
         public override OpStatus Apply()
         {
-            Target.RepositionPivot(toFrame);
+            if (space == CoordSpace.SceneCoords) {
+                Frame3f localF = SceneTransforms.SceneToObject(Target, toFrame);
+                Frame3f setF = Target.GetLocalFrame(CoordSpace.ObjectCoords).FromFrame(localF);
+                Target.RepositionPivot(setF);
+            } else {
+                Target.RepositionPivot(toFrame);
+            }
             return OpStatus.Success;
         }
         public override OpStatus Revert()
         {
-            Target.RepositionPivot(initialFrame);
+            if (space == CoordSpace.SceneCoords) {
+                Frame3f localF = SceneTransforms.SceneToObject(Target, initialFrame);
+                Frame3f setF = Target.GetLocalFrame(CoordSpace.ObjectCoords).FromFrame(localF);
+                Target.RepositionPivot(setF);
+            } else {
+                Target.RepositionPivot(initialFrame);
+            }
             return OpStatus.Success;
         }
 

@@ -113,6 +113,9 @@ namespace f3
         public Frame3f before, after;
         public CoordSpace space;
 
+        public Action<TransformSOChange> OnApplyF = null;
+        public Action<TransformSOChange> OnRevertF = null;
+
         public override string Identifier() { return "TransformSOChange"; }
 
         public TransformSOChange() {
@@ -134,10 +137,14 @@ namespace f3
 
         public override OpStatus Apply() {
             so.SetLocalFrame(after, space);
+            if (OnApplyF != null)
+                OnApplyF(this);
             return OpStatus.Success;
         }
         public override OpStatus Revert() {
             so.SetLocalFrame(before, space);
+            if (OnRevertF != null)
+                OnRevertF(this);
             return OpStatus.Success;
         }
         public override OpStatus Cull() {
