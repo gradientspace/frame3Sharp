@@ -214,6 +214,54 @@ namespace f3
 
 
 
+
+    /// <summary>
+    /// Wraps a mesh change that only modifies vertices (position, normal, color, uv).
+    /// This is more much efficient in both memory and update cost than a ReplaceTrianglesChange.
+    /// </summary>
+    public class UpdateVerticesChange : BaseChangeOp
+    {
+        public override string Identifier() { return "UpdateVerticesChange"; }
+
+        public DMeshSO Target;
+        public ModifyVerticesMeshChange MeshChange;
+
+        public UpdateVerticesChange(DMeshSO target, ModifyVerticesMeshChange change)
+        {
+            Target = target;
+            MeshChange = change;
+        }
+
+        public override OpStatus Apply()
+        {
+            Target.EditAndUpdateMesh(
+                (mesh) => { MeshChange.Apply(mesh); },
+                GeometryEditTypes.VertexDeformation
+            );
+            return OpStatus.Success;
+        }
+        public override OpStatus Revert()
+        {
+            Target.EditAndUpdateMesh(
+                (mesh) => { MeshChange.Revert(mesh); },
+                GeometryEditTypes.VertexDeformation
+            );
+            return OpStatus.Success;
+        }
+
+        public override OpStatus Cull()
+        {
+            Target = null;
+            MeshChange = null;
+            return OpStatus.Success;
+        }
+    }
+
+
+
+
+
+
     /// <summary>
     /// Undoable call to DMeshSO.RepositionPivot
     /// </summary>
