@@ -69,24 +69,24 @@ Shader "f3/StandardMeshShader"
 		[NoScaleOffset] _FaceIndexMap("Face Index Map", 2D) = "black" {}
 		[NoScaleOffset] _GroupColorMap("Group Color Map", 2D) = "white" {}
 
-		// Blending state
-		[HideInInspector] _Mode("__mode", Float) = 0.0
-		[HideInInspector] _SrcBlend("__src", Float) = 1.0
-		[HideInInspector] _DstBlend("__dst", Float) = 0.0
-		[HideInInspector] _ZWrite("__zw", Float) = 1.0
+        // Blending state
+        [HideInInspector] _Mode ("__mode", Float) = 0.0
+        [HideInInspector] _SrcBlend ("__src", Float) = 1.0
+        [HideInInspector] _DstBlend ("__dst", Float) = 0.0
+        [HideInInspector] _ZWrite ("__zw", Float) = 1.0
 
 	}
 
-		CGINCLUDE
-#define UNITY_SETUP_BRDF_INPUT MetallicSetup
-		ENDCG
+	CGINCLUDE
+		#define UNITY_SETUP_BRDF_INPUT MetallicSetup
+	ENDCG
 
-		SubShader
+	SubShader
 	{
 		Tags { "RenderType" = "Opaque" "PerformanceChecks" = "False" }
 		LOD 300
 
-		Cull[_Cull]
+		Cull [_Cull]
 
 
 		// ------------------------------------------------------------------
@@ -96,8 +96,8 @@ Shader "f3/StandardMeshShader"
 			Name "FORWARD"
 			Tags { "LightMode" = "ForwardBase" }
 
-			Blend[_SrcBlend][_DstBlend]
-			ZWrite[_ZWrite]
+			Blend [_SrcBlend] [_DstBlend]
+			ZWrite [_ZWrite]
 
 			CGPROGRAM
 			#pragma target 4.0
@@ -368,4 +368,5 @@ Shader "f3/StandardMeshShader"
 
 	FallBack "VertexLit"
 	//CustomEditor "StandardShaderGUI"
+	CustomEditor "PrependBlendModeShaderGUI"
 }
