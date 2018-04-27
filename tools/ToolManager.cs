@@ -142,9 +142,9 @@ namespace f3
             // deactivate existing tool? I guess.
             if ( activeTool[nSide] != null ) 
                 DeactivateTool(eSide);
-                
+
             // try to build tool for current selection
-            List<SceneObject> selected = new List<SceneObject>(SceneManager.Scene.Selected);
+            List<SceneObject> selected = SceneUtil.FindObjectsOfType<SceneObject>(SceneManager.Scene.Selected, true);
             if (selected.Count > 1) {
                 if (activeBuilder[nSide].IsSupported(ToolTargetType.MultipleObject, selected))
                     activeTool[nSide] = activeBuilder[nSide].Build(SceneManager.Scene, selected);
@@ -155,7 +155,7 @@ namespace f3
 
             // if we did not get an active tool in above block, try starting Scene-level tool
             if ( activeTool[nSide] == null ) {
-                var all_objects = new List<SceneObject>(SceneManager.Scene.SceneObjects);
+                var all_objects = SceneUtil.FindObjectsOfType<SceneObject>(SceneManager.Scene.SceneObjects, true);
                 if ( activeBuilder[nSide].IsSupported(ToolTargetType.Scene, all_objects) )
                     activeTool[nSide] = activeBuilder[nSide].Build(SceneManager.Scene, all_objects);
             }

@@ -267,7 +267,17 @@ namespace f3
         {
             return so.RootGameObject.IsVisible();
         }
-
+        public static List<T> FindObjectsOfType<T>(IEnumerable<SceneObject> objects, bool bVisibleOnly = false) where T : class 
+        {
+            List<T> result = new List<T>();
+            foreach ( var obj in objects ) {
+                if (obj is T) {
+                    if (bVisibleOnly == false || IsVisible(obj))
+                        result.Add(obj as T);
+                }
+            }
+            return result;
+        }
 
 
         public static void DestroySO(SceneObject so)

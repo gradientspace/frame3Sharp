@@ -614,24 +614,28 @@ namespace f3
         /// Find SceneObjects of a given type. If bSelected == true, only considers selected
         /// SOs. By default will descend into groups.
         /// </summary>
-		public List<T> FindSceneObjectsOfType<T>(bool bSelected = false, bool bDescendGroups = true) where T : class {
+		public List<T> FindSceneObjectsOfType<T>(bool bSelected = false, bool bDescendGroups = true, bool bVisibleOnly = false) where T : class {
 			List<T> result = new List<T>();
             List<SceneObject> source = (bSelected) ? vSelected : vObjects;
             foreach ( var so in source ) {
-				if (so is T)
-					result.Add(so as T);
+                if (so is T) {
+                    if (bVisibleOnly == false || SceneUtil.IsVisible(so) )
+                        result.Add(so as T);
+                }
                 if (bDescendGroups && so is SOCollection)
-                    collect_type_in_children(so as SOCollection, result);
+                    collect_type_in_children(so as SOCollection, bVisibleOnly, result);
 			}
 			return result;
 		}
-        private void collect_type_in_children<T>(SOCollection groupSO, List<T> collection) where T : class
+        private void collect_type_in_children<T>(SOCollection groupSO, bool bVisibleOnly, List<T> collection) where T : class
         {
             foreach ( var child in groupSO.GetChildren() ) {
-                if (child is T)
-                    collection.Add(child as T);
+                if (child is T) {
+                    if (bVisibleOnly == false || SceneUtil.IsVisible(child))
+                        collection.Add(child as T);
+                }
                 if (child is SOCollection)
-                    collect_type_in_children(child as SOCollection, collection);
+                    collect_type_in_children(child as SOCollection, bVisibleOnly, collection);
             }
         }
 
