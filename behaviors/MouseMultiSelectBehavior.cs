@@ -12,6 +12,9 @@ namespace f3
         protected FContext scene;
         protected SceneObject selectSO;
 
+        public bool EnableShiftModifier = true;
+        public bool EnableControlModifier = true;
+
         /// <summary>
         /// If this is true, PivotSO objects are selected first, even if they are "behind" other objects.
         /// </summary>
@@ -62,7 +65,8 @@ namespace f3
 
                 SORayHit rayHit;
                 if ( selectSO != null && selectSO.FindRayIntersection(input.vMouseWorldRay, out rayHit)) {
-                    if (input.bShiftKeyDown) {
+                    if ( (EnableShiftModifier && input.bShiftKeyDown) 
+                        || (EnableControlModifier && input.bCtrlKeyDown) ) { 
                         if (scene.Scene.IsSelected(selectSO))
                             scene.Scene.Deselect(selectSO);
                         else

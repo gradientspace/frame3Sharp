@@ -375,7 +375,7 @@ namespace f3
 
         /// <summary>
         /// Input objectV is a vector in local coords of SO, apply all intermediate inverse 
-        /// transforms to get it into scene coords. **NO SCALING**
+        /// transforms to get it into scene coords.
         /// </summary>
         public static Vector3f ObjectToSceneV(SceneObject so, Vector3f objectV)
         {
