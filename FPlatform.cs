@@ -263,6 +263,19 @@ namespace f3
 
 
 
+        static public void SetWindowTitle(string text)
+        {
+#if UNITY_STANDALONE_WIN
+            IntPtr winPtr = GetActiveWindow();
+            if (winPtr != IntPtr.Zero)
+                SetWindowText(winPtr, text);
+#else
+#endif
+        }
+
+
+
+
         // background threads should kill themselves if this ever becomes true...
         static public bool ShutdownBackgroundThreadsOnQuit = false;
 
@@ -478,6 +491,12 @@ namespace f3
 #if UNITY_STANDALONE_WIN
         [DllImport("user32.dll")]
         private static extern System.IntPtr GetActiveWindow();
+
+        [DllImport("user32.dll", EntryPoint = "SetWindowText")]
+        public static extern bool SetWindowText(System.IntPtr hwnd, System.String lpString);
+
+        [DllImport("user32.dll", EntryPoint = "FindWindow")]
+        public static extern System.IntPtr FindWindow(System.String className, System.String windowName);
 #endif
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX)
 
