@@ -534,26 +534,49 @@ namespace f3
                     e_ref = meshAttr[IOStrings.AMeshEdgeRefCountsBinary] as short[];
             }
 
-            if (v == null || t == null || e == null || e_ref == null)
-                return null;
-
             DMesh3 m = new DMesh3();
-            m.VerticesBuffer = new DVector<double>(v);
-            if (n != null)
-                m.NormalsBuffer = new DVector<float>(n);
-            if (c != null)
-                m.ColorsBuffer = new DVector<float>(c);
-            if (uv != null)
-                m.UVBuffer = new DVector<float>(uv);
-            m.TrianglesBuffer = new DVector<int>(t);
-            if (g != null)
-                m.GroupsBuffer = new DVector<int>(g);
+            if (n != null)  m.EnableVertexNormals(Vector3f.Zero);
+            if (c != null)  m.EnableVertexColors(Vector3f.Zero);
+            if (uv != null) m.EnableVertexUVs(Vector2f.Zero);
+            if (g != null)  m.EnableTriangleGroups(0);
 
-            if (storageMode == IOStrings.MeshStorageMode.EdgeRefCounts) {
+            if ( storageMode == IOStrings.MeshStorageMode.EdgeRefCounts ) {
+                if (v == null || t == null || e == null || e_ref == null)
+                    return null;
+
+                m.VerticesBuffer = new DVector<double>(v);
+                if (n != null)  m.NormalsBuffer = new DVector<float>(n);
+                if (c != null)  m.ColorsBuffer = new DVector<float>(c);
+                if (uv != null) m.UVBuffer = new DVector<float>(uv);
+                m.TrianglesBuffer = new DVector<int>(t);
+                if (g != null)  m.GroupsBuffer = new DVector<int>(g);
+
                 m.EdgesBuffer = new DVector<int>(e);
                 m.EdgesRefCounts = new RefCountVector(e_ref);
                 m.RebuildFromEdgeRefcounts();
-            } else
+
+            } else if ( storageMode == IOStrings.MeshStorageMode.Minimal ) {
+                if (v == null || t == null)
+                    return null;
+
+                int NV = v.Count;
+                NewVertexInfo vinfo = new NewVertexInfo();
+                for ( int k = 0; k < NV; ++k ) {
+                    vinfo.v = v[k];
+                    if (n != null)  vinfo.n = n[k];
+                    if (c != null)  vinfo.c = c[k];
+                    if (uv != null) vinfo.uv = uv[k];
+                    m.AppendVertex(ref vinfo);
+                }
+
+                int NT = t.Count;
+                for ( int k = 0; k < NT; ++k ) {
+                    Vector3i tri = t[k];
+                    int setg = (g == null) ? -1 : g[k];
+                    m.AppendTriangle(tri, setg);
+                }
+
+            } else 
                 throw new Exception("SOFactory.RestoreDMesh: unsupported mesh storage mode");
 
             return m;

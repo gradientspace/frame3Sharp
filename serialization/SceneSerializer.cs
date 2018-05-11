@@ -113,7 +113,8 @@ namespace f3
 
 
         public enum MeshStorageMode {
-            EdgeRefCounts = 1
+            EdgeRefCounts = 1,
+            Minimal = 2
         }
         public static readonly string AMeshStorageMode = "iMeshStorageMode";
 
@@ -254,13 +255,15 @@ namespace f3
             public bool StoreMeshVertexUVs;
             public bool StoreMeshFaceGroups;
             public bool FastCompression;
+            public bool MinimalMeshStorage;     // if true, vert/tri/edge ids are not preserved
 
             public static readonly EmitOptions Default = new EmitOptions() {
                 StoreMeshVertexColors = true,
                 StoreMeshVertexNormals = true,
                 StoreMeshVertexUVs = true,
                 StoreMeshFaceGroups = true,
-                FastCompression = true
+                FastCompression = true,
+                MinimalMeshStorage = false
             };
         }
         List<EmitOptions> EmitOptionsStack = new List<EmitOptions>() { EmitOptions.Default };

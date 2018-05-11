@@ -106,12 +106,17 @@ namespace f3
         }
         public static void EmitDMeshSO(SceneSerializer s, IOutputStream o, DMeshSO so)
         {
+            SceneSerializer.EmitOptions opt = s.CurrentOptions;
+
             o.AddAttribute(IOStrings.ASOName, so.Name);
             o.AddAttribute(IOStrings.ASOUuid, so.UUID);
             s.EmitTransform(o, so);
             s.EmitMaterial(o, so.GetAssignedSOMaterial());
             //s.EmitDMeshBinary(so.Mesh, o);
-            s.EmitDMeshCompressed(so.Mesh, o);
+            if (opt.MinimalMeshStorage)
+                s.EmitDMeshCompressed_Minimal(so.Mesh, o);
+            else
+                s.EmitDMeshCompressed(so.Mesh, o);
         }
 
 
@@ -344,6 +349,62 @@ namespace f3
             o.AddAttribute(IOStrings.AMeshEdgeRefCountsCompressed, BufferUtil.CompressZLib(m.EdgesRefCounts.RawRefCounts.GetBytes(), opt.FastCompression));
             o.EndStruct();
         }
+
+
+
+
+
+
+
+        /// <summary>
+        /// Emit a DMesh3 as a CompressedDMeshStruct
+        /// </summary>
+        public static void EmitDMeshCompressed_Minimal(this SceneSerializer s, DMesh3 m, IOutputStream o)
+        {
+            SceneSerializer.EmitOptions opt = s.CurrentOptions;
+
+            // compressed version - uuencoded byte buffers
+            //    - storing doubles uses roughly same mem as string, but string is only 8 digits precision
+            //    - storing floats saves roughly 50%
+            //    - storing triangles is worse until vertex count > 9999
+            //          - could store as byte or short in those cases...
+            //    - edges and edge ref counts are stored, then use mesh.RebuildFromEdgeRefcounts() to rebuild 3D mesh (same as gSerialization)
+            o.BeginStruct(IOStrings.CompressedDMeshStruct);
+
+            o.AddAttribute(IOStrings.AMeshStorageMode, (int)IOStrings.MeshStorageMode.Minimal);
+
+            // need compact mesh to do this
+            if (m.IsCompactV == false)
+                m = new DMesh3(m, true);
+
+            o.AddAttribute(IOStrings.AMeshVertices3Compressed, BufferUtil.CompressZLib(m.VerticesBuffer.GetBytes(), opt.FastCompression));
+
+            if (opt.StoreMeshVertexNormals && m.HasVertexNormals)
+                o.AddAttribute(IOStrings.AMeshNormals3Compressed, BufferUtil.CompressZLib(m.NormalsBuffer.GetBytes(), opt.FastCompression));
+            if (opt.StoreMeshVertexColors && m.HasVertexColors)
+                o.AddAttribute(IOStrings.AMeshColors3Compressed, BufferUtil.CompressZLib(m.ColorsBuffer.GetBytes(), opt.FastCompression));
+            if (opt.StoreMeshVertexUVs && m.HasVertexUVs)
+                o.AddAttribute(IOStrings.AMeshUVs2Compressed, BufferUtil.CompressZLib(m.UVBuffer.GetBytes(), opt.FastCompression));
+
+            int[] triangles = new int[3 * m.TriangleCount];
+            int k = 0;
+            foreach ( int tid in m.TriangleIndices() ) {
+                Index3i t = m.GetTriangle(tid);
+                triangles[k++] = t.a; triangles[k++] = t.b; triangles[k++] = t.c;
+            }
+            o.AddAttribute(IOStrings.AMeshTrianglesCompressed, BufferUtil.CompressZLib(BufferUtil.ToBytes(triangles), opt.FastCompression));
+
+            if (opt.StoreMeshFaceGroups && m.HasTriangleGroups) {
+                int[] groups = new int[m.TriangleCount];
+                k = 0;
+                foreach (int tid in m.TriangleIndices())
+                    groups[k++] = m.GetTriangleGroup(tid);
+                o.AddAttribute(IOStrings.AMeshTriangleGroupsCompressed, BufferUtil.CompressZLib(BufferUtil.ToBytes(groups), opt.FastCompression));
+            }
+
+            o.EndStruct();
+        }
+
 
 
 
