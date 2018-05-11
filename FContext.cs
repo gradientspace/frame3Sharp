@@ -21,6 +21,9 @@ namespace f3 {
         // global events
         public event ContextWindowResizeEvent OnWindowResized;
 
+        // global state
+        public static bool WindowHasFocus = true;
+
 
         SceneOptions options;
         FScene scene;                            // set of objects in our universe
@@ -528,6 +531,10 @@ namespace f3 {
 
         void HandleInput_MouseOrGamepad()
         {
+            // ignore input if we do not have focus
+            if (WindowHasFocus == false)
+                return;
+
             // update mouse/gamepad cursor
             MouseController.Update();
 
@@ -711,6 +718,8 @@ namespace f3 {
                     ActiveCamera.SetTargetVisible(false);
                 }
             }
+
+            WindowHasFocus = bFocused;
         }
 
 
