@@ -534,7 +534,7 @@ namespace f3
             if (!is_selectable(s))
                 return false;
 
-			if (!IsSelected (s)) {
+			if ( IsSelected(s) == false || (bReplace && Selected.Count > 1) ) {
                 if (bReplace) {
                     if (DisableSelectionMaterial == false) {
                         foreach (var v in vSelected)
