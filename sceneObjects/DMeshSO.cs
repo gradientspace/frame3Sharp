@@ -404,7 +404,19 @@ namespace f3
         }
         override public void DisableShadows() {
             enable_shadows = false;
-            MaterialUtil.DisableShadows(parentGO, true, true);
+            MaterialUtil.DisableShadows(parentGO, true, true, true);
+        }
+        public virtual void SetShadowsEnabled(bool enabled)
+        {
+            if ( enabled != enable_shadows ) {
+                if ( enabled ) {
+                    enable_shadows = true;
+                    MaterialUtil.EnableShadows(parentGO, true, true, true);
+                } else {
+                    enable_shadows = false;
+                    MaterialUtil.DisableShadows(parentGO, true, true, true);
+                }
+            }
         }
 
         override public void SetLayer(int nLayer) {

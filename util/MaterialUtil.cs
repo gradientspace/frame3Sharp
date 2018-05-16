@@ -227,9 +227,26 @@ namespace f3
             }
             if ( bRecursive ) {
                 foreach (var childgo in go.Children())
-                    DisableShadows(childgo, bCastOff, bRecursive, bRecursive);
+                    DisableShadows(childgo, bCastOff, bReceiveOff, bRecursive);
             }
         }
+
+
+        public static void EnableShadows(GameObject go, bool bCastOn = true, bool bReceiveOn = true, bool bRecursive = true)
+        {
+            Renderer ren = go.GetComponent<Renderer>();
+            if (ren != null) {
+                if (bCastOn)
+                    ren.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+                if (bReceiveOn)
+                    ren.receiveShadows = true;
+            }
+            if (bRecursive) {
+                foreach (var childgo in go.Children())
+                    EnableShadows(childgo, bCastOn, bReceiveOn, bRecursive);
+            }
+        }
+
 
         public static void SetIgnoreMaterialChanges(fGameObject go)
         {
@@ -425,18 +442,19 @@ namespace f3
                     meshMat.InitializeFromSOMaterial(m as SOMeshMaterial);
                 unityMat = meshMat;
 
-            } else if (m is UnitySOMaterial) {
-                unityMat = (m as UnitySOMaterial).unityMaterial;
-
             } else if (m is UnitySOMeshMaterial) {
                 unityMat = (m as UnitySOMeshMaterial).meshMaterial;
+
+            } else if (m is UnitySOMaterial) {
+                unityMat = (m as UnitySOMaterial).unityMaterial;
 
             } else {
                 unityMat = MaterialUtil.CreateStandardMaterial(Color.black);
             }
 
-            if ((m.Hints & SOMaterial.HintFlags.UseTransparentPass) != 0)
+            if ((m.Hints & SOMaterial.HintFlags.UseTransparentPass) != 0) {
                 SetupMaterialWithBlendMode(unityMat, BlendMode.Transparent);
+            }
 
             if (m.MaterialCustomizerF != null) {
                 m.MaterialCustomizerF(unityMat);
