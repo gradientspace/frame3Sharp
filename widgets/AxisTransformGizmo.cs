@@ -9,7 +9,7 @@ namespace f3
 
     public class AxisTransformGizmoBuilder : ITransformGizmoBuilder
     {
-        public bool SupportsMultipleObjects { get { return true; } }
+        public virtual bool SupportsMultipleObjects { get { return true; } }
         public IAxisGizmoWidgetFactory Factory = null;
 
         public float TranslateSpeed = 1.0f;
@@ -17,17 +17,25 @@ namespace f3
         public bool DynamicVisibilityFiltering = true;
         public bool EnableRotationSnapping = true;
         public float RotationSnapStepSizeDeg = 5.0f;
+        public float GizmoVisualDegrees = 0.0f;     // ignored unless non-zero
+        public int GizmoLayer = -1;                 // ignored unless >= 0
 
-        public ITransformGizmo Build(FScene scene, List<SceneObject> targets)
+        public virtual ITransformGizmo Build(FScene scene, List<SceneObject> targets)
         {
-            var g = new AxisTransformGizmo(Factory);
+            var g = create_gizmo();
             g.ScaleSpeed = this.ScaleSpeed;
             g.TranslateSpeed = this.TranslateSpeed;
             g.DynamicVisibilityFiltering = this.DynamicVisibilityFiltering;
             g.EnableRotationSnapping = this.EnableRotationSnapping;
             g.RotationSnapStepSizeDeg = this.RotationSnapStepSizeDeg;
+            g.GizmoVisualDegrees = this.GizmoVisualDegrees;
+            g.GizmoLayer = this.GizmoLayer;
             g.Create(scene, targets);
             return g;
+        }
+
+        protected virtual AxisTransformGizmo create_gizmo() {
+            return new AxisTransformGizmo(Factory);
         }
     }
 
@@ -145,6 +153,11 @@ namespace f3
         public bool DynamicVisibilityFiltering = true;
         public bool EnableRotationSnapping = true;
         public float RotationSnapStepSizeDeg = 5.0f;
+        public float GizmoVisualDegrees = 0.0f;        // if 0, we use SceneGraphConfig.DefaultAxisGizmoVisualDegrees
+        public int GizmoLayer = -1;                    // if -1, we use FPlatform.WidgetOverlayLayer
+
+        // if false, transform changes will not be emitted
+        public bool EmitChanges = true;
 
         //bool EnableDebugLogging;
 
@@ -249,12 +262,13 @@ namespace f3
         virtual public void PreRender() {
             root.Show();
 
+            float useDegrees = (GizmoVisualDegrees > 0) ? GizmoVisualDegrees : SceneGraphConfig.DefaultAxisGizmoVisualDegrees;
             float fWorldSize = VRUtil.GetVRRadiusForVisualAngle(
                root.GetPosition(),
                parentScene.ActiveCamera.GetPosition(),
-               SceneGraphConfig.DefaultAxisGizmoVisualDegrees);
+               useDegrees);
             float fSceneSize = fWorldSize / parentScene.GetSceneScale();
-            float fGeomScale = fSceneSize / gizmoGeomBounds.DiagonalLength;
+            float fGeomScale = fSceneSize / initialGizmoRadius;
             root.SetLocalScale( new Vector3f(fGeomScale) );
 
             foreach (var widget in Widgets)
@@ -310,7 +324,8 @@ namespace f3
                 uniform_scale = append_widget(AxisGizmoFlags.UniformScale, 0, "uniform_scale", null, null);
 
             gizmoGeomBounds = UnityUtil.GetGeometryBoundingBox(root, true);
-            initialGizmoRadius = gizmoGeomBounds.DiagonalLength; // Math.Max(gizmoGeomBounds.Max.Length, gizmoGeomBounds.Min.Length);
+            gizmoGeomBounds.Contain(Vector3d.Zero);
+            initialGizmoRadius = gizmoGeomBounds.MaxDim;
             foreach (var widget in Widgets)
                 widget.Value.SetGizmoInitialRadius(initialGizmoRadius);
 
@@ -323,7 +338,7 @@ namespace f3
             eCurrentFrameMode = FrameType.LocalFrame;
 			SetActiveFrame (eCurrentFrameMode);
 
-            SetLayer(FPlatform.WidgetOverlayLayer);
+            SetLayer( (GizmoLayer == -1) ? FPlatform.WidgetOverlayLayer : GizmoLayer );
 
             // seems like possibly this geometry will be shown this frame, before PreRender()
             // is called, which means that on next frame the geometry will pop. 
@@ -604,14 +619,15 @@ namespace f3
                 MaterialUtil.SetMaterial(activeWidget.RootGameObject, activeWidget.StandardMaterial);
 
                 // tell wrapper we are done with capture, so it should bake transform/etc
-                bool bModified = targetWrapper.DoneTransformation ();
+                bool bModified = targetWrapper.DoneTransformation(EmitChanges);
                 if (bModified) {
                     // update gizmo
                     onTransformModified(null);
                     // allow client/subclass to add any other change records
                     OnTransformInteractionEnd();
                     // gizmos drop change events by default
-                    Scene.History.PushInteractionCheckpoint();
+                    if (EmitChanges)
+                        Scene.History.PushInteractionCheckpoint();
                 }
 
 				activeWidget = null;
