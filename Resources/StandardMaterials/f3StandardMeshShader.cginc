@@ -329,7 +329,7 @@ half4 fragForwardBaseInternal_f3VC (VertexOutputForwardBase_f3VC i)
 	UNITY_APPLY_FOG(i.fogCoord, c.rgb);
 
 	// this is output color
-	half4 fwd_color = OutputForward(c, s.alpha * i.vtx_color.a);		// [RMS] multiply by input alpha (necessary?)
+	half4 fwd_color = OutputForward(c, s.alpha);
 
 	if (_Wireframe > 0) {
 		// [TODO] should be doing proper blending here?? is weird if wireframe alpha is not 1
