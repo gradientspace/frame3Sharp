@@ -393,10 +393,7 @@ namespace f3
         // [RMS] this is not a good name...
         override public AxisAlignedBox3f GetLocalBoundingBox()
         {
-            AxisAlignedBox3f b = (AxisAlignedBox3f)mesh.CachedBounds;
-            Vector3f scale = parentGO.GetLocalScale();
-            b.Scale(scale.x, scale.y, scale.z);
-            return b;
+            return (AxisAlignedBox3f)mesh.CachedBounds;
         }
 
         public override bool ShadowsEnabled {

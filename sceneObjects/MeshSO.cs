@@ -89,8 +89,6 @@ namespace f3
         override public AxisAlignedBox3f GetLocalBoundingBox()
         {
             AxisAlignedBox3f b = (AxisAlignedBox3f)meshGO.GetSharedMesh().bounds;
-            Vector3f scale = parentGO.GetLocalScale();
-            b.Scale(scale.x, scale.y, scale.z);
             return b;
         }
 

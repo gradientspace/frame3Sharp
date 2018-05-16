@@ -123,21 +123,6 @@ namespace f3
         }
 
 
-        public static AxisAlignedBox3f GetLocalBoundingBox(IEnumerable<SceneObject> vObjects) {
-            int i = 0;
-            AxisAlignedBox3f b = AxisAlignedBox3f.Empty;
-            foreach ( SceneObject so in vObjects ) {
-                if (i == 0)
-                    b = so.GetLocalBoundingBox();
-                else
-                    b.Contain(so.GetLocalBoundingBox());
-            }
-            return b;
-        }
-
-
-
-
         public static GOWrapperSO CombineAnySOs(SceneObject s1, SceneObject s2, bool bDeleteExisting = true)
         {
             FScene scene = s1.GetScene();

@@ -181,6 +181,8 @@ namespace f3
         }
         virtual public AxisAlignedBox3f GetLocalBoundingBox()
         {
+            // [RMS] is this correct?
+            DebugUtil.Log("BaseSO.GetLocalBoundingBox: this bounding box may be incorrect...check this usage");
             return UnityUtil.GetGeometryBoundingBox(RootGameObject, true);
         }
 

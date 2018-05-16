@@ -95,7 +95,11 @@ namespace f3
 
 		bool FindRayIntersection(Ray3f ray, out SORayHit hit);
 
+
+        /// <summary> Return local bounding box transformed into requested space </summary>
         Box3f GetBoundingBox(CoordSpace eSpace);
+
+        /// <summary> Return local geometry bounding box, before any transforms </summary>
         AxisAlignedBox3f GetLocalBoundingBox();
 
         event TransformChangedEventHandler OnTransformModified;

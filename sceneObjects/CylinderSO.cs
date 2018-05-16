@@ -184,6 +184,7 @@ namespace f3
 
         override public AxisAlignedBox3f GetLocalBoundingBox()
         {
+            // [RMS] I think this is wrong now...
             return new AxisAlignedBox3f(Vector3f.Zero, ScaledRadius, ScaledHeight / 2, ScaledRadius);
         }
 

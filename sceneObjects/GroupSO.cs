@@ -295,8 +295,8 @@ namespace f3
         }
 
         virtual public AxisAlignedBox3f GetLocalBoundingBox() {
-            return SceneUtil.GetLocalBoundingBox(vChildren);
-
+            DebugUtil.Log("GroupSO.GetLocalBoundingBox: Check this usage. Should probably use GetBoundingBox()...");
+            return GetBoundingBox(CoordSpace.ObjectCoords).ToAABB();
         }
 
         public bool FindRayIntersection(Ray3f ray, out SORayHit hit)
