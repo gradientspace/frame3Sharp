@@ -147,10 +147,11 @@ namespace f3
         }
 
 
-        public static Toggle FindToggleAndAddHandler(string toggleName, UnityAction<bool> handler)
+        public static Toggle FindToggleAndAddHandler(GameObject parentGO, string toggleName, UnityAction<bool> handler)
         {
-            var toggle = UnityUtil.FindGameObjectByName(toggleName).GetComponent<Toggle>();
-            toggle.onValueChanged.AddListener(handler);
+            var toggle = UnityUtil.FindChildByName(parentGO, toggleName).GetComponent<Toggle>();
+            if (handler != null)
+                toggle.onValueChanged.AddListener(handler);
             return toggle;
         }
 
