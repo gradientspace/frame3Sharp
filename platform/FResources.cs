@@ -22,5 +22,12 @@ namespace f3
             return new MemoryStream(asset.bytes);
         }
 
+
+        public static string LoadText(string sPath)
+        {
+            TextAsset asset = Resources.Load(sPath) as TextAsset;
+            return asset.text;
+        }
+
     }
 }

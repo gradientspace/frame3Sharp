@@ -147,6 +147,22 @@ namespace f3
         }
 
 
+
+        public static Toggle FindToggleAndSet(GameObject toggleGO, bool value)
+        {
+            var toggle = toggleGO.GetComponent<Toggle>();
+            if (toggle != null)
+                toggle.isOn = value;
+            return toggle;
+        }
+        public static Toggle FindToggleAndSet(GameObject parentGO, string toggleName, bool value)
+        {
+            var toggle = UnityUtil.FindChildByName(parentGO, toggleName).GetComponent<Toggle>();
+            if (toggle != null)
+                toggle.isOn = value;
+            return toggle;
+        }
+
         public static Toggle FindToggleAndAddHandler(GameObject parentGO, string toggleName, UnityAction<bool> handler)
         {
             var toggle = UnityUtil.FindChildByName(parentGO, toggleName).GetComponent<Toggle>();
