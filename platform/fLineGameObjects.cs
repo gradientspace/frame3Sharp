@@ -29,17 +29,24 @@ namespace f3
     {
         LineSet lines = new LineSet();
 
+        public fLineSetGameObject(string name = "line")
+            : base(new GameObject(), FGOFlags.EnablePreRender)
+        {
+            SetName(name);
+            LineRenderingManager.AddLineSet(this);
+        }
+
         public fLineSetGameObject(GameObject baseGO, string name = "line")
             : base(baseGO, FGOFlags.EnablePreRender)
         {
-            baseGO.SetName(name);
+            SetName(name);
             LineRenderingManager.AddLineSet(this);
         }
 
         public fLineSetGameObject(GameObject baseGO, LineSet lines, string name = "line")
             : base(baseGO, FGOFlags.EnablePreRender)
         {
-            baseGO.SetName(name);
+            SetName(name);
             this.lines = lines;
             LineRenderingManager.AddLineSet(this);
         }
