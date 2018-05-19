@@ -658,12 +658,12 @@ namespace f3
 			get { return vUIElements; }
 		}
 
-		public void AddUIElement(SceneUIElement e, bool bIsInLocalFrame = true) {
+		public void AddUIElement(SceneUIElement e, bool bIsInSceneFrame = true) {
 			vUIElements.Add (e);
             e.Parent = this;
 			if (e.RootGameObject != null) {
 				// assume gizmo transform is set to a local transform, so we want to apply current scene transform
-				e.RootGameObject.SetParent(sceneRoot, (bIsInLocalFrame == false));
+				e.RootGameObject.SetParent(sceneRoot, (bIsInSceneFrame == false));
 			}
 		}
 

@@ -13,15 +13,6 @@ namespace f3
     /// </summary>
     public class BasicSceneGrid : BaseSceneUIElement
     {
-        public enum GridVisibilityModes
-        {
-            AllVisible,
-            MaxVisibleOne, 
-            MaxVisibleTwo,
-            DynamicFade
-        }
-        public GridVisibilityModes VisibilityMode = GridVisibilityModes.DynamicFade;
-
 
         /// <summary> Number of steps in each direction along each axis (ie actual steps is 2*K+1) </summary>
         public Vector3i AxisSteps {
@@ -36,15 +27,24 @@ namespace f3
         }
         float step_size = 1.0f;
 
+
+        public enum GridVisibilityModes
+        {
+            AllVisible,
+            MaxVisibleOne,
+            MaxVisibleTwo,
+            DynamicFade
+        }
+        public GridVisibilityModes VisibilityMode = GridVisibilityModes.DynamicFade;
+
         public bool IncludeEnds = false;
+        public float AlphaCutoff = 0.25f;
 
         public Colorf ColorXY = Colorf.DimGrey;
         public Colorf ColorYZ = Colorf.DimGrey;
         public Colorf ColorXZ = Colorf.DimGrey;
 
 
-
-        fGameObject rootGO = null;
         fLineSetGameObject grid_xy = null;
         fLineSetGameObject grid_yz = null;
         fLineSetGameObject grid_xz = null;
@@ -61,8 +61,8 @@ namespace f3
             if (grid_xz != null) RootGameObject.AddChild(grid_xz, false);
         }
 
-        public Frame3f GetFrame() { return rootGO.GetLocalFrame(); }
-        public void SetFrame(Frame3f frame) { rootGO.SetLocalFrame(frame); }
+        public Frame3f GetFrame() { return RootGameObject.GetLocalFrame(); }
+        public void SetFrame(Frame3f frame) { RootGameObject.SetLocalFrame(frame); }
 
 
         Vector3f cachedCamDir = Vector3f.Zero;
@@ -81,6 +81,18 @@ namespace f3
 
 
 
+        public override bool IsVisible {
+            get { return RootGameObject.IsVisible(); }
+            set {
+                RootGameObject.SetVisible(value);
+                cachedCamDir = Vector3f.Zero;
+                UpdateVisibility(Vector3f.Zero, true);
+            }
+        }
+
+
+
+
         public void UpdateColor(Colorf color)
         {
             ColorXY = ColorYZ = ColorXZ = color;
@@ -94,13 +106,22 @@ namespace f3
         }
 
 
-        public void UpdateVisibility(Vector3f vVisibilityDir)
+        public void UpdateVisibility(Vector3f vVisibilityDir, bool bHideShowOnly = false)
         {
-            if ( VisibilityMode == GridVisibilityModes.AllVisible) {
-                if (grid_xy != null) grid_xy.SetVisible(true);
-                if (grid_yz != null) grid_yz.SetVisible(true);
-                if (grid_xz != null) grid_xz.SetVisible(true);
-            } else if (VisibilityMode == GridVisibilityModes.DynamicFade) {
+            if (IsVisible == false) {
+                if (grid_xy != null) grid_xy.SetVisible(false);
+                if (grid_yz != null) grid_yz.SetVisible(false);
+                if (grid_xz != null) grid_xz.SetVisible(false);
+                return;
+            }
+
+            if (grid_xy != null) grid_xy.SetVisible(true);
+            if (grid_yz != null) grid_yz.SetVisible(true);
+            if (grid_xz != null) grid_xz.SetVisible(true);
+            if (VisibilityMode == GridVisibilityModes.AllVisible || bHideShowOnly)
+                return;
+
+            if (VisibilityMode == GridVisibilityModes.DynamicFade) {
                 UpdateVisibility_Fade(vVisibilityDir);
             } else {
                 UpdateVisibility_Snapped(vVisibilityDir);
@@ -125,7 +146,7 @@ namespace f3
         float dot_to_alpha(float dot)
         {
             float f = MathUtil.WyvillRise01(dot);
-            if (f < 0.25) f = 0;
+            if (f < AlphaCutoff) f = 0;
             return f;
         }
 
