@@ -18,6 +18,10 @@ namespace f3
         public float TransitionInSpeed = 0.4f;
         public float TransitionOutSpeed = 0.6f;
 
+        public virtual bool HideOnAwake {
+            get { return true; }
+        }
+
         public virtual void TransitionVisibility(bool bVisible)
         {
             if (bVisible) {
@@ -32,7 +36,8 @@ namespace f3
 
         public virtual void Awake()
         {
-            this.gameObject.GetComponent<CanvasGroup>().alpha = 0;
+            if (HideOnAwake)
+                this.gameObject.GetComponent<CanvasGroup>().alpha = 0;
         }
 
 
@@ -51,7 +56,7 @@ namespace f3
             } else {
                 DOTween.To(() => { return cg.alpha; }, x => { cg.alpha = x; }, 0.0f, TransitionOutSpeed)
                     .OnComplete(
-                        () => { this.gameObject.Hide(); });
+                        () => { on_hide_transition_complete(); });
             }
         }
 
@@ -61,6 +66,11 @@ namespace f3
         }
         protected virtual void on_hide()
         {
+        }
+
+        protected virtual void on_hide_transition_complete()
+        {
+            this.gameObject.Hide();
         }
 
 
