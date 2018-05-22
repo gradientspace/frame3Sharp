@@ -168,6 +168,18 @@ namespace f3
 
 
 
+        /// <summary>
+        /// construct cache of object-to-object xform
+        /// </summary>
+        public static TransformSequence ObjectToObjectXForm(SceneObject fromSO, SceneObject toSO)
+        {
+            TransformSequence fromToScene = ObjectToSceneXForm(fromSO);
+            TransformSequence sceneToTarget = SceneToObjectXForm(toSO);
+            fromToScene.Append(sceneToTarget);
+            return fromToScene;
+        }
+
+
 
         /// <summary>
         /// Input sceneF is a frame in Scene, apply all intermediate inverse 
