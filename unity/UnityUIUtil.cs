@@ -549,6 +549,65 @@ namespace f3
 
         }
 
+
+
+
+
+
+
+
+
+        /// <summary>
+        /// Utility wrapper around a UnityUI DropDown that handles mapping between sequential integer
+        /// indices and arbitrary ID integers that we want to associate with label strings
+        /// </summary>
+        public class MappedDropDown
+        {
+            public Dropdown drop;
+            Func<int> getId;
+            Action<int> setId;
+
+            public MappedDropDown(Dropdown d, Func<int> getId, Action<int> setId)
+            {
+                drop = d;
+                this.getId = getId;
+                this.setId = setId;
+                UnityUIUtil.DropDownAddHandlers(drop, getIndexFromId, setIdFromIndex, 0, int.MaxValue );
+            }
+
+            List<string> options = new List<string>();
+            List<int> identifiers = new List<int>();
+
+            public void SetOptions(List<string> options, List<int> ids)
+            {
+                this.options = new List<string>(options);
+                this.identifiers = new List<int>(ids);
+
+                drop.ClearOptions();
+                drop.AddOptions(options);
+            }
+
+            public void SetFromId(int id)
+            {
+                drop.value = getIndexFromId();
+            }
+
+
+            int getIndexFromId()
+            {
+                int id = getId();
+                int idx = identifiers.FindIndex((j) => { return j == id; });
+                return (idx < 0 || idx >= options.Count) ? 0 : idx;
+            }
+            void setIdFromIndex(int dropdown_index)
+            {
+                int id = identifiers[dropdown_index];
+                setId(id);
+            }
+
+        }
+
+
     }
 
 
