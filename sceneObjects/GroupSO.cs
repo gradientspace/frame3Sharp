@@ -295,8 +295,15 @@ namespace f3
         }
 
         virtual public AxisAlignedBox3f GetLocalBoundingBox() {
-            DebugUtil.Log("GroupSO.GetLocalBoundingBox: Check this usage. Should probably use GetBoundingBox()...");
-            return GetBoundingBox(CoordSpace.ObjectCoords).ToAABB();
+            if (vChildren.Count == 0)
+                return new AxisAlignedBox3f(Vector3f.Zero, 0.5f);
+            Box3d combine = vChildren[0].GetBoundingBox(CoordSpace.SceneCoords);
+            for (int k = 1; k < vChildren.Count; ++k) {
+                Box3d childbox = vChildren[k].GetBoundingBox(CoordSpace.SceneCoords);
+                combine = Box3d.Merge(ref combine, ref childbox);
+            }
+            Box3f boxLocal = SceneTransforms.SceneToObject(this, (Box3f)combine);
+            return boxLocal.ToAABB();
         }
 
         public bool FindRayIntersection(Ray3f ray, out SORayHit hit)

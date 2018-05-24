@@ -206,6 +206,30 @@ namespace f3
             return new Ray3f(fO.Origin, fO.Z);
         }
 
+
+        /// <summary>
+        /// input box is in Scene, apply all intermediate inverse
+        /// transforms to get it to local frame of SO
+        /// </summary>
+        public static Box3f SceneToObject(SceneObject so, Box3f box)
+        {
+            Frame3f f = new Frame3f(box.Center, box.AxisX, box.AxisY, box.AxisZ);
+            Frame3f fL = SceneToObject(so, f);
+
+            // [TODO] make more efficient...
+            Vector3f dv = box.Extent.x*box.AxisX + box.Extent.y*box.AxisY + box.Extent.z*box.AxisZ;
+            Frame3f fCornerS = new Frame3f(box.Center + dv);
+            Frame3f fCornerL = SceneToObject(so, fCornerS);
+            Vector3f dvL = fCornerL.Origin - fL.Origin;
+            Vector3f scales = new Vector3f(
+                dvL.Dot(fCornerL.X) / box.Extent.x,
+                dvL.Dot(fCornerL.Y) / box.Extent.y,
+                dvL.Dot(fCornerL.Z) / box.Extent.z);
+            
+            return new Box3f(fL.Origin, fL.X, fL.Y, fL.Z, scales * box.Extent);
+        }
+
+
         /// <summary>
         /// Input sceneF is a point in Scene, apply all intermediate inverse 
         /// transforms to get it into local point of a SO
