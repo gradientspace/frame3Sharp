@@ -91,6 +91,17 @@ namespace f3
         }
 
 
+        public override void SetLayer(int nLayer)
+        {
+            base.SetLayer(nLayer);
+            // [RMS] have to do this explicitly because currently the children are
+            // GameObject, not fGameObject, so the fGameObject.SetLayer override will
+            // not be called!
+            if (grid_xy != null) grid_xy.SetLayer(nLayer, true);
+            if (grid_yz != null) grid_yz.SetLayer(nLayer, true);
+            if (grid_xz != null) grid_xz.SetLayer(nLayer, true);
+        }
+
 
 
         public void UpdateColor(Colorf color)
@@ -145,9 +156,10 @@ namespace f3
         }
         float dot_to_alpha(float dot)
         {
-            float f = MathUtil.WyvillRise01(dot);
-            if (f < AlphaCutoff) f = 0;
-            return f;
+            float f = 1.0f - MathUtil.WyvillFalloff(dot, AlphaCutoff, 1.0f);
+            //float f = MathUtil.WyvillRise01(dot);
+            //if (f < AlphaCutoff) f = 0;
+            return MathUtil.Clamp(f, 0.0f, 1.0f);
         }
 
 
