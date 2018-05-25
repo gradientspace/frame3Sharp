@@ -31,6 +31,8 @@ namespace f3
 
         public static bool TextEntryFieldHasFocus()
         {
+            if (EventSystem.current == null)
+                return false;
             var focusObj = EventSystem.current.currentSelectedGameObject;
             if (focusObj == null)
                 return false;
