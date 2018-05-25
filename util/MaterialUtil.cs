@@ -375,8 +375,10 @@ namespace f3
 
             } else if ( m.Type == SOMaterial.MaterialType.StandardMesh ) {
                 fMeshMaterial meshMat = MaterialUtil.CreateStandardMeshMaterial(m.RGBColor);
+                if (m is SOMeshMaterial)
+                    meshMat.InitializeFromSOMaterial(m as SOMeshMaterial);
+                unityMat = meshMat;
                 unityMat.renderQueue += m.RenderQueueShift;
-                
 
             } else if ( m is UnitySOMaterial ) {
                 unityMat = (m as UnitySOMaterial).unityMaterial;

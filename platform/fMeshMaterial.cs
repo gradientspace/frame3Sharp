@@ -59,7 +59,6 @@ namespace f3
 
 
 
-        Frame3f clip_plane_pos = Frame3f.Identity;
         public Frame3f ClipPlanePos {
             get {
                 Vector4f v = GetVector("_ClipPlaneEquation");
@@ -70,7 +69,6 @@ namespace f3
             set {
                 Vector3f z = value.Z, o = value.Origin;
                 SetVector("_ClipPlaneEquation", new Vector4f(z.x, z.y, z.z, z.Dot(o)));
-
             }
         }
 

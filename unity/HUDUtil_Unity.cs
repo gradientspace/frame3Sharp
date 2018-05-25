@@ -38,7 +38,7 @@ namespace f3
                 pb.AddAction(() => {
                     Vector3f posW = item.RootGameObject.PointToWorld(meshGO.GetLocalPosition());
                     ((Material)dropMat).SetVector("_Center", new Vector4(posW.x, posW.y, posW.z, 0));
-                    float curWidth = falloffWidthPx * cockpit.GetPixelScale();
+                    //float curWidth = falloffWidthPx * cockpit.GetPixelScale();  // [RMS] what is this for?
                     Vector2f origSize = shape.Size2D + falloffWidth * Vector2f.One;
                     Vector2f size = cockpit.GetScaledDimensions(origSize);
                     float ww = size.x;

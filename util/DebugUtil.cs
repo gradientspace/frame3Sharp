@@ -215,9 +215,9 @@ namespace f3
             }
 
 			GameObject frameObj = new GameObject (name);
-			GameObject x = EmitDebugLine (name+"_x", f.Origin, f.Origin + fAxisLength * f.X, diameter, Color.red, frameObj, false);
-			GameObject y = EmitDebugLine (name+"_y", f.Origin, f.Origin + fAxisLength * f.Y, diameter, Color.green, frameObj, false);
-			GameObject z = EmitDebugLine (name+"_z", f.Origin, f.Origin + fAxisLength * f.Z, diameter, Color.blue, frameObj, false);
+			/*GameObject x = */EmitDebugLine (name+"_x", f.Origin, f.Origin + fAxisLength * f.X, diameter, Color.red, frameObj, false);
+			/*GameObject y = */EmitDebugLine (name+"_y", f.Origin, f.Origin + fAxisLength * f.Y, diameter, Color.green, frameObj, false);
+			/*GameObject z = */EmitDebugLine (name+"_z", f.Origin, f.Origin + fAxisLength * f.Z, diameter, Color.blue, frameObj, false);
             if (parent != null)
                 frameObj.transform.SetParent(parent.transform, false);
             return frameObj;

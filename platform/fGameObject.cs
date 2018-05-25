@@ -383,7 +383,7 @@ namespace f3
             fGameObjectRef f = go.GetComponent<fGameObjectRef>();
             if (f == null) {
                 // this will automatically add the fGameObjectRef to the go
-                var tmp = new fGameObject(go, FGOFlags.NoFlags);
+                /*var tmp = */new fGameObject(go, FGOFlags.NoFlags);
                 f = go.GetComponent<fGameObjectRef>();
             }
             return f.fgo;
