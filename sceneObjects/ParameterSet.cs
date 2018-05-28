@@ -251,6 +251,30 @@ namespace f3
 
 
 
+
+
+        public ParameterSetChange<double> MakeChange(string paramName, double newValue)
+        {
+            ParameterSetChange<double> change = new ParameterSetChange<double>(this, paramName);
+            change.OldValue = GetValue<double>(paramName);
+            change.NewValue = newValue;
+            return change;
+        }
+        public ParameterSetChange<int> MakeChange(string paramName, int newValue)
+        {
+            ParameterSetChange<int> change = new ParameterSetChange<int>(this, paramName);
+            change.OldValue = GetValue<int>(paramName);
+            change.NewValue = newValue;
+            return change;
+        }
+        public ParameterSetChange<bool> MakeChange(string paramName, bool newValue)
+        {
+            ParameterSetChange<bool> change = new ParameterSetChange<bool>(this, paramName);
+            change.OldValue = GetValue<bool>(paramName);
+            change.NewValue = newValue;
+            return change;
+        }
+
     }
 
 
@@ -270,5 +294,47 @@ namespace f3
         public bool getValue() { return bValue; }
         public void setValue(bool value) { bValue = value; }
     }
+
+
+
+
+
+
+    /// <summary>
+    /// Generic change record for a parameter in a set
+    /// </summary>
+    public class ParameterSetChange<T> : BaseChangeOp
+    {
+        public override string Identifier() { return "ParameterSetChange"; }
+
+        public ParameterSet Target;
+        public string ParameterName;
+        public T OldValue;
+        public T NewValue;
+
+        public ParameterSetChange(ParameterSet paramSet, string paramName)
+        {
+            Target = paramSet;
+            ParameterName = paramName;
+        }
+
+        public override OpStatus Apply()
+        {
+            Target.SetValue<T>(ParameterName, NewValue);
+            return OpStatus.Success;
+        }
+        public override OpStatus Revert()
+        {
+            Target.SetValue<T>(ParameterName, OldValue);
+            return OpStatus.Success;
+        }
+
+        public override OpStatus Cull()
+        {
+            Target = null;
+            return OpStatus.Success;
+        }
+    }
+
 
 }
