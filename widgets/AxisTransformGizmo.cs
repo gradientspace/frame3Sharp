@@ -263,7 +263,7 @@ namespace f3
             root.Show();
 
             float useDegrees = (GizmoVisualDegrees > 0) ? GizmoVisualDegrees : SceneGraphConfig.DefaultAxisGizmoVisualDegrees;
-            float fWorldSize = VRUtil.GetVRRadiusForVisualAngle(
+            float fWorldSize = VRUtil.GetRadiusForVisualAngle(
                root.GetPosition(),
                parentScene.ActiveCamera.GetPosition(),
                useDegrees);

@@ -50,8 +50,12 @@ namespace f3
             return (float)(fRadius * fAngleSpanDeg * (Math.PI / 180.0));
         }
 
-		// Returns a distance value that corresponds to a fixed visual angle at the given distance
-		public static float GetVRRadiusForVisualAngle(Vector3f vWorldPos, Vector3f vEyePos, float fAngleInDegrees)
+
+        /// <summary>
+        /// Return a world-space width that corresponds to the given visual angle at the given distance,
+        /// in a VR environment (ie where angle is physical and not connected to pixels at all)
+        /// </summary>
+        public static float GetVRRadiusForVisualAngle(Vector3f vWorldPos, Vector3f vEyePos, float fAngleInDegrees)
 		{
             float r = (vWorldPos - vEyePos).Length;
 			double a = fAngleInDegrees * (Math.PI/180.0);
@@ -61,8 +65,47 @@ namespace f3
 
 
 
-		// horz angle is [-180,180] where negative is to the left
-		// vert angle is [-90,90] where negative is down
+        /// <summary>
+        /// Return a world-space width that corresponds to the given visual angle at the given distance.
+        /// This is done based on an estimate of the visual angle of the window, which we get by
+        /// using a standard angular-unit-per-pixel value from CSS, scaled by DPI.
+        /// Note: this makes lots of assumptions, in particular assumes object is at center of screen...
+        /// </summary>
+        public static float Get2DRadiusForVisualAngle(Vector3f vWorldPos, Vector3f vEyePos, float fAngleInDegrees)
+        {
+            double angle_per_pix_deg = 0.0213;   // https://www.w3.org/TR/CSS21/syndata.html#length-units
+            angle_per_pix_deg *= (96.0 / FPlatform.ScreenDPI);
+            // compute visual angle of window, in width
+            double screen_angle_deg = FPlatform.ScreenWidth * angle_per_pix_deg;
+            screen_angle_deg = Math.Min(screen_angle_deg, 45);
+
+            // compute 'width' of scene at given distance, for windows angle (we could get this from frustum...?)
+            double depth = (vWorldPos - vEyePos).Length;
+            double view_width_at_depth = depth * Math.Tan(screen_angle_deg * 0.5 * MathUtil.Deg2Rad);
+
+            // combine to get per-degree width, which we can just multiply by desired angle
+            double width_per_deg = view_width_at_depth / screen_angle_deg;
+            return (float)(width_per_deg * fAngleInDegrees);
+        }
+
+
+        /// <summary>
+        /// Return a world-space width that corresponds to the given visual angle at the given distance.
+        /// Automatically switches between VR and 2D calculations as appropriate.
+        /// </summary>
+        public static float GetRadiusForVisualAngle(Vector3f vWorldPos, Vector3f vEyePos, float fAngleInDegrees)
+        {
+            if (FPlatform.IsUsingVR())
+                return GetVRRadiusForVisualAngle(vWorldPos, vEyePos, fAngleInDegrees);
+            else
+                return Get2DRadiusForVisualAngle(vWorldPos, vEyePos, fAngleInDegrees);
+        }
+
+
+
+
+        // horz angle is [-180,180] where negative is to the left
+        // vert angle is [-90,90] where negative is down
         public static Vector3f DirectionFromSphereCenter(float fAngleHorzDeg, float fAngleVertDeg)
         {
 			float fTheta = (MathUtil.Deg2Radf * fAngleHorzDeg);

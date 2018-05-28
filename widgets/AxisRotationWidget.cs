@@ -160,7 +160,7 @@ namespace f3
                 lines.WidthType = LineWidthType.Pixel;
                 lines.Segments.Add(
                     new Segment3d(Vector3d.Zero, gizmoInitialRadius * diagonals[nRotationAxis] ));
-                lines.Color = Colorf.DimGrey;
+                lines.Color = new Colorf(0.2f);
                 circle_indicator = new fLineSetGameObject(new GameObject(), lines, "circle");
                 circle_indicator.SetLayer(FPlatform.WidgetOverlayLayer, true);
 
@@ -204,7 +204,7 @@ namespace f3
                 }
                 lines.Width = 1.0f;
                 lines.WidthType = LineWidthType.Pixel;
-                lines.Color = Colorf.DimGrey;
+                lines.Color = new Colorf(0.2f);
                 snap_indicator = new fLineSetGameObject(new GameObject(), lines, "indicator");
                 snap_indicator.SetLayer(FPlatform.WidgetOverlayLayer, true);
                 
