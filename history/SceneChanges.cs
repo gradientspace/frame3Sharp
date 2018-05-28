@@ -113,6 +113,9 @@ namespace f3
         public Frame3f before, after;
         public CoordSpace space;
 
+        public Vector3f scaleBefore;
+        public Vector3f scaleAfter;
+
         public Action<TransformSOChange> OnApplyF = null;
         public Action<TransformSOChange> OnRevertF = null;
 
@@ -126,23 +129,67 @@ namespace f3
             this.before = before;
             this.after = after;
             this.space = coords;
+            this.scaleBefore = target.GetLocalScale();
+            this.scaleAfter = this.scaleBefore;
         }
+        public TransformSOChange(SceneObject target, Frame3f before, Frame3f after, CoordSpace coords, Vector3f scaleBefore, Vector3f scaleAfter)
+        {
+            this.so = target;
+            this.before = before;
+            this.after = after;
+            this.space = coords;
+            this.scaleBefore = scaleBefore;
+            this.scaleAfter = scaleAfter;
+        }
+
         public TransformSOChange(SceneObject target, Frame3f newFrame, CoordSpace coords)
         {
             this.so = target;
             this.before = target.GetLocalFrame(coords);
             this.after = newFrame;
             this.space = coords;
+            this.scaleBefore = target.GetLocalScale();
+            this.scaleAfter = this.scaleBefore;
+        }
+        public TransformSOChange(SceneObject target, Frame3f newFrame, CoordSpace coords, Vector3f newScale)
+        {
+            this.so = target;
+            this.before = target.GetLocalFrame(coords);
+            this.after = newFrame;
+            this.space = coords;
+            this.scaleBefore = target.GetLocalScale();
+            this.scaleAfter = newScale;
+        }
+
+        public TransformSOChange(SceneObject target, Vector3f scaleBefore, Vector3f scaleAfter)
+        {
+            this.so = target;
+            this.before = target.GetLocalFrame(CoordSpace.ObjectCoords);
+            this.after = before;
+            this.space = CoordSpace.ObjectCoords;
+            this.scaleBefore = scaleBefore;
+            this.scaleAfter = scaleAfter;
+        }
+        public TransformSOChange(SceneObject target, Vector3f newScale)
+        {
+            this.so = target;
+            this.before = target.GetLocalFrame(CoordSpace.ObjectCoords);
+            this.after = before;
+            this.space = CoordSpace.ObjectCoords;
+            this.scaleBefore = target.GetLocalScale();
+            this.scaleAfter = newScale;
         }
 
         public override OpStatus Apply() {
             so.SetLocalFrame(after, space);
+            so.SetLocalScale(scaleAfter);
             if (OnApplyF != null)
                 OnApplyF(this);
             return OpStatus.Success;
         }
         public override OpStatus Revert() {
             so.SetLocalFrame(before, space);
+            so.SetLocalScale(scaleBefore);
             if (OnRevertF != null)
                 OnRevertF(this);
             return OpStatus.Success;

@@ -317,4 +317,63 @@ namespace f3
             return OpStatus.Success;
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+    /// <summary>
+    /// apply global scale
+    /// </summary>
+    public class BakeScalingChangeOp : BaseChangeOp
+    {
+        public override string Identifier() { return "BakeScalingChangeOp"; }
+
+        public DMeshSO Target;
+        public Vector3f LocalScale;
+
+        public BakeScalingChangeOp(DMeshSO target)
+        {
+            Target = target;
+            LocalScale = target.GetLocalScale();
+        }
+
+        public override OpStatus Apply()
+        {
+            Target.EditAndUpdateMesh(
+                (mesh) => {
+                    MeshTransforms.Scale(mesh, LocalScale.x, LocalScale.y, LocalScale.z);
+                    Target.SetLocalScale(Vector3f.One);
+                },
+                GeometryEditTypes.VertexDeformation
+            );
+            return OpStatus.Success;
+        }
+        public override OpStatus Revert()
+        {
+            Target.EditAndUpdateMesh(
+                (mesh) => {
+                    MeshTransforms.Scale(mesh, 1.0/LocalScale.x, 1.0/LocalScale.y, 1.0/LocalScale.z);
+                    Target.SetLocalScale(LocalScale);
+                },
+                GeometryEditTypes.VertexDeformation
+            );
+            return OpStatus.Success;
+        }
+
+        public override OpStatus Cull()
+        {
+            Target = null;
+            return OpStatus.Success;
+        }
+    }
+
+
+
 }
