@@ -142,6 +142,36 @@ namespace f3
             return transform.GetLocalFrame(CoordSpace.ObjectCoords).FromFrame(ref result);
         }
 
+        /// <summary>
+        /// Apply the local rotate/translate/scale at transform to point
+        /// </summary>
+        public static Vector3f ApplyTransformP(ITransformed transform, Vector3f pIn)
+        {
+            Vector3f p = pIn * transform.GetLocalScale();
+            return transform.GetLocalFrame(CoordSpace.ObjectCoords).FromFrameP(ref p);
+        }
+
+        /// <summary>
+        /// Apply the local rotate/translate/scale at transform to vector
+        /// </summary>
+        public static Vector3f ApplyTransformV(ITransformed transform, Vector3f vIn )
+        {
+            Vector3f v = vIn * transform.GetLocalScale();
+            return transform.GetLocalFrame(CoordSpace.ObjectCoords).FromFrameV(ref v);
+        }
+
+        /// <summary>
+        /// Apply the local rotate/translate/scale at transform to ray
+        /// </summary>
+        public static Ray3f ApplyTransform(ITransformed transform, Ray3f ray)
+        {
+            Vector3f origin = ApplyTransformP(transform, ray.Origin);
+            Vector3f dir = ApplyTransformV(transform, ray.Direction);
+            return new Ray3f(origin, dir.Normalized);
+        }
+
+
+
 
         /// <summary>
         /// Apply the inverse local rotate/translate/scale at transform to frameIn
@@ -153,6 +183,36 @@ namespace f3
             Util.gDevAssert(IsUniformScale(scale));
             result.Scale(1.0f / scale);
             return result;
+        }
+
+        /// <summary>
+        /// Apply the inverse local rotate/translate/scale at transform to point
+        /// </summary>
+        public static Vector3f ApplyInverseTransformP(ITransformed transform, Vector3f p)
+        {
+            Vector3f pInv = transform.GetLocalFrame(CoordSpace.ObjectCoords).ToFrameP(ref p);
+            Vector3f scale = transform.GetLocalScale();
+            return pInv / scale;
+        }
+
+        /// <summary>
+        /// Apply the inverse local rotate/translate/scale at transform to vector
+        /// </summary>
+        public static Vector3f ApplyInverseTransformV(ITransformed transform, Vector3f v)
+        {
+            Vector3f vInv = transform.GetLocalFrame(CoordSpace.ObjectCoords).ToFrameV(ref v);
+            Vector3f scale = transform.GetLocalScale();
+            return vInv / scale;
+        }
+
+        /// <summary>
+        /// Apply the inverse local rotate/translate/scale at transform to ray
+        /// </summary>
+        public static Ray3f ApplyInverseTransform(ITransformed transform, Ray3f ray)
+        {
+            Vector3f origin = ApplyInverseTransformP(transform, ray.Origin);
+            Vector3f dir = ApplyInverseTransformV(transform, ray.Direction);
+            return new Ray3f(origin, dir.Normalized);
         }
 
 
@@ -201,9 +261,11 @@ namespace f3
         /// </summary>
         public static Ray3f SceneToObject(SceneObject so, Ray3f ray)
         {
-            Frame3f f = new Frame3f(ray.Origin, ray.Direction);
-            Frame3f fO = SceneToObject(so, f);
-            return new Ray3f(fO.Origin, fO.Z);
+            SOParent parent = so.Parent;
+            if (parent is FScene)
+                return ApplyInverseTransform(so, ray);
+            // this will recursively apply all the inverse parent transforms from scene on down
+            return ApplyInverseTransform(so, SceneToObject(parent as SceneObject, ray));
         }
 
 
@@ -325,7 +387,7 @@ namespace f3
                 curSO = (parent as SceneObject);
             }
             if (curSO == null)
-                DebugUtil.Error("SceneTransforms.TransformTo: found null parent SO!");
+                DebugUtil.Error("SceneTransforms.ObjectToScene: found null parent SO!");
             return sceneDim;
         }
 
@@ -341,7 +403,7 @@ namespace f3
             while (curSO != null) {
                 Frame3f curF = curSO.GetLocalFrame(CoordSpace.ObjectCoords);
                 Vector3f scale = curSO.GetLocalScale();
-                Util.gDevAssert(IsUniformScale(scale));
+                Util.gDevAssert(curSO == so || IsUniformScale(scale));
                 sceneF.Scale(scale);
                 sceneF = curF.FromFrame(ref sceneF);
                 SOParent parent = curSO.Parent;
@@ -350,19 +412,35 @@ namespace f3
                 curSO = (parent as SceneObject);
             }
             if (curSO == null)
-                DebugUtil.Error("SceneTransforms.TransformTo: found null parent SO!");
+                DebugUtil.Error("SceneTransforms.ObjectToScene: found null parent SO!");
             return sceneF;
         }
+
+
+
 
         /// <summary>
         /// input ray is in Object (local) coords of so, apply all intermediate 
         /// transforms to get it to Scene coords
         /// </summary>
-        public static Ray3f ObjectToScene(SceneObject so, Ray3f ray)
+        public static Ray3f ObjectToScene(SceneObject so, Ray3f objectRay)
         {
-            Frame3f f = new Frame3f(ray.Origin, ray.Direction);
-            Frame3f fS = ObjectToScene(so, f);
-            return new Ray3f(fS.Origin, fS.Z);
+            Ray3f sceneRay = objectRay;
+            SceneObject curSO = so;
+            while (curSO != null) {
+                Frame3f curF = curSO.GetLocalFrame(CoordSpace.ObjectCoords);
+                Vector3f scale = curSO.GetLocalScale();
+                Vector3f new_o = curF.FromFrameP(sceneRay.Origin * scale);
+                Vector3f new_d = curF.FromFrameV(sceneRay.Direction * scale);
+                sceneRay = new Ray3f(new_o, new_d.Normalized);
+                SOParent parent = curSO.Parent;
+                if (parent is FScene)
+                    return sceneRay;
+                curSO = (parent as SceneObject);
+            }
+            if (curSO == null)
+                DebugUtil.Error("SceneTransforms.ObjectToScene: found null parent SO!");
+            return sceneRay;
         }
 
 
@@ -387,9 +465,19 @@ namespace f3
         /// </summary>
         public static Vector3f ObjectToSceneP(SceneObject so, Vector3f objectPt)
         {
-            Frame3f f = new Frame3f(objectPt);
-            Frame3f fS = ObjectToScene(so, f);
-            return fS.Origin;
+            SceneObject curSO = so;
+            while (curSO != null) {
+                Frame3f curF = curSO.GetLocalFrame(CoordSpace.ObjectCoords);
+                Vector3f scale = curSO.GetLocalScale();
+                objectPt = curF.FromFrameP(objectPt * scale);
+                SOParent parent = curSO.Parent;
+                if (parent is FScene)
+                    return objectPt;
+                curSO = (parent as SceneObject);
+            }
+            if (curSO == null)
+                DebugUtil.Error("SceneTransforms.ObjectToSceneP: found null parent SO!");
+            return objectPt;
         }
         public static Vector3d ObjectToSceneP(SceneObject so, Vector3d scenePt)
         {
@@ -403,9 +491,20 @@ namespace f3
         /// </summary>
         public static Vector3f ObjectToSceneN(SceneObject so, Vector3f objectN)
         {
-            Frame3f f = new Frame3f(Vector3f.Zero, objectN);
-            Frame3f fO = ObjectToScene(so, f);
-            return fO.Z;
+            SceneObject curSO = so;
+            while (curSO != null) {
+                Frame3f curF = curSO.GetLocalFrame(CoordSpace.ObjectCoords);
+                Vector3f scale = curSO.GetLocalScale();
+                objectN = curF.FromFrameV(objectN / scale);
+                objectN.Normalize();
+                SOParent parent = curSO.Parent;
+                if (parent is FScene)
+                    return objectN;
+                curSO = (parent as SceneObject);
+            }
+            if (curSO == null)
+                DebugUtil.Error("SceneTransforms.ObjectToSceneN: found null parent SO!");
+            return objectN;
         }
 
 

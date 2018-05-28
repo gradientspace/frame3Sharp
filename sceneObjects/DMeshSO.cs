@@ -478,20 +478,25 @@ namespace f3
             }
 
             // convert ray to local
-            Frame3f f = new Frame3f(rayW.Origin, rayW.Direction);
-            f = SceneTransforms.TransformTo(f, this, CoordSpace.WorldCoords, CoordSpace.ObjectCoords);
-            Ray3d local_ray = new Ray3d(f.Origin, f.Z);
+            FScene scene = this.GetScene();
+            Ray3f rayS = scene.ToSceneRay(rayW);
+            Ray3d local_ray = SceneTransforms.SceneToObject(this, rayS);
 
             int hit_tid = spatial.FindNearestHitTriangle(local_ray);
             if (hit_tid != DMesh3.InvalidID) {
                 IntrRay3Triangle3 intr = MeshQueries.TriangleIntersection(mesh, hit_tid, local_ray);
 
-                Frame3f hitF = new Frame3f(local_ray.PointAt(intr.RayParameter), mesh.GetTriNormal(hit_tid));
-                hitF = SceneTransforms.TransformTo(hitF, this, CoordSpace.ObjectCoords, CoordSpace.WorldCoords);
+                Vector3f hitPos = (Vector3f)local_ray.PointAt(intr.RayParameter);
+                hitPos = SceneTransforms.ObjectToSceneP(this, hitPos);
+                hitPos = scene.ToWorldP(hitPos);
+
+                Vector3f hitNormal = (Vector3f)mesh.GetTriNormal(hit_tid);
+                hitNormal = SceneTransforms.ObjectToSceneN(this, hitNormal);
+                hitNormal = scene.ToWorldN(hitNormal);
 
                 hit = new SORayHit();
-                hit.hitPos = hitF.Origin;
-                hit.hitNormal = hitF.Z;
+                hit.hitPos = hitPos;
+                hit.hitNormal = hitNormal;
                 hit.hitIndex = hit_tid;
                 hit.fHitDist = hit.hitPos.Distance(rayW.Origin);    // simpler than transforming!
                 hit.hitGO = RootGameObject;
