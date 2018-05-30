@@ -162,6 +162,12 @@ namespace f3
 
 
 
+        override public AxisAlignedBox3f GetLocalBoundingBox()
+        {
+            return new AxisAlignedBox3f(Size);
+        }
+
+
 
         // SpatialQueryableSO impl
 
