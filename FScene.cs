@@ -73,6 +73,7 @@ namespace f3
         public fMaterial SelectedMaterial { get; set; }
         public Dictionary<SceneObject, fMaterial> PerObjectSelectionMaterial = new Dictionary<SceneObject, fMaterial>();
         public Dictionary<SOType, fMaterial> PerTypeSelectionMaterial = new Dictionary<SOType, fMaterial>();
+        public Dictionary<SOType, Func<SceneObject, fMaterial>> PerTypeSelectionMaterialMap = new Dictionary<SOType, Func<SceneObject, fMaterial>>();
         public bool DisableSelectionMaterial = false;
 
 
@@ -923,6 +924,15 @@ namespace f3
                 so.PushOverrideMaterial(typeMat);
                 return;
             }
+            Func<SceneObject, fMaterial> matMap;
+            if ( PerTypeSelectionMaterialMap.TryGetValue(so.Type, out matMap) ) {
+                fMaterial useMat = matMap(so);
+                if ( useMat != null ) {
+                    so.PushOverrideMaterial(useMat);
+                    return;
+                }
+            }
+            
             so.PushOverrideMaterial(SelectedMaterial);
         }
 
