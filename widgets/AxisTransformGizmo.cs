@@ -556,6 +556,11 @@ namespace f3
 
 
 
+        public bool IsCapturing {
+            get { return activeWidget != null; }
+        }
+
+
 
 
         public bool FindRayIntersection(Ray3f ray, out UIRayHit hit)
