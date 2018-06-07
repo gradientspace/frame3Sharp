@@ -577,6 +577,10 @@ namespace f3
                 DeselectedEvent(s);
 			OnSelectionChanged(EventArgs.Empty);
 		}
+        public void Deselect(IEnumerable<SceneObject> objects) {
+            foreach (var so in objects)
+                Deselect(so);
+        }
 
 		public void ClearSelection()
         {
