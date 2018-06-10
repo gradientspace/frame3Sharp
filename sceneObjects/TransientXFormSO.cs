@@ -121,6 +121,13 @@ namespace f3
             throw new InvalidOperationException("TransientXFormSO::Duplicate not implemented!");
         }
 
+        virtual public void OnSelected()
+        {
+        }
+        virtual public void OnDeselected()
+        {
+        }
+
         public void SetCurrentTime(double time)
         {
             // nothing

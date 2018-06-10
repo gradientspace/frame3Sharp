@@ -91,6 +91,11 @@ namespace f3
             parentScene = s;
         }
 
+        virtual public void OnSelected() {
+        }
+        virtual public void OnDeselected() {
+        }
+
         virtual public void SetCurrentTime(double time)
         {
             // ignore

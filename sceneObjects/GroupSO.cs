@@ -233,6 +233,13 @@ namespace f3
             throw new InvalidOperationException("GroupSO::Duplicate not implemented!");
         }
 
+        virtual public void OnSelected()
+        {
+        }
+        virtual public void OnDeselected()
+        {
+        }
+
         virtual public void SetCurrentTime(double time)
         {
             foreach (var c in vChildren)
