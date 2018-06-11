@@ -163,8 +163,12 @@ namespace f3
         {
             base.OnEnabledChanged();
             UpdateText();
-        }       
+        }
 
+
+        public virtual fTextGameObject TextGameObject {
+            get { return textMesh; }
+        }
 
 
         #region SceneUIElement implementation
