@@ -86,10 +86,10 @@ inline half4 VertexGIForward_f3VC(VertexInput_f3VC v, float3 posWorld, half3 nor
 //
 struct VertexOutputForwardBase_f3VC
 {
-	float4 pos							: SV_POSITION;
+	UNITY_POSITION(pos);
 	float4 tex							: TEXCOORD0;
 	half3 eyeVec 						: TEXCOORD1;
-	half4 tangentToWorldAndPackedData[3]    : TEXCOORD2;    // [3x3:tangentToWorld | 1x3:viewDirForParallax or worldPos]
+	float4 tangentToWorldAndPackedData[3]    : TEXCOORD2;    // [3x3:tangentToWorld | 1x3:viewDirForParallax or worldPos]
 	half4 ambientOrLightmapUV			: TEXCOORD5;	// SH or Lightmap UV
 	UNITY_SHADOW_COORDS(6)
 	UNITY_FOG_COORDS(7)
@@ -209,11 +209,11 @@ half4 fragForwardBase_f3VC (VertexOutputForwardBase_f3VC i) : SV_Target	// backw
 // [RMS] added color member
 struct VertexOutputDeferred_f3VC
 {
-	float4 pos							: SV_POSITION;
+	UNITY_POSITION(pos);
 	fixed4 color                        : COLOR;		// [RMS] added
 	float4 tex							: TEXCOORD0;
 	half3 eyeVec 						: TEXCOORD1;
-	half4 tangentToWorldAndPackedData[3]: TEXCOORD2;    // [3x3:tangentToWorld | 1x3:viewDirForParallax or worldPos]
+	float4 tangentToWorldAndPackedData[3]: TEXCOORD2;    // [3x3:tangentToWorld | 1x3:viewDirForParallax or worldPos]
 	half4 ambientOrLightmapUV			: TEXCOORD5;	// SH or Lightmap UVs
 
 	#if UNITY_REQUIRE_FRAG_WORLDPOS && !UNITY_PACK_WORLDPOS_WITH_TANGENT
