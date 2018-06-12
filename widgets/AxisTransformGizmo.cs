@@ -17,7 +17,9 @@ namespace f3
         public bool DynamicVisibilityFiltering = true;
         public bool EnableRotationSnapping = true;
         public float RotationSnapStepSizeDeg = 5.0f;
-        public float GizmoVisualDegrees = 0.0f;     // ignored unless non-zero
+        public bool MaintainConsistentViewSize = true;  // if false, gizmo size is constant
+        public float GizmoVisualDegrees = 0.0f;     // ignored unless non-zero and MaintainConsistentViewSize==true
+        public float DynamicScaleFactor = 0.0f;     // ignored unless non-zero and MaintainConsistentViewSize==false
         public int GizmoLayer = -1;                 // ignored unless >= 0
 
         public virtual ITransformGizmo Build(FScene scene, List<SceneObject> targets)
@@ -28,7 +30,9 @@ namespace f3
             g.DynamicVisibilityFiltering = this.DynamicVisibilityFiltering;
             g.EnableRotationSnapping = this.EnableRotationSnapping;
             g.RotationSnapStepSizeDeg = this.RotationSnapStepSizeDeg;
+            g.MaintainConsistentViewSize = this.MaintainConsistentViewSize;
             g.GizmoVisualDegrees = this.GizmoVisualDegrees;
+            g.DynamicScaleFactor = this.DynamicScaleFactor;
             g.GizmoLayer = this.GizmoLayer;
             g.Create(scene, targets);
             return g;
@@ -153,7 +157,9 @@ namespace f3
         public bool DynamicVisibilityFiltering = true;
         public bool EnableRotationSnapping = true;
         public float RotationSnapStepSizeDeg = 5.0f;
+        public bool MaintainConsistentViewSize = true;
         public float GizmoVisualDegrees = 0.0f;        // if 0, we use SceneGraphConfig.DefaultAxisGizmoVisualDegrees
+        public float DynamicScaleFactor = 0.0f;        // if 0, we don't scale, otherwise applied every frame
         public int GizmoLayer = -1;                    // if -1, we use FPlatform.WidgetOverlayLayer
 
         // if false, transform changes will not be emitted
@@ -262,17 +268,26 @@ namespace f3
         virtual public void PreRender() {
             root.Show();
 
-            float useDegrees = (GizmoVisualDegrees > 0) ? GizmoVisualDegrees : SceneGraphConfig.DefaultAxisGizmoVisualDegrees;
-            float fWorldSize = VRUtil.GetRadiusForVisualAngle(
-               root.GetPosition(),
-               parentScene.ActiveCamera.GetPosition(),
-               useDegrees);
-            float fSceneSize = fWorldSize / parentScene.GetSceneScale();
-            float fGeomScale = fSceneSize / initialGizmoRadius;
-            root.SetLocalScale( new Vector3f(fGeomScale) );
+            if (MaintainConsistentViewSize) {
+                float useDegrees = (GizmoVisualDegrees > 0) ? GizmoVisualDegrees : SceneGraphConfig.DefaultAxisGizmoVisualDegrees;
+                float fWorldSize = VRUtil.GetRadiusForVisualAngle(
+                   root.GetPosition(),
+                   parentScene.ActiveCamera.GetPosition(),
+                   useDegrees);
+                float fSceneSize = fWorldSize / parentScene.GetSceneScale();
+                float fGeomScale = fSceneSize / initialGizmoRadius;
+                root.SetLocalScale(new Vector3f(fGeomScale));
+                foreach (var widget in Widgets)
+                    widget.Value.UpdateGizmoWorldSize(fWorldSize);
+            } else if ( DynamicScaleFactor > 0 ) {
+                float fWorldSize = DynamicScaleFactor;
+                float fSceneSize = fWorldSize / parentScene.GetSceneScale();
+                float fGeomScale = fSceneSize / initialGizmoRadius;
+                root.SetLocalScale(new Vector3f(fGeomScale));
+                foreach (var widget in Widgets)
+                    widget.Value.UpdateGizmoWorldSize(fWorldSize);
+            }
 
-            foreach (var widget in Widgets)
-                widget.Value.UpdateGizmoWorldSize(fWorldSize);
 
             if (DynamicVisibilityFiltering && targetWrapper != null) {
                 Frame3f frameW = targetWrapper.GetLocalFrame(CoordSpace.WorldCoords);
