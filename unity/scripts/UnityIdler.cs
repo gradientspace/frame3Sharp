@@ -18,11 +18,15 @@ namespace f3
     /// </summary>
     public class UnityIdler : MonoBehaviour
     {
-        public double InitialIdleDelay = 15;
-        public double InitialIdleFramerate = 15;
-        public double DeepIdleDelay = 30;
-        public double DeepIdleFramerate = 5; 
+        public int ActiveFramerate = 60;
 
+        public double InitialIdleDelay = 15;
+        public int InitialIdleFramerate = 15;
+        public double DeepIdleDelay = 30;
+        public int DeepIdleFramerate = 5;
+
+        // changing vSyncCount causes MonoBehavior.OnApplicationFocus to fire...
+        public bool DisableVSync = true;
 
         Vector3 last_mouse_pos;
         double last_move_time = 0;
@@ -46,6 +50,10 @@ namespace f3
         public void Update()
         {
             if ( initialized == false ) {
+                if (DisableVSync) 
+                    QualitySettings.vSyncCount = 0;
+                Application.targetFrameRate = ActiveFramerate;
+
                 start_framerate = Application.targetFrameRate;
                 start_vsync = QualitySettings.vSyncCount;
                 initialized = true;
@@ -54,7 +62,7 @@ namespace f3
             Vector3 new_mouse_pos = Input.mousePosition;
 
             // cancel idle if mouse moved
-            if ( (new_mouse_pos-last_mouse_pos).magnitude > 0.0001 || Input.anyKeyDown ) {
+            if ( Application.isFocused && ((new_mouse_pos-last_mouse_pos).magnitude > 0.0001 || Input.anyKeyDown) ) {
                 last_mouse_pos = new_mouse_pos;
                 last_move_time = Time.realtimeSinceStartup;
                 if (IdleStage != IdleStages.NoIdle) {
@@ -67,17 +75,21 @@ namespace f3
             double time_delta = Time.realtimeSinceStartup - last_move_time;
 
             // fall into successively deeper idle states
-            if (time_delta > InitialIdleDelay && IdleStage == IdleStages.NoIdle) { 
+            if (time_delta > InitialIdleDelay && IdleStage == IdleStages.NoIdle) {
+                //DebugUtil.Log("Starting idle! {0}", FPlatform.RealTime());
                 Application.targetFrameRate = 15;
-                QualitySettings.vSyncCount = 0;
+                if (DisableVSync == false)
+                    QualitySettings.vSyncCount = 0;
                 //mainCamera = Camera.main;
                 //mainCamera.enabled = false;
                 IdleStage = IdleStages.InitialIdle;
 
             } 
             if (time_delta > DeepIdleDelay && IdleStage == IdleStages.InitialIdle) {
+                //DebugUtil.Log("Starting deep idle! {0}", FPlatform.RealTime());
                 Application.targetFrameRate = 5;
-                QualitySettings.vSyncCount = 0;
+                if (DisableVSync == false)
+                    QualitySettings.vSyncCount = 0;
                 //mainCamera = Camera.main;
                 //mainCamera.enabled = false;
                 IdleStage = IdleStages.DeepIdle;
@@ -99,8 +111,11 @@ namespace f3
 
         void to_active_framerate()
         {
+            //DebugUtil.Log("clearing idle! {0}", FPlatform.RealTime());
+
             Application.targetFrameRate = start_framerate;
-            QualitySettings.vSyncCount = start_vsync;
+            if (DisableVSync == false)
+                QualitySettings.vSyncCount = start_vsync;
             //mainCamera.enabled = true;
         }
 
