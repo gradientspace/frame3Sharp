@@ -43,6 +43,7 @@ namespace f3
         // keys
         public bool bShiftKeyDown;
         public bool bCtrlKeyDown;
+        public bool bCmdKeyDown;
         public bool bAltKeyDown;
 
         // mouse
@@ -174,6 +175,7 @@ namespace f3
 
             bShiftKeyDown = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
             bCtrlKeyDown = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+            bCmdKeyDown = Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand);
             bAltKeyDown = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.LeftAlt);
 
             bLeftMousePressed = Input.GetMouseButtonDown(0);
