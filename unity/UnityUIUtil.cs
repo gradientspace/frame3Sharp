@@ -625,6 +625,61 @@ namespace f3
 
 
 
+
+
+    /// <summary>
+    /// Attach this script to a unity UI widget and then you will get onLongPress() event
+    /// after pressing down for HoldTime. If RepeatTime > 0, then onLongPress will continue
+    /// to fire at that time interval until button is released.
+    /// Notes: https://forum.unity.com/threads/long-press-gesture-on-ugui-button.264388/
+    /// </summary>
+    public class ButtonLongPress : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+    {
+        public float HoldTime = 1.0f;
+        public float RepeatTime = 0.0f;
+
+        // todo: use this to avoid Button.OnClick() from also firing during a longpress?
+        //private bool held = false;
+        //public UnityEvent onClick = new UnityEvent();
+
+        public UnityEvent onLongPress = new UnityEvent();
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            //held = false;
+            Invoke("OnLongPress", HoldTime);
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            CancelInvoke("OnLongPress");
+
+            //if (!held)
+            //    onClick.Invoke();
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            CancelInvoke("OnLongPress");
+        }
+
+        void OnLongPress()
+        {
+            //held = true;
+            onLongPress.Invoke();
+
+            // spawn repeat
+            if (RepeatTime > 0) {
+                Invoke("OnLongPress", RepeatTime);
+            }
+        }
+    }
+
+
+
+
+
+
     // create text mesh
     // [TODO] only used by HUDRadialMenu, can get rid of when
     //   we replace that with fText...
