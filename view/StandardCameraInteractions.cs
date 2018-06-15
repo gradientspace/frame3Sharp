@@ -73,6 +73,85 @@ namespace f3
 
 
 
+
+
+
+
+
+    // default maya alt+left/right/middle hotkeys
+    // plus, alt+shift+lmb=pan and alt+ctrl+lmb=zoom
+    class MayaExtCameraHotkeys : ICameraInteraction
+    {
+        public float MouseOrbitSpeed = 10.0f;
+        public float MousePanSpeed = 0.5f;
+        public float MouseZoomSpeed = 0.5f;
+
+        public float GamepadOrbitSpeed = 2.0f;
+        public float GamepadPanSpeed = 0.2f;
+        public float GamepadZoomSpeed = 0.2f;
+
+
+        public MayaExtCameraHotkeys()
+        {
+        }
+
+        public CameraInteractionState CheckCameraControls(InputState input)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftAlt) ||
+                InputExtension.Get.GamepadLeftShoulder.Pressed || InputExtension.Get.GamepadRightShoulder.Pressed)
+                return CameraInteractionState.BeginCameraAction;
+            else if (Input.GetKeyUp(KeyCode.LeftAlt)
+                        || (InputExtension.Get.GamepadLeftShoulder.Released && InputExtension.Get.GamepadRightShoulder.Down == false)
+                        || (InputExtension.Get.GamepadRightShoulder.Released && InputExtension.Get.GamepadLeftShoulder.Down == false))
+                return CameraInteractionState.EndCameraAction;
+            else
+                return CameraInteractionState.Ignore;
+        }
+
+        public void DoCameraControl(FScene scene, fCamera mainCamera, InputState input)
+        {
+            Vector2f mouseDelta = InputExtension.Get.Mouse.PositionDelta;
+            Vector2f stick1 = InputExtension.Get.GamepadLeftStick.Position;
+            Vector2f stick2 = InputExtension.Get.GamepadRightStick.Position;
+            float dx = mouseDelta.x + stick1.x;
+            float dy = mouseDelta.y + stick1.y;
+            float dx2 = stick2.x;
+            float dy2 = stick2.y;
+
+            if (Input.GetMouseButton(0)) {
+                if (input.bShiftKeyDown)
+                    mainCamera.Manipulator().ScenePan(scene, mainCamera, MousePanSpeed * dx, MousePanSpeed * dy);
+                else if (input.bCtrlKeyDown || input.bCmdKeyDown)
+                    mainCamera.Manipulator().SceneZoom(scene, mainCamera, -MouseZoomSpeed * dy);
+                else
+                    mainCamera.Manipulator().SceneOrbit(scene, mainCamera, MouseOrbitSpeed * dx, MouseOrbitSpeed * dy);
+
+            } else if (Input.GetMouseButton(1)) {
+                mainCamera.Manipulator().SceneZoom(scene, mainCamera, -MouseZoomSpeed * dy);
+                //mainCamera.Manipulator().ScenePan(scene, mainCamera, 0.05f * dx, 0);
+
+            } else if (Input.GetMouseButton(2)) {
+                mainCamera.Manipulator().ScenePan(scene, mainCamera, MousePanSpeed * dx, MousePanSpeed * dy);
+
+            } else if (InputExtension.Get.GamepadRightShoulder.Down) {
+                mainCamera.Manipulator().SceneZoom(scene, mainCamera, GamepadZoomSpeed * dy);
+                mainCamera.Manipulator().ScenePan(scene, mainCamera, (-0.5f * GamepadPanSpeed * dx) + (-GamepadPanSpeed * dx2), -GamepadPanSpeed * dy2);
+
+            } else if (InputExtension.Get.GamepadLeftShoulder.Down) {
+                mainCamera.Manipulator().SceneOrbit(scene, mainCamera, GamepadOrbitSpeed * dx, GamepadOrbitSpeed * dy);
+                mainCamera.Manipulator().ScenePan(scene, mainCamera, -GamepadPanSpeed * dx2, -GamepadPanSpeed * dy2);
+            }
+        }
+
+    }
+
+
+
+
+
+
+
+
     // default maya alt+left/right/middle hotkeys
     class RateControlledEgocentricCamera : ICameraInteraction
     {
