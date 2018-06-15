@@ -227,7 +227,24 @@ namespace f3 {
             FPlatform.OrthoUICamera = uiCamera;
             FPlatform.CursorCamera = cursorCamera;
         }
-		
+
+
+
+        /// <summary>
+        /// If we are using an orthographic camera, then to zoom we need to change 
+        /// Camera.orthographicSize. However we need to transfer this change to the
+        /// rest of the cameras!
+        /// </summary>
+        public void UpdateMainCamOrthoSize()
+        {
+            if (widgetCamera != null)
+                widgetCamera.OrthoHeight = mainCamera.OrthoHeight;
+            if (hudCamera != null)
+                hudCamera.OrthoHeight = mainCamera.OrthoHeight;
+            if (cursorCamera != null)
+                cursorCamera.OrthoHeight = mainCamera.OrthoHeight;
+
+        }
 
 	}
 

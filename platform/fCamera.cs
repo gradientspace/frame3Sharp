@@ -131,11 +131,16 @@ namespace f3
         }
 
 
+        public bool IsOrthographic {
+            get { return camera.orthographic; }
+        }
+
         //https://docs.unity3d.com/ScriptReference/Camera-orthographicSize.html
         // Unity maintains fixed height of ortho camera, width changes
         public float OrthoHeight
         {
             get { return camera.orthographicSize * 2; }
+            set {  camera.orthographicSize = value / 2; }
         }
 
 

@@ -186,21 +186,31 @@ namespace f3
             if (dz == 0.0f)
                 return;
 
-            float fScale = scene.GetSceneScale();
+            if (cam.IsOrthographic) {
+                float f = cam.OrthoHeight;
+                f = f - dz;
+                if (f < 0)
+                    f = 0.01f;
+                cam.OrthoHeight = f;
+                scene.Context.CameraManager.UpdateMainCamOrthoSize();
 
-            //Vector3f fw = cam.gameObject.transform.forward;
-            Vector3f fw = cam.GetTarget() - cam.GetPosition();
-            float fTargetDist = fw.Length;
-            fw.Normalize();
+            } else {
+                float fScale = scene.GetSceneScale();
 
-            float fMinTargetDist = 0.1f*fScale;
-            if (dz > 0 && fTargetDist - dz < fMinTargetDist)
-                dz = fTargetDist - fMinTargetDist;
+                //Vector3f fw = cam.gameObject.transform.forward;
+                Vector3f fw = cam.GetTarget() - cam.GetPosition();
+                float fTargetDist = fw.Length;
+                fw.Normalize();
 
-            Vector3f delta = dz * fw;
-            scene.RootGameObject.Translate(-delta, false);
-            if ( bKeepTargetPos )
-                cam.SetTarget(cam.GetTarget() - delta);
+                float fMinTargetDist = 0.1f * fScale;
+                if (dz > 0 && fTargetDist - dz < fMinTargetDist)
+                    dz = fTargetDist - fMinTargetDist;
+
+                Vector3f delta = dz * fw;
+                scene.RootGameObject.Translate(-delta, false);
+                if (bKeepTargetPos)
+                    cam.SetTarget(cam.GetTarget() - delta);
+            }
         }
 
 

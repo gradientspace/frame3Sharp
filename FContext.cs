@@ -90,7 +90,12 @@ namespace f3 {
             get { return camTracker.OrthoUICamera; }
         }
 
-		public Cockpit ActiveCockpit { 
+        public CameraTracking CameraManager {
+            get { return camTracker; }
+        }
+
+
+        public Cockpit ActiveCockpit { 
 			get { return activeCockpit; }
 		}
 
