@@ -92,6 +92,7 @@ namespace f3
 
         // movement speed
         public float PanSpeed = 0.5f;
+        public bool Adaptive = false;
 
         FContext Context;
 
@@ -126,8 +127,13 @@ namespace f3
                 // do view manipuluation
                 float dx = input.vMouseDelta2D.x;
                 float dy = input.vMouseDelta2D.y;
-                Context.ActiveCamera.Manipulator().ScenePan(Context.Scene, 
-                    Context.ActiveCamera, PanSpeed * dx, PanSpeed * dy);
+                if (Adaptive) {
+                    Context.ActiveCamera.Manipulator().SceneAdaptivePan(Context.Scene,
+                        Context.ActiveCamera, PanSpeed * dx, PanSpeed * dy);
+                } else {
+                    Context.ActiveCamera.Manipulator().ScenePan(Context.Scene,
+                        Context.ActiveCamera, PanSpeed * dx, PanSpeed * dy);
+                }
 
                 return Capture.Continue;
             } else {

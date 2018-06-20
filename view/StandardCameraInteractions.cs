@@ -85,6 +85,7 @@ namespace f3
         public float MouseOrbitSpeed = 10.0f;
         public float MousePanSpeed = 0.5f;
         public float MouseZoomSpeed = 0.5f;
+        public bool UseAdaptive = false;
 
         public float GamepadOrbitSpeed = 2.0f;
         public float GamepadPanSpeed = 0.2f;
@@ -119,19 +120,31 @@ namespace f3
             float dy2 = stick2.y;
 
             if (Input.GetMouseButton(0)) {
-                if (input.bShiftKeyDown)
-                    mainCamera.Manipulator().ScenePan(scene, mainCamera, MousePanSpeed * dx, MousePanSpeed * dy);
-                else if (input.bCtrlKeyDown || input.bCmdKeyDown)
-                    mainCamera.Manipulator().SceneZoom(scene, mainCamera, -MouseZoomSpeed * dy);
-                else
+                if (input.bShiftKeyDown) {
+                    if (UseAdaptive)
+                        mainCamera.Manipulator().SceneAdaptivePan(scene, mainCamera, MousePanSpeed * dx, MousePanSpeed * dy);
+                    else
+                        mainCamera.Manipulator().ScenePan(scene, mainCamera, MousePanSpeed * dx, MousePanSpeed * dy);
+                } else if (input.bCtrlKeyDown || input.bCmdKeyDown) {
+                    if ( UseAdaptive )
+                        mainCamera.Manipulator().SceneAdaptiveZoom(scene, mainCamera, -MouseZoomSpeed * dy);
+                    else
+                        mainCamera.Manipulator().SceneZoom(scene, mainCamera, -MouseZoomSpeed * dy);
+                } else {
                     mainCamera.Manipulator().SceneOrbit(scene, mainCamera, MouseOrbitSpeed * dx, MouseOrbitSpeed * dy);
+                }
 
             } else if (Input.GetMouseButton(1)) {
-                mainCamera.Manipulator().SceneZoom(scene, mainCamera, -MouseZoomSpeed * dy);
-                //mainCamera.Manipulator().ScenePan(scene, mainCamera, 0.05f * dx, 0);
+                if (UseAdaptive)
+                    mainCamera.Manipulator().SceneAdaptiveZoom(scene, mainCamera, -MouseZoomSpeed * dy);
+                else
+                    mainCamera.Manipulator().SceneZoom(scene, mainCamera, -MouseZoomSpeed * dy);
 
             } else if (Input.GetMouseButton(2)) {
-                mainCamera.Manipulator().ScenePan(scene, mainCamera, MousePanSpeed * dx, MousePanSpeed * dy);
+                if (UseAdaptive)
+                    mainCamera.Manipulator().SceneAdaptivePan(scene, mainCamera, MousePanSpeed * dx, MousePanSpeed * dy);
+                else
+                    mainCamera.Manipulator().ScenePan(scene, mainCamera, MousePanSpeed * dx, MousePanSpeed * dy);
 
             } else if (InputExtension.Get.GamepadRightShoulder.Down) {
                 mainCamera.Manipulator().SceneZoom(scene, mainCamera, GamepadZoomSpeed * dy);

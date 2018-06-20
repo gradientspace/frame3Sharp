@@ -16,7 +16,7 @@ namespace f3
     {
         // distance that one wheel-tick zooms
         public float ZoomScale = 1.0f;
-
+        public bool Adaptive = false;
 
         Cockpit cockpit;
 
@@ -43,7 +43,10 @@ namespace f3
         {
             if ( input.fMouseWheel != 0 ) {
                 float fZoom = ZoomScale * input.fMouseWheel;
-                cockpit.ActiveCamera.Manipulator().SceneZoom(cockpit.Scene, cockpit.ActiveCamera, fZoom);
+                if ( Adaptive )
+                    cockpit.ActiveCamera.Manipulator().SceneAdaptiveZoom(cockpit.Scene, cockpit.ActiveCamera, fZoom);
+                else
+                    cockpit.ActiveCamera.Manipulator().SceneZoom(cockpit.Scene, cockpit.ActiveCamera, fZoom);
             }
             return Capture.Continue;
         }

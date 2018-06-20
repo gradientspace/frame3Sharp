@@ -177,6 +177,26 @@ namespace f3
         }
 
 
+
+        public void SceneAdaptivePan(FScene scene, fCamera cam, float xStepFraction, float yStepFraction)
+        {
+            float fScale = scene.GetSceneScale();
+
+            Vector3f fw = cam.GetTarget() - cam.GetPosition();
+            float fTargetDist = fw.Length;
+            float dx = fTargetDist * xStepFraction;
+            float dy = fTargetDist * yStepFraction;
+
+            Frame3f camFrame = cam.GetWorldFrame();
+            Vector3f right = camFrame.X;
+            Vector3f up = camFrame.Y;
+            Vector3f delta = dx * fScale * right + dy * fScale * up;
+            Vector3f newPos = scene.RootGameObject.GetPosition() + delta;
+            scene.RootGameObject.SetPosition(newPos);
+        }
+
+
+
         /// <summary>
         /// Shift scene towards (+) / away-from (-) camera. 
         /// If bKeepTargetPos == false, then target shifts with scene
@@ -197,7 +217,6 @@ namespace f3
             } else {
                 float fScale = scene.GetSceneScale();
 
-                //Vector3f fw = cam.gameObject.transform.forward;
                 Vector3f fw = cam.GetTarget() - cam.GetPosition();
                 float fTargetDist = fw.Length;
                 fw.Normalize();
@@ -212,6 +231,50 @@ namespace f3
                     cam.SetTarget(cam.GetTarget() - delta);
             }
         }
+
+
+
+
+
+
+        /// <summary>
+        /// Shift scene towards (+) / away-from (-) camera. 
+        /// If bKeepTargetPos == false, then target shifts with scene
+        /// </summary>
+        public void SceneAdaptiveZoom(FScene scene, fCamera cam, float depthStepSize, bool bKeepTargetPos = true)
+        {
+            Vector3f fw = cam.GetTarget() - cam.GetPosition();
+            float fTargetDist = fw.Length;
+            float dz = fTargetDist * depthStepSize;
+
+            if (cam.IsOrthographic) {
+                float f = cam.OrthoHeight;
+                f = f - dz;
+                if (f < 0)
+                    f = 0.01f;
+                cam.OrthoHeight = f;
+                scene.Context.CameraManager.UpdateMainCamOrthoSize();
+
+            } else {
+                float fScale = scene.GetSceneScale();
+
+                fw.Normalize();
+
+                float fMinTargetDist = 0.1f * fScale;
+                if (dz > 0 && fTargetDist - dz < fMinTargetDist)
+                    dz = fTargetDist - fMinTargetDist;
+
+                Vector3f delta = dz * fw;
+                scene.RootGameObject.Translate(-delta, false);
+                if (bKeepTargetPos)
+                    cam.SetTarget(cam.GetTarget() - delta);
+            }
+        }
+
+
+
+
+
 
 
         [System.Obsolete("This function does not make sense. Use PanFocusOnScenePoint or Animator().AnimatePanFocus instead")]
