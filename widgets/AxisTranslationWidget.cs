@@ -48,7 +48,7 @@ namespace f3
 				translateFrameW.Origin, translateAxisW, vWorldHitPos);
 
             // construct plane we will ray-intersect with in UpdateCapture()
-            Vector3f makeUp = Vector3f.Cross(Camera.main.transform.forward, translateAxisW).Normalized;
+            Vector3f makeUp = Vector3f.Cross(FPlatform.MainCamera.Forward(), translateAxisW).Normalized;
             Vector3f vPlaneNormal = Vector3f.Cross(makeUp, translateAxisW).Normalized;
             raycastFrame = new Frame3f(vWorldHitPos, vPlaneNormal);
 
