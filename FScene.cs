@@ -685,6 +685,10 @@ namespace f3
                 else            Hide(so);
             }
         }
+        public bool IsVisible(SceneObject so)
+        {
+            return so.RootGameObject.IsVisible();
+        }
 
 
 
