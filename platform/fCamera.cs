@@ -159,6 +159,11 @@ namespace f3
             get { return camera.aspect * camera.fieldOfView; }
         }
 
+        public float FarClipPlane {
+            get { return camera.farClipPlane; }
+            set { camera.farClipPlane = value; }
+        }
+
 
         public Vector3f GetTarget()
         {

@@ -246,6 +246,22 @@ namespace f3 {
 
         }
 
+
+        /// <summary>
+        /// Set the far clipping plane of all the 3D-view cameras
+        /// </summary>
+        public void UpdateMainCamFarDistance(float distance)
+        {
+            if (mainCamera != null)
+                mainCamera.FarClipPlane = distance;
+            if (widgetCamera != null)
+                widgetCamera.FarClipPlane = distance;
+            if (hudCamera != null)
+                hudCamera.FarClipPlane = distance;
+            if (cursorCamera != null)
+                cursorCamera.FarClipPlane = distance;
+        }
+
 	}
 
 }
