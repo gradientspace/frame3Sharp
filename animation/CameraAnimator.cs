@@ -121,6 +121,41 @@ namespace f3
         }
 
 
+
+        /// <summary>
+        /// </summary>
+        public void AnimatePanZoomFocusOrtho(Vector3f focusPoint, CoordSpace eSpace, float targetHeight, float duration)
+        {
+            if (duration > 0 && ShowTargetDuringAnimations)
+                UseCamera.SetTargetVisible(true);
+
+            Vector3f focusPointS = (eSpace == CoordSpace.WorldCoords) ? UseScene.ToSceneP(focusPoint) : focusPoint;
+            Vector3f startFocusS = UseScene.ToSceneP(UseCamera.GetTarget());
+            float startHeight = UseCamera.OrthoHeight;
+
+            Action<float> tweenF = (t) => {
+                float smooth_t = MathUtil.WyvillRise01(t);
+                Vector3f newTargetS = Vector3f.Lerp(startFocusS, focusPointS, smooth_t);
+                UseCamera.Manipulator().PanFocusOnScenePoint(UseScene, UseCamera, newTargetS);
+
+                float toHeight = MathUtil.Lerp(startHeight, targetHeight, t);
+                float curHeight = UseCamera.OrthoHeight;
+                float dh = toHeight - curHeight;
+                UseCamera.Manipulator().SceneZoom(UseScene, UseCamera, -dh);
+            };
+
+            if (duration > 0) {
+                TweenAnimator anim = new TweenAnimator(tweenF, duration) {
+                    OnCompletedF = () => { UseCamera.SetTargetVisible(false); }
+                };
+                UseScene.ObjectAnimator.Register(anim);
+            } else
+                tweenF(1.0f);
+        }
+
+
+
+
         /// <summary>
         /// Animate camera so that centerPt moves to center of camera, and width is visible.
         /// Camera target is also set to centerPt
@@ -129,9 +164,14 @@ namespace f3
         {
             if (eSpace != CoordSpace.WorldCoords)
                 width = UseScene.ToWorldDimension(width);
-            float fFitDistW = UseCamera.Manipulator().GetFitWidthCameraDistance(width);
             Vector3f focusPointW = (eSpace == CoordSpace.WorldCoords) ? centerPt : UseScene.ToWorldP(centerPt);
-            AnimatePanZoomFocus(focusPointW, CoordSpace.WorldCoords, fFitDistW, duration);
+            if (UseCamera.IsOrthographic) {
+                float targetHeight = UseCamera.AspectRatio * width;
+                AnimatePanZoomFocusOrtho(focusPointW, CoordSpace.WorldCoords, targetHeight, duration);
+            } else {
+                float fFitDistW = UseCamera.Manipulator().GetFitWidthCameraDistance(width);
+                AnimatePanZoomFocus(focusPointW, CoordSpace.WorldCoords, fFitDistW, duration);
+            }
         }
 
 
@@ -143,9 +183,13 @@ namespace f3
         {
             if (eSpace != CoordSpace.WorldCoords)
                 height = UseScene.ToWorldDimension(height);
-            float fFitDistW = UseCamera.Manipulator().GetFitHeightCameraDistance(height);
             Vector3f focusPointW = (eSpace == CoordSpace.WorldCoords) ? centerPt : UseScene.ToWorldP(centerPt);
-            AnimatePanZoomFocus(focusPointW, CoordSpace.WorldCoords, fFitDistW, duration);
+            if (UseCamera.IsOrthographic) {
+                AnimatePanZoomFocusOrtho(focusPointW, CoordSpace.WorldCoords, height, duration);
+            } else {
+                float fFitDistW = UseCamera.Manipulator().GetFitHeightCameraDistance(height);
+                AnimatePanZoomFocus(focusPointW, CoordSpace.WorldCoords, fFitDistW, duration);
+            }
         }
 
 

@@ -109,7 +109,11 @@ namespace f3 {
         fCamera hudCamera;
         fCamera uiCamera;
         fCamera cursorCamera;
+
+        bool is_orthographic_view = false;
+
         FContext controller;
+
 
 
         public fCamera MainCamera {
@@ -144,6 +148,8 @@ namespace f3 {
                     child.Destroy();
                 }
             }
+
+            is_orthographic_view = mainCamera.IsOrthographic;
 
             List<Camera> newCameras = new List<Camera>();
 
@@ -260,6 +266,25 @@ namespace f3 {
                 hudCamera.FarClipPlane = distance;
             if (cursorCamera != null)
                 cursorCamera.FarClipPlane = distance;
+        }
+
+
+        /// <summary>
+        /// configure the 3D-view cameras for orthographic/perspective
+        /// </summary>
+        public void UpdateOrthographic(bool orthographic)
+        {
+            if (is_orthographic_view == orthographic)
+                return;
+            if (mainCamera != null)
+                mainCamera.IsOrthographic = orthographic;
+            if (widgetCamera != null)
+                widgetCamera.IsOrthographic = orthographic;
+            if (hudCamera != null)
+                hudCamera.IsOrthographic = orthographic;
+            if (cursorCamera != null)
+                cursorCamera.IsOrthographic = orthographic;
+            is_orthographic_view = orthographic;
         }
 
 	}

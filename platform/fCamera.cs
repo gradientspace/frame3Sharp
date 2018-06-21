@@ -133,6 +133,7 @@ namespace f3
 
         public bool IsOrthographic {
             get { return camera.orthographic; }
+            set { camera.orthographic = value; }
         }
 
         //https://docs.unity3d.com/ScriptReference/Camera-orthographicSize.html
