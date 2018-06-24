@@ -1,0 +1,12 @@
+{
+    "name": "frame3Sharp.Editor",
+    "references": [
+        "frame3Sharp"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

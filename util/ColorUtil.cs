@@ -6,7 +6,7 @@ using g3;
 
 namespace f3
 {
-    class ColorUtil
+    public class ColorUtil
     {
         // create float color from bytes
         static public Colorf make(int r, int g, int b, int a = 255)

@@ -8,7 +8,7 @@ using g3;
 namespace f3
 {
     // default maya alt+left/right/middle hotkeys
-    class MayaCameraHotkeys : ICameraInteraction
+    public class MayaCameraHotkeys : ICameraInteraction
     {
         public float MouseOrbitSpeed = 10.0f;
         public float MousePanSpeed = 0.5f;
@@ -80,7 +80,7 @@ namespace f3
 
     // default maya alt+left/right/middle hotkeys
     // plus, alt+shift+lmb=pan and alt+ctrl+lmb=zoom
-    class MayaExtCameraHotkeys : ICameraInteraction
+    public class MayaExtCameraHotkeys : ICameraInteraction
     {
         public float MouseOrbitSpeed = 10.0f;
         public float MousePanSpeed = 0.5f;
@@ -166,7 +166,7 @@ namespace f3
 
 
     // default maya alt+left/right/middle hotkeys
-    class RateControlledEgocentricCamera : ICameraInteraction
+    public class RateControlledEgocentricCamera : ICameraInteraction
     {
         bool bInAction;
         bool bUsingMouse, bUsingGamepad;

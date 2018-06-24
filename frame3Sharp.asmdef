@@ -1,0 +1,10 @@
+{
+    "name": "frame3Sharp",
+    "references": [
+        "geometry3Sharp"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
