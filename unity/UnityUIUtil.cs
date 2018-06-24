@@ -277,6 +277,7 @@ namespace f3
                 } catch { return; }
             });
             field.text = getValue().ToString();
+            field.onValidateInput = ValidateDecimalInput;
         }
 
 
@@ -330,6 +331,32 @@ namespace f3
 
 
 
+        static char local_decimal_separator = (char)0;
+        static char LocalDecimalSeparator {
+            get {
+                if (local_decimal_separator == 0)
+                    local_decimal_separator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
+                return local_decimal_separator;
+            }
+        }
+
+        public static char ValidateDecimalInput(string text, int pos, char ch)
+        {
+            // Integer and decimal
+            bool cursorBeforeDash = (pos == 0 && text.Length > 0 && text[0] == '-');
+            if (!cursorBeforeDash) {
+                if (ch >= '0' && ch <= '9')
+                    return ch;
+                if (ch == '-' && pos == 0)
+                    return ch;
+                if (ch == LocalDecimalSeparator && text.Contains(LocalDecimalSeparator) == false)
+                    return ch;
+            }
+            return (char)0;
+        }
+
+
+
 
 #if F3_ENABLE_TEXT_MESH_PRO
 
@@ -368,11 +395,6 @@ namespace f3
             field.onValidateInput = (text, pos, ch) => {
                 return ValidateDecimal_TMP(text, pos, ch, field);
             };
-        }
-
-
-        static char LocalDecimalSeparator {
-            get { return System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0]; }
         }
 
         /// <summary>
