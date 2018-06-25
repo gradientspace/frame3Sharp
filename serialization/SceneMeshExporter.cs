@@ -26,7 +26,7 @@ namespace f3
         public string LastErrorMessage;
 
         public int Progress = 0;
-        public int MaxProgress = 0;
+        public int MaxProgress = 1;
     }
 
 
