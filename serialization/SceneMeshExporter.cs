@@ -257,7 +257,7 @@ namespace f3
 
 
 
-    class BackgroundWriteThread
+    public class BackgroundWriteThread
     {
         public List<WriteMesh> Meshes;
         public string Filename;
