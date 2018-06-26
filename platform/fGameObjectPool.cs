@@ -9,12 +9,14 @@ namespace f3
     /// Unused GOs are automatically parented to per-instance hidden parent GO, to avoid cluttering scene.
     /// When a GO is freed, it is hidden.
     /// When a GO is allocated from pool, it is set to have no parent, visible, and transform is cleared.
+    /// if FreeF is set, this is called when a GO is freed
     /// If ReinitializeF is set, this is also called on re-used GOs (*not* called on newly-allocated GOs as
     ///    you can do that in your FactoryF)
     /// </summary>
     public class fGameObjectPool<T> where T : fGameObject
     {
         public Func<T> AllocatorFactoryF;
+        public Action<T> FreeF;
         public Action<T> ReinitializeF;
 
         fGameObject pool_parent;
@@ -67,6 +69,7 @@ namespace f3
         {
             foreach (T go in Allocated) {
                 if (go.IsVisible()) {
+                    FreeF(go);
                     go.SetVisible(false);
                     go.SetParent(pool_parent);
                 }

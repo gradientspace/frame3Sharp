@@ -180,7 +180,7 @@ namespace f3
             bVertsValid = false;
         }
 
-        public void SetVertices(Vector3f[] vertices, bool bCopy = true)
+        public void SetVertices(Vector3f[] vertices, bool bCopy = true, bool bImmediateUpdate = false)
         {
             if (bCopy) {
                 if (Vertices == null || Vertices.Length != vertices.Length)
@@ -189,6 +189,9 @@ namespace f3
             } else
                 Vertices = vertices;
             bVertsValid = false;
+
+            if (bImmediateUpdate)
+                PreRender();
         }
 
         public override void PreRender()
@@ -198,6 +201,7 @@ namespace f3
             update_curve(Vertices);
             bVertsValid = true;
         }
+
     }
 
 
