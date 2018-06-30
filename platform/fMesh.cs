@@ -40,6 +40,9 @@ namespace f3
 
             Mesh m = new Mesh();
             m.vertices = vertices;
+
+            if (NV > 65000 || triangles.Length/3 > 65000)
+                m.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
             m.triangles = triangles;
 
             if (bCopyNormals && source.HasVertexNormals) {
