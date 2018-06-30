@@ -472,10 +472,7 @@ namespace f3
             if (enable_spatial == false)
                 return false;
 
-            if (spatial == null) {
-                spatial = new DMeshAABBTree3(mesh);
-                spatial.Build();
-            }
+            validate_spatial();
 
             // convert ray to local
             FScene scene = this.GetScene();
@@ -517,10 +514,7 @@ namespace f3
             if (enable_spatial == false)
                 return false;
 
-            if (spatial == null) {
-                spatial = new DMeshAABBTree3(mesh);
-                spatial.Build();
-            }
+            validate_spatial();
 
             // convert to local
             Vector3f local_pt = SceneTransforms.TransformTo((Vector3f)point, this, eInCoords, CoordSpace.ObjectCoords);
