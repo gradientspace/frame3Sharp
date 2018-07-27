@@ -34,7 +34,7 @@ namespace f3
             get { return tick_count; }
             set { tick_count = MathUtil.Clamp(value, 0, 1000); update_geometry(); }
         }
-        fMaterial tickMaterial;
+        protected fMaterial TickMaterial;
         Colorf tickColor = Colorf.VideoBlack;
 
         public bool TicksAreVisible { get; set; }
@@ -110,7 +110,7 @@ namespace f3
 
             create_visuals_geometry();
 
-            tickMaterial = MaterialUtil.CreateFlatMaterialF(tickColor);
+            TickMaterial = MaterialUtil.CreateFlatMaterialF(tickColor);
 
             update_geometry();
         }
@@ -362,7 +362,7 @@ namespace f3
         /// This does not require positioning the tick, that happens automatically.
         /// fT is in range [0,1], can be used for styling/etc
         /// </summary>
-        protected virtual void update_tick_go(fGameObject go, Vector2f tickSize, float fT )
+        protected virtual void update_tick_go(int iTick, fGameObject go, Vector2f tickSize, float fT )
         {
             fRectangleGameObject rectGO = go as fRectangleGameObject;
             rectGO.SetWidth(tickSize.x);
@@ -388,7 +388,7 @@ namespace f3
             }
 
 
-            tickMaterial.color = tickColor;
+            TickMaterial.color = tickColor;
             Vector2f tickSize = TickDimensions;
             AxisAlignedBox2f localBounds = BoxModel.LocalBounds(this);
 
@@ -396,7 +396,7 @@ namespace f3
             if ( tick_count > tick_count_cache ) {
                 while (ticks.Count < tick_count) {
                     TickGO tick = new TickGO();
-                    tick.go = create_tick_go(tickSize, tickMaterial);
+                    tick.go = create_tick_go(tickSize, TickMaterial);
                     AppendNewGO(tick.go, rootGO, false);
                     BoxModel.Translate(tick.go, Vector2f.Zero, localBounds.CenterLeft, -Height*0.01f);
                     ticks.Add(tick);
@@ -409,7 +409,7 @@ namespace f3
                 fGameObject go = ticks[i].go;
                 if (i < tick_count) {
                     float t = (float)i / (float)(tick_count-1);
-                    update_tick_go(go, tickSize, t);
+                    update_tick_go(i, go, tickSize, t);
                     BoxModel.MoveTo(go, localBounds.CenterLeft, -Height * 0.01f);
                     BoxModel.Translate(go, new Vector2f(t * Width, 0));
                     go.SetVisible(true);
