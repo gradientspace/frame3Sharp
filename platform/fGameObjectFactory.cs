@@ -23,6 +23,16 @@ namespace f3
         }
 
 
+        public static T CreateParentTypeGO<T>(string sName)
+            where T : fGameObject, new()
+        {
+            GameObject go = new GameObject(sName);
+            T fgo = new T();
+            fgo.Initialize(go, FGOFlags.NoFlags);
+            return fgo;
+        }
+
+
         public static fGameObject CreateTrackingGO(string sName, fGameObject trackGO)
         {
             GameObject go = new GameObject(sName);
