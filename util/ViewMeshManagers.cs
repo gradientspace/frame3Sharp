@@ -11,8 +11,10 @@ namespace f3
     /// The ViewMeshManager does this. This may involve multiple render meshes
     /// at the engine level.
     /// </summary>
-    public interface IViewMeshManager
+    public interface IViewMeshManager : IDisposable
     {
+        bool AreMeshesValid { get; }
+
         /// <summary>
         /// Generate new view meshes if they don't exist. Should not
         /// regenerate unless Invalidate() has been called.
@@ -54,6 +56,17 @@ namespace f3
             SourceSO = sourceSO;
         }
 
+        public void Dispose()
+        {
+            InvalidateViewMeshes();
+        }
+
+        //
+        // AAAHHH should be re-using these GOs !!
+        //
+
+
+        public bool AreMeshesValid { get { return decomp_valid; } }
 
         public virtual void ValidateViewMeshes()
         {
@@ -103,6 +116,8 @@ namespace f3
     {
         public DMeshSO SourceSO;
 
+        public int MaxSubmeshSize = 64000;   // unity uint-mesh limit
+
         protected DMesh3 mesh {
             get { return SourceSO.Mesh; }
         }
@@ -123,13 +138,20 @@ namespace f3
             displayComponents = new List<DisplayMeshComponent>();
         }
 
+        public void Dispose()
+        {
+            InvalidateViewMeshes();
+        }
+
+        public bool AreMeshesValid { get { return decomp_valid; } }
 
         public virtual void ValidateViewMeshes()
         {
             if (decomp_valid)
                 return;
 
-            decomp = new MeshDecomposition(mesh, this);
+            decomp = new MeshDecomposition(mesh, this)
+                { MaxComponentSize = this.MaxSubmeshSize };
             decomp.BuildLinear();
             decomp = null;
 
@@ -157,7 +179,7 @@ namespace f3
         public void AddComponent(MeshDecomposition.Component C)
         {
             fMesh submesh = new fMesh(C.triangles, mesh, C.source_vertices, true, true, true);
-            fMeshGameObject submesh_go = GameObjectFactory.CreateMeshGO("component", submesh, false);
+            fMeshGameObject submesh_go = GameObjectFactory.CreateMeshGO("component", submesh, true);
             submesh_go.SetMaterial(SourceSO.CurrentMaterial, true);
             submesh_go.SetLayer(SourceSO.RootGameObject.GetLayer());
             displayComponents.Add(new DisplayMeshComponent() {

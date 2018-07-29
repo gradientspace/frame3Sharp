@@ -468,7 +468,7 @@ namespace f3
 
 
 
-        public static fMesh DMeshToUnityMesh(DMesh3 m, bool bSwapLeftRight, bool bAllowLargeMeshes = false)
+        public static fMesh DMeshToUnityMesh(DMesh3 m, bool bSwapLeftRight, bool bAllowLargeMeshes = false, bool bRecalcNormalsIfMissing = true)
         {
             if (bSwapLeftRight)
                 throw new Exception("[RMSNOTE] I think this conversion is wrong, see MeshTransforms.SwapLeftRight. Just want to know if this code is ever hit.");
@@ -514,8 +514,9 @@ namespace f3
                 unityMesh.triangles = triangles;
             }
 
-            if (m.HasVertexNormals == false)
+            if (m.HasVertexNormals == false && bRecalcNormalsIfMissing) {
                 unityMesh.RecalculateNormals();
+            }
 
             return new fMesh(unityMesh);
         }

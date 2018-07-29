@@ -31,8 +31,6 @@ namespace f3
                                                    // a background thread, to avoid making mesh copies. Functions that
                                                    // internally modify .mesh will lock this first.
 
-        IViewMeshManager viewMeshes;
-
         bool enable_spatial = true;
         DMeshAABBTree3 spatial;
 
@@ -49,13 +47,46 @@ namespace f3
 
             this.mesh = mesh;
 
-            //viewMeshes = new LinearDecompViewMeshManager(this);
-            viewMeshes = new TrivialViewMeshManager(this);
+
 
             on_mesh_changed();
-            viewMeshes.ValidateViewMeshes();
+            validate_view_meshes();
 
             return this;
+        }
+
+
+        const int mesh_decomp_size_thresh = 500000;
+        IViewMeshManager view_meshes = null;
+        IViewMeshManager ViewMeshes {
+            get {
+                if ( view_meshes == null ) {
+                    if (Mesh.TriangleCount > mesh_decomp_size_thresh)
+                        view_meshes = new LinearDecompViewMeshManager(this) { MaxSubmeshSize = 128000 };
+                    else
+                        view_meshes = new TrivialViewMeshManager(this);
+                }
+                return view_meshes;
+            }
+        }
+        void release_view_meshes()
+        {
+            if (view_meshes != null) {
+                view_meshes.InvalidateViewMeshes();
+                view_meshes.Dispose();
+                view_meshes = null;
+            }
+        }
+        void validate_view_meshes()
+        {
+            // if view meshes are invalid, and mesh is too big, create piecewise decomp panager
+            if ( (view_meshes != null)
+                && (view_meshes is TrivialViewMeshManager)
+                && (view_meshes.AreMeshesValid == false) 
+                && (Mesh.TriangleCount > mesh_decomp_size_thresh) ) {
+                release_view_meshes();
+            }
+            ViewMeshes.ValidateViewMeshes();
         }
 
 
@@ -67,13 +98,13 @@ namespace f3
         override public void Connect(bool bRestore)
         {
             if ( bRestore ) {
-                viewMeshes.ValidateViewMeshes();
+                validate_view_meshes();
             }
         }
         override public void Disconnect(bool bDestroying)
         {
             this.spatial = null;
-            viewMeshes.InvalidateViewMeshes();
+            release_view_meshes();
             if ( bDestroying ) {
                 this.mesh = null;
             }
@@ -185,7 +216,7 @@ namespace f3
             }
 
             on_mesh_changed();
-            viewMeshes.ValidateViewMeshes();
+            validate_view_meshes();
             post_mesh_modified();
         }
 
@@ -262,9 +293,9 @@ namespace f3
 
         // fast update of view meshes for vertex deformations/changes
         void fast_mesh_update(bool bNormals, bool bColors) {
-            viewMeshes.FastUpdateVertices(bNormals, bColors);
+            ViewMeshes.FastUpdateVertices(bNormals, bColors);
             on_mesh_changed(true, false);
-            viewMeshes.ValidateViewMeshes();
+            validate_view_meshes();
         }
 
 
@@ -300,7 +331,7 @@ namespace f3
                 fast_mesh_update(true, true);
             } else {
                 on_mesh_changed();
-                viewMeshes.ValidateViewMeshes();
+                validate_view_meshes();
             }
             post_mesh_modified();
         }
@@ -312,7 +343,7 @@ namespace f3
 
             // discard existing mesh GOs
             if (bInvalidateDecomp) {
-                viewMeshes.InvalidateViewMeshes();
+                ViewMeshes.InvalidateViewMeshes();
             }
         }
 
@@ -472,10 +503,7 @@ namespace f3
             if (enable_spatial == false)
                 return false;
 
-            if (spatial == null) {
-                spatial = new DMeshAABBTree3(mesh);
-                spatial.Build();
-            }
+            validate_spatial();
 
             // convert ray to local
             FScene scene = this.GetScene();
@@ -517,10 +545,7 @@ namespace f3
             if (enable_spatial == false)
                 return false;
 
-            if (spatial == null) {
-                spatial = new DMeshAABBTree3(mesh);
-                spatial.Build();
-            }
+            validate_spatial();
 
             // convert to local
             Vector3f local_pt = SceneTransforms.TransformTo((Vector3f)point, this, eInCoords, CoordSpace.ObjectCoords);
