@@ -160,10 +160,17 @@ namespace f3
             get { return camera.aspect * camera.fieldOfView; }
         }
 
+
+        public float NearClipPlane {
+            get { return camera.nearClipPlane; }
+            set { camera.nearClipPlane = value; }
+        }
+
         public float FarClipPlane {
             get { return camera.farClipPlane; }
             set { camera.farClipPlane = value; }
         }
+
 
 
         public Vector3f GetTarget()

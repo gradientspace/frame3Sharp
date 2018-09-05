@@ -122,6 +122,19 @@ namespace f3
             return new fDiscGameObject(go, new fMesh(go.GetSharedMesh()),  fRadius);
         }
 
+        public static fDiscGameObject CreateDiscGO(string sName, float fRadius, float fStartAngleDeg, float fEndAngleDeg, fMaterial material, bool bShareMaterial, bool bCollider)
+        {
+            GameObject go = new GameObject(sName);
+            fMesh discMesh = PrimitiveCache.GetPrimitiveMesh(fPrimitiveType.Disc);
+            initialize_meshgo(go, discMesh, bCollider, true);
+            go.SetMaterial(material, bShareMaterial);
+            fDiscGameObject discGO = new fDiscGameObject(go, new fMesh(go.GetSharedMesh()), fRadius);
+            discGO.SetStartAngleDeg(fStartAngleDeg);
+            discGO.SetEndAngleDeg(fEndAngleDeg);
+            return discGO;
+        }
+
+
         // create a subclass of fDiscGameObject
         public static T CreateDiscTypeGO<T>(string sName, float fRadius, fMaterial material, bool bShareMaterial, bool bCollider)
             where T : fDiscGameObject, new()
