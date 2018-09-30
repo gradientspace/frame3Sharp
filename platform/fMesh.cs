@@ -224,6 +224,8 @@ namespace f3
             // iterators allow us to work with gaps in index space
             public IEnumerable<int> TriangleIndices(){ return new Interval1i(0, triangles.Length/3 - 1); }
 
+            // not supported?
+            public int Timestamp { get { return 0; } }
 
             public void Dispose()
             {
