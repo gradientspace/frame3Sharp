@@ -3,6 +3,8 @@ Open Source (MIT License) C# library for building 3D Tools in Unity.
 
 Questions? Contact Ryan Schmidt [@rms80](http://www.twitter.com/rms80) / [gradientspace](http://www.gradientspace.com)
 
+**NOTE: Please read Usage and Setup instructions below to configure your project**
+
 # What is this??
 
 Unity is a great platform for games, but 3D tools are not games. Even the most basic 3D tools have much more complex, structured state. You might need different "modes" for different tools or operations, complex 3D user interface elements with state-dependent behavior, Undo/Redo, an easily serializable structured datamodel, and so on. 
