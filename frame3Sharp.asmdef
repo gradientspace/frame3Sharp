@@ -1,7 +1,8 @@
 {
     "name": "frame3Sharp",
     "references": [
-        "geometry3Sharp"
+        "geometry3Sharp",
+		"gsUnityVR"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],
