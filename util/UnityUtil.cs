@@ -14,6 +14,8 @@ namespace f3
         public static GameObject CreatePrimitiveGO(string name, PrimitiveType eType, Material setMaterial = null, bool bCollider = true)
         {
             var gameObj = GameObject.CreatePrimitive(eType);
+            if (gameObj.GetComponent<Collider>() != null)
+                Component.Destroy(gameObj.GetComponent<Collider>());
             if (bCollider) {
                 gameObj.AddComponent(typeof(MeshCollider));
                 gameObj.DisableCollider();
