@@ -3,7 +3,7 @@ Open Source (MIT License) C# library for building 3D Tools in Unity.
 
 Questions? Contact Ryan Schmidt [@rms80](http://www.twitter.com/rms80) / [gradientspace](http://www.gradientspace.com)
 
-**NOTE: Please read Usage and Setup instructions below to configure your project**
+**NOTE: Please read Usage and Setup instructions below to configure your project.**
 
 # What is this??
 
@@ -92,17 +92,55 @@ animation, plugins, util, unity interop
 
 
 
-# Usage
 
-I use this project exclusively as a git submodule, so the structure/etc is set up to make that easy. You just add frame3Sharp as a submodule with a local path inside the **/Assets** folder of your Unity project directory. 
 
-Currently this project is not usable outside of Unity. Someday!!
+# Project Setup
+
+This codebase is intended to be included inside the **/Assets** folder of a Unity project. In terms of github usage, I use this project as a git submodule, so the structure/etc is setup to make that easy. But you can also just download it as a zip and drop it into Assets/frame3Sharp. 
+
+**However, f3Sharp is not a standalone component, it has multiple dependencies which you must install separately**. Follow the instructions below. Alternately you might find it easier to just fork the [**frame3SharpSampleApp**](https://github.com/gradientspace/frame3SharpSampleApp) repository, which is a working Unity f3Sharp project *Note that this project does reference several submodules, which you need to make sure you also check out (most git clients will not automatically check out submodules).*
+
+### geometry3Sharp
+
+frame3Sharp depends on the **geometry3Sharp** repository: https://github.com/gradientspace/geometry3Sharp. This needs to be added to your Unity project, somewhere. Currently you must add this in source, a Unity package is eventually forthcoming.
+
+### DOTween
+
+Currently frame3Sharp references the **DOTWeen Unity package** [link](http://dotween.demigiant.com/). Also available in the Unity Asset Store, for free. Used for animations in some places. Removable with minor effort, if you prefer. *This dependency will be removed eventually*
+
+### gsUnityVR
+
+The default assumption is that you are building a VR App. In this case you will also need the **gsUnityVR** repository: https://github.com/gradientspace/gsUnityVR. This goes side-by-side with frame3Sharp. *This is a separate repository because it is quite large and is problematic to include if you are **not** building a VR App*.
+
+If you are **not building a VR App**, you must do the following:
+
+1) Add **F3_NO_VR_SUPPORT** to your *Scripting Define Symbols* in the *Player Settings*. This enables some some dummy C# classes that provide the gsUnityVR API without actually including all the VR bits (many classes in f3Sharp reference the VR API and automatically switch between VR and non-VR modes at runtime). 
+2) Unzip */frame3Sharp/gsUnityVR.zip*. This creates an empty gsUnityVR subdirectory. This is necessary because the frame3Sharp assembly .asmdef file needs to have gsUnityVR as a dependency for it to work. When you unzip this file it creates a dummy assembly, which will avoid missing-reference errors.
+
+### TextMeshPro
+
+f3Sharp includes various objects that create 3D text. These text components currently can work with both standard Unity Text, and TextMeshPro text, which looks nicer and works better. TextMeshPro used to not be a free component, so currently this is optional. You must enable TextMeshPro mode by adding **F3_ENABLE_TEXT_MESH_PRO** to the *Scripting Define Symbols* in *Player Settings*.
 
 
 
 # Scene Setup
 
-- main camera must have tag **MainCamera**
+f3Sharp depends on various things being set up your scene. The best way to figure this out is to look at the samples in  [**frame3SharpSampleApp**](https://github.com/gradientspace/frame3SharpSampleApp).
+
+### Camera
+
+The main camera must have tag **MainCamera**.
+
+### Layers
+
+f3Sharp uses several Layers, which must existing in your project. You can add these as any layer number, they are found by string name, but they must be in the following order:
+
+* 3DWidgetOverlay
+* HUDOverlay
+* UIOverlay
+* CursorOverlay
+
+
 
 
 
@@ -113,16 +151,6 @@ frame3Sharp includes several small external libraries to provide access to OS fu
 
 - [**tinyfiledialogs**](https://sourceforge.net/projects/tinyfiledialogs/) is a cross-platform library with zlib license that can show native file open and save dialogs.
 
-
-# Dependencies
-
-frame3Sharp is built on several other libraries/components which are not included in this repo. These need to be added to your Unity project yourself. Or, you can start with one of the samples in the [frame3SharpSampleApp](https://github.com/gradientspace/frame3SharpSampleApp) repository, which does include these other projects.
-
-- **geometry3Sharp** [github](https://github.com/gradientspace/geometry3Sharp). This C# codebase should be included in your project as code (or possibly a compiled DLL, but that is currently untested)
-
-- **DOTWeen Unity package** [link](http://dotween.demigiant.com/). Also available in the Unity Asset Store, for free. Used for animations in some places. Removable with minor effort, if you prefer. *This dependency will likely be removed in the near future*
-
-- **Oculus Utilities for Unity 5** [link](https://developer3.oculus.com/downloads/). Because frame3Sharp is designed to support VR, there a few classes that must access the OVRInput to enable use of Oculus Touch controllers. Currently these files are not included, so you must install this component in your project, or delete any references to **OVRInput** in the code (affects 3 files, which are not used if you are not using VR). 
 
 
 # Documentation / etc
