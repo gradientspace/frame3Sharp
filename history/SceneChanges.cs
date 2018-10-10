@@ -397,4 +397,59 @@ namespace f3
         }
     }
 
+
+
+
+    /// <summary>
+    /// Collection of changes that will be applied in-order, and
+    /// reverted in opposite order.
+    /// </summary>
+    public class ChangeSet : BaseChangeOp
+    {
+        List<BaseChangeOp> Changes;
+
+        public override string Identifier() { return "ChangeSet"; }
+
+        public ChangeSet() {
+            Changes = new List<BaseChangeOp>();
+        }
+        public ChangeSet(IEnumerable<BaseChangeOp> all) {
+            Changes = new List<BaseChangeOp>(all);
+        }
+
+        public override OpStatus Apply()
+        {
+            OpStatus totalResult = OpStatus.Success;
+            foreach (var change in Changes) {
+                var result = change.Apply();
+                if (result.code != OpStatus.Success.code)
+                    totalResult = result;
+            }
+            return totalResult;
+        }
+        public override OpStatus Revert()
+        {
+            OpStatus totalResult = OpStatus.Success;
+            int N = Changes.Count;
+            for ( int i = N-1; i >= 0; --i ) {
+                var change = Changes[i];
+                var result = change.Revert();
+                if (result.code != OpStatus.Success.code)
+                    totalResult = result;
+            }
+            return totalResult;
+        }
+        public override OpStatus Cull()
+        {
+            OpStatus totalResult = OpStatus.Success;
+            foreach (var change in Changes) {
+                var result = change.Cull();
+                if (result.code != OpStatus.Success.code)
+                    totalResult = result;
+            }
+            return totalResult;
+        }
+    }
+
+
 }
