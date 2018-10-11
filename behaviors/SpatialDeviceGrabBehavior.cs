@@ -116,19 +116,33 @@ namespace f3
             public void complete()
             {
             }
+        }
 
+
+        bool check_object_ray_hit(InputState input, CaptureSide eSide)
+        {
+            Ray3f useRay = (eSide == CaptureSide.Left) ? input.vLeftSpatialWorldRay : input.vRightSpatialWorldRay;
+            SORayHit rayHit;
+            if (context.Scene.FindSORayIntersection(useRay, out rayHit, ObjectFilterF)) {
+                var tso = rayHit.hitSO;
+                if (tso != null)
+                    return true;
+            }
+            return false;
         }
 
         public override CaptureRequest WantsCapture(InputState input)
         {
             if ((input.bLeftTriggerDown && input.bLeftShoulderPressed)
                   || (input.bLeftTriggerPressed && input.bLeftShoulderDown)) {
-                return CaptureRequest.Begin(this, CaptureSide.Left);
+                if ( check_object_ray_hit(input, CaptureSide.Left) )
+                    return CaptureRequest.Begin(this, CaptureSide.Left);
             } else if ((input.bRightTriggerDown && input.bRightShoulderPressed)
                   || (input.bRightTriggerPressed && input.bRightShoulderDown)) {
-                return CaptureRequest.Begin(this, CaptureSide.Right);
-            } else
-                return CaptureRequest.Ignore;
+                if (check_object_ray_hit(input, CaptureSide.Right))
+                    return CaptureRequest.Begin(this, CaptureSide.Right);
+            } 
+            return CaptureRequest.Ignore;
         }
 
         public override Capture BeginCapture(InputState input, CaptureSide eSide)
