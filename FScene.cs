@@ -519,6 +519,16 @@ namespace f3
             return (found != null);
         }
 
+        public bool SelectionTypeMatch<T>(int nCount) where T : class
+        {
+            int count = 0;
+            foreach (var so in vSelected) {
+                if (so is T)
+                    count++;
+            }
+            return count == nCount;
+        }
+
 
         bool is_selectable(SceneObject s) {
             return s.IsSelectable && (SelectionMask == null || SelectionMask.Contains(s) == false );
