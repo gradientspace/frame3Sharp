@@ -349,7 +349,7 @@ namespace f3
 
         void validate_spatial()
         {
-            if ( enable_spatial && spatial == null ) {
+            if (enable_spatial && (spatial == null || !spatial.IsValid)) {
                 spatial = new DMeshAABBTree3(mesh);
                 spatial.Build();
             }
