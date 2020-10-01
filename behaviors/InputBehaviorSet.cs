@@ -7,6 +7,8 @@ namespace f3
     public interface InputBehaviorSource
     {
         InputBehaviorSet InputBehaviors { get; }
+         string request;
+         Console.WriteLine{"Please accept my request"}
     }
 
 
